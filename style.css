@@ -235,6 +235,21 @@ textarea::placeholder{color:#9aa297}
 .media-caption h3{font-size:16px;font-weight:500;letter-spacing:.07em;margin:6px 0 4px}
 .media-caption p{font-size:11px;line-height:1.8;color:#788176;margin:0}
 .screen-world-footnote{margin:24px 0 0 18%;padding-left:13px;border-left:1px solid rgba(169,104,76,.55);font-size:10px;line-height:1.9;color:#7b8478}
+/* —— 10b. 影视/游戏展示位：真实配图容器 media-art（替代占位） —— */
+.media-art{position:relative;display:block;height:clamp(250px,28vw,360px);margin:0;overflow:hidden;border-bottom:1px solid rgba(134,151,131,.22)} /* 媒体图区(高度随屏自适应) */
+.media-art:after{content:"";position:absolute;inset:11px;border:1px solid rgba(255,255,255,.4);pointer-events:none} /* 图片内描边装饰框 */
+.media-art img{display:block;width:100%;height:100%;object-fit:contain} /* 整图显示不裁切 */
+.media-art-archive{background:linear-gradient(135deg,#d8b780,#e9d1a0 55%,#d2ad75)}   /* 古本遗像底图 */
+.media-art-wangchuan{background:linear-gradient(135deg,#171b19,#393225 55%,#171c1c)}   /* 忘川风华录底图 */
+.media-art-yanyun{background:linear-gradient(135deg,#111e29,#354451 55%,#17232b)}      /* 燕云十六声底图 */
+.media-art-film{background:linear-gradient(135deg,#1c252d,#44505a 55%,#171f27)}        /* 影视形象底图 */
+.media-caption h4{margin:7px 0 10px;color:#966149;font-size:12px;letter-spacing:.08em;font-weight:500} /* 卡内小标题(锈红) */
+.media-caption p+p{margin-top:8px} /* 多段图注之间的间距 */
+.media-caption-note{display:block;margin-top:12px;padding-top:10px;border-top:1px solid rgba(134,151,131,.25);font-size:10px;line-height:1.85;color:#82897d} /* 图注补充说明 */
+.screen-world-summary{margin:34px 0 0 18%;padding:26px 30px;background:linear-gradient(115deg,rgba(231,234,224,.94),rgba(241,239,226,.84));border-left:2px solid var(--rust)} /* 区块末尾总结卡 */
+.screen-world-summary>span{font:8px var(--sans);letter-spacing:.18em;color:#9b6852}
+.screen-world-summary p{font-size:13px;line-height:2.1;letter-spacing:.035em;color:#435348;margin:10px 0 0}
+.screen-world-summary p+p{font-size:12px;color:#738074;margin-top:6px}
 .living-echo{position:relative;padding-top:86px;padding-bottom:82px;text-align:center;background:radial-gradient(ellipse at 50% 50%,rgba(207,216,201,.55),transparent 65%)} /* 当代回声区 */
 .echo-quote{display:block;height:43px;font:72px Georgia,serif;line-height:1;color:rgba(169,104,76,.48)}
 .living-echo p{font-size:clamp(20px,2.5vw,29px);letter-spacing:.1em;line-height:2;margin:9px 0 17px}
@@ -372,6 +387,7 @@ html.page-transitioning main{opacity:.08;transform:translateY(8px) scale(.995);f
   .memory-lead,.mirrors-heading{padding-left:8%;margin-left:0}
   .screen-world-heading,.media-grid{margin-left:8%}
   .screen-world-footnote{margin-left:8%}
+  .screen-world-summary{margin-left:8%}
 }
 @media(max-width:700px){
   .wanxiang-hero{min-height:0;display:block;padding:62px 8% 55px}
@@ -399,8 +415,12 @@ html.page-transitioning main{opacity:.08;transform:translateY(8px) scale(.995);f
   .screen-world-heading p{margin:11px 0 0}
   .media-grid{grid-template-columns:1fr;margin-left:0;gap:14px}
   .media-placeholder{aspect-ratio:1.55;min-height:160px}
+  .media-art{height:270px}
+  .media-art:after{inset:8px}
   .media-caption{padding:14px 17px 16px}
   .screen-world-footnote{margin:20px 0 0}
+  .screen-world-summary{margin:25px 0 0;padding:21px 18px}
+  .screen-world-summary p{font-size:12px}
   .living-echo{padding-top:62px;padding-bottom:60px}
   .living-echo p{font-size:18px}
 }

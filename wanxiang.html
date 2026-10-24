@@ -21,7 +21,6 @@
     <div class="sound-controls"><button class="sound-toggle" type="button" aria-label="关闭背景音乐" aria-pressed="true"><span class="sound-icon">♫</span><span class="sound-status">音乐开启</span></button><label class="volume-control"><span class="visually-hidden">背景音乐音量</span><input class="volume-slider" type="range" min="0" max="1" step="0.01" value="0.32"></label></div>
   </header>
 
-  <!-- 主体内容 -->
   <main>
     <!-- 首屏：标题 + 当代想象肖像 + 背景水印大字 -->
     <section class="subhero wanxiang-hero">
@@ -66,37 +65,59 @@
       </div>
     </section>
 
-    <!-- 区块三：李煜在当代影视 / 游戏中的形象（四张媒体展示位） -->
+    <!-- 区块三：李煜在当代影视 / 游戏中的形象（四张媒体展示位，真实配图） -->
     <section class="screen-world section-wrap" id="screen-world">
       <div class="section-kicker">03 <span>ON SCREEN &amp; IN GAME</span></div>
       <!-- 左：区块标题；右：说明文字 -->
       <div class="screen-world-heading">
         <div><h2>当李煜走进<br><em>当代叙事</em>。</h2></div>
-        <p>影视与游戏以各自的方式重塑历史人物：镜头捕捉他的身影，互动故事让观者走近他的时代。这里预留四处展示位，后续可放入相关剧照、海报或游戏画面。</p>
+        <p>一幅后世旧绘，三种当代演绎。画像、游戏与影视各自描摹李煜，也映照出不同时代的人们如何想象这位南唐后主。</p>
       </div>
-      <!-- 2×2 媒体卡网格：影视×2 + 游戏×2，每张为图片占位 + 图注 -->
+      <!-- 2×2 媒体卡网格：古本遗像 / 忘川 / 燕云 / 影视，每张为配图 + 图注 -->
       <div class="media-grid">
-        <article class="media-card">
-          <div class="media-placeholder media-film-one" role="img" aria-label="影视剧形象展示图片位置一">
-            <span class="media-placeholder-type">影视剧 · 人物演绎</span><span class="media-placeholder-number">01</span>
-            <span class="media-placeholder-note">剧照 / 角色海报<br><small>图片位置</small></span>
-          </div>
-          <div class="media-caption"><span>ON SCREEN / 01</span><h3>镜头里的李煜</h3><p>补充作品名称、扮演者或相关说明。</p></div>
+        <!-- 卡 01：古本遗像（史书之外的面容，无小标题） -->
+        <article class="media-card media-card-archive">
+          <figure class="media-art media-art-archive"><img src="liyu-portrait-archive.jpg" alt="后世追绘的南唐后主李煜古本肖像"></figure>
+          <div class="media-caption"><span>AN OLD PORTRAIT / 01</span><h3>古本遗像</h3><p>这是后世流传最广的李煜旧绘。没有青衣风流，没有月下孤影，只有古人肖像画里敦厚平实的君王样貌。</p><p>史书不曾记下他的眉眼；这幅画像，亦是后人隔着百年时光，对这位后主最初的想象。</p><small class="media-caption-note">此为宋代以后追绘像，并非李煜生前写真；它代表古人视角，而忘川、燕云、影视，则是今人的重构。</small></div>
         </article>
-        <article class="media-card">
-          <div class="media-placeholder media-film-two" role="img" aria-label="影视剧形象展示图片位置二">
-            <span class="media-placeholder-type">影视剧 · 故事场景</span><span class="media-placeholder-number">02</span>
-            <span class="media-placeholder-note">剧照 / 场景画面<br><small>图片位置</small></span>
-          </div>
-          <div class="media-caption"><span>ON SCREEN / 02</span><h3>故事中的南唐旧梦</h3><p>补充场景出处与它呈现的故事片段。</p></div>
+        <!-- 卡 02：忘川风华录（游戏 · 纸上君王） -->
+        <article class="media-card media-card-wangchuan">
+          <figure class="media-art media-art-wangchuan"><img src="liyu-wangchuan.jpg" alt="《忘川风华录》中身着明黄王袍、挥笔题梅的李煜角色演绎"></figure>
+          <div class="media-caption"><span>GAME / 02 · 忘川风华录</span><h3>忘川风华录 · 李煜</h3><h4>纸上君王，笔底春愁</h4><p>明黄王袍尚留南唐余辉，挥笔题梅，似仍是那个尚有江山可恋的君主。</p><p>忘川以温柔的笔触，先还原他帝王的身份，再慢慢透出藏在风雅之下、预知命运的淡淡怅惘。</p><small class="media-caption-note">此为游戏艺术演绎，并非史料所载容貌；它抓住的，是世人想象里「风流多才的南唐后主」。</small></div>
         </article>
-        <article class="media-card">
-          <div class="media-placeholder media-game-one" role="img" aria-label="游戏形象展示图片位置一">
-            <span class="media-placeholder-type">游戏 · 人物设计</span><span class="media-placeholder-number">03</span>
-            <span class="media-placeholder-note">角色立绘 / 宣传图<br><small>图片位置</small></span>
-          </div>
-          <div class="media-caption"><span>IN GAME / 03</span><h3>可交互的角色想象</h3><p>补充游戏名称、角色设定或设计说明。</p></div>
+        <!-- 卡 03：燕云十六声（游戏 · 雨中孤客） -->
+        <article class="media-card media-card-yanyun">
+          <figure class="media-art media-art-yanyun"><img src="liyu-yanyun.jpg" alt="《燕云十六声》中李煜在冷雨中执伞的青衫形象演绎"></figure>
+          <div class="media-caption"><span>GAME / 03 · 燕云十六声</span><h3>燕云十六声 · 李煜</h3><h4>雨中孤客，词中囚徒</h4><p>褪去帝王冕服，一袭青衫、一伞冷雨。燕云十六声没有强调他的君王身份，而放大了命运漂泊感——他不再是南唐天子，更像一个被时代洪流裹挟、满身愁绪的失意之人。</p><p>这也呼应了亡国之后「梦里不知身是客」的词境。</p><small class="media-caption-note">这是极具现代感的解构：取其「愁」，而不拘泥于其「位」，是当代年轻人容易共情的李煜形象。</small></div>
         </article>
-        <article class="media-card">
-          <div class="media-placeholder media-game-two" role="img" aria-label="游戏形象展示图片位置二">
-            <span class="media-placeholder-type">游戏 · 场景与剧情</span><span class="media-placeholder-number">04</spa
+        <!-- 卡 04：影视形象（杯酒余生，人间长恨） -->
+        <article class="media-card media-card-film">
+          <figure class="media-art media-art-film"><img src="liyu-film.jpg" alt="影视剧中成年李煜举杯饮酒、神情沉郁的形象"></figure>
+          <div class="media-caption"><span>SCREEN / 04 · 影视形象</span><h3>影视形象 · 李煜</h3><h4>杯酒余生，人间长恨</h4><p>胡须、沉郁的眉眼、仰头饮尽的姿态。影视更偏向成年之后、亡国被俘的后主：繁华落尽，锐气消磨，眼底只剩往事与无可奈何，把「天上人间」的落差，凝在一个举杯的瞬间。</p><small class="media-caption-note">影视叙事偏爱他的悲剧性；我们看见的，往往不是前期宴饮游乐的君主，而是那个「以血书词」的亡国词人。</small></div>
+        </article>
+      </div>
+      <!-- 区块末尾总结：不同形象，都是理解李煜的方式 -->
+      <aside class="screen-world-summary"><span>AFTER THE PORTRAITS</span><p>史书只给了他一行履历：南唐后主，国亡被俘。<br>而游戏绘其风流，赋其孤勇；影视写其沉哀，刻其落魄。</p><p>每一种模样，都不是真正的李煜，却都是我们这个时代，读懂李煜的一种方式。</p></aside>
+    </section>
+
+    <!-- 引文区：词与今人相遇 -->
+    <section class="living-echo section-wrap">
+      <span class="echo-quote" aria-hidden="true">“</span>
+      <p>春花秋月依旧，读词的人一代又一代。<br>李煜不再开口，他的词却仍与今天相遇。</p>
+      <span>一江春水 · 词容万象</span>
+    </section>
+
+    <!-- 下一页引导：去听词入梦 -->
+    <section class="next-step section-wrap">
+      <div><span class="section-kicker">NEXT <span>LET THE WORDS BE HEARD</span></span><h2>若你愿意，<br>让他的词再响一次。</h2></div>
+      <a class="button button-dark" href="listen.html">去听词入梦 <span>↗</span></a>
+    </section>
+  </main>
+
+  <!-- 页脚：品牌 + 标语 + 跳转链接 -->
+  <footer class="site-footer"><a class="brand" href="index.html"><span class="brand-seal">煜</span><span>一江春水<small>愿每个读词的人，都有一刻安宁。</small></span></a><span>词有尽时，春水长流。</span><a href="ci.html">再读一首 ↗</a></footer>
+
+  <!-- 背景音乐：自动播放、循环；实际播放由 script.js 控制(含音量/进度记忆) -->
+  <audio class="background-audio" src="background-music.mp3" autoplay loop preload="auto"></audio>
+</body>
+</html>
