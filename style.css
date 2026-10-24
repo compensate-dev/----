@@ -128,8 +128,8 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}      /* 标题中强调字用�
 
 /* ---------- 7. 词外余韵 + 首页结语 closing + 表单 ---------- */
 /* 7a. 词外余韵 afterlife（承接词作、过渡到结语的形象区：整屏背景图 + 左对齐文案 + 行动按钮） */
-.afterlife-section{position:relative;isolation:isolate;min-height:370px;padding-top:62px;padding-bottom:70px;display:flex;flex-direction:column;justify-content:center;overflow:hidden;background:url("afterlife-background.jpg") center 53%/cover no-repeat} /* 整屏背景图，isolation 让 ::before 只盖在本区内 */
-.afterlife-section:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(244,244,232,.4),rgba(244,244,232,.14) 66%,rgba(244,244,232,.08))} /* 左厚右薄纸色叠层，压住背景图、保证文字可读 */
+.afterlife-section{position:relative;isolation:isolate;min-height:370px;padding-top:62px;padding-bottom:70px;display:flex;flex-direction:column;justify-content:center;overflow:hidden;background:#f3f3ed} /* 底色为纸色，背景图改由 ::before 承载（压低透明度更柔和）；isolation 让 ::before 只盖在本区内 */
+.afterlife-section:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(244,244,232,.24),rgba(244,244,232,.08) 66%,rgba(244,244,232,.03)),url("afterlife-background.jpg") center 53%/cover no-repeat;opacity:.7} /* 背景图 + 左厚右薄纸色叠层合一，整体 0.7 透明，整屏更朦胧、文字更清晰 */
 .afterlife-section>.section-kicker{color:#755e40;text-shadow:0 1px 12px rgba(255,255,255,.5)}
 .afterlife-section>.section-kicker span{color:#6f7466}
 .afterlife-copy{display:flex;align-items:end;justify-content:space-between;gap:34px;max-width:900px;margin:48px 0 0 9%} /* 文案 + 按钮左右排布，左侧 9% 起排 */
@@ -138,6 +138,7 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}      /* 标题中强调字用�
 .afterlife-copy p{max-width:500px;margin:0;color:#4f594e;font-size:13px;line-height:2.1;text-shadow:0 1px 14px rgba(255,255,245,.85)}
 .afterlife-copy .button{flex-shrink:0;box-shadow:0 3px 18px rgba(255,255,245,.48)} /* 行动按钮：不伸缩 + 浅色投影 */
 .closing{padding-top:108px;padding-bottom:110px;display:grid;grid-template-columns:.35fr 1fr .85fr;gap:45px;align-items:center}
+.closing:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(rgba(243,244,236,.04),rgba(243,244,236,.04)),url("closing-background.jpg") center 54%/cover no-repeat;opacity:.7} /* 结语整屏背景图 + 极淡纸色叠层（透明度 .9→.7 调淡），z-index:-1 沉到文字之下 */
 .closing-pine{color:#879483;font-size:13px;letter-spacing:.3em;writing-mode:vertical-rl;border-left:1px solid #b8c1b5;height:170px;padding:10px 0 0 16px} /* 竖排“松”字意境 */
 .closing h2{margin-top:17px}
 .closing p{font-size:12px;color:#768074;letter-spacing:.05em;margin-bottom:23px}
