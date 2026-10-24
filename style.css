@@ -1,7 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap');
 
-/* 引入书法字体：用于各页主要标题的“手写感”强调（本地 otf，含中文/标点友好） */
+/* 引入两套书法字体：首页主标题优先用“钟齐志莽”(笔画更雄浑、张力强)，其余主要标题用“洪雷”手写体（本地字体，中文/标点友好） */
 @font-face{font-family:"HongLei Calligraphy";src:url("honglei-calligraphy.otf") format("opentype");font-style:normal;font-weight:400;font-display:swap}
+/* 钟齐志莽手写体：专为首页主标题补充，作为 hero h1 的首选字体（洪雷作回退） */
+@font-face{font-family:"ZhongQi ZhiMang";src:url("zhongqi-zhimang-calligraphy.ttf") format("truetype");font-style:normal;font-weight:400;font-display:swap}
 
 /* ============================================================
    一江春水 · 李煜词境 — 主样式表 style.css
@@ -57,8 +59,10 @@ button{color:inherit}
 .eyebrow>span{width:24px;height:1px;background:var(--rust)}
 h1,h2,h3,p{margin-top:0}
 .hero h1,.subhero h1{font-size:clamp(44px,5.4vw,72px);line-height:1.42;letter-spacing:.09em;font-weight:500;margin:0 0 18px}
-/* 书法字体套用到主要标题（首页主标题/子页首屏/引语卡/精选标题/余韵/结语）；字重随后由下方同组 heading 规则(500)按级联覆盖，仅 hero/subhero h1 取 400 */
-.hero h1,.subhero h1,.intro-heading h2,.feature-head h2,.afterlife-copy h2,.closing h2{font-family:"HongLei Calligraphy",var(--serif);font-weight:400;letter-spacing:.08em}
+/* 首页主标题 hero h1 单独套用“钟齐志莽”手写体(优先)→“洪雷”作回退；字重 400 覆盖上方同组 font-weight:500 */
+.hero h1{font-family:"ZhongQi ZhiMang","HongLei Calligraphy",var(--serif);font-weight:400;letter-spacing:.08em}
+/* 其余主要标题(子页首屏/引语卡/精选标题/余韵/结语)统一套用“洪雷”手写体；字重 400 覆盖上方同组 heading 的 500 */
+.subhero h1,.intro-heading h2,.feature-head h2,.afterlife-copy h2,.closing h2{font-family:"HongLei Calligraphy",var(--serif);font-weight:400;letter-spacing:.08em}
 h1 em,h2 em{font-style:normal;color:var(--rust)}      /* 标题中强调字用锈红 */
 .hero-intro{font-size:14px;letter-spacing:.07em;line-height:2.2;color:#34483b;max-width:440px;margin:0 0 30px;text-shadow:0 1px 0 rgba(243,243,237,.72)}
 .hero-actions{display:flex;align-items:center;gap:27px}
