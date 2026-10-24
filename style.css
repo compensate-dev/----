@@ -580,3 +580,11 @@ html.page-transitioning main{opacity:.08;transform:translateY(8px) scale(.995);f
   .media-caption{padding:14px 17px 16px}
   .screen-world-footnote{margin:20px 0 0}
 }
+
+/* ---------- 32. 词作画廊容器 poem-gallery（词作页：词牌标签 + 四首词的统一通栏背景框）---------- */
+.poem-gallery{position:relative;isolation:isolate;width:100vw;margin-left:calc(50% - 50vw);padding:8px 10vw 4px;overflow:hidden} /* 通栏：width:100vw 配合负 margin-left 突破父容器居中限制，铺满视口；隔离层叠上下文，内含半透明纸色背景 */
+.poem-gallery:before{content:"";position:absolute;z-index:-1;inset:0;background:linear-gradient(rgba(243,243,237,.62),rgba(243,243,237,.62)),url("poem-background.jpg") center 42%/cover no-repeat} /* 背景图：词作背景图上叠半透明纸色，置于内容之下(z-index:-1) */
+.poem-gallery .poem-tabs{margin-left:0} /* 画廊内的词牌标签不再额外左缩进 */
+.works{overflow-x:clip} /* 父容器裁掉通栏画廊可能产生的横向溢出，避免页面出现横向滚动条 */
+@media(max-width:1000px){.poem-gallery{padding-left:7vw;padding-right:7vw}} /* 平板：左右内边距改 7vw */
+@media(max-width:700px){.poem-gallery{padding:8px 7vw 2px}.poem-gallery .poem-tabs{margin:0 -2px}} /* 手机：上下内边距收紧、左右 7vw；词牌标签可横向微溢出滚动 */
