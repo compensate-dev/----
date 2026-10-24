@@ -6,17 +6,30 @@
     const x = event.clientX;
     const y = event.clientY;
     if (!x && !y) return;
-    for (let i = 0; i < 6; i += 1) {
-      const petal = document.createElement("span");
-      petal.className = "petal";
-      petal.style.left = `${x + (Math.random() - 0.5) * 42}px`;
-      petal.style.top = `${y + (Math.random() - 0.5) * 18}px`;
-      petal.style.setProperty("--drift", `${(Math.random() - 0.5) * 135}px`);
-      petal.style.setProperty("--fall", `${90 + Math.random() * 115}px`);
-      petal.style.animationDelay = `${Math.random() * 180}ms`;
-      document.body.append(petal);
-      window.setTimeout(() => petal.remove(), 2100);
-    }
+    const burst = document.createElement("span");
+    burst.className = "petal-burst";
+    burst.setAttribute("aria-hidden", "true");
+    const particles = [
+      ...Array.from({ length: 10 }, () => "petal-particle"),
+      ...Array.from({ length: 18 }, () => "spark-particle")
+    ];
+    particles.forEach((className, index) => {
+      const particle = document.createElement("span");
+      const angle = (Math.PI * 2 * index) / particles.length + Math.random() * 0.28;
+      const distance = className === "petal-particle" ? 48 + Math.random() * 60 : 25 + Math.random() * 85;
+      particle.className = className;
+      particle.style.left = `${x}px`;
+      particle.style.top = `${y}px`;
+      particle.style.setProperty("--burst-x", `${Math.cos(angle) * distance}px`);
+      particle.style.setProperty("--burst-y", `${Math.sin(angle) * distance}px`);
+      particle.style.setProperty("--fall", `${55 + Math.random() * 90}px`);
+      particle.style.setProperty("--drift", `${(Math.random() - 0.5) * 75}px`);
+      particle.style.setProperty("--spin", `${Math.random() * 540 - 270}deg`);
+      particle.style.setProperty("--delay", `${Math.random() * 100}ms`);
+      burst.append(particle);
+    });
+    document.body.append(burst);
+    window.setTimeout(() => burst.remove(), 1500);
   });
 
   const menuButton = document.querySelector(".menu-toggle");
@@ -29,31 +42,57 @@
     });
   }
 
-  const panel = document.querySelector(".audio-panel");
-  document.querySelectorAll(".sound-toggle").forEach((button) => {
-    button.addEventListener("click", () => {
-      if (panel) panel.hidden = !panel.hidden;
+  const audio = document.querySelector(".background-audio");
+  const soundButtons = document.querySelectorAll(".sound-toggle");
+  const volumeSlider = document.querySelector(".volume-slider");
+  let audioEnabled = sessionStorage.getItem("liyu-audio-enabled") !== "false";
+  const updateSoundControls = (playing, message) => {
+    soundButtons.forEach((button) => {
+      button.setAttribute("aria-pressed", String(playing));
+      button.setAttribute("aria-label", playing ? "关闭背景音乐" : "开启背景音乐");
+      const status = button.querySelector(".sound-status");
+      if (status) status.textContent = message || (playing ? "音乐开启" : "开启音乐");
     });
-  });
-  document.querySelector(".audio-close")?.addEventListener("click", () => {
-    if (panel) panel.hidden = true;
-  });
-  const audio = document.querySelector(".background-audio, #background-audio");
-  const fileInput = document.querySelector(".audio-file, #audio-file");
-  let audioUrl = null;
-  fileInput?.addEventListener("change", () => {
-    const file = fileInput.files && fileInput.files[0];
-    if (!file || !audio) return;
-    if (audioUrl) URL.revokeObjectURL(audioUrl);
-    audioUrl = URL.createObjectURL(file);
-    audio.src = audioUrl;
-    audio.play().catch(() => {
-      audio.controls = true;
+  };
+  const playBackgroundMusic = () => {
+    if (!audio || !audioEnabled) return;
+    audio.play().then(() => {
+      updateSoundControls(true);
+    }).catch(() => {
+      updateSoundControls(false, "点击开启");
     });
-  });
-  window.addEventListener("pagehide", () => {
-    if (audioUrl) URL.revokeObjectURL(audioUrl);
-  });
+  };
+  if (audio) {
+    audio.volume = Number(volumeSlider?.value || 0.32);
+    audio.muted = false;
+    audio.addEventListener("error", () => {
+      updateSoundControls(false, "音频加载失败");
+    });
+    if (volumeSlider) {
+      volumeSlider.addEventListener("input", () => {
+        audio.volume = Number(volumeSlider.value);
+      });
+    }
+    soundButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        audioEnabled = audio.paused;
+        sessionStorage.setItem("liyu-audio-enabled", String(audioEnabled));
+        if (audioEnabled) {
+          playBackgroundMusic();
+        } else {
+          audio.pause();
+          updateSoundControls(false);
+        }
+      });
+    });
+    if (audioEnabled) playBackgroundMusic();
+    document.addEventListener("pointerdown", (event) => {
+      if (audioEnabled && audio.paused && !event.target.closest(".sound-toggle")) playBackgroundMusic();
+    }, { once: true });
+    document.addEventListener("keydown", (event) => {
+      if (audioEnabled && audio.paused && !event.target.closest("input, textarea, button, a")) playBackgroundMusic();
+    }, { once: true });
+  }
 
   let speaking = false;
   document.querySelectorAll(".read-aloud").forEach((button) => {

@@ -15,7 +15,7 @@
     <nav class="main-nav" aria-label="主导航">
       <a class="active" href="index.html">首页</a><a href="life.html">词人故事</a><a href="ci.html">词作笺赏</a><a href="listen.html">听词入梦</a>
     </nav>
-    <button class="sound-toggle" type="button" aria-label="选择背景音乐"><span class="sound-icon">♫</span><span>听一曲</span></button>
+    <div class="sound-controls"><button class="sound-toggle" type="button" aria-label="关闭背景音乐" aria-pressed="true"><span class="sound-icon">♫</span><span class="sound-status">音乐开启</span></button><label class="volume-control"><span class="visually-hidden">背景音乐音量</span><input class="volume-slider" type="range" min="0" max="1" step="0.01" value="0.32"></label></div>
   </header>
   <main>
     <section class="hero">
@@ -55,6 +55,6 @@
     <section class="closing section-wrap"><div class="closing-pine">松<br>影</div><div><div class="section-kicker">03 <span>MAKE A MOMENT</span></div><h2>此刻，你心中<br>也有一江春水吗？</h2><p>留下一句此刻的心情，让千年前的词与你相遇。</p><a class="button button-dark" href="listen.html">进入听词小院 <span>↗</span></a></div><form class="mood-form"><label for="mood">把心情写在这里</label><textarea id="mood" maxlength="80" placeholder="例如：今夜月色很好……"></textarea><div class="form-bottom"><span id="mood-count">0 / 80</span><button type="submit">投进春水　↗</button></div><p class="mood-feedback" aria-live="polite"></p></form></section>
   </main>
   <footer class="site-footer"><a class="brand" href="index.html"><span class="brand-seal">煜</span><span>一江春水<small>愿每个读词的人，都有一刻安宁。</small></span></a><span>词有尽时，春水长流。</span><a href="ci.html">再读一首 ↗</a></footer>
-  <div class="audio-panel" hidden><button class="audio-close" aria-label="关闭音乐面板">×</button><strong>给词境配一段声音</strong><p>选择你拥有的音频文件，即可播放背景音乐。歌曲《落了白》请通过正版音乐平台聆听。</p><label class="file-button">选择本地音频<input id="audio-file" type="file" accept="audio/*"></label><audio id="background-audio" loop controls></audio><a class="text-link" href="https://music.163.com/#/search/m/?s=%E8%90%BD%E4%BA%86%E7%99%BD%20%E8%92%8B%E9%9B%AA%E5%84%BF" target="_blank" rel="noopener">在音乐平台搜索《落了白》 ↗</a></div>
+  <audio class="background-audio" src="background-music.mp3" autoplay loop preload="auto"></audio>
 </body>
 </html>
