@@ -1,9 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap');
 
-/* 引入两套书法字体：首页主标题优先用“钟齐志莽”(笔画更雄浑、张力强)，其余主要标题用“洪雷”手写体（本地字体，中文/标点友好） */
+/* 引入三套本地书法字体：首页主标题用"钟齐志莽"(笔画雄浑)；其余主要标题用"洪雷"手写体；正文段落用"旋动楷书"手写衬底（均中文/标点友好） */
 @font-face{font-family:"HongLei Calligraphy";src:url("honglei-calligraphy.otf") format("opentype");font-style:normal;font-weight:400;font-display:swap}
 /* 钟齐志莽手写体：专为首页主标题补充，作为 hero h1 的首选字体（洪雷作回退） */
 @font-face{font-family:"ZhongQi ZhiMang";src:url("zhongqi-zhimang-calligraphy.ttf") format("truetype");font-style:normal;font-weight:400;font-display:swap}
+/* 旋动楷书：用于正文段落(首页导语/诗句/引语/余韵/结语段落)的"手写感"衬底，作为段落字体的首选 */
+@font-face{font-family:"Xuandong Kaishu";src:url("xuandong-kaishu.ttf") format("truetype");font-style:normal;font-weight:400;font-display:swap}
 
 /* ============================================================
    一江春水 · 李煜词境 — 主样式表 style.css
@@ -63,6 +65,8 @@ h1,h2,h3,p{margin-top:0}
 .hero h1{font-family:"ZhongQi ZhiMang","HongLei Calligraphy",var(--serif);font-weight:400;letter-spacing:.08em}
 /* 其余主要标题(子页首屏/引语卡/精选标题/余韵/结语)统一套用“洪雷”手写体；字重 400 覆盖上方同组 heading 的 500 */
 .subhero h1,.intro-heading h2,.feature-head h2,.afterlife-copy h2,.closing h2{font-family:"HongLei Calligraphy",var(--serif);font-weight:400;letter-spacing:.08em}
+/* 正文段落套用"旋动楷书"手写体(首选)→衬线回退：覆盖首页导语、首屏诗句(排除分隔短线 .verse-rule)、引语卡正文、词外余韵正文、结语第二段正文，统一手写书写感 */
+.hero-intro,.hero-verse span:not(.verse-rule),.intro-heading p,.afterlife-copy p,.closing>div:nth-child(2)>p{font-family:"Xuandong Kaishu",var(--serif);font-weight:400}
 h1 em,h2 em{font-style:normal;color:var(--rust)}      /* 标题中强调字用锈红 */
 .hero-intro{font-size:14px;letter-spacing:.07em;line-height:2.2;color:#34483b;max-width:440px;margin:0 0 30px;text-shadow:0 1px 0 rgba(243,243,237,.72)}
 .hero-actions{display:flex;align-items:center;gap:27px}
