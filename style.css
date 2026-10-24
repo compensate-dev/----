@@ -94,12 +94,13 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}      /* 标题中强调字用�
 .section-kicker span{color:#929a8f;font-size:9px}
 .intro-heading h2,.feature-head h2,.story-lead h2,.works-heading h2,.listen-title h2,.interactive h2,.next-step h2,.closing h2{font-size:clamp(30px,3.2vw,43px);line-height:1.6;letter-spacing:.06em;font-weight:500;margin:0 0 17px}
 .intro-heading p,.story-lead p,.listen-title p,.interactive p{max-width:470px;color:#6d786d;font-size:13px;line-height:2.2;letter-spacing:.04em;margin-bottom:22px}
-.intro-card{position:relative;margin-top:37px;min-height:255px;padding:31px 30px;background:#e7e9e0;overflow:hidden}
+.intro-card{position:relative;margin-top:37px;min-height:255px;padding:31px 30px;background:linear-gradient(135deg,rgba(249,249,242,.96),rgba(239,241,232,.96));border:1px solid #42554a;border-radius:21px;box-shadow:0 8px 24px rgba(47,62,49,.08);overflow:hidden} /* 引语卡片：浅渐变底 + 松绿描边 + 圆角 + 柔影 */
+.intro-card:before{content:"";position:absolute;inset:5px;border:1px solid rgba(48,77,63,.72);border-radius:16px;pointer-events:none} /* 卡片内描边，形成双线框效果 */
 .card-index{font:9px var(--sans);letter-spacing:.17em;color:#818b7f}
 .intro-card p{font-size:19px;line-height:2.05;letter-spacing:.09em;position:relative;z-index:1;margin:28px 0 18px}
 .card-caption{font:10px var(--sans);color:#7a8479;letter-spacing:.08em}
-.card-orbit{position:absolute;width:170px;height:170px;border:1px solid rgba(111,132,108,.25);border-radius:50%;right:-34px;bottom:-45px} /* 装饰圆环 */
-.card-orbit:after{content:"";position:absolute;width:120px;height:120px;border:1px solid rgba(111,132,108,.25);border-radius:50%;right:25px;bottom:24px}
+.card-orbit{position:absolute;width:36%;height:100%;right:0;bottom:0;opacity:.82;pointer-events:none;background:radial-gradient(ellipse 118% 58% at 104% 16%,transparent 62%,rgba(87,125,118,.42) 62.7%,transparent 63.5%),radial-gradient(ellipse 112% 55% at 101% 33%,transparent 64%,rgba(87,125,118,.33) 64.7%,transparent 65.5%),radial-gradient(ellipse 120% 62% at 106% 53%,transparent 65%,rgba(87,125,118,.37) 65.7%,transparent 66.5%),radial-gradient(ellipse 115% 55% at 103% 76%,transparent 63%,rgba(87,125,118,.3) 63.7%,transparent 64.5%),radial-gradient(ellipse 120% 60% at 107% 94%,transparent 65%,rgba(87,125,118,.35) 65.7%,transparent 66.5%);mask-image:linear-gradient(90deg,transparent,#000 42%)} /* 右侧弧形光晕：多层径向渐变叠加，再用遮罩向左渐隐 */
+.card-orbit:after{content:"";position:absolute;inset:0;border:0;border-radius:0;background:linear-gradient(115deg,transparent 22%,rgba(125,157,147,.07),transparent 75%)} /* 斜向微光叠加，增加层次 */
 .under-link{display:inline-block}
 
 /* ---------- 6. 首页精选词作 feature ---------- */
