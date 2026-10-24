@@ -1,256 +1,280 @@
 /* ============================================================
    一江春水 · 李煜词境 — 主样式表 style.css
-   说明：本文件仅在原样式基础上新增中文注释，未改动任何规则
+   说明：本文件仅在原样式基础上新增中文注释，未改动任何规则。
+   结构分区：
+   1. 字体 + 根变量     2. 基础重置
+   3. 页头/品牌/导航    4. 声音按钮/汉堡
+   5. 首屏 Hero         6. 版心容器
+   7. 词人介绍 intro    8. 精选词作 feature
+   9. 结尾互动 + 表单   10. 页脚
+   11. 子页首屏 subhero 12. 生平时间线 story
+   13. 生平结语 life-note 14. 下一页 next-step
+   15. 词作页 ci-hero   16. 词作列表 works
+   17. 词作笺注 annotation 18. 听词页 listen
+   19. 朗诵卡片 recite   20. 互动区 interactive
+   21. 音频面板         22. 花瓣/粒子 + 关键帧
+   23. 响应式 1000px    24. 响应式 700px
+   25. 减弱动效降级     26. 声音控件补充
+   27. 背景音乐隐藏     28. 手机声音微调
+   29. 大屏增强(1100×700) 30. 粒子降级
    ============================================================ */
 
-/* 1. 字体引入：Noto Serif SC（中文正文）+ Manrope（西文/标签/编号）*/
+/* ---------- 1. 字体引入 + 根变量 ---------- */
+/* 引入思源宋体(正文)与 Manrope(无衬线/英文数字)，display=swap 避免阻塞渲染 */
 @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap');
 
-/* 2. 设计变量：配色、字体集中管理，方便统一换肤 */
-:root{--paper:#f3f3ed;--paper-deep:#e9ece4;--ink:#24362e;--muted:#6d786d;--pine:#304d3f;--moss:#73806a;--rust:#a9684c;--gold:#c7aa77;--line:#d9ddd3;--serif:"Noto Serif SC","Songti SC",serif;--sans:"Manrope","Microsoft YaHei",sans-serif}
+:root{
+  --paper:#f3f3ed;        /* 主背景：宣纸米白 */
+  --paper-deep:#e9ece4;   /* 深一档背景：分区底色 */
+  --ink:#24362e;          /* 主文字：墨绿黑 */
+  --muted:#6d786d;        /* 次要文字 */
+  --pine:#304d3f;         /* 松绿：主强调色 */
+  --moss:#73806a;         /* 苔绿 */
+  --rust:#a9684c;         /* 锈红：点缀/重点 */
+  --gold:#c7aa77;         /* 金：印章等装饰 */
+  --line:#d9ddd3;         /* 分割线 */
+  --serif:"Noto Serif SC","Songti SC",serif;          /* 正文衬线 */
+  --sans:"Manrope","Microsoft YaHei",sans-serif       /* 无衬线：英文/数字/导航 */
+}
 
-/* 3. 基础重置：盒模型、平滑滚动、全局排版 */
-*{box-sizing:border-box}
-html{scroll-behavior:smooth;scroll-padding-top:100px}
+/* ---------- 2. 基础重置 ---------- */
+*{box-sizing:border-box}                 /* 盒模型统一为 border-box */
+html{scroll-behavior:smooth;scroll-padding-top:100px} /* 平滑滚动；锚点偏移页头高度 */
 body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--serif);font-size:15px;line-height:1.85}
-a{color:inherit;text-decoration:none}
-button,input,textarea{font:inherit}
+a{color:inherit;text-decoration:none}   /* 链接继承颜色、去下划线 */
+button,input,textarea{font:inherit}     /* 表单控件继承字体 */
 button{color:inherit}
-::selection{background:#c8d1c3;color:#24362e}
+::selection{background:#c8d1c3;color:#24362e} /* 选中文字配色 */
 
-/* 4. 页头 site-header（吸顶 + 毛玻璃）*/
-.site-header{height:86px;padding:0 6.6%;display:flex;align-items:center;justify-content:space-between;gap:28px;background:rgba(243,243,237,.93);border-bottom:1px solid rgba(48,77,63,.1);position:sticky;top:0;z-index:20;backdrop-filter:blur(14px)}
+/* ---------- 3. 页头 / 品牌 / 导航 ---------- */
+.site-header{height:86px;padding:0 6.6%;display:flex;align-items:center;justify-content:space-between;gap:28px;background:rgba(243,243,237,.93);border-bottom:1px solid rgba(48,77,63,.1);position:sticky;top:0;z-index:20;backdrop-filter:blur(14px)} /* 吸顶半透明毛玻璃 */
 .brand{display:flex;align-items:center;gap:12px;font-weight:600;letter-spacing:.12em;font-size:15px;line-height:1.25;white-space:nowrap}
 .brand small{display:block;font-family:var(--sans);font-size:9px;color:var(--muted);font-weight:400;letter-spacing:.13em;margin-top:5px}
-.brand-seal{display:grid;place-items:center;width:39px;height:39px;border:1px solid var(--rust);color:var(--rust);font-size:19px;font-weight:500;transform:rotate(-5deg)}
-
-/* 5. 主导航 main-nav */
+.brand-seal{display:grid;place-items:center;width:39px;height:39px;border:1px solid var(--rust);color:var(--rust);font-size:19px;font-weight:500;transform:rotate(-5deg)} /* “煜”字印章，微旋转 */
 .main-nav{display:flex;align-items:center;gap:42px;height:100%;font-family:var(--sans);font-size:12px;letter-spacing:.06em;color:#657166}
 .main-nav a{height:100%;display:flex;align-items:center;position:relative;transition:color .2s}
 .main-nav a:hover,.main-nav a.active{color:var(--pine)}
-.main-nav a.active:after{content:"";position:absolute;height:2px;width:19px;bottom:23px;left:calc(50% - 9px);background:var(--rust)}
+.main-nav a.active:after{content:"";position:absolute;height:2px;width:19px;bottom:23px;left:calc(50% - 9px);background:var(--rust)} /* 当前页红色短下划线 */
 
-/* 6. 声音按钮 + 移动端汉堡按钮 */
+/* ---------- 4. 声音按钮 / 汉堡按钮 ---------- */
 .sound-toggle{background:none;border:1px solid #cfd5ca;border-radius:99px;padding:9px 15px;display:flex;align-items:center;gap:7px;font-family:var(--sans);font-size:11px;cursor:pointer;transition:.2s}
 .sound-toggle:hover{background:var(--pine);border-color:var(--pine);color:#fff}
 .sound-icon{color:var(--rust);font-size:15px}
-.menu-toggle{display:none;background:none;border:0;font-size:22px}
+.menu-toggle{display:none;background:none;border:0;font-size:22px} /* 默认隐藏，移动端(≤700px)显示 */
 
-/* 7. 首屏 Hero */
-.hero{min-height:min(720px,calc(100vh - 86px));position:relative;overflow:hidden;padding:90px 10% 78px;display:flex;align-items:center;background:radial-gradient(ellipse at 83% 45%,rgba(210,218,203,.82),transparent 43%),linear-gradient(110deg,#f1f2ec 0%,#e8ece4 65%,#e0e7dc 100%)}
-/* 背景图蒙版：透明度 .62，使文字更易读 */
-.hero:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(243,243,237,.7),rgba(243,243,237,.38)),url("home-background.jpg") center 45%/cover no-repeat;opacity:.62;pointer-events:none}
-.hero-copy{position:relative;z-index:2;width:52%;max-width:610px}
+/* ---------- 5. 首屏 Hero ---------- */
+.hero{min-height:min(720px,calc(100vh - 86px));position:relative;overflow:hidden;padding:90px 10% 78px;display:flex;align-items:center;background:radial-gradient(ellipse at 83% 45%,rgba(210,218,203,.82),transparent 43%),linear-gradient(110deg,#f1f2ec 0%,#e8ece4 65%,#e0e7dc 100%)} /* 首屏：渐变底 + 右上柔光 */
+.hero:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(243,243,237,.58),rgba(243,243,237,.24)),url("home-background.jpg") center 45%/cover no-repeat;opacity:.72;pointer-events:none} /* 背景图蒙版：本版 opacity .72(比上版 .62 更浓，文字更易读) */
+.hero-copy{position:relative;z-index:2;width:52%;max-width:610px} /* 左侧文案层，抬到背景图之上 */
 .eyebrow,.section-kicker{font-family:var(--sans);font-size:10px;letter-spacing:.2em;color:var(--rust);text-transform:uppercase}
 .eyebrow{display:flex;align-items:center;gap:11px;margin:0 0 28px}
-.eyebrow>span{width:24px;height:1px;background:var(--rust)}
+.eyebrow>span{width:24px;height:1px;background:var(--rust)} /* 眉题前的短红线 */
 h1,h2,h3,p{margin-top:0}
 .hero h1,.subhero h1{font-size:clamp(44px,5.4vw,72px);line-height:1.42;letter-spacing:.09em;font-weight:500;margin:0 0 18px}
-h1 em,h2 em{font-style:normal;color:var(--rust)}
+h1 em,h2 em{font-style:normal;color:var(--rust)} /* em 内的词(如“载不动”)用锈红强调 */
 .hero-intro{font-size:14px;letter-spacing:.07em;line-height:2.2;color:#667267;max-width:440px;margin:0 0 30px}
 .hero-actions{display:flex;align-items:center;gap:27px}
 .button{min-height:47px;padding:11px 20px;display:inline-flex;align-items:center;justify-content:center;gap:23px;font-family:var(--sans);font-size:11px;letter-spacing:.1em;transition:transform .2s,background .2s}
 .button:hover{transform:translateY(-2px)}
 .button-dark{background:var(--pine);color:#f7f5ef}
 .button-dark:hover{background:#20382d}
-.button span{font-size:16px;color:#d2b990}
+.button span{font-size:16px;color:#d2b990} /* 按钮内箭头 ↗ 用金色 */
 .text-link,.under-link{font-family:var(--sans);font-size:11px;letter-spacing:.06em;color:var(--pine);border-bottom:1px solid #bac4b9;padding-bottom:5px}
 .text-link span,.under-link span{color:var(--rust);margin-left:8px}
-.hero-verse{display:flex;align-items:center;gap:14px;color:#647066;font-size:11px;letter-spacing:.07em;margin-top:59px}
+.hero-verse{display:flex;align-items:center;gap:14px;color:#647066;font-size:11px;letter-spacing:.07em;margin-top:59px} /* 底部名句引用 */
 .verse-rule{height:1px;width:35px;background:var(--rust)}
-.hero-art{position:absolute;width:min(44vw,570px);height:min(48vw,570px);right:7%;top:50%;transform:translateY(-49%);overflow:hidden;background:#273a48;border-radius:48% 48% 5px 5px;box-shadow:0 28px 65px rgba(35,54,46,.18)}
+.hero-art{position:absolute;width:min(44vw,570px);height:min(48vw,570px);right:7%;top:48%;transform:translateY(-49%);overflow:hidden;background:#273a48;border-radius:48% 48% 5px 5px;box-shadow:0 28px 65px rgba(35,54,46,.18)} /* 右侧圆形插画框(本版 top 由 50% 微调为 48%) */
 .hero-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 48%}
-.image-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,33,46,.25),transparent 26%,transparent 68%,rgba(18,38,49,.35));pointer-events:none}
-.hero-art:after{content:"";position:absolute;inset:0;border:1px solid rgba(255,255,255,.28);border-radius:inherit;pointer-events:none}
-.art-label{position:absolute;top:12%;left:17%;z-index:2;padding:7px 10px;border-left:1px solid rgba(255,238,215,.75);background:rgba(19,39,53,.28);font-size:10px;line-height:1.7;letter-spacing:.14em;color:#fff5e9;text-shadow:0 1px 8px rgba(12,29,39,.8)}
+.image-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,33,46,.25),transparent 26%,transparent 68%,rgba(18,38,49,.35));pointer-events:none} /* 上下压暗，提升文字对比 */
+.hero-art:after{content:"";position:absolute;inset:0;border:1px solid rgba(255,255,255,.28);border-radius:inherit;pointer-events:none} /* 内描边 */
+.art-label{position:absolute;top:12%;left:17%;z-index:2;padding:7px 10px;border-left:1px solid rgba(255,238,215,.75);background:rgba(19,39,53,.28);font-size:10px;line-height:1.7;letter-spacing:.14em;color:#fff5e9;text-shadow:0 1px 8px rgba(12,29,39,.8)} /* 左上“月下故园”标签 */
 .art-label small{font-family:var(--sans);font-size:8px;letter-spacing:.15em}
-.art-poem{position:absolute;z-index:4;right:8%;bottom:15%;writing-mode:vertical-rl;letter-spacing:.23em;font-size:15px;line-height:2;color:#fff8ef;text-shadow:0 1px 8px rgba(13,30,40,.85)}
+.art-poem{position:absolute;z-index:4;right:8%;bottom:15%;writing-mode:vertical-rl;letter-spacing:.23em;font-size:15px;line-height:2;color:#fff8ef;text-shadow:0 1px 8px rgba(13,30,40,.85)} /* 竖排诗句“小楼昨夜又东风” */
 .art-poem span{color:#d8c9a9}
-/* 印章：南唐 / 词境 两行横排（修改自原竖排版本）*/
-.art-stamp{position:absolute;z-index:4;bottom:9%;left:9%;width:48px;height:38px;border:1px solid rgba(238,195,168,.8);color:#ffdbbf;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;font-size:8px;line-height:1.35;writing-mode:horizontal-tb;letter-spacing:.14em;background:rgba(32,49,56,.38);text-shadow:0 1px 5px rgba(13,30,40,.8)}
-.hero-bottom{position:absolute;bottom:24px;left:10%;right:10%;display:flex;align-items:center;gap:13px;font:9px var(--sans);letter-spacing:.18em;color:#788278}
+.art-stamp{position:absolute;z-index:4;bottom:9%;left:9%;width:48px;height:38px;border:1px solid rgba(238,195,168,.8);color:#ffdbbf;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;font-size:8px;line-height:1.35;writing-mode:horizontal-tb;letter-spacing:.14em;background:rgba(32,49,56,.38);text-shadow:0 1px 5px rgba(13,30,40,.8)} /* 印章：两行横排“南唐/词境” */
+.hero-bottom{position:absolute;bottom:24px;left:10%;right:10%;display:flex;align-items:center;gap:13px;font:9px var(--sans);letter-spacing:.18em;color:#788278} /* 首屏底部滚动提示条 */
 .scroll-line{width:80px;height:1px;background:#bdc7ba}
-.hero-bottom span:last-child{margin-left:auto;color:#a0a79d}
+.hero-bottom span:last-child{margin-left:auto;color:#a0a79d} /* 右侧“01 / 04”页码 */
 
-/* 8. 版心容器：统一左右内边距 */
-.section-wrap{padding-left:10%;padding-right:10%}
+/* ---------- 6. 版心容器 ---------- */
+.section-wrap{padding-left:10%;padding-right:10%} /* 左右统一留白，作为分区内边距基准 */
 
-/* 9. 词人介绍 intro（三栏：小图 / 标题简介 / 名句卡片）*/
+/* ---------- 7. 词人介绍 intro ---------- */
 .intro{display:grid;grid-template-columns:.45fr 1.05fr .8fr;gap:45px;padding-top:120px;padding-bottom:128px;align-items:start}
 .intro-poet{min-width:0}
-.portrait-frame{position:relative;margin-top:25px;padding:7px;border:1px solid rgba(169,104,76,.48);background:linear-gradient(145deg,#f7f4eb,#e6e5db);box-shadow:0 10px 28px rgba(47,62,49,.12)}
-.portrait-frame:before,.portrait-frame:after{content:"";position:absolute;width:17px;height:17px;z-index:1;pointer-events:none}
+.portrait-frame{position:relative;margin-top:25px;padding:7px;border:1px solid rgba(169,104,76,.48);background:linear-gradient(145deg,#f7f4eb,#e6e5db);box-shadow:0 10px 28px rgba(47,62,49,.12)} /* 画像外框(画框质感) */
+.portrait-frame:before,.portrait-frame:after{content:"";position:absolute;width:17px;height:17px;z-index:1;pointer-events:none} /* 四角装饰线(用 before/after 画相邻两角) */
 .portrait-frame:before{top:3px;left:3px;border-top:1px solid #ba8a68;border-left:1px solid #ba8a68}
 .portrait-frame:after{right:3px;bottom:3px;border-right:1px solid #ba8a68;border-bottom:1px solid #ba8a68}
-/* 画像比例调整为 1.55，更贴合人物立像 */
-.poet-portrait{display:block;width:100%;aspect-ratio:1.55;object-fit:cover;object-position:center 24%;border:1px solid rgba(255,255,255,.8)}
+.poet-portrait{display:block;width:100%;aspect-ratio:1.55;object-fit:cover;object-position:center 24%;border:1px solid rgba(255,255,255,.8)} /* 李煜立像，比例 1.55 */
 .section-kicker{display:flex;align-items:center;gap:12px;padding-top:11px;white-space:nowrap}
 .section-kicker span{color:#929a8f;font-size:9px}
-/* 各子页 h2 统一字号 */
-.intro-heading h2,.feature-head h2,.story-lead h2,.works-heading h2,.listen-title h2,.interactive h2,.next-step h2,.closing h2{font-size:clamp(30px,3.2vw,43px);line-height:1.6;letter-spacing:.06em;font-weight:500;margin:0 0 17px}
-/* 各子页段落统一样式 */
+.intro-heading h2,.feature-head h2,.story-lead h2,.works-heading h2,.listen-title h2,.interactive h2,.next-step h2,.closing h2{font-size:clamp(30px,3.2vw,43px);line-height:1.6;letter-spacing:.06em;font-weight:500;margin:0 0 17px} /* 各区块统一标题字号 */
 .intro-heading p,.story-lead p,.listen-title p,.interactive p{max-width:470px;color:#6d786d;font-size:13px;line-height:2.2;letter-spacing:.04em;margin-bottom:22px}
-.intro-card{position:relative;margin-top:37px;min-height:255px;padding:31px 30px;background:#e7e9e0;overflow:hidden}
+.intro-card{position:relative;margin-top:37px;min-height:255px;padding:31px 30px;background:#e7e9e0;overflow:hidden} /* 引言卡片(右下圆形轨道装饰) */
 .card-index{font:9px var(--sans);letter-spacing:.17em;color:#818b7f}
 .intro-card p{font-size:19px;line-height:2.05;letter-spacing:.09em;position:relative;z-index:1;margin:28px 0 18px}
 .card-caption{font:10px var(--sans);color:#7a8479;letter-spacing:.08em}
 .card-orbit{position:absolute;width:170px;height:170px;border:1px solid rgba(111,132,108,.25);border-radius:50%;right:-34px;bottom:-45px}
-.card-orbit:after{content:"";position:absolute;width:120px;height:120px;border:1px solid rgba(111,132,108,.25);border-radius:50%;right:25px;bottom:24px}
+.card-orbit:after{content:"";position:absolute;width:120px;height:120px;border:1px solid rgba(111,132,108,.25);border-radius:50%;right:25px;bottom:24px} /* 嵌套圆环，作装饰 */
 .under-link{display:inline-block}
 
-/* 10. 精选词作 feature-section（四色卡片网格）*/
+/* ---------- 8. 精选词作 feature ---------- */
 .feature-section{padding:93px 10% 110px;background:#e9ebe4}
 .feature-head{padding:0;display:flex;justify-content:space-between;align-items:end;margin:0 0 38px}
 .feature-head h2{margin:15px 0 0}
-.poem-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}
+.poem-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px} /* 四首词卡片一行 */
 .poem-card{position:relative;min-height:273px;padding:23px 20px;background:#536b59;color:#f5f2e9;overflow:hidden;transition:transform .25s,box-shadow .25s}
 .poem-card:hover{transform:translateY(-6px);box-shadow:0 17px 30px rgba(43,61,48,.15)}
-.poem-card:before{content:"";position:absolute;inset:auto -10% -35% -10%;height:60%;background:rgba(20,44,33,.3);border-radius:50%;filter:blur(2px)}
-.card-two{background:#89917a}.card-three{background:#546b70}.card-four{background:#9b806d}
+.poem-card:before{content:"";position:absolute;inset:auto -10% -35% -10%;height:60%;background:rgba(20,44,33,.3);border-radius:50%;filter:blur(2px)} /* 底部柔和暗斑 */
+.card-two{background:#89917a}.card-three{background:#546b70}.card-four{background:#9b806d} /* 四卡各一底色 */
 .poem-number,.poem-tag{position:relative;z-index:1;font:9px var(--sans);letter-spacing:.12em}
-.poem-number{opacity:.72}.poem-tag{float:right;border:1px solid rgba(255,255,255,.4);padding:3px 7px}
+.poem-number{opacity:.72}.poem-tag{float:right;border:1px solid rgba(255,255,255,.4);padding:3px 7px} /* 序号 + 分类标签 */
 .poem-card h3{position:relative;z-index:1;margin:40px 0 7px;font-size:24px;font-weight:500;letter-spacing:.12em}
 .poem-card p{position:relative;z-index:1;font-size:12px;line-height:2;letter-spacing:.05em;color:rgba(255,255,255,.82)}
-.poem-arrow{position:absolute;bottom:18px;right:20px;z-index:1;font-size:18px;color:#e7d7ba}
+.poem-arrow{position:absolute;bottom:18px;right:20px;z-index:1;font-size:18px;color:#e7d7ba} /* 右下角 ↗ 箭头 */
 
-/* 11. 结尾互动 closing + 心情表单 */
+/* ---------- 9. 结尾互动 + 表单 ---------- */
 .closing{padding-top:108px;padding-bottom:110px;display:grid;grid-template-columns:.35fr 1fr .85fr;gap:45px;align-items:center}
-.closing-pine{color:#879483;font-size:13px;letter-spacing:.3em;writing-mode:vertical-rl;border-left:1px solid #b8c1b5;height:170px;padding:10px 0 0 16px}
+.closing-pine{color:#879483;font-size:13px;letter-spacing:.3em;writing-mode:vertical-rl;border-left:1px solid #b8c1b5;height:170px;padding:10px 0 0 16px} /* 竖排“松影” */
 .closing h2{margin-top:17px}
 .closing p{font-size:12px;color:#768074;letter-spacing:.05em;margin-bottom:23px}
-.mood-form,.poem-form{padding:25px 26px;background:#e7e9e0}
+.mood-form,.poem-form{padding:25px 26px;background:#e7e9e0} /* 心情表单 / 写诗表单 共用底卡 */
 .mood-form label,.poem-form label{display:block;font-size:12px;letter-spacing:.08em;margin-bottom:12px}
-textarea{display:block;width:100%;resize:vertical;min-height:94px;border:0;border-bottom:1px solid #c5cdc1;background:transparent;outline:none;font-size:13px;line-height:1.8;padding:8px 0;color:var(--ink)}
+textarea{display:block;width:100%;resize:vertical;min-height:94px;border:0;border-bottom:1px solid #c5cdc1;background:transparent;outline:none;font-size:13px;line-height:1.8;padding:8px 0;color:var(--ink)} /* 下划线式输入 */
 textarea:focus{border-color:var(--pine)}
 textarea::placeholder{color:#9aa297}
 .form-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:12px;font:10px var(--sans);color:#8b9389}
 .form-bottom button{border:0;background:none;color:var(--pine);font-size:10px;letter-spacing:.06em;cursor:pointer}
-.mood-feedback,.poem-feedback{font-size:11px;color:var(--rust);margin:10px 0 0;min-height:1.5em}
+.mood-feedback,.poem-feedback{font-size:11px;color:var(--rust);margin:10px 0 0;min-height:1.5em} /* 提交后提示文字 */
 
-/* 12. 页脚 site-footer */
+/* ---------- 10. 页脚 ---------- */
 .site-footer{min-height:112px;background:#e7e9e2;padding:25px 6.6%;display:flex;align-items:center;justify-content:space-between;gap:20px;border-top:1px solid #d9ddd4}
 .site-footer>span{font-size:11px;color:#7b8479;letter-spacing:.08em}
-.site-footer>a:last-child{font:10px var(--sans);color:var(--pine);border-bottom:1px solid #bac3b8;padding-bottom:5px}
+.site-footer>a:last-child{font:10px var(--sans);color:var(--pine);border-bottom:1px solid #bac3b8;padding-bottom:5px} /* “再读一首 ↗” */
 
-/* 13. 子页首屏 subhero（词人故事 / 通用二级页头）*/
-.subhero{min-height:435px;padding:75px 10%;display:flex;align-items:center;justify-content:space-between;position:relative;overflow:hidden;background:linear-gradient(118deg,#eef0e9,#e0e7dc)}
-.subhero:after{content:"";position:absolute;right:0;bottom:-3px;width:55%;height:75%;background:linear-gradient(145deg,transparent 30%,rgba(79,103,83,.09));clip-path:polygon(0 78%,19% 40%,31% 56%,50% 15%,65% 47%,80% 9%,100% 43%,100% 100%,0 100%)}
+/* ---------- 11. 子页首屏 subhero ---------- */
+.subhero{min-height:435px;padding:75px 10%;display:flex;align-items:center;justify-content:space-between;position:relative;overflow:hidden;background:linear-gradient(118deg,#eef0e9,#e0e7dc)} /* 子页通用首屏(词人故事/词作/听词 复用) */
+.life-hero{background:linear-gradient(90deg,rgba(238,240,233,.54),rgba(238,240,233,.32)),url("life-background.jpg") center 48%/cover no-repeat} /* 生平页专用：覆盖 .subhero 渐变，叠加 life-background.jpg */
+.subhero:after{content:"";position:absolute;right:0;bottom:-3px;width:55%;height:75%;background:linear-gradient(145deg,transparent 30%,rgba(79,103,83,.09));clip-path:polygon(0 78%,19% 40%,31% 56%,50% 15%,65% 47%,80% 9%,100% 43%,100% 100%,0 100%)} /* 右下远山剪影 */
 .subhero-copy{position:relative;z-index:2}
 .subhero h1{font-size:clamp(42px,5.2vw,68px);margin:7px 0 8px}
 .subhero-copy>p:not(.eyebrow){font-size:13px;letter-spacing:.06em;color:#6d786d;max-width:470px;margin:0 0 23px}
-.subhero-mark{z-index:2;margin-right:12%;font:12px var(--sans);color:#79867a;display:grid;grid-template-columns:auto 1px auto;gap:13px;align-items:center;letter-spacing:.1em}
+.subhero-mark{z-index:2;margin-right:12%;font:12px var(--sans);color:#79867a;display:grid;grid-template-columns:auto 1px auto;gap:13px;align-items:center;letter-spacing:.1em} /* 右侧“年代/篇数”标记块 */
 .subhero-mark .mark-line{height:72px;background:#aab5a8}
 .subhero-mark small{grid-column:1 / -1;line-height:1.8;font-size:9px;color:#929b90}
 
-/* 14. 词人生平 story + 时间线 timeline */
+/* ---------- 12. 生平时间线 story ---------- */
 .story{padding-top:94px;padding-bottom:95px}
 .story>.section-kicker{margin-bottom:28px}
 .story-lead{display:grid;grid-template-columns:1fr 1fr;gap:10%;padding:0 0 55px 18%}
 .story-lead h2{font-size:37px;margin:0}
 .story-lead p{margin:4px 0 0}
-.timeline{position:relative;margin-left:20%;padding:10px 0 0 54px;border-left:1px solid #cbd2c8}
+.timeline{position:relative;margin-left:20%;padding:10px 0 0 54px;border-left:1px solid #cbd2c8} /* 竖线时间轴 */
 .timeline-item{position:relative;display:grid;grid-template-columns:1fr;max-width:690px;padding:0 0 39px}
-.timeline-year{position:absolute;right:calc(100% + 76px);top:0;font:12px var(--sans);color:var(--rust);letter-spacing:.1em}
-.timeline-dot{position:absolute;width:9px;height:9px;border-radius:50%;background:var(--rust);left:-59px;top:9px;box-shadow:0 0 0 5px var(--paper)}
+.timeline-year{position:absolute;right:calc(100% + 76px);top:0;font:12px var(--sans);color:var(--rust);letter-spacing:.1em} /* 年份(轴左侧) */
+.timeline-dot{position:absolute;width:9px;height:9px;border-radius:50%;background:var(--rust);left:-59px;top:9px;box-shadow:0 0 0 5px var(--paper)} /* 轴上红点 */
 .timeline-card{padding:23px 28px;background:#eaebe4}
 .timeline-label,.work-meta{font:9px var(--sans);letter-spacing:.14em;color:var(--rust)}
 .timeline-card h3{font-size:19px;font-weight:500;letter-spacing:.07em;margin:8px 0}
 .timeline-card p{font-size:12px;color:#707b70;line-height:2.1;margin:0 0 10px}
-.timeline-quote{font-size:11px;color:#5f705f}
+.timeline-quote{font-size:11px;color:#5f705f} /* 引文(如词摘) */
 
-/* 15. 生平结语 life-note（深色引文块）*/
-.life-note{padding:56px 20px;background:#304b3d;text-align:center;color:#f1eee4;position:relative}
+/* ---------- 13. 生平结语 life-note ---------- */
+.life-note{padding:56px 20px;background:#304b3d;text-align:center;color:#f1eee4;position:relative} /* 深色结语横幅 */
 .life-note blockquote{margin:0 0 16px;font-size:27px;letter-spacing:.15em;line-height:1.9}
 .life-note>span:last-child{font:10px var(--sans);letter-spacing:.1em;color:#c0c8b9}
-.note-ornament{position:absolute;font:100px Georgia;color:rgba(255,255,255,.12);top:4px;left:calc(50% - 160px)}
+.note-ornament{position:absolute;font:100px Georgia;color:rgba(255,255,255,.12);top:4px;left:calc(50% - 160px)} /* 背景大引号装饰 */
 
-/* 16. 下一页引导 next-step */
+/* ---------- 14. 下一页引导 next-step ---------- */
 .next-step{display:flex;justify-content:space-between;align-items:center;padding-top:88px;padding-bottom:88px}
 .next-step h2{font-size:31px;margin:15px 0 0}
 
-/* 17. 词作页首屏 ci-hero + 浮动诗句圈 */
+/* ---------- 15. 词作页首屏 ci-hero + 浮词圈 ---------- */
 .ci-hero{background:radial-gradient(ellipse at 80% 50%,rgba(201,215,200,.6),transparent 36%),linear-gradient(115deg,#eff0e9,#e3e9e0)}
-.floating-verse{z-index:2;width:210px;height:210px;border-radius:50%;border:1px solid rgba(113,131,111,.35);display:flex;flex-direction:column;align-items:center;justify-content:center;margin-right:15%;color:#69796a}
+.floating-verse{z-index:2;width:210px;height:210px;border-radius:50%;border:1px solid rgba(113,131,111,.35);display:flex;flex-direction:column;align-items:center;justify-content:center;margin-right:15%;color:#69796a} /* 圆形“浮词”装饰(竖排一句词) */
 .floating-verse:before,.floating-verse:after{content:"";position:absolute;width:165px;height:165px;border:1px solid rgba(113,131,111,.25);border-radius:50%}
-.floating-verse:after{width:240px;height:240px;border-style:dashed;opacity:.5}
+.floating-verse:after{width:240px;height:240px;border-style:dashed;opacity:.5} /* 多层圆环 */
 .floating-verse span{font-size:12px;letter-spacing:.3em;writing-mode:vertical-rl}
 .floating-verse b{font-weight:500;font-size:40px;color:var(--rust);margin-top:8px}
 .floating-verse small{font:8px var(--sans);letter-spacing:.2em;margin-top:10px}
 
-/* 18. 词作列表 works（条目 + 标签页 + 笺注）*/
+/* ---------- 16. 词作列表 works ---------- */
 .works{padding-top:95px;padding-bottom:80px}
 .works>.section-kicker{margin-bottom:27px}
 .works-heading{display:flex;justify-content:space-between;align-items:end;margin-left:18%;margin-bottom:34px}
 .works-heading h2{font-size:35px;margin:0}
 .works-heading p{font-size:12px;color:#727d72;line-height:2.1;margin:0 7% 5px 0}
-.poem-tabs{margin-left:18%;display:flex;gap:25px;border-bottom:1px solid var(--line);margin-bottom:0}
+.poem-tabs{margin-left:18%;display:flex;gap:25px;border-bottom:1px solid var(--line);margin-bottom:0} /* 词牌分类标签 */
 .poem-tabs a{padding:12px 4px;font-size:12px;color:#788177}
 .poem-tabs a:hover{color:var(--rust)}
-.work-entry{display:grid;grid-template-columns:12% 1fr 20%;gap:28px;padding:40px 0 47px;border-bottom:1px solid var(--line);scroll-margin-top:100px}
+.work-entry{display:grid;grid-template-columns:12% 1fr 20%;gap:28px;padding:40px 0 47px;border-bottom:1px solid var(--line);scroll-margin-top:100px} /* 单首词条目(序号/正文/侧栏) */
 .work-number{font:29px var(--sans);font-weight:400;color:#bdc5b9}
 .work-meta{display:flex;gap:9px;align-items:center}
 .work-main h3{font-size:24px;font-weight:500;letter-spacing:.1em;margin:8px 0 20px}
 .work-main h3 small{font-size:11px;color:#8b9388;letter-spacing:.07em;margin-left:12px;font-weight:400}
-.poem-text{font-size:14px;line-height:2.2;letter-spacing:.07em;color:#394c3e}
+.poem-text{font-size:14px;line-height:2.2;letter-spacing:.07em;color:#394c3e} /* 词正文 */
 .work-actions,.recite-buttons{display:flex;align-items:center;gap:21px;flex-wrap:wrap;margin-top:21px}
 .work-actions button,.recite-buttons button{padding:0;border:0;background:none;font-size:10px;color:var(--pine);cursor:pointer}
 .work-actions button:hover,.recite-buttons button:hover{color:var(--rust)}
-.work-actions .favorite-button[aria-pressed="true"]{color:var(--rust)}
+.work-actions .favorite-button[aria-pressed="true"]{color:var(--rust)} /* 收藏态高亮 */
 .work-actions .text-link,.recite-buttons .text-link{font-size:10px}
-.work-side{margin-top:53px;border-left:1px solid #cbd3c8;padding-left:17px;height:max-content}
+.work-side{margin-top:53px;border-left:1px solid #cbd3c8;padding-left:17px;height:max-content} /* 右侧“创作背景”栏 */
 .work-side span{font:9px var(--sans);color:var(--rust);letter-spacing:.12em}
 .work-side p{font-size:10px;color:#788177;line-height:1.9;margin:7px 0 0}
-.annotation{margin-top:20px;border-top:1px solid #d8ddd4;max-width:660px}
+
+/* ---------- 17. 词作笺注 annotation ---------- */
+.annotation{margin-top:20px;border-top:1px solid #d8ddd4;max-width:660px} /* <details> 折叠笺注 */
 .annotation summary{cursor:pointer;list-style:none;padding:11px 0;font-size:10px;color:#737f73}
 .annotation summary::-webkit-details-marker{display:none}
-.annotation summary span{float:right;color:var(--rust);font-size:14px}
+.annotation summary span{float:right;color:var(--rust);font-size:14px} /* “+”号(展开后旋转成×) */
 .annotation[open] summary span{transform:rotate(45deg)}
 .annotation>div{padding:3px 0 5px}
 .annotation p{font-size:11px;color:#6c776d;line-height:2;margin:7px 0}
 .annotation strong{color:#405544;font-weight:500}
 
-/* 19. 听词页 listen-hero + 声音轨道圈 */
+/* ---------- 18. 听词页 listen ---------- */
 .listen-hero{background:radial-gradient(ellipse at 78% 50%,rgba(215,207,184,.36),transparent 30%),linear-gradient(120deg,#ecefe7,#e1e8df)}
-.sound-orbit{position:relative;z-index:2;width:210px;height:210px;margin-right:14%;border:1px solid rgba(111,129,110,.35);border-radius:50%;display:grid;place-items:center;color:var(--rust);font-size:46px}
+.sound-orbit{position:relative;z-index:2;width:210px;height:210px;margin-right:14%;border:1px solid rgba(111,129,110,.35);border-radius:50%;display:grid;place-items:center;color:var(--rust);font-size:46px} /* 声音波纹圆环(♫) */
 .sound-orbit:before,.sound-orbit:after,.sound-orbit i,.sound-orbit b{content:"";position:absolute;inset:15px;border:1px solid rgba(111,129,110,.24);border-radius:50%}
 .sound-orbit:after{inset:-16px;border-style:dashed;opacity:.6}
-.sound-orbit i{inset:32px}.sound-orbit b{inset:49px;background:rgba(194,203,188,.2)}
+.sound-orbit i{inset:32px}.sound-orbit b{inset:49px;background:rgba(194,203,188,.2)} /* 多层同心环 */
 .sound-orbit small{position:absolute;bottom:-44px;font:8px var(--sans);letter-spacing:.2em;color:#818b7f}
-
-/* 20. 听词内容 + 朗诵卡片 recite-card */
 .listen-content{padding-top:95px;padding-bottom:80px}
 .listen-content>.section-kicker{margin-bottom:27px}
 .listen-title{display:flex;justify-content:space-between;align-items:end;margin-left:18%;margin-bottom:34px}
 .listen-title h2{font-size:35px;margin:0}
 .listen-title p{font-size:12px;margin:0 7% 5px 0}
 .recite-list{margin-left:18%}
-.recite-card{display:grid;grid-template-columns:190px 1fr;gap:31px;padding:21px 0;border-bottom:1px solid var(--line)}
-.recite-art{min-height:158px;position:relative;overflow:hidden;background:linear-gradient(150deg,#8a9a82,#435d4a);display:flex;flex-direction:column;justify-content:center;align-items:center;color:#f4f0e5}
-.recite-art:after{content:"";position:absolute;inset:37% -12% -20%;border-radius:50%;background:rgba(28,54,39,.36)}
+
+/* ---------- 19. 朗诵卡片 recite ---------- */
+.recite-card{display:grid;grid-template-columns:190px 1fr;gap:31px;padding:21px 0;border-bottom:1px solid var(--line)} /* 单条朗诵(封面+信息) */
+.recite-art{min-height:158px;position:relative;overflow:hidden;background:linear-gradient(150deg,#8a9a82,#435d4a);display:flex;flex-direction:column;justify-content:center;align-items:center;color:#f4f0e5} /* 朗诵封面图块 */
+.recite-art:after{content:"";position:absolute;inset:37% -12% -20%;border-radius:50%;background:rgba(28,54,39,.36)} /* 底部弧形暗斑 */
 .recite-art>span,.recite-art>b,.recite-art>small{position:relative;z-index:1}
 .recite-art>span{font:9px var(--sans);letter-spacing:.14em;align-self:flex-start;margin:13px 15px 0}
 .recite-art>b{font-size:26px;font-weight:400;letter-spacing:.22em;margin:auto}
 .recite-art>small{font:8px var(--sans);letter-spacing:.2em;color:#d8dacd;margin-bottom:14px}
-.art-moon{background:linear-gradient(140deg,#9a9d83,#4d5b51)}
-.art-rain{background:linear-gradient(140deg,#8a9691,#4a6162)}
+.art-moon{background:linear-gradient(140deg,#9a9d83,#4d5b51)} /* 封面配色变体：月 */
+.art-rain{background:linear-gradient(140deg,#8a9691,#4a6162)} /* 封面配色变体：雨 */
 .recite-info{padding:11px 0}
 .recite-info h3{font-size:19px;font-weight:500;letter-spacing:.08em;margin:8px 0}
 .recite-info p{font-size:11px;color:#7c857b;margin:0}
 .recite-buttons{margin-top:17px}
 
-/* 21. 互动区 interactive（提示词 + 生成表单）*/
+/* ---------- 20. 互动区 interactive ---------- */
 .interactive{padding-top:84px;padding-bottom:84px;background:#e9ebe4}
 .interactive>.section-kicker{margin-bottom:25px}
 .interactive-grid{display:grid;grid-template-columns:1fr 1fr;gap:9%;align-items:center;margin-left:18%}
 .interactive h2{font-size:34px;margin:0 0 10px}
 .interactive p{font-size:12px;max-width:390px}
-.prompt-words{display:flex;gap:8px;flex-wrap:wrap}
+.prompt-words{display:flex;gap:8px;flex-wrap:wrap} /* 心情词快捷按钮 */
 .prompt-words button{padding:5px 12px;border:1px solid #c5cdc0;background:transparent;font-size:10px;color:#667466;cursor:pointer}
 .prompt-words button:hover{background:var(--pine);color:white}
-.poem-form{background:#f1f1eb}
+.poem-form{background:#f1f1eb} /* 互动区的写诗表单底卡(覆盖 .mood-form 底色) */
 
-/* 22. 音频面板 audio-panel（默认隐藏，脚本控制弹出）*/
-.audio-panel{position:fixed;right:25px;top:100px;width:min(340px,calc(100vw - 32px));z-index:40;padding:25px;background:#f7f6ef;box-shadow:0 15px 55px rgba(31,50,38,.2);border:1px solid #dce0d7}
+/* ---------- 21. 音频面板 audio-panel ---------- */
+.audio-panel{position:fixed;right:25px;top:100px;width:min(340px,calc(100vw - 32px));z-index:40;padding:25px;background:#f7f6ef;box-shadow:0 15px 55px rgba(31,50,38,.2);border:1px solid #dce0d7} /* 右上浮层：选本地音频 */
 .audio-panel[hidden]{display:none}
 .audio-panel strong{font-size:16px;font-weight:500;letter-spacing:.06em}
 .audio-panel p{font-size:11px;line-height:1.9;color:#717b70;margin:9px 0 14px}
@@ -258,38 +282,169 @@ textarea::placeholder{color:#9aa297}
 .audio-panel .text-link{display:inline-block;font-size:10px}
 .audio-close{position:absolute;top:12px;right:14px;border:0;background:none;font-size:21px;color:#718071;cursor:pointer}
 .file-button{display:inline-flex;padding:8px 12px;background:var(--pine);color:white;font:10px var(--sans);cursor:pointer}
-.file-button input{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+.file-button input{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)} /* 原生 file input 视觉隐藏，用 label 触发 */
 
-/* 23. 花瓣 / 粒子特效 petal-burst + 关键帧 */
-.petal-burst{position:fixed;inset:0;z-index:100;pointer-events:none}
+/* ---------- 22. 花瓣 / 粒子特效 + 关键帧 ---------- */
+.petal-burst{position:fixed;inset:0;z-index:100;pointer-events:none} /* 花瓣爆发容器(覆盖全屏，不挡点击) */
 .petal-particle,.spark-particle{position:fixed;left:0;top:0;pointer-events:none;animation-delay:var(--delay);animation-fill-mode:forwards}
-.petal-particle{width:var(--petal-width,11px);height:calc(var(--petal-width,11px)*1.45);border-radius:88% 5% 82% 8%;background:linear-gradient(145deg,#ffe4eb 0%,#f7a1b5 34%,#e45479 70%,#b72550 100%);box-shadow:0 2px 8px rgba(196,43,88,.32),inset -1px -1px 2px rgba(140,24,57,.18);animation:petal-fall 1.9s cubic-bezier(.19,.65,.3,1) forwards;transform-origin:70% 70%}
-.petal-particle:after{content:"";position:absolute;width:1px;height:68%;top:14%;left:48%;background:rgba(255,246,248,.75);transform:rotate(-24deg)}
-.spark-particle{width:var(--spark-size,3px);height:var(--spark-size,3px);border-radius:50%;background:#fff5fb;box-shadow:0 0 5px 2px rgba(255,190,220,.88),0 0 12px 4px rgba(234,79,140,.45);animation:sparkle-fade 1s ease-out forwards}
-@keyframes petal-fall{0%{transform:translate(0,0) rotate(0) scale(.5);opacity:0}12%{transform:translate(var(--burst-x),var(--burst-y)) rotate(35deg) scale(1);opacity:1}45%{transform:translate(var(--mid-x),var(--mid-y)) rotate(var(--mid-spin)) scale(.96);opacity:.96}100%{transform:translate(var(--end-x),var(--end-y)) rotate(var(--spin)) scale(.78);opacity:0}}
-@keyframes sparkle-fade{0%{transform:translate(0,0) scale(.2);opacity:0}18%{opacity:1;transform:translate(var(--burst-x),var(--burst-y)) scale(1.25)}100%{transform:translate(var(--burst-x),var(--burst-y)) scale(.15);opacity:0}}
+.petal-particle{width:var(--petal-width,11px);height:calc(var(--petal-width,11px)*1.45);border-radius:88% 5% 82% 8%;background:linear-gradient(145deg,#ffe4eb 0%,#f7a1b5 34%,#e45479 70%,#b72550 100%);box-shadow:0 2px 8px rgba(196,43,88,.32),inset -1px -1px 2px rgba(140,24,57,.18);animation:petal-fall 1.9s cubic-bezier(.19,.65,.3,1) forwards;transform-origin:70% 70%} /* 单片花瓣(粉红渐变) */
+.petal-particle:after{content:"";position:absolute;width:1px;height:68%;top:14%;left:48%;background:rgba(255,246,248,.75);transform:rotate(-24deg)} /* 花瓣中脉 */
+.spark-particle{width:var(--spark-size,3px);height:var(--spark-size,3px);border-radius:50%;background:#fff5fb;box-shadow:0 0 5px 2px rgba(255,190,220,.88),0 0 12px 4px rgba(234,79,140,.45);animation:sparkle-fade 1s ease-out forwards} /* 闪光点 */
+@keyframes petal-fall{0%{transform:translate(0,0) rotate(0) scale(.5);opacity:0}12%{transform:translate(var(--burst-x),var(--burst-y)) rotate(35deg) scale(1);opacity:1}45%{transform:translate(var(--mid-x),var(--mid-y)) rotate(var(--mid-spin)) scale(.96);opacity:.96}100%{transform:translate(var(--end-x),var(--end-y)) rotate(var(--spin)) scale(.78);opacity:0}} /* 花瓣飘落轨迹 */
+@keyframes sparkle-fade{0%{transform:translate(0,0) scale(.2);opacity:0}18%{opacity:1;transform:translate(var(--burst-x),var(--burst-y)) scale(1.25)}100%{transform:translate(var(--burst-x),var(--burst-y)) scale(.15);opacity:0}} /* 闪光淡出 */
 
-/* 24. 响应式：平板 ≤ 1000px */
-@media(max-width:1000px){.site-header{padding:0 4%}.main-nav{gap:22px}.hero{padding-left:7%;padding-right:7%}.hero-art{right:2%;width:50vw;height:50vw}.section-wrap{padding-left:7%;padding-right:7%}.intro{grid-template-columns:.3fr 1fr .8fr;gap:26px}.feature-section{padding-left:7%;padding-right:7%}.poem-card{padding:19px 15px}.closing{grid-template-columns:.2fr 1fr .9fr;gap:25px}.subhero{padding-left:7%;padding-right:7%}.works,.listen-content,.story{padding-left:7%;padding-right:7%}.work-entry{grid-template-columns:8% 1fr 18%;gap:18px}}
+/* ---------- 23. 响应式：平板 ≤1000px ---------- */
+@media(max-width:1000px){
+  .site-header{padding:0 4%}
+  .main-nav{gap:22px}
+  .hero{padding-left:7%;padding-right:7%}
+  .hero-art{right:2%;width:50vw;height:50vw}
+  .section-wrap{padding-left:7%;padding-right:7%}
+  .intro{grid-template-columns:.3fr 1fr .8fr;gap:26px}
+  .feature-section{padding-left:7%;padding-right:7%}
+  .poem-card{padding:19px 15px}
+  .closing{grid-template-columns:.2fr 1fr .9fr;gap:25px}
+  .subhero{padding-left:7%;padding-right:7%}
+  .works,.listen-content,.story{padding-left:7%;padding-right:7%}
+  .work-entry{grid-template-columns:8% 1fr 18%;gap:18px}
+}
 
-/* 25. 响应式：手机 ≤ 700px（导航折叠为汉堡菜单，多栏变单栏）*/
-@media(max-width:700px){html{scroll-padding-top:75px}.site-header{height:70px;padding:0 5%}.brand{font-size:13px}.brand-seal{width:34px;height:34px}.menu-toggle{display:block;margin-left:auto;order:3}.sound-toggle{order:2;padding:7px 10px}.sound-toggle span:last-child{display:none}.main-nav{display:none;position:absolute;left:0;right:0;top:69px;height:auto;padding:11px 5% 19px;background:rgba(243,243,237,.98);border-bottom:1px solid var(--line);gap:0;flex-direction:column;align-items:stretch}.main-nav.open{display:flex}.main-nav a{height:auto;padding:12px 5px}.main-nav a.active:after{left:auto;right:4px;bottom:18px}.hero{min-height:810px;min-height:calc(100svh - 70px);padding:72px 7% 50px;align-items:flex-start}.hero-copy{width:100%;max-width:none}.hero h1{font-size:48px}.hero-intro{max-width:330px;font-size:12px}.hero-art{top:auto;bottom:22px;right:0;transform:none;width:91vw;height:390px;border-radius:48% 48% 4px 4px}.art-label{top:11%;left:17%;font-size:9px}.art-poem{right:7%;bottom:16%;font-size:12px}.art-stamp{bottom:8%;left:8%;width:48px;height:38px;font-size:8px}.hero-verse{margin-top:30px;font-size:10px}.hero-bottom{bottom:13px;left:7%;right:7%;font-size:8px}.hero-bottom .scroll-line{width:45px}.intro{grid-template-columns:1fr;gap:16px;padding-top:72px;padding-bottom:78px}.intro-poet{display:grid;grid-template-columns:1fr;justify-items:start}.portrait-frame{width:min(100%,360px);margin-top:12px}.poet-portrait{aspect-ratio:1.55;object-position:center 24%}.intro-heading{padding-left:0}.intro-heading h2,.feature-head h2,.story-lead h2,.works-heading h2,.listen-title h2,.interactive h2,.next-step h2,.closing h2{font-size:29px}.intro-card{margin:5px 0 0;min-height:210px}.feature-section{padding:66px 6% 73px}.feature-head{align-items:start;gap:15px}.feature-head .under-link{margin-top:30px;white-space:nowrap;font-size:10px}.poem-grid{grid-template-columns:repeat(2,1fr);gap:9px}.poem-card{min-height:230px;padding:17px 14px}.poem-card h3{font-size:21px;margin-top:35px}.poem-card p{font-size:11px}.closing{grid-template-columns:36px 1fr;padding-top:70px;padding-bottom:70px;gap:16px}.closing-pine{height:145px}.closing .mood-form{grid-column:1/-1}.site-footer{padding:24px 5%;flex-wrap:wrap}.site-footer>span{display:none}.site-footer .brand small{font-size:8px}.subhero{min-height:390px;padding:55px 7%;align-items:flex-start}.subhero h1{font-size:43px}.subhero-copy>p:not(.eyebrow){font-size:12px;max-width:290px}.subhero-mark,.floating-verse,.sound-orbit{position:absolute;right:7%;bottom:24px;transform:scale(.72);transform-origin:bottom right;margin:0}.subhero-mark{right:15%;bottom:52px}.story,.works,.listen-content{padding:65px 7%}.story>.section-kicker,.works>.section-kicker,.listen-content>.section-kicker{margin-bottom:20px}.story-lead{grid-template-columns:1fr;gap:14px;padding:0 0 35px 0}.story-lead h2{font-size:30px}.timeline{margin-left:12px;padding-left:28px}.timeline-item{padding-bottom:24px}.timeline-year{position:static;display:block;margin-bottom:8px}.timeline-dot{left:-33px;top:6px}.timeline-card{padding:18px 17px}.timeline-card h3{font-size:17px}.timeline-card p{font-size:11px}.life-note blockquote{font-size:22px}.next-step{padding-top:62px;padding-bottom:62px;gap:15px}.next-step h2{font-size:25px}.next-step .button{padding:10px 13px;gap:10px;white-space:nowrap;font-size:9px}.works-heading,.listen-title{display:block;margin:0 0 22px}.works-heading h2,.listen-title h2{font-size:30px;margin-bottom:10px}.works-heading p,.listen-title p{font-size:11px}.poem-tabs{margin:0 -2px;gap:16px;overflow-x:auto;white-space:nowrap}.poem-tabs a{font-size:11px}.work-entry{grid-template-columns:34px 1fr;gap:10px;padding:27px 0}.work-number{font-size:20px}.work-main h3{font-size:22px}.work-main h3 small{display:block;margin:1px 0 0;font-size:10px}.poem-text{font-size:13px;line-height:2.1}.work-side{display:none}.work-actions{gap:14px}.work-actions .text-link{font-size:9px}.recite-list{margin:0}.recite-card{grid-template-columns:105px 1fr;gap:16px;padding:15px 0}.recite-art{min-height:145px}.recite-art>b{font-size:20px}.recite-info{padding:3px 0}.recite-info h3{font-size:15px}.recite-info p{font-size:10px}.recite-buttons{gap:11px;margin-top:12px}.recite-buttons button,.recite-buttons .text-link{font-size:9px}.interactive{padding:64px 7%}.interactive-grid{grid-template-columns:1fr;gap:17px;margin:0}.interactive h2{font-size:29px}.audio-panel{right:12px;top:80px}.floating-verse{transform:scale(.58);right:4%;bottom:8px}.sound-orbit{transform:scale(.58);right:5%;bottom:23px}.subhero:after{width:77%}}
+/* ---------- 24. 响应式：手机 ≤700px ---------- */
+@media(max-width:700px){
+  html{scroll-padding-top:75px}
+  .site-header{height:70px;padding:0 5%}
+  .brand{font-size:13px}
+  .brand-seal{width:34px;height:34px}
+  .menu-toggle{display:block;margin-left:auto;order:3} /* 显示汉堡，排到最右 */
+  .sound-toggle{order:2;padding:7px 10px}
+  .sound-toggle span:last-child{display:none} /* 隐藏“音乐开启”文字，仅留图标 */
+  .main-nav{display:none;position:absolute;left:0;right:0;top:69px;height:auto;padding:11px 5% 19px;background:rgba(243,243,237,.98);border-bottom:1px solid var(--line);gap:0;flex-direction:column;align-items:stretch} /* 收起为下拉 */
+  .main-nav.open{display:flex}
+  .main-nav a{height:auto;padding:12px 5px}
+  .main-nav a.active:after{left:auto;right:4px;bottom:18px} /* 当前页下划线改到右侧 */
+  .hero{min-height:810px;min-height:calc(100svh - 70px);padding:72px 7% 50px;align-items:flex-start}
+  .hero-copy{width:100%;max-width:none}
+  .hero h1{font-size:48px}
+  .hero-intro{max-width:330px;font-size:12px}
+  .hero-art{top:auto;bottom:22px;right:0;transform:none;width:91vw;height:390px;border-radius:48% 48% 4px 4px} /* 插画移到首屏底部 */
+  .art-label{top:11%;left:17%;font-size:9px}
+  .art-poem{right:7%;bottom:16%;font-size:12px}
+  .art-stamp{bottom:8%;left:8%;width:48px;height:38px;font-size:8px}
+  .hero-verse{margin-top:30px;font-size:10px}
+  .hero-bottom{bottom:13px;left:7%;right:7%;font-size:8px}
+  .hero-bottom .scroll-line{width:45px}
+  .intro{grid-template-columns:1fr;gap:16px;padding-top:72px;padding-bottom:78px} /* 单列堆叠 */
+  .intro-poet{display:grid;grid-template-columns:1fr;justify-items:start}
+  .portrait-frame{width:min(100%,360px);margin-top:12px}
+  .poet-portrait{aspect-ratio:1.55;object-position:center 24%}
+  .intro-heading{padding-left:0}
+  .intro-heading h2,.feature-head h2,.story-lead h2,.works-heading h2,.listen-title h2,.interactive h2,.next-step h2,.closing h2{font-size:29px}
+  .intro-card{margin:5px 0 0;min-height:210px}
+  .feature-section{padding:66px 6% 73px}
+  .feature-head{align-items:start;gap:15px}
+  .feature-head .under-link{margin-top:30px;white-space:nowrap;font-size:10px}
+  .poem-grid{grid-template-columns:repeat(2,1fr);gap:9px} /* 词卡两列 */
+  .poem-card{min-height:230px;padding:17px 14px}
+  .poem-card h3{font-size:21px;margin-top:35px}
+  .poem-card p{font-size:11px}
+  .closing{grid-template-columns:36px 1fr;padding-top:70px;padding-bottom:70px;gap:16px}
+  .closing-pine{height:145px}
+  .closing .mood-form{grid-column:1/-1} /* 表单占满整行 */
+  .site-footer{padding:24px 5%;flex-wrap:wrap}
+  .site-footer>span{display:none}
+  .site-footer .brand small{font-size:8px}
+  .subhero{min-height:390px;padding:55px 7%;align-items:flex-start}
+  .subhero h1{font-size:43px}
+  .subhero-copy>p:not(.eyebrow){font-size:12px;max-width:290px}
+  .subhero-mark,.floating-verse,.sound-orbit{position:absolute;right:7%;bottom:24px;transform:scale(.72);transform-origin:bottom right;margin:0} /* 右侧装饰缩放到右下角 */
+  .subhero-mark{right:15%;bottom:52px}
+  .story,.works,.listen-content{padding:65px 7%}
+  .story>.section-kicker,.works>.section-kicker,.listen-content>.section-kicker{margin-bottom:20px}
+  .story-lead{grid-template-columns:1fr;gap:14px;padding:0 0 35px 0}
+  .story-lead h2{font-size:30px}
+  .timeline{margin-left:12px;padding-left:28px}
+  .timeline-item{padding-bottom:24px}
+  .timeline-year{position:static;display:block;margin-bottom:8px} /* 年份改到卡片上方 */
+  .timeline-dot{left:-33px;top:6px}
+  .timeline-card{padding:18px 17px}
+  .timeline-card h3{font-size:17px}
+  .timeline-card p{font-size:11px}
+  .life-note blockquote{font-size:22px}
+  .next-step{padding-top:62px;padding-bottom:62px;gap:15px}
+  .next-step h2{font-size:25px}
+  .next-step .button{padding:10px 13px;gap:10px;white-space:nowrap;font-size:9px}
+  .works-heading,.listen-title{display:block;margin:0 0 22px} /* 标题与说明上下排列 */
+  .works-heading h2,.listen-title h2{font-size:30px;margin-bottom:10px}
+  .works-heading p,.listen-title p{font-size:11px}
+  .poem-tabs{margin:0 -2px;gap:16px;overflow-x:auto;white-space:nowrap} /* 标签横向滚动 */
+  .poem-tabs a{font-size:11px}
+  .work-entry{grid-template-columns:34px 1fr;gap:10px;padding:27px 0} /* 隐藏侧栏，仅留序号+正文 */
+  .work-number{font-size:20px}
+  .work-main h3{font-size:22px}
+  .work-main h3 small{display:block;margin:1px 0 0;font-size:10px}
+  .poem-text{font-size:13px;line-height:2.1}
+  .work-side{display:none}
+  .work-actions{gap:14px}
+  .work-actions .text-link{font-size:9px}
+  .recite-list{margin:0}
+  .recite-card{grid-template-columns:105px 1fr;gap:16px;padding:15px 0} /* 朗诵封面缩小 */
+  .recite-art{min-height:145px}
+  .recite-art>b{font-size:20px}
+  .recite-info{padding:3px 0}
+  .recite-info h3{font-size:15px}
+  .recite-info p{font-size:10px}
+  .recite-buttons{gap:11px;margin-top:12px}
+  .recite-buttons button,.recite-buttons .text-link{font-size:9px}
+  .interactive{padding:64px 7%}
+  .interactive-grid{grid-template-columns:1fr;gap:17px;margin:0} /* 单列 */
+  .interactive h2{font-size:29px}
+  .audio-panel{right:12px;top:80px}
+  .floating-verse{transform:scale(.58);right:4%;bottom:8px}
+  .sound-orbit{transform:scale(.58);right:5%;bottom:23px}
+  .subhero:after{width:77%} /* 远山更宽 */
+}
 
-/* 26. 动效降级：用户开启「减少动态效果」时关闭动画 */
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+/* ---------- 25. 减弱动效：无障碍降级 ---------- */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    scroll-behavior:auto!important;            /* 关掉平滑滚动 */
+    animation-duration:.01ms!important;         /* 动画近乎瞬停 */
+    animation-iteration-count:1!important;
+    transition-duration:.01ms!important
+  }
+}
 
-/* 27. 声音控件补充：开关态 + 音量条 + 背景音乐元素（放在末尾覆盖通用样式）*/
-.sound-controls{display:flex;align-items:center;gap:10px;flex-shrink:0}
-.sound-toggle[aria-pressed="true"]{background:var(--pine);border-color:var(--pine);color:#f7f5ef}
+/* ---------- 26. 声音控件补充(开关态 / 音量条) ---------- */
+.sound-controls{display:flex;align-items:center;gap:10px;flex-shrink:0} /* 页头声音区容器 */
+.sound-toggle[aria-pressed="true"]{background:var(--pine);border-color:var(--pine);color:#f7f5ef} /* “开启”态：松绿填充(覆盖通用样式) */
 .sound-toggle[aria-pressed="true"] .sound-icon{color:#e7c99c}
 .sound-status{white-space:nowrap}
 .volume-control{display:flex;align-items:center}
-.volume-slider{width:72px;height:4px;accent-color:var(--pine);cursor:pointer}
-.visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-.background-audio{display:none}
+.volume-slider{width:72px;height:4px;accent-color:var(--pine);cursor:pointer} /* 音量滑块，主题色描边 */
+.visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0} /* 仅供读屏的隐藏标签 */
 
-/* 28. 声音控件在手机端微调 */
-@media(max-width:700px){.sound-controls{gap:6px}.sound-toggle{padding:7px 9px}.sound-toggle .sound-status{display:inline;font-size:9px}.volume-slider{width:48px}}
+/* ---------- 27. 背景音乐元素隐藏原生控件 ---------- */
+.background-audio{display:none} /* 自动播放背景乐，控件由音量条/按钮接管，不显示原生 UI */
 
-/* 29. 动效降级：隐藏花瓣粒子层 */
+/* ---------- 28. 手机端声音控件微调 ---------- */
+@media(max-width:700px){
+  .sound-controls{gap:6px}
+  .sound-toggle{padding:7px 9px}
+  .sound-toggle .sound-status{display:inline;font-size:9px} /* 手机上恢复显示状态文字 */
+  .volume-slider{width:48px}
+}
+
+/* ---------- 29. 大屏增强：宽≥1100px 且 高≥700px ---------- */
+/* 在大桌面/笔记本上进一步放大首屏与 intro，让留白与竖向居中更舒展 */
+@media(min-width:1100px) and (min-height:700px){
+  .hero{min-height:min(820px,calc(100svh - 86px))} /* 首屏更高(最高 820px) */
+  .intro{min-height:calc(100svh - 86px);grid-template-columns:minmax(260px,.78fr) minmax(420px,1.25fr) minmax(280px,.9fr);gap:clamp(28px,3.2vw,48px);align-items:center;padding-top:clamp(58px,8vh,100px);padding-bottom:clamp(58px,8vh,100px)} /* intro 占满视口并垂直居中 */
+  .intro-poet{align-self:center}
+  .portrait-frame{margin-top:22px}
+  .poet-portrait{aspect-ratio:1.55}
+  .intro-heading h2{font-size:clamp(38px,3.6vw,52px)} /* 标题略放大 */
+  .intro-card{margin-top:0;min-height:280px;padding:clamp(28px,3.2vw,44px)}
+}
+
+/* ---------- 30. 粒子特效在减弱动效下整体隐藏 ---------- */
 @media(prefers-reduced-motion:reduce){.petal-burst{display:none}}
