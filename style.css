@@ -235,6 +235,34 @@ textarea::placeholder{color:#9aa297}
 .mirror-card h3{font-weight:500;font-size:23px;letter-spacing:.12em;margin:25px 0 10px}
 .mirror-card p{font-size:12px;line-height:2.1;color:#68766b;min-height:80px;margin:0 0 14px}
 .mirror-card em{font-style:normal;font-size:12px;letter-spacing:.06em;color:#9a6149} /* 引词(锈红) */
+
+/* ---------- 15d. 词容万象：影视 / 游戏形象展示区 screen-world ---------- */
+.screen-world{padding-top:100px;padding-bottom:95px}
+.screen-world>.section-kicker{margin-bottom:28px}
+.screen-world-heading{display:grid;grid-template-columns:1fr 1fr;gap:9%;align-items:end;margin-left:18%;margin-bottom:36px} /* 左标题 + 右说明 两栏 */
+.screen-world-heading h2{font-size:clamp(30px,3.1vw,42px);line-height:1.65;font-weight:500;letter-spacing:.06em;margin:0}
+.screen-world-heading p{max-width:460px;font-size:13px;line-height:2.2;color:#68766b;margin:0 7% 7px 0}
+.media-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:25px 20px;margin-left:18%} /* 四张媒体卡：2×2 网格 */
+.media-card{min-width:0;background:rgba(255,255,255,.45);border:1px solid rgba(134,151,131,.27);box-shadow:0 9px 24px rgba(49,67,53,.05)}
+.media-placeholder{position:relative;display:grid;place-items:center;aspect-ratio:1.72;min-height:180px;overflow:hidden;background-color:#e3e7dd;color:#69786a} /* 图片占位框 */
+.media-placeholder:before{content:"";position:absolute;inset:12px;border:1px solid rgba(101,123,104,.31);pointer-events:none} /* 占位内描边 */
+.media-placeholder:after{content:"";position:absolute;inset:0;background:linear-gradient(145deg,rgba(255,255,255,.38),transparent 43%,rgba(68,89,70,.07));pointer-events:none} /* 占位光泽 */
+.media-film-one{background-image:radial-gradient(ellipse at 72% 28%,rgba(244,230,202,.55),transparent 30%),linear-gradient(135deg,#c7c9b8,#e5e4d5 48%,#aeb9aa)} /* 影视占位·暖调 */
+.media-film-two{background-image:radial-gradient(ellipse at 28% 76%,rgba(230,207,174,.55),transparent 32%),linear-gradient(135deg,#c3ccc2,#e8e7d9 50%,#b7bfae)} /* 影视占位·冷调 */
+.media-game-one{background-image:radial-gradient(ellipse at 72% 68%,rgba(216,199,174,.53),transparent 30%),linear-gradient(135deg,#bdc7bd,#e2e4d8 50%,#aeb8b0)} /* 游戏占位·暖调 */
+.media-game-two{background-image:radial-gradient(ellipse at 30% 26%,rgba(237,219,183,.52),transparent 30%),linear-gradient(135deg,#c5c8b9,#e5e2d5 50%,#b4beb2)} /* 游戏占位·冷调 */
+.media-placeholder-type,.media-placeholder-number,.media-placeholder-note{position:absolute;z-index:1}
+.media-placeholder-type{top:25px;left:28px;padding:5px 9px;background:rgba(243,243,237,.77);font:9px var(--sans);letter-spacing:.12em} /* 类型标签(左上) */
+.media-placeholder-number{right:27px;top:18px;font:30px var(--serif);color:rgba(48,77,63,.28)} /* 序号(右上) */
+.media-placeholder-note{text-align:center;font-size:12px;letter-spacing:.12em;line-height:1.9;color:#657465}
+.media-placeholder-note:before{content:"＋";display:grid;place-items:center;width:32px;height:32px;margin:0 auto 9px;border:1px solid rgba(101,123,104,.52);border-radius:50%;font:18px var(--sans);color:#718273} /* 加号图标 */
+.media-placeholder-note small{font:8px var(--sans);letter-spacing:.2em;color:#8a9387}
+.media-caption{padding:17px 21px 19px}
+.media-caption>span{font:8px var(--sans);letter-spacing:.16em;color:#9b6852} /* 编号(锈红小字) */
+.media-caption h3{font-size:16px;font-weight:500;letter-spacing:.07em;margin:6px 0 4px}
+.media-caption p{font-size:11px;line-height:1.8;color:#788176;margin:0}
+.screen-world-footnote{margin:24px 0 0 18%;padding-left:13px;border-left:1px solid rgba(169,104,76,.55);font-size:10px;line-height:1.9;color:#7b8478} /* 底部说明(锈红左边线) */
+
 .living-echo{position:relative;padding-top:86px;padding-bottom:82px;text-align:center;background:radial-gradient(ellipse at 50% 50%,rgba(207,216,201,.55),transparent 65%)} /* 居中引文区 */
 .echo-quote{display:block;height:43px;font:72px Georgia,serif;line-height:1;color:rgba(169,104,76,.48)} /* 大引号装饰 */
 .living-echo p{font-size:clamp(20px,2.5vw,29px);letter-spacing:.1em;line-height:2;margin:9px 0 17px}
@@ -518,6 +546,8 @@ html.page-transitioning main{opacity:.08;transform:translateY(8px) scale(.995);f
   .wanxiang-portrait{flex-basis:30vw;height:38vw;min-height:260px;margin-right:0}
   .memory-line,.mirror-grid{margin-left:8%} /* 缩进变小 */
   .memory-lead,.mirrors-heading{padding-left:8%;margin-left:0}
+  .screen-world-heading,.media-grid{margin-left:8%} /* 影视/游戏区：缩进与上方一致 */
+  .screen-world-footnote{margin-left:8%}
 }
 @media(max-width:700px){
   .wanxiang-hero{min-height:0;display:block;padding:62px 8% 55px} /* 取消左右分栏，改上下堆叠 */
@@ -541,4 +571,12 @@ html.page-transitioning main{opacity:.08;transform:translateY(8px) scale(.995);f
   .mirror-card p{min-height:0}
   .living-echo{padding-top:62px;padding-bottom:60px}
   .living-echo p{font-size:18px}
+  .screen-world{padding-top:68px;padding-bottom:70px} /* 影视/游戏区上下留白收紧 */
+  .screen-world-heading{display:block;padding-left:0;margin:0 0 25px}
+  .screen-world-heading h2{font-size:29px}
+  .screen-world-heading p{margin:11px 0 0}
+  .media-grid{grid-template-columns:1fr;margin-left:0;gap:14px} /* 媒体卡单列 */
+  .media-placeholder{aspect-ratio:1.55;min-height:160px}
+  .media-caption{padding:14px 17px 16px}
+  .screen-world-footnote{margin:20px 0 0}
 }
