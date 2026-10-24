@@ -70,7 +70,7 @@ h1,h2,h3,p{margin-top:0}
 /* 翻书封面副标题 small：套用"旋动楷书"手写体，并自定义字号/字重/字距（后文封面区另有同选择器规则设定通用样式，此处前置其字体） */
 .book-cover-title small{font-family:"Xuandong Kaishu",var(--serif);font-size:13px;font-weight:400;letter-spacing:.12em}
 h1 em,h2 em{font-style:normal;color:var(--rust)}      /* 标题中强调字用锈红 */
-.hero-intro{font-size:14px;letter-spacing:.07em;line-height:2.2;color:#34483b;max-width:440px;margin:0 0 30px;text-shadow:0 1px 0 rgba(243,243,237,.72)}
+.hero-intro{font-size:16px;letter-spacing:.07em;line-height:2.15;color:#34483b;max-width:470px;margin:0 0 30px;text-shadow:0 1px 0 rgba(243,243,237,.72)}  /* 首页导语：略放大字号、放宽行距与宽度，提升可读性 */
 .hero-actions{display:flex;align-items:center;gap:27px}
 .button{min-height:47px;padding:11px 20px;display:inline-flex;align-items:center;justify-content:center;gap:23px;font-family:var(--sans);font-size:11px;letter-spacing:.1em;transition:transform .2s,background .2s}
 .button:hover{transform:translateY(-2px)}
@@ -79,7 +79,7 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}      /* 标题中强调字用�
 .button span{font-size:16px;color:#d2b990}            /* 按钮内箭头/符号(金) */
 .text-link,.under-link{font-family:var(--sans);font-size:11px;letter-spacing:.06em;color:var(--pine);border-bottom:1px solid #bac4b9;padding-bottom:5px}
 .text-link span,.under-link span{color:var(--rust);margin-left:8px}
-.hero-verse{display:flex;align-items:center;gap:14px;color:#304638;font-size:12px;letter-spacing:.07em;margin-top:59px;text-shadow:0 1px 0 rgba(243,243,237,.78)}
+.hero-verse{display:flex;align-items:center;gap:14px;color:#304638;font-size:14px;letter-spacing:.07em;margin-top:48px;text-shadow:0 1px 0 rgba(243,243,237,.78)}  /* 首屏诗句栏：放大字号、上移贴近导语 */
 .verse-rule{height:1px;width:35px;background:var(--rust)}
 .hero-art{position:absolute;width:min(44vw,570px);height:min(48vw,570px);right:10%;top:48%;transform:translateY(-49%);overflow:hidden;background:#273a48;border:1px solid rgba(199,170,119,.72);border-radius:48% 48% 5px 5px;box-shadow:0 0 0 5px rgba(243,243,237,.68),0 0 0 6px rgba(169,104,76,.38),0 28px 65px rgba(35,54,46,.18)} /* 弧形画框 */
 .hero-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 48%}
@@ -108,7 +108,7 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}      /* 标题中强调字用�
 .section-kicker{display:flex;align-items:center;gap:12px;padding-top:11px;white-space:nowrap}
 .section-kicker span{color:#929a8f;font-size:9px}
 .intro-heading h2,.feature-head h2,.story-lead h2,.works-heading h2,.listen-title h2,.interactive h2,.next-step h2,.closing h2{font-size:clamp(30px,3.2vw,43px);line-height:1.6;letter-spacing:.06em;font-weight:500;margin:0 0 17px}
-.intro-heading p,.story-lead p,.listen-title p,.interactive p{max-width:470px;color:#6d786d;font-size:13px;line-height:2.2;letter-spacing:.04em;margin-bottom:22px}
+.intro-heading p,.story-lead p,.listen-title p,.interactive p{max-width:470px;color:#6d786d;font-size:15px;line-height:2.15;letter-spacing:.04em;margin-bottom:22px}  /* 各区块引导段：放大字号、略收行距 */
 .intro-card{position:relative;margin-top:37px;min-height:255px;padding:31px 30px;background:linear-gradient(135deg,rgba(249,249,242,.96),rgba(239,241,232,.96));border:1px solid #42554a;border-radius:21px;box-shadow:0 8px 24px rgba(47,62,49,.08);overflow:hidden} /* 引语卡片：浅渐变底 + 松绿描边 + 圆角 + 柔影 */
 .intro-card:before{content:"";position:absolute;inset:5px;border:1px solid rgba(48,77,63,.72);border-radius:16px;pointer-events:none} /* 卡片内描边，形成双线框效果 */
 .card-index{font:9px var(--sans);letter-spacing:.17em;color:#818b7f}
@@ -139,7 +139,7 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}      /* 标题中强调字用�
 /* ---------- 7. 词外余韵 + 首页结语 closing + 表单 ---------- */
 /* 7a. 词外余韵 afterlife（承接词作、过渡到结语的形象区：整屏背景图 + 左对齐文案 + 行动按钮） */
 .afterlife-section{position:relative;isolation:isolate;min-height:370px;padding-top:62px;padding-bottom:70px;display:flex;flex-direction:column;justify-content:center;overflow:hidden;background:#f3f3ed} /* 底色为纸色，背景图改由 ::before 承载（压低透明度更柔和）；isolation 让 ::before 只盖在本区内 */
-.afterlife-section:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(244,244,232,.24),rgba(244,244,232,.08) 66%,rgba(244,244,232,.03)),url("afterlife-background.jpg") center 53%/cover no-repeat;opacity:.7} /* 背景图 + 左厚右薄纸色叠层合一，整体 0.7 透明，整屏更朦胧、文字更清晰 */
+.afterlife-section:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(238,240,232,.3),rgba(238,240,232,.2) 66%,rgba(238,240,232,.16)),url("afterlife-background.jpg") center 53%/cover no-repeat;opacity:.56} /* 背景图 + 左厚右薄纸色叠层合一，整体 0.56 透明（较旧版更淡），整屏更朦胧、文字更清晰 */
 .afterlife-section>.section-kicker{color:#755e40;text-shadow:0 1px 12px rgba(255,255,255,.5)}
 .afterlife-section>.section-kicker span{color:#6f7466}
 .afterlife-copy{display:flex;align-items:end;justify-content:space-between;gap:34px;max-width:900px;margin:48px 0 0 9%} /* 文案 + 按钮左右排布，左侧 9% 起排 */
@@ -148,7 +148,7 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}      /* 标题中强调字用�
 .afterlife-copy p{max-width:500px;margin:0;color:#4f594e;font-size:13px;line-height:2.1;text-shadow:0 1px 14px rgba(255,255,245,.85)}
 .afterlife-copy .button{flex-shrink:0;box-shadow:0 3px 18px rgba(255,255,245,.48)} /* 行动按钮：不伸缩 + 浅色投影 */
 .closing{position:relative;isolation:isolate;padding-top:108px;padding-bottom:110px;display:grid;grid-template-columns:.35fr 1fr .85fr;gap:45px;align-items:center}  /* 建立定位上下文 + 隔离层叠，使 ::before 背景图收敛到本区块 */
-.closing:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(rgba(243,244,236,.04),rgba(243,244,236,.04)),url("closing-background.jpg") center 54%/cover no-repeat;opacity:.7} /* 结语整屏背景图 + 极淡纸色叠层（透明度 .9→.7 调淡），z-index:-1 沉到文字之下 */
+.closing:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(rgba(238,240,232,.14),rgba(238,240,232,.14)),url("closing-background.jpg") center 54%/cover no-repeat;opacity:.56} /* 结语整屏背景图 + 极淡纸色叠层（透明度 .7→.56 调淡），z-index:-1 沉到文字之下 */
 .closing-pine{color:#879483;font-size:13px;letter-spacing:.3em;writing-mode:vertical-rl;border-left:1px solid #b8c1b5;height:170px;padding:10px 0 0 16px} /* 竖排“松”字意境 */
 .closing h2{margin-top:17px}
 .closing p{font-size:12px;color:#768074;letter-spacing:.05em;margin-bottom:23px}
@@ -180,7 +180,7 @@ textarea::placeholder{color:#9aa297}
 .subhero-mark small{grid-column:1 / -1;line-height:1.8;font-size:10px;color:#405748;font-weight:500} /* 生卒年标记 */
 
 /* ---------- 10. 生平时间线 story ---------- */
-.story{padding-top:94px;padding-bottom:95px;background:linear-gradient(rgba(243,243,237,.28),rgba(243,243,237,.4)),url("life-story-background.jpg") center 48%/cover no-repeat}  /* 生平区背景图(life-story) + 纸色渐变叠层 */
+.story{padding-top:94px;padding-bottom:95px;border-top:1px solid rgba(169,104,76,.34);background:linear-gradient(180deg,rgba(243,243,237,.62),rgba(243,243,237,.48) 24%,rgba(243,243,237,.54)),url("life-story-background.jpg") center 48%/cover no-repeat}  /* 生平区顶部加锈红分隔线 + 背景图(life-story) + 纸色渐变叠层(改 180° 自上而下、纸色更实) */
 .story>.section-kicker{margin-bottom:28px}
 .story-lead{display:grid;grid-template-columns:1fr 1fr;gap:10%;padding:0 0 55px 18%}
 .story-lead h2{font-size:37px;margin:0}
