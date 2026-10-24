@@ -1,131 +1,40 @@
 <!doctype html>
+<!-- 一江春水 · 李煜词境 — 词人故事页 / life.html -->
 <html lang="zh-CN">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#e8eee4">
-  <title>词人故事 · 一江春水</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="script.js" defer></script>
-</head>
-
-<!-- 词人故事页：当前页导航高亮 life.html；主体结构与首页一致，仅 <main> 内容不同 -->
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#e8eee4"><title>词人故事 · 一江春水</title><link rel="stylesheet" href="style.css"><script src="script.js" defer></script></head>
 <body>
+  <!-- 页头：品牌 + 主导航(当前页高亮「词人故事」) + 声音开关 + 音量 -->
+  <header class="site-header"><a class="brand" href="index.html"><span class="brand-seal">煜</span><span>一江春水<small>李煜词境 · 南唐旧梦</small></span></a><button class="menu-toggle" aria-label="打开导航" aria-expanded="false">☰</button><nav class="main-nav" aria-label="主导航"><a href="index.html">首页</a><a class="active" href="life.html">词人故事</a><a href="ci.html">词作笺赏</a><a href="wanxiang.html">词容万象</a><a href="listen.html">听词入梦</a></nav><div class="sound-controls"><button class="sound-toggle" type="button" aria-label="关闭背景音乐" aria-pressed="true"><span class="sound-icon">♫</span><span class="sound-status">音乐开启</span></button><label class="volume-control"><span class="visually-hidden">背景音乐音量</span><input class="volume-slider" type="range" min="0" max="1" step="0.01" value="0.32"></label></div></header>
 
-  <!-- ============ 共用页头（五个页面结构一致）============ -->
-  <header class="site-header">
-    <!-- 品牌标识：点击回首页 -->
-    <a class="brand" href="index.html"><span class="brand-seal">煜</span><span>一江春水<small>李煜词境 · 南唐旧梦</small></span></a>
-    <!-- 移动端汉堡按钮：小屏时展开/收起导航 -->
-    <button class="menu-toggle" aria-label="打开导航" aria-expanded="false">☰</button>
-    <!-- 主导航：当前页用 .active 高亮 -->
-    <nav class="main-nav" aria-label="主导航">
-      <a href="index.html">首页</a><a class="active" href="life.html">词人故事</a><a href="ci.html">词作笺赏</a><a href="wanxiang.html">词容万象</a><a href="listen.html">听词入梦</a>
-    </nav>
-    <!-- 声音控制区：开关按钮 + 音量滑块 -->
-    <div class="sound-controls">
-      <!-- 音乐开关：aria-pressed=true 表示当前开启 -->
-      <button class="sound-toggle" type="button" aria-label="关闭背景音乐" aria-pressed="true">
-        <span class="sound-icon">♫</span><span class="sound-status">音乐开启</span>
-      </button>
-      <!-- 音量调节：0~1 范围，初始 0.32 -->
-      <label class="volume-control">
-        <span class="visually-hidden">背景音乐音量</span>
-        <input class="volume-slider" type="range" min="0" max="1" step="0.01" value="0.32">
-      </label>
-    </div>
-  </header>
-
-  <!-- ============ 页面主体（每页内容不同）============ -->
   <main>
+    <!-- 区块一：首屏。背景视频 + 标题与引导文案 -->
+    <section class="subhero life-hero"><video class="life-hero-video" autoplay muted loop playsinline preload="metadata" aria-hidden="true" tabindex="-1"><source src="life-hero.mp4" type="video/mp4"></video><div class="subhero-copy"><p class="eyebrow">A LIFE IN VERSE · 02</p><h1>半生帝王梦，<br><em>一阕</em>故国词。</h1><p>生于锦绣，终于囚居。命运的转折，成就了词史上最深的一声叹息。</p><a class="button button-dark" href="#timeline">沿时间读他的故事 <span>↓</span></a></div></section>
 
-    <!-- 区块一：生平页首屏（subhero + life-hero，背景为视频）-->
-    <section class="subhero life-hero">
-      <!-- 背景视频：自动静音循环播放，仅作装饰(aria-hidden 且 tabindex=-1 移出焦点) -->
-      <video class="life-hero-video" autoplay muted loop playsinline preload="metadata" aria-hidden="true" tabindex="-1"><source src="life-hero.mp4" type="video/mp4"></video>
-      <div class="subhero-copy">
-        <p class="eyebrow">A LIFE IN VERSE · 02</p>
-        <h1>半生帝王梦，<br><em>一阕</em>故国词。</h1>
-        <p>生于锦绣，终于囚居。命运的转折，成就了词史上最深的一声叹息。</p>
-        <a class="button button-dark" href="#timeline">沿时间读他的故事 <span>↓</span></a>
-      </div>
-      <!-- 右侧年代标记：生卒年之间细线分隔，下方小字点题 -->
-      <div class="subhero-mark"><span>937</span><span class="mark-line"></span><span>978</span><small>四十二载<br>一梦南唐</small></div>
-    </section>
-
-    <!-- 区块二：生平概述 + 时间线 -->
+    <!-- 区块二：生平时间线。四个关键年份(937 / 961 / 975 / 978) -->
     <section class="story section-wrap">
-      <div class="section-kicker">01 <span>THE STORY</span></div>
-      <div class="story-lead">
-        <h2>从宫阙之内，<br>到词心深处。</h2>
-        <p>李煜（937—978），初名从嘉，字重光，号钟隐，徐州人。南唐中主李璟第六子。精书法、工绘画、通音律，尤其以词著称。亡国之后的词作，将个人命运与故国之痛熔于一炉，成为后世反复吟诵的千古绝唱。</p>
-      </div>
-      <!-- 时间线：四段人生（937 生 / 961 即位 / 975 城破 / 978 绝唱）-->
       <div class="timeline" id="timeline">
-        <article class="timeline-item">
-          <span class="timeline-year">937</span><div class="timeline-dot"></div>
-          <div class="timeline-card">
-            <span class="timeline-label">金陵 · 初生</span>
-            <h3>生于南唐，长于宫苑</h3>
-            <p>李煜出生于南唐都城金陵。自幼喜爱诗书、音乐与书画，性情温厚敏感。宫苑的繁华与细腻的艺术修养，成为早期词作中绮丽风格的底色。</p>
-            <span class="timeline-quote">“晚妆初了明肌雪，春殿嫔娥鱼贯列。”</span>
-          </div>
-        </article>
-        <article class="timeline-item">
-          <span class="timeline-year">961</span><div class="timeline-dot"></div>
-          <div class="timeline-card">
-            <span class="timeline-label">南唐 · 即位</span>
-            <h3>仓促登上帝位</h3>
-            <p>李煜继位后，南唐已处在宋的强势之下。他偏爱艺术与清雅生活，却不得不面对日渐逼近的政治危局。词中仍可见宴游、离情与宫廷生活的柔美。</p>
-            <span class="timeline-quote">“晚妆初了明肌雪，春殿嫔娥鱼贯列。”</span>
-          </div>
-        </article>
-        <article class="timeline-item">
-          <span class="timeline-year">975</span><div class="timeline-dot"></div>
-          <div class="timeline-card">
-            <span class="timeline-label">金陵 · 城破</span>
-            <h3>故国山河，一朝易主</h3>
-            <p>宋军攻下金陵，南唐灭亡。李煜被俘北上，封违命侯。从君主到囚徒，生活骤变，昔日宫阙成为再也回不去的旧梦，词风也随之转向沉郁。</p>
-            <span class="timeline-quote">“最是仓皇辞庙日，教坊犹奏别离歌。”</span>
-          </div>
-        </article>
-        <article class="timeline-item">
-          <span class="timeline-year">978</span><div class="timeline-dot"></div>
-          <div class="timeline-card">
-            <span class="timeline-label">汴京 · 绝唱</span>
-            <h3>春水东流，词心不朽</h3>
-            <p>囚居汴京期间，李煜写下《虞美人》等名篇。春花秋月触动对故国的追忆，一江春水成为无尽愁绪的比喻。他的一生止于四十二岁，词却越过千年仍能抵达读者心中。</p>
-            <span class="timeline-quote">“问君能有几多愁？恰似一江春水向东流。”</span>
-          </div>
-        </article>
+        <!-- 937：金陵初生 -->
+        <article class="timeline-item"><span class="timeline-year">937</span><div class="timeline-dot"></div><div class="timeline-card"><span class="timeline-label">金陵 · 初生</span><h3>生于南唐，长于宫苑</h3><p>李煜出生于南唐都城金陵。自幼喜爱诗书、音乐与书画，性情温厚敏感。宫苑的繁华与细腻的艺术修养，成为早期词作中绮丽风格的底色。</p><span class="timeline-quote">“晚妆初了明肌雪，春殿嫔娥鱼贯列。”</span></div></article>
+        <!-- 961：南唐即位 -->
+        <article class="timeline-item"><span class="timeline-year">961</span><div class="timeline-dot"></div><div class="timeline-card"><span class="timeline-label">南唐 · 即位</span><h3>仓促登上帝位</h3><p>李煜继位后，南唐已处在宋的强势之下。他偏爱艺术与清雅生活，却不得不面对日渐逼近的政治危局。词中仍可见宴游、离情与宫廷生活的柔美。</p><span class="timeline-quote">“晚妆初了明肌雪，春殿嫔娥鱼贯列。”</span></div></article>
+        <!-- 975：金陵城破 -->
+        <article class="timeline-item"><span class="timeline-year">975</span><div class="timeline-dot"></div><div class="timeline-card"><span class="timeline-label">金陵 · 城破</span><h3>故国山河，一朝易主</h3><p>宋军攻下金陵，南唐灭亡。李煜被俘北上，封违命侯。从君主到囚徒，生活骤变，昔日宫阙成为再也回不去的旧梦，词风也随之转向沉郁。</p><span class="timeline-quote">“最是仓皇辞庙日，教坊犹奏别离歌。”</span></div></article>
+        <!-- 978：汴京绝唱 -->
+        <article class="timeline-item"><span class="timeline-year">978</span><div class="timeline-dot"></div><div class="timeline-card"><span class="timeline-label">汴京 · 绝唱</span><h3>春水东流，词心不朽</h3><p>囚居汴京期间，李煜写下《虞美人》等名篇。春花秋月触动对故国的追忆，一江春水成为无尽愁绪的比喻。他的一生止于四十二岁，词却越过千年仍能抵达读者心中。</p><span class="timeline-quote">“问君能有几多愁？恰似一江春水向东流。”</span></div></article>
       </div>
     </section>
 
-    <!-- 区块三：深色结语横幅（引郭磨《南唐杂咏》）-->
-    <section class="life-note">
-      <span class="note-ornament">“</span>
-      <blockquote>作个才人真绝代，<br>可怜薄命作君王。</blockquote>
-      <span>—— 郭磨《南唐杂咏》</span>
-    </section>
+    <!-- 区块三：生平小语。引郭磨《南唐杂咏》 -->
+    <section class="life-note"><span class="note-ornament">“</span><blockquote>作个才人真绝代，<br>可怜薄命作君王。</blockquote><span>—— 郭磨《南唐杂咏》</span></section>
 
-    <!-- 区块四：下一页引导（跳到词作笺赏）-->
-    <section class="next-step section-wrap">
-      <div>
-        <span class="section-kicker">NEXT <span>READ HIS WORDS</span></span>
-        <h2>人生的波折，<br>在词里有了回声。</h2>
-      </div>
-      <a class="button button-dark" href="ci.html">去读词作笺赏 <span>↗</span></a>
-    </section>
+    <!-- 区块四：下一页引导。跳到词作笺赏 -->
+    <section class="next-step section-wrap"><div><span class="section-kicker">NEXT <span>READ HIS WORDS</span></span><h2>人生的波折，<br>在词里有了回声。</h2></div><a class="button button-dark" href="ci.html">去读词作笺赏 <span>↗</span></a></section>
   </main>
 
-  <!-- ============ 共用页脚 ============ -->
-  <footer class="site-footer">
-    <a class="brand" href="index.html"><span class="brand-seal">煜</span><span>一江春水<small>愿每个读词的人，都有一刻安宁。</small></span></a>
-    <span>词有尽时，春水长流。</span>
-    <a href="ci.html">再读一首 ↗</a>
-  </footer>
+  <!-- 页脚 -->
+  <footer class="site-footer"><a class="brand" href="index.html"><span class="brand-seal">煜</span><span>一江春水<small>愿每个读词的人，都有一刻安宁。</small></span></a><span>词有尽时，春水长流。</span><a href="ci.html">再读一首 ↗</a></footer>
 
-  <!-- 背景音乐：自动播放、循环，脚本可读写音量/开关 -->
+  <!-- 背景音乐：自动播放、循环；实际播放由 script.js 控制 -->
   <audio class="background-audio" src="background-music.mp3" autoplay loop preload="auto"></audio>
 </body>
 </html>
