@@ -67,6 +67,8 @@ h1,h2,h3,p{margin-top:0}
 .subhero h1,.intro-heading h2,.feature-head h2,.afterlife-copy h2,.closing h2{font-family:"HongLei Calligraphy",var(--serif);font-weight:400;letter-spacing:.08em}
 /* 正文段落套用"旋动楷书"手写体(首选)→衬线回退：覆盖首页导语、首屏诗句(排除分隔短线 .verse-rule)、引语卡正文、词外余韵正文、结语第二段正文，统一手写书写感 */
 .hero-intro,.hero-verse span:not(.verse-rule),.intro-heading p,.afterlife-copy p,.closing>div:nth-child(2)>p{font-family:"Xuandong Kaishu",var(--serif);font-weight:400}
+/* 翻书封面副标题 small：套用"旋动楷书"手写体，并自定义字号/字重/字距（后文封面区另有同选择器规则设定通用样式，此处前置其字体） */
+.book-cover-title small{font-family:"Xuandong Kaishu",var(--serif);font-size:13px;font-weight:400;letter-spacing:.12em}
 h1 em,h2 em{font-style:normal;color:var(--rust)}      /* 标题中强调字用锈红 */
 .hero-intro{font-size:14px;letter-spacing:.07em;line-height:2.2;color:#34483b;max-width:440px;margin:0 0 30px;text-shadow:0 1px 0 rgba(243,243,237,.72)}
 .hero-actions{display:flex;align-items:center;gap:27px}
