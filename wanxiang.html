@@ -1,0 +1,89 @@
+<!doctype html>
+<!-- 一江春水 · 李煜词境 — 词容万象页 / wanxiang.html -->
+<html lang="zh-CN">
+<head>
+  <!-- 文档头部：字符集、移动端视口、主题色、标题，以及共用的样式表与交互脚本 -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#e8eee4">
+  <title>词容万象 · 一江春水</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <!-- 页头：品牌标识 + 主导航(当前页高亮「词容万象」) + 背景音乐开关/音量 -->
+  <header class="site-header">
+    <a class="brand" href="index.html"><span class="brand-seal">煜</span><span>一江春水<small>李煜词境 · 南唐旧梦</small></span></a>
+    <button class="menu-toggle" aria-label="打开导航" aria-expanded="false">☰</button>
+    <nav class="main-nav" aria-label="主导航">
+      <a href="index.html">首页</a><a href="life.html">词人故事</a><a href="ci.html">词作笺赏</a><a class="active" href="wanxiang.html" aria-current="page">词容万象</a><a href="listen.html">听词入梦</a>
+    </nav>
+    <div class="sound-controls"><button class="sound-toggle" type="button" aria-label="关闭背景音乐" aria-pressed="true"><span class="sound-icon">♫</span><span class="sound-status">音乐开启</span></button><label class="volume-control"><span class="visually-hidden">背景音乐音量</span><input class="volume-slider" type="range" min="0" max="1" step="0.01" value="0.32"></label></div>
+  </header>
+
+  <!-- 主体内容 -->
+  <main>
+    <!-- 首屏：标题 + 当代想象肖像 + 背景水印大字 -->
+    <section class="subhero wanxiang-hero">
+      <div class="subhero-copy">
+        <p class="eyebrow">AFTERLIFE IN WORDS · 04</p>
+        <h1>词容万象，<br><em>一人千面</em>。</h1>
+        <p>李煜已远去，但他并未只留在史书里。千年之后，人们仍从他的词里读见故国、才情与寻常人的悲欢，也在心中描摹属于自己的李煜。</p>
+        <a class="button button-dark" href="#many-views">看看今人眼中的他 <span>↓</span></a>
+      </div>
+      <figure class="wanxiang-portrait">
+        <img src="li-yu-portrait.jpg" alt="以李煜为主题的当代人物视觉想象">
+        <figcaption><span>一张当代想象的面孔</span><small>非历史肖像 · 观者心中的李煜</small></figcaption>
+      </figure>
+      <span class="wanxiang-mark" aria-hidden="true">一词<br>万象</span>
+    </section>
+
+    <!-- 区块一：他的一生有尽，词的回声未尽（三种视角卡片） -->
+    <section class="memory-section section-wrap" id="many-views">
+      <div class="section-kicker">01 <span>AFTER THE LAST VERSE</span></div>
+      <div class="memory-lead">
+        <h2>他的一生有尽，<br>词的回声未尽。</h2>
+        <p>公元978年，李煜走完了四十二年的人生。留下来的不只是一位南唐君主的身世，还有一颗敏感、真切的词心。后来的读者透过词句望向他，也不断把自己的时代经验映照其中。</p>
+      </div>
+      <!-- 三张视角卡：历史中的他 / 词句中的他 / 今人心中的他 -->
+      <div class="memory-line">
+        <article><span>历史中的他</span><h3>南唐末主</h3><p>从金陵宫阙到汴京囚居，命运的骤变成为理解其后期词作的一把钥匙。</p><a href="life.html">沿时间读他的故事 <span>↗</span></a></article>
+        <article><span>词句中的他</span><h3>把愁写成江水</h3><p>春花秋月、深院梧桐、流水落花，让难以言说的情绪有了可以触摸的形状。</p><a href="ci.html">读他的词与笺注 <span>↗</span></a></article>
+        <article><span>今人心中的他</span><h3>被重新看见</h3><p>每一次阅读、诵读与再创作，都会生成新的理解。想象各不相同，却都从那些仍能抵达人的词句出发。</p><a href="listen.html">听一阕词如何回响 <span>↗</span></a></article>
+      </div>
+    </section>
+
+    <!-- 区块二：同一个李煜，映出不同的心事（才人 / 故国之人 / 有情之人） -->
+    <section class="many-mirrors">
+      <div class="section-wrap">
+        <div class="section-kicker">02 <span>MANY WAYS OF SEEING</span></div>
+        <div class="mirrors-heading"><h2>同一个李煜，<br>映出不同的心事。</h2><p>人物形象并非一幅固定的画像。读者所处的时代、读到的作品不同，眼中的他也会不同。</p></div>
+        <div class="mirror-grid">
+          <article class="mirror-card"><span>01 / TALENT</span><h3>才人</h3><p>从精于书画、音律与词章的才情里，看见一个不止于帝王身份的创作者。</p><em>“作个才人真绝代”</em></article>
+          <article class="mirror-card"><span>02 / HOMELAND</span><h3>故国之人</h3><p>从“故国不堪回首”读到失去家园之后的追忆，也读到历史转折里的个人命运。</p><em>“小楼昨夜又东风”</em></article>
+          <article class="mirror-card"><span>03 / HUMAN HEART</span><h3>有情之人</h3><p>离愁、相思与无常并不遥远。千年后的我们，仍能在这些情绪里认出自己。</p><em>“别是一般滋味在心头”</em></article>
+        </div>
+      </div>
+    </section>
+
+    <!-- 引文区：词与今人相遇 -->
+    <section class="living-echo section-wrap">
+      <span class="echo-quote" aria-hidden="true">“</span>
+      <p>春花秋月依旧，读词的人一代又一代。<br>李煜不再开口，他的词却仍与今天相遇。</p>
+      <span>一江春水 · 词容万象</span>
+    </section>
+
+    <!-- 下一页引导：去听词入梦 -->
+    <section class="next-step section-wrap">
+      <div><span class="section-kicker">NEXT <span>LET THE WORDS BE HEARD</span></span><h2>若你愿意，<br>让他的词再响一次。</h2></div>
+      <a class="button button-dark" href="listen.html">去听词入梦 <span>↗</span></a>
+    </section>
+  </main>
+
+  <!-- 页脚：品牌 + 标语 + 跳转链接 -->
+  <footer class="site-footer"><a class="brand" href="index.html"><span class="brand-seal">煜</span><span>一江春水<small>愿每个读词的人，都有一刻安宁。</small></span></a><span>词有尽时，春水长流。</span><a href="ci.html">再读一首 ↗</a></footer>
+
+  <!-- 背景音乐：自动播放、循环；实际播放由 script.js 控制(含音量/进度记忆) -->
+  <audio class="background-audio" src="background-music.mp3" autoplay loop preload="auto"></audio>
+</body>
+</html>
