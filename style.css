@@ -155,7 +155,10 @@ textarea::placeholder{color:#9aa297}
 
 /* ---------- 11. 子页首屏 subhero ---------- */
 .subhero{min-height:435px;padding:75px 10%;display:flex;align-items:center;justify-content:space-between;position:relative;overflow:hidden;background:linear-gradient(118deg,#eef0e9,#e0e7dc)} /* 子页通用首屏(词人故事/词作/听词 复用) */
-.life-hero{background:linear-gradient(90deg,rgba(238,240,233,.54),rgba(238,240,233,.32)),url("life-background.jpg") center 48%/cover no-repeat} /* 生平页专用：覆盖 .subhero 渐变，叠加 life-background.jpg */
+/* 生平页首屏 life-hero：改用视频作背景，故只留纯渐变底(视频层覆盖其上) */
+.life-hero{background:linear-gradient(118deg,#eef0e9,#e0e7dc)} /* 与 .subhero 同底，视频层置于其上 */
+.life-hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0} /* 背景视频：铺满首屏、置于最底层(z-index:0) */
+.life-hero:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(238,240,233,.34),rgba(238,240,233,.16));z-index:1;pointer-events:none} /* 视频上的柔光蒙版(不拦截点击) */
 .subhero:after{content:"";position:absolute;right:0;bottom:-3px;width:55%;height:75%;background:linear-gradient(145deg,transparent 30%,rgba(79,103,83,.09));clip-path:polygon(0 78%,19% 40%,31% 56%,50% 15%,65% 47%,80% 9%,100% 43%,100% 100%,0 100%)} /* 右下远山剪影 */
 .subhero-copy{position:relative;z-index:2}
 .subhero h1{font-size:clamp(42px,5.2vw,68px);margin:7px 0 8px}
