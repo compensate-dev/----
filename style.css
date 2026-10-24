@@ -1,113 +1,92 @@
-/* ============================================================
-   一江春水 · 李煜词境 — 主样式表 style.css
-   结构分区：
-   1. 字体引入 + 根变量   2. 基础重置
-   3. 页头 / 品牌 / 导航  4. 声音按钮 / 汉堡
-   5. 首屏 Hero          6. Hero 插画 / 印章
-   7. 版心容器           8. 词人介绍 intro
-   9. 精选词作 feature   10. 结尾互动 + 表单
-   11. 页脚             12. 子页首屏 subhero
-   13. 生平时间线 story  14. 生平结语 life-note
-   15. 下一页 next-step  16. 词作页 ci-hero + 浮词圈
-   17. 词作列表 works    18. 词作笺注 annotation
-   19. 听词页 listen     20. 朗诵卡片 recite
-   21. 互动区 interactive 22. 音频面板
-   23. 花瓣 / 粒子 + 翻页水波 + 关键帧
-   24. 响应式 1000px     25. 响应式 700px
-   26. 减弱动效降级      27. 声音控件补充
-   28. 背景音乐隐藏      29. 手机声音微调
-   30. 大屏增强(1100×700) 31. 粒子 / 水波降级
-   ============================================================ */
-
-/* ---------- 1. 字体引入 + 根变量 ---------- */
-/* 引入思源宋体(正文)与 Manrope(无衬线 / 英文数字)，display=swap 避免阻塞渲染 */
 @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap');
 
+/* ============================================================
+   一江春水 · 李煜词境 — 主样式表 style.css
+   结构分区(与脚本、页面一一对应)：
+   1. 根变量与全局重置      2. 页头 / 品牌 / 导航 / 声音
+   3. 首页 Hero 首屏        4. 首页词人介绍 intro
+   5. 首页精选词作 feature   6. 首页结语 closing + 表单
+   7. 通用区块容器 / 页脚    8. 子页首屏 subhero / life 页
+   9. 生平时间线 story       10. 词容万象 wanxiang(含影视游戏区)
+   11. 词作笺赏 ci          12. 听词入梦 listen
+   13. 动效层(花瓣/水波/粒子)与关键帧
+   14. 响应式(1000/700/reduced-motion)
+   15. 声音控件补充 + 大屏增强 + 各页响应式 + poem-gallery
+   ============================================================ */
+
+/* ---------- 1. 根变量与全局重置 ---------- */
 :root{
-  --paper:#f3f3ed;        /* 主背景：宣纸米白 */
-  --paper-deep:#e9ece4;   /* 深一档背景：分区底色 */
-  --ink:#24362e;          /* 主文字：墨绿黑 */
-  --muted:#6d786d;        /* 次要文字 */
-  --pine:#304d3f;         /* 松绿：主强调色 */
-  --moss:#73806a;         /* 苔绿 */
-  --rust:#a9684c;         /* 锈红：点缀 / 重点 */
-  --gold:#c7aa77;         /* 金：印章等装饰 */
-  --line:#d9ddd3;         /* 分割线 */
-  --serif:"Noto Serif SC","Songti SC",serif;          /* 正文衬线 */
-  --sans:"Manrope","Microsoft YaHei",sans-serif       /* 无衬线：英文 / 数字 / 导航 */
+  --paper:#f3f3ed;--paper-deep:#e9ece4;--ink:#24362e;--muted:#6d786d;
+  --pine:#304d3f;--moss:#73806a;--rust:#a9684c;--gold:#c7aa77;--line:#d9ddd3;
+  --serif:"Noto Serif SC","Songti SC",serif;          /* 正文衬线(中文优先) */
+  --sans:"Manrope","Microsoft YaHei",sans-serif        /* 西文/标签无衬线 */
 }
-
-/* ---------- 2. 基础重置 ---------- */
-*{box-sizing:border-box}                 /* 盒模型统一为 border-box */
-html{scroll-behavior:smooth;scroll-padding-top:100px} /* 平滑滚动；锚点偏移页头高度 */
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:100px}  /* 锚点跳转预留页头高度 */
 body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--serif);font-size:15px;line-height:1.85}
-a{color:inherit;text-decoration:none}   /* 链接继承颜色、去下划线 */
-button,input,textarea{font:inherit}     /* 表单控件继承字体 */
+a{color:inherit;text-decoration:none}
+button,input,textarea{font:inherit}
 button{color:inherit}
-::selection{background:#c8d1c3;color:#24362e} /* 选中文字配色 */
+::selection{background:#c8d1c3;color:#24362e}          /* 选中态配色 */
 
-/* ---------- 3. 页头 / 品牌 / 导航 ---------- */
-.site-header{height:86px;padding:0 6.6%;display:flex;align-items:center;justify-content:space-between;gap:28px;background:rgba(243,243,237,.93);border-bottom:1px solid rgba(48,77,63,.1);position:sticky;top:0;z-index:20;backdrop-filter:blur(14px)} /* 吸顶半透明毛玻璃 */
+/* ---------- 2. 页头 / 品牌 / 导航 / 声音 ---------- */
+.site-header{height:86px;padding:0 6.6%;display:flex;align-items:center;justify-content:space-between;gap:28px;background:rgba(243,243,237,.93);border-bottom:1px solid rgba(48,77,63,.1);position:sticky;top:0;z-index:20;backdrop-filter:blur(14px)}
 .brand{display:flex;align-items:center;gap:12px;font-weight:600;letter-spacing:.12em;font-size:15px;line-height:1.25;white-space:nowrap}
 .brand small{display:block;font-family:var(--sans);font-size:9px;color:var(--muted);font-weight:400;letter-spacing:.13em;margin-top:5px}
-.brand-seal{display:grid;place-items:center;width:39px;height:39px;border:1px solid var(--rust);color:var(--rust);font-size:19px;font-weight:500;transform:rotate(-5deg)} /* “煜”字印章，微旋转 */
+.brand-seal{display:grid;place-items:center;width:39px;height:39px;border:1px solid var(--rust);color:var(--rust);font-size:19px;font-weight:500;transform:rotate(-5deg)} /* 印章式品牌标记 */
 .main-nav{display:flex;align-items:center;gap:42px;height:100%;font-family:var(--sans);font-size:12px;letter-spacing:.06em;color:#657166}
 .main-nav a{height:100%;display:flex;align-items:center;position:relative;transition:color .2s}
 .main-nav a:hover,.main-nav a.active{color:var(--pine)}
-.main-nav a.active:after{content:"";position:absolute;height:2px;width:19px;bottom:23px;left:calc(50% - 9px);background:var(--rust)} /* 当前页红色短下划线 */
-
-/* ---------- 4. 声音按钮 / 汉堡按钮 ---------- */
+.main-nav a.active:after{content:"";position:absolute;height:2px;width:19px;bottom:23px;left:calc(50% - 9px);background:var(--rust)} /* 当前页下划线(锈红) */
 .sound-toggle{background:none;border:1px solid #cfd5ca;border-radius:99px;padding:9px 15px;display:flex;align-items:center;gap:7px;font-family:var(--sans);font-size:11px;cursor:pointer;transition:.2s}
 .sound-toggle:hover{background:var(--pine);border-color:var(--pine);color:#fff}
 .sound-icon{color:var(--rust);font-size:15px}
-.menu-toggle{display:none;background:none;border:0;font-size:22px} /* 默认隐藏，移动端(≤700px)显示 */
+.menu-toggle{display:none;background:none;border:0;font-size:22px}  /* 移动端汉堡，默认隐藏 */
 
-/* ---------- 5. 首屏 Hero ---------- */
-.hero{min-height:min(720px,calc(100vh - 86px));position:relative;overflow:hidden;padding:90px 10% 78px;display:flex;align-items:center;background:radial-gradient(ellipse at 83% 45%,rgba(210,218,203,.82),transparent 43%),linear-gradient(110deg,#f1f2ec 0%,#e8ece4 65%,#e0e7dc 100%)} /* 首屏：渐变底 + 右上柔光 */
-.hero:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(243,243,237,.58),rgba(243,243,237,.24)),url("home-background.jpg") center 45%/cover no-repeat;opacity:.72;pointer-events:none} /* 背景图蒙版：opacity .72 让文字更易读 */
-.hero-copy{position:relative;z-index:2;width:52%;max-width:610px} /* 左侧文案层，抬到背景图之上 */
+/* ---------- 3. 首页 Hero 首屏 ---------- */
+.hero{min-height:min(720px,calc(100vh - 86px));position:relative;overflow:hidden;padding:90px 10% 78px;display:flex;align-items:center;background:radial-gradient(ellipse at 83% 45%,rgba(210,218,203,.82),transparent 43%),linear-gradient(110deg,#f1f2ec 0%,#e8ece4 65%,#e0e7dc 100%)}
+.hero:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(243,243,237,.58),rgba(243,243,237,.24)),url("home-background.jpg") center 45%/cover no-repeat;opacity:.72;pointer-events:none} /* 背景图叠纸色 */
+.hero-copy{position:relative;z-index:2;width:52%;max-width:610px}
 .eyebrow,.section-kicker{font-family:var(--sans);font-size:10px;letter-spacing:.2em;color:#98583f;text-transform:uppercase}
 .eyebrow{display:flex;align-items:center;gap:11px;margin:0 0 28px}
 .eyebrow>span{width:24px;height:1px;background:var(--rust)}
 h1,h2,h3,p{margin-top:0}
 .hero h1,.subhero h1{font-size:clamp(44px,5.4vw,72px);line-height:1.42;letter-spacing:.09em;font-weight:500;margin:0 0 18px}
-h1 em,h2 em{font-style:normal;color:var(--rust)} /* 标题中重点词(锈红) */
+h1 em,h2 em{font-style:normal;color:var(--rust)}      /* 标题中强调字用锈红 */
 .hero-intro{font-size:14px;letter-spacing:.07em;line-height:2.2;color:#34483b;max-width:440px;margin:0 0 30px;text-shadow:0 1px 0 rgba(243,243,237,.72)}
 .hero-actions{display:flex;align-items:center;gap:27px}
 .button{min-height:47px;padding:11px 20px;display:inline-flex;align-items:center;justify-content:center;gap:23px;font-family:var(--sans);font-size:11px;letter-spacing:.1em;transition:transform .2s,background .2s}
 .button:hover{transform:translateY(-2px)}
 .button-dark{background:var(--pine);color:#f7f5ef}
 .button-dark:hover{background:#20382d}
-.button span{font-size:16px;color:#d2b990}
+.button span{font-size:16px;color:#d2b990}            /* 按钮内箭头/符号(金) */
 .text-link,.under-link{font-family:var(--sans);font-size:11px;letter-spacing:.06em;color:var(--pine);border-bottom:1px solid #bac4b9;padding-bottom:5px}
 .text-link span,.under-link span{color:var(--rust);margin-left:8px}
 .hero-verse{display:flex;align-items:center;gap:14px;color:#304638;font-size:12px;letter-spacing:.07em;margin-top:59px;text-shadow:0 1px 0 rgba(243,243,237,.78)}
 .verse-rule{height:1px;width:35px;background:var(--rust)}
-
-/* ---------- 6. Hero 插画 / 印章 ---------- */
-.hero-art{position:absolute;width:min(44vw,570px);height:min(48vw,570px);right:7%;top:48%;transform:translateY(-49%);overflow:hidden;background:#273a48;border:1px solid rgba(199,170,119,.72);border-radius:48% 48% 5px 5px;box-shadow:0 0 0 5px rgba(243,243,237,.68),0 0 0 6px rgba(169,104,76,.38),0 28px 65px rgba(35,54,46,.18)}
+.hero-art{position:absolute;width:min(44vw,570px);height:min(48vw,570px);right:10%;top:48%;transform:translateY(-49%);overflow:hidden;background:#273a48;border:1px solid rgba(199,170,119,.72);border-radius:48% 48% 5px 5px;box-shadow:0 0 0 5px rgba(243,243,237,.68),0 0 0 6px rgba(169,104,76,.38),0 28px 65px rgba(35,54,46,.18)} /* 弧形画框 */
 .hero-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 48%}
 .image-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,33,46,.25),transparent 26%,transparent 68%,rgba(18,38,49,.35));pointer-events:none}
 .hero-art:after{content:"";position:absolute;inset:0;border:1px solid rgba(255,255,255,.28);border-radius:inherit;pointer-events:none}
 .art-label{position:absolute;top:12%;left:17%;z-index:2;padding:7px 10px;border-left:1px solid rgba(255,238,215,.75);background:rgba(19,39,53,.28);font-size:10px;line-height:1.7;letter-spacing:.14em;color:#fff5e9;text-shadow:0 1px 8px rgba(12,29,39,.8)}
 .art-label small{font-family:var(--sans);font-size:8px;letter-spacing:.15em}
-.art-poem{position:absolute;z-index:4;right:8%;bottom:15%;writing-mode:vertical-rl;letter-spacing:.23em;font-size:15px;line-height:2;color:#fff8ef;text-shadow:0 1px 8px rgba(13,30,40,.85)}
+.art-poem{position:absolute;z-index:4;right:8%;bottom:15%;writing-mode:vertical-rl;letter-spacing:.23em;font-size:15px;line-height:2;color:#fff8ef;text-shadow:0 1px 8px rgba(13,30,40,.85)} /* 竖排题词 */
 .art-poem span{color:#d8c9a9}
-.art-stamp{position:absolute;z-index:4;bottom:9%;left:9%;width:48px;height:38px;border:1px solid rgba(238,195,168,.8);color:#ffdbbf;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;font-size:8px;line-height:1.35;writing-mode:horizontal-tb;letter-spacing:.14em;background:rgba(32,49,56,.38);text-shadow:0 1px 5px rgba(13,30,40,.8)} /* 印章：南唐 / 词境 两行 */
+.art-stamp{position:absolute;z-index:4;bottom:9%;left:9%;width:48px;height:38px;border:1px solid rgba(238,195,168,.8);color:#ffdbbf;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;font-size:8px;line-height:1.35;writing-mode:horizontal-tb;letter-spacing:.14em;background:rgba(32,49,56,.38);text-shadow:0 1px 5px rgba(13,30,40,.8)} /* 印章 */
 .hero-bottom{position:absolute;bottom:24px;left:10%;right:10%;display:flex;align-items:center;gap:13px;font:9px var(--sans);letter-spacing:.18em;color:#788278}
 .scroll-line{width:80px;height:1px;background:#bdc7ba}
 .hero-bottom span:last-child{margin-left:auto;color:#a0a79d}
 
-/* ---------- 7. 版心容器 ---------- */
+/* ---------- 7. 通用区块容器 / 版心 ---------- */
 .section-wrap{padding-left:10%;padding-right:10%}
 
-/* ---------- 8. 词人介绍 intro ---------- */
+/* ---------- 4. 首页词人介绍 intro ---------- */
 .intro{display:grid;grid-template-columns:.45fr 1.05fr .8fr;gap:45px;padding-top:120px;padding-bottom:128px;align-items:start;background:linear-gradient(rgba(243,243,237,.68),rgba(243,243,237,.68)),url("intro-background.jpg") center/cover no-repeat}
 .intro-poet{min-width:0}
-.portrait-frame{position:relative;width:calc(100% + 18px);margin-top:36px;padding:7px;border:1px solid rgba(169,104,76,.48);background:linear-gradient(145deg,#f7f4eb,#e6e5db);box-shadow:0 10px 28px rgba(47,62,49,.12)}
+.portrait-frame{position:relative;width:calc(100% + 18px);margin-top:36px;padding:7px;border:1px solid rgba(169,104,76,.48);background:linear-gradient(145deg,#f7f4eb,#e6e5db);box-shadow:0 10px 28px rgba(47,62,49,.12)} /* 肖像外框 */
 .portrait-frame:before,.portrait-frame:after{content:"";position:absolute;width:17px;height:17px;z-index:1;pointer-events:none}
 .portrait-frame:before{top:3px;left:3px;border-top:1px solid #ba8a68;border-left:1px solid #ba8a68}
-.portrait-frame:after{right:3px;bottom:3px;border-right:1px solid #ba8a68;border-bottom:1px solid #ba8a68}
+.portrait-frame:after{right:3px;bottom:3px;border-right:1px solid #ba8a68;border-bottom:1px solid #ba8a68} /* 四角描边装饰 */
 .poet-portrait{display:block;width:100%;aspect-ratio:1.42;object-fit:cover;object-position:center 24%;border:1px solid rgba(255,255,255,.8)}
 .section-kicker{display:flex;align-items:center;gap:12px;padding-top:11px;white-space:nowrap}
 .section-kicker span{color:#929a8f;font-size:9px}
@@ -117,176 +96,167 @@ h1 em,h2 em{font-style:normal;color:var(--rust)} /* 标题中重点词(锈红) *
 .card-index{font:9px var(--sans);letter-spacing:.17em;color:#818b7f}
 .intro-card p{font-size:19px;line-height:2.05;letter-spacing:.09em;position:relative;z-index:1;margin:28px 0 18px}
 .card-caption{font:10px var(--sans);color:#7a8479;letter-spacing:.08em}
-.card-orbit{position:absolute;width:170px;height:170px;border:1px solid rgba(111,132,108,.25);border-radius:50%;right:-34px;bottom:-45px}
+.card-orbit{position:absolute;width:170px;height:170px;border:1px solid rgba(111,132,108,.25);border-radius:50%;right:-34px;bottom:-45px} /* 装饰圆环 */
 .card-orbit:after{content:"";position:absolute;width:120px;height:120px;border:1px solid rgba(111,132,108,.25);border-radius:50%;right:25px;bottom:24px}
 .under-link{display:inline-block}
 
-/* ---------- 9. 精选词作 feature ---------- */
+/* ---------- 5. 首页精选词作 feature ---------- */
 .feature-section{padding:93px 10% 110px;background:#e9ebe4}
 .feature-head{padding:0;display:flex;justify-content:space-between;align-items:end;margin:0 0 38px}
 .feature-head h2{margin:15px 0 0}
 .poem-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}
 .poem-card{position:relative;min-height:273px;padding:23px 20px;background:#536b59;color:#f5f2e9;overflow:hidden;transition:transform .25s,box-shadow .25s}
 .poem-card:hover{transform:translateY(-6px);box-shadow:0 17px 30px rgba(43,61,48,.15)}
-.poem-card:before{content:"";position:absolute;inset:auto -10% -35% -10%;height:60%;background:rgba(20,44,33,.3);border-radius:50%;filter:blur(2px)}
-.card-two{background:#89917a}.card-three{background:#546b70}.card-four{background:#9b806d}
+.poem-card:before{content:"";position:absolute;inset:auto -10% -35% -10%;height:60%;background:rgba(20,44,33,.3);border-radius:50%;filter:blur(2px)} /* 卡底暗色弧 */
+.card-two{background:#89917a}.card-three{background:#546b70}.card-four{background:#9b806d} /* 四卡配色 */
 .poem-number,.poem-tag{position:relative;z-index:1;font:9px var(--sans);letter-spacing:.12em}
 .poem-number{opacity:.72}.poem-tag{float:right;border:1px solid rgba(255,255,255,.4);padding:3px 7px}
 .poem-card h3{position:relative;z-index:1;margin:40px 0 7px;font-size:24px;font-weight:500;letter-spacing:.12em}
 .poem-card p{position:relative;z-index:1;font-size:12px;line-height:2;letter-spacing:.05em;color:rgba(255,255,255,.82)}
 .poem-arrow{position:absolute;bottom:18px;right:20px;z-index:1;font-size:18px;color:#e7d7ba}
 
-/* ---------- 10. 结尾互动 + 表单 ---------- */
+/* ---------- 6. 首页结语 closing + 表单 ---------- */
 .closing{padding-top:108px;padding-bottom:110px;display:grid;grid-template-columns:.35fr 1fr .85fr;gap:45px;align-items:center}
-.closing-pine{color:#879483;font-size:13px;letter-spacing:.3em;writing-mode:vertical-rl;border-left:1px solid #b8c1b5;height:170px;padding:10px 0 0 16px}
+.closing-pine{color:#879483;font-size:13px;letter-spacing:.3em;writing-mode:vertical-rl;border-left:1px solid #b8c1b5;height:170px;padding:10px 0 0 16px} /* 竖排“松”字意境 */
 .closing h2{margin-top:17px}
 .closing p{font-size:12px;color:#768074;letter-spacing:.05em;margin-bottom:23px}
 .mood-form,.poem-form{padding:25px 26px;background:#e7e9e0}
 .mood-form label,.poem-form label{display:block;font-size:12px;letter-spacing:.08em;margin-bottom:12px}
-textarea{display:block;width:100%;resize:vertical;min-height:94px;border:0;border-bottom:1px solid #c5cdc1;background:transparent;outline:none;font-size:13px;line-height:1.8;padding:8px 0;color:var(--ink)} /* 下划线式输入 */
+textarea{display:block;width:100%;resize:vertical;min-height:94px;border:0;border-bottom:1px solid #c5cdc1;background:transparent;outline:none;font-size:13px;line-height:1.8;padding:8px 0;color:var(--ink)}
 textarea:focus{border-color:var(--pine)}
 textarea::placeholder{color:#9aa297}
 .form-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:12px;font:10px var(--sans);color:#8b9389}
 .form-bottom button{border:0;background:none;color:var(--pine);font-size:10px;letter-spacing:.06em;cursor:pointer}
-.mood-feedback,.poem-feedback{font-size:11px;color:var(--rust);margin:10px 0 0;min-height:1.5em} /* 提交后提示文字 */
+.mood-feedback,.poem-feedback{font-size:11px;color:var(--rust);margin:10px 0 0;min-height:1.5em} /* 提交反馈行 */
 
-/* ---------- 11. 页脚 ---------- */
+/* ---------- 7(续). 页脚 ---------- */
 .site-footer{min-height:112px;background:#e7e9e2;padding:25px 6.6%;display:flex;align-items:center;justify-content:space-between;gap:20px;border-top:1px solid #d9ddd4}
 .site-footer>span{font-size:11px;color:#7b8479;letter-spacing:.08em}
-.site-footer>a:last-child{font:10px var(--sans);color:var(--pine);border-bottom:1px solid #bac3b8;padding-bottom:5px} /* “再读一首 ↗” */
+.site-footer>a:last-child{font:10px var(--sans);color:var(--pine);border-bottom:1px solid #bac3b8;padding-bottom:5px}
 
-/* ---------- 12. 子页首屏 subhero ---------- */
-.subhero{min-height:435px;padding:75px 10%;display:flex;align-items:center;justify-content:space-between;position:relative;overflow:hidden;background:linear-gradient(118deg,#eef0e9,#e0e7dc)} /* 子页通用首屏(词人故事 / 词作 / 听词 复用) */
-.life-hero{background:linear-gradient(90deg,rgba(238,240,233,.34),rgba(238,240,233,.16)),url("life-background.jpg") center 48%/cover no-repeat} /* 生平页：图片作底，叠加柔光蒙版 */
-.life-hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0} /* 背景视频层(最底，可叠在图片之上) */
-.life-hero:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(238,240,233,.34),rgba(238,240,233,.16));z-index:1;pointer-events:none} /* 视频上的柔光蒙版(不拦截点击) */
-.subhero:after{content:"";position:absolute;right:0;bottom:-3px;width:55%;height:75%;background:linear-gradient(145deg,transparent 30%,rgba(79,103,83,.09));clip-path:polygon(0 78%,19% 40%,31% 56%,50% 15%,65% 47%,80% 9%,100% 43%,100% 100%,0 100%)} /* 右下远山剪影 */
+/* ---------- 8. 子页首屏 subhero / life 页 ---------- */
+.subhero{min-height:435px;padding:75px 10%;display:flex;align-items:center;justify-content:space-between;position:relative;overflow:hidden;background:linear-gradient(118deg,#eef0e9,#e0e7dc)}
+.life-hero{background:linear-gradient(90deg,rgba(238,240,233,.34),rgba(238,240,233,.16)),url("life-background.jpg") center 48%/cover no-repeat}
+.life-hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0} /* 生平页背景视频 */
+.life-hero:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(238,240,233,.34),rgba(238,240,233,.16));z-index:1;pointer-events:none} /* 视频上叠纸色，保证文字可读 */
+.subhero:after{content:"";position:absolute;right:0;bottom:-3px;width:55%;height:75%;background:linear-gradient(145deg,transparent 30%,rgba(79,103,83,.09));clip-path:polygon(0 78%,19% 40%,31% 56%,50% 15%,65% 47%,80% 9%,100% 43%,100% 100%,0 100%)} /* 山形剪影装饰 */
 .subhero-copy{position:relative;z-index:2}
 .subhero h1{font-size:clamp(42px,5.2vw,68px);margin:7px 0 8px}
-.life-hero .subhero-copy>p:not(.eyebrow){display:table;max-width:min(470px,100%);padding:5px 10px;background:rgba(243,243,237,.76);border-left:2px solid rgba(169,104,76,.68);font-size:13px;letter-spacing:.06em;color:#34483b;text-shadow:0 1px 0 rgba(255,255,255,.65);margin:0 0 23px} /* 生平页首屏引文(带半透明底 + 锈红左边框) */
+.life-hero .subhero-copy>p:not(.eyebrow){display:table;max-width:min(470px,100%);padding:5px 10px;background:rgba(243,243,237,.76);border-left:2px solid rgba(169,104,76,.68);font-size:13px;letter-spacing:.06em;color:#34483b;text-shadow:0 1px 0 rgba(255,255,255,.65);margin:0 0 23px}
 .subhero-mark{z-index:2;margin-right:12%;font:12px var(--sans);font-weight:600;color:#304638;display:grid;grid-template-columns:auto 1px auto;gap:13px;align-items:center;letter-spacing:.1em;text-shadow:0 1px 0 rgba(243,243,237,.8)}
 .subhero-mark .mark-line{height:72px;background:#748574}
-.subhero-mark small{grid-column:1 / -1;line-height:1.8;font-size:10px;color:#405748;font-weight:500}
+.subhero-mark small{grid-column:1 / -1;line-height:1.8;font-size:10px;color:#405748;font-weight:500} /* 生卒年标记(旧版，现 life.html 已不用) */
 
-/* ---------- 13. 生平时间线 story ---------- */
+/* ---------- 9. 生平时间线 story ---------- */
 .story{padding-top:94px;padding-bottom:95px}
 .story>.section-kicker{margin-bottom:28px}
 .story-lead{display:grid;grid-template-columns:1fr 1fr;gap:10%;padding:0 0 55px 18%}
 .story-lead h2{font-size:37px;margin:0}
 .story-lead p{margin:4px 0 0}
-.timeline{position:relative;margin-left:20%;padding:10px 0 0 54px;border-left:1px solid #cbd2c8} /* 竖线时间轴 */
+.timeline{position:relative;margin-left:20%;padding:10px 0 0 54px;border-left:1px solid #cbd2c8} /* 时间线主轴 */
 .timeline-item{position:relative;display:grid;grid-template-columns:1fr;max-width:690px;padding:0 0 39px}
-.timeline-year{position:absolute;right:calc(100% + 76px);top:0;font:12px var(--sans);color:var(--rust);letter-spacing:.1em} /* 年份(轴左侧) */
-.timeline-dot{position:absolute;width:9px;height:9px;border-radius:50%;background:var(--rust);left:-59px;top:9px;box-shadow:0 0 0 5px var(--paper)} /* 轴上红点 */
+.timeline-year{position:absolute;right:calc(100% + 76px);top:0;font:12px var(--sans);color:var(--rust);letter-spacing:.1em}
+.timeline-dot{position:absolute;width:9px;height:9px;border-radius:50%;background:var(--rust);left:-59px;top:9px;box-shadow:0 0 0 5px var(--paper)} /* 轴上节点 */
 .timeline-card{padding:23px 28px;background:#eaebe4}
 .timeline-label,.work-meta{font:9px var(--sans);letter-spacing:.14em;color:var(--rust)}
 .timeline-card h3{font-size:19px;font-weight:500;letter-spacing:.07em;margin:8px 0}
 .timeline-card p{font-size:12px;color:#707b70;line-height:2.1;margin:0 0 10px}
-.timeline-quote{font-size:11px;color:#5f705f} /* 引文(如词摘) */
-
-/* ---------- 14. 生平结语 life-note ---------- */
-.life-note{padding:56px 20px;background:#304b3d;text-align:center;color:#f1eee4;position:relative} /* 深色结语横幅 */
+.timeline-quote{font-size:11px;color:#5f705f}
+.life-note{padding:56px 20px;background:#304b3d;text-align:center;color:#f1eee4;position:relative} /* 生平结语(深绿底) */
 .life-note blockquote{margin:0 0 16px;font-size:27px;letter-spacing:.15em;line-height:1.9}
 .life-note>span:last-child{font:10px var(--sans);letter-spacing:.1em;color:#c0c8b9}
-.note-ornament{position:absolute;font:100px Georgia;color:rgba(255,255,255,.12);top:4px;left:calc(50% - 160px)} /* 背景大引号装饰 */
-
-/* ---------- 15. 下一页引导 next-step ---------- */
+.note-ornament{position:absolute;font:100px Georgia;color:rgba(255,255,255,.12);top:4px;left:calc(50% - 160px)} /* 大引号装饰 */
 .next-step{display:flex;justify-content:space-between;align-items:center;padding-top:88px;padding-bottom:88px}
 .next-step h2{font-size:31px;margin:15px 0 0}
 
-/* ---------- 15b. 词容万象页首屏 wanxiang-hero + 当代肖像 ---------- */
-.wanxiang-hero{min-height:540px;gap:7%;background:linear-gradient(100deg,rgba(239,241,234,.94),rgba(224,232,222,.78)),url("intro-background.jpg") center/cover no-repeat} /* 首屏：左侧文案 + 右下方当代想象肖像 */
-.wanxiang-hero:after{width:68%;height:90%;background:linear-gradient(145deg,transparent 25%,rgba(79,103,83,.13));opacity:.8} /* 右下远山剪影(复用 .subhero:after 定位) */
+/* ---------- 10. 词容万象 wanxiang(当代想象视角) ---------- */
+.wanxiang-hero{min-height:540px;gap:7%;background:linear-gradient(100deg,rgba(239,241,234,.94),rgba(224,232,222,.78)),url("intro-background.jpg") center/cover no-repeat}
+.wanxiang-hero:after{width:68%;height:90%;background:linear-gradient(145deg,transparent 25%,rgba(79,103,83,.13));opacity:.8}
 .wanxiang-hero .subhero-copy{max-width:510px}
 .wanxiang-hero .eyebrow{margin-bottom:18px}
-.wanxiang-hero .subhero-copy>p:not(.eyebrow){max-width:460px;color:#405248;font-size:14px;line-height:2.2;letter-spacing:.04em} /* 首屏引文 */
+.wanxiang-hero .subhero-copy>p:not(.eyebrow){max-width:460px;color:#405248;font-size:14px;line-height:2.2;letter-spacing:.04em}
 .wanxiang-hero .button{margin-top:15px}
-.wanxiang-portrait{position:relative;z-index:2;flex:0 0 min(31vw,370px);height:min(37vw,410px);min-height:300px;margin:0 2% 0 0;padding:9px;background:linear-gradient(145deg,#f9f5e8,#d5d9cd);border:1px solid rgba(169,104,76,.6);box-shadow:0 16px 42px rgba(35,54,46,.2),0 0 0 5px rgba(243,243,237,.48)} /* 当代肖像画框 */
+.wanxiang-portrait{position:relative;z-index:2;flex:0 0 min(31vw,370px);height:min(37vw,410px);min-height:300px;margin:0 2% 0 0;padding:9px;background:linear-gradient(145deg,#f9f5e8,#d5d9cd);border:1px solid rgba(169,104,76,.6);box-shadow:0 16px 42px rgba(35,54,46,.2),0 0 0 5px rgba(243,243,237,.48)} /* 肖像卡 */
 .wanxiang-portrait:before,.wanxiang-portrait:after{content:"";position:absolute;width:24px;height:24px;z-index:2;pointer-events:none}
 .wanxiang-portrait:before{top:3px;left:3px;border-top:1px solid #ba8a68;border-left:1px solid #ba8a68}
-.wanxiang-portrait:after{right:3px;bottom:3px;border-right:1px solid #ba8a68;border-bottom:1px solid #ba8a68} /* 画框四角装饰线 */
-.wanxiang-portrait img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 25%;filter:saturate(.82)} /* 肖像图(轻微降饱和) */
-.wanxiang-portrait figcaption{position:absolute;left:18px;right:18px;bottom:18px;padding:10px 13px;background:rgba(243,243,237,.87);border-left:2px solid var(--rust);line-height:1.6} /* 图注：当代想象说明 */
+.wanxiang-portrait:after{right:3px;bottom:3px;border-right:1px solid #ba8a68;border-bottom:1px solid #ba8a68}
+.wanxiang-portrait img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 25%;filter:saturate(.82)}
+.wanxiang-portrait figcaption{position:absolute;left:18px;right:18px;bottom:18px;padding:10px 13px;background:rgba(243,243,237,.87);border-left:2px solid var(--rust);line-height:1.6}
 .wanxiang-portrait figcaption span,.wanxiang-portrait figcaption small{display:block}
 .wanxiang-portrait figcaption span{font-size:12px;letter-spacing:.08em}
 .wanxiang-portrait figcaption small{font:9px var(--sans);letter-spacing:.06em;color:#737c70}
-.wanxiang-mark{position:absolute;right:3%;top:13%;z-index:1;color:rgba(169,104,76,.14);font-size:clamp(65px,9vw,130px);line-height:1.1;writing-mode:vertical-rl;letter-spacing:.18em;pointer-events:none} /* 背景大字「一词万象」水印 */
-
-/* ---------- 15c. 词容万象：三种视角 / 多面镜像 / 引文 ---------- */
+.wanxiang-mark{position:absolute;right:3%;top:13%;z-index:1;color:rgba(169,104,76,.14);font-size:clamp(65px,9vw,130px);line-height:1.1;writing-mode:vertical-rl;letter-spacing:.18em;pointer-events:none} /* 大字水印 */
 .memory-section{padding-top:100px;padding-bottom:106px}
 .memory-section>.section-kicker,.many-mirrors .section-kicker{margin-bottom:28px}
 .memory-lead{display:grid;grid-template-columns:1fr 1fr;gap:9%;padding-left:18%;align-items:start}
 .memory-lead h2,.mirrors-heading h2{font-size:clamp(30px,3.1vw,42px);line-height:1.65;font-weight:500;letter-spacing:.06em;margin:0}
 .memory-lead p,.mirrors-heading>p{font-size:13px;line-height:2.2;color:#68766b;margin:9px 0 0;max-width:470px}
 .memory-line{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin:54px 0 0 18%}
-.memory-line article{position:relative;min-height:225px;padding:25px 24px 23px;background:rgba(255,255,255,.39);border-top:1px solid #c5cfc3;box-shadow:0 8px 24px rgba(49,67,53,.045)} /* 三张视角卡(历史/词句/今人) */
-.memory-line article:before{content:"";position:absolute;width:7px;height:7px;border-radius:50%;top:-4px;left:23px;background:var(--rust);box-shadow:0 0 0 4px var(--paper)} /* 卡片顶部红点 */
+.memory-line article{position:relative;min-height:225px;padding:25px 24px 23px;background:rgba(255,255,255,.39);border-top:1px solid #c5cfc3;box-shadow:0 8px 24px rgba(49,67,53,.045)}
+.memory-line article:before{content:"";position:absolute;width:7px;height:7px;border-radius:50%;top:-4px;left:23px;background:var(--rust);box-shadow:0 0 0 4px var(--paper)} /* 卡顶红点 */
 .memory-line article>span,.mirror-card>span{font:9px var(--sans);letter-spacing:.13em;color:#9c654d}
 .memory-line h3{font-size:20px;font-weight:500;letter-spacing:.08em;margin:14px 0 9px}
 .memory-line p{font-size:12px;line-height:2.05;color:#6c776b;min-height:75px;margin:0 0 13px}
 .memory-line a{font:10px var(--sans);letter-spacing:.04em;color:var(--pine);border-bottom:1px solid #bec8ba;padding-bottom:4px}
 .memory-line a span{color:var(--rust);margin-left:7px}
-.many-mirrors{padding:92px 0 105px;background:linear-gradient(130deg,#e8ebe3,#dfe6dc)} /* 浅绿渐变底区块 */
+.many-mirrors{padding:92px 0 105px;background:linear-gradient(130deg,#e8ebe3,#dfe6dc)}
 .mirrors-heading{display:flex;align-items:end;justify-content:space-between;margin-left:18%;margin-bottom:35px}
 .mirrors-heading>p{max-width:350px;margin:0 4% 6px 25px}
 .mirror-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-left:18%}
-.mirror-card{position:relative;min-height:250px;padding:26px 25px 24px;background:rgba(247,247,240,.67);border:1px solid rgba(134,151,131,.25);transition:transform .25s,box-shadow .25s} /* 三张「镜像」卡(才人/故国/有情) */
+.mirror-card{position:relative;min-height:250px;padding:26px 25px 24px;background:rgba(247,247,240,.67);border:1px solid rgba(134,151,131,.25);transition:transform .25s,box-shadow .25s}
 .mirror-card:hover{transform:translateY(-5px);box-shadow:0 14px 28px rgba(48,77,63,.1)}
 .mirror-card h3{font-weight:500;font-size:23px;letter-spacing:.12em;margin:25px 0 10px}
 .mirror-card p{font-size:12px;line-height:2.1;color:#68766b;min-height:80px;margin:0 0 14px}
-.mirror-card em{font-style:normal;font-size:12px;letter-spacing:.06em;color:#9a6149} /* 引词(锈红) */
+.mirror-card em{font-style:normal;font-size:12px;letter-spacing:.06em;color:#9a6149}
 
-/* ---------- 15d. 词容万象：影视 / 游戏形象展示区 screen-world ---------- */
+/* —— 10a. 词容万象 · 影视 / 游戏展示区 screen-world —— */
 .screen-world{padding-top:100px;padding-bottom:95px}
 .screen-world>.section-kicker{margin-bottom:28px}
-.screen-world-heading{display:grid;grid-template-columns:1fr 1fr;gap:9%;align-items:end;margin-left:18%;margin-bottom:36px} /* 左标题 + 右说明 两栏 */
+.screen-world-heading{display:grid;grid-template-columns:1fr 1fr;gap:9%;align-items:end;margin-left:18%;margin-bottom:36px}
 .screen-world-heading h2{font-size:clamp(30px,3.1vw,42px);line-height:1.65;font-weight:500;letter-spacing:.06em;margin:0}
 .screen-world-heading p{max-width:460px;font-size:13px;line-height:2.2;color:#68766b;margin:0 7% 7px 0}
-.media-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:25px 20px;margin-left:18%} /* 四张媒体卡：2×2 网格 */
+.media-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:25px 20px;margin-left:18%} /* 2×2 媒体卡 */
 .media-card{min-width:0;background:rgba(255,255,255,.45);border:1px solid rgba(134,151,131,.27);box-shadow:0 9px 24px rgba(49,67,53,.05)}
-.media-placeholder{position:relative;display:grid;place-items:center;aspect-ratio:1.72;min-height:180px;overflow:hidden;background-color:#e3e7dd;color:#69786a} /* 图片占位框 */
-.media-placeholder:before{content:"";position:absolute;inset:12px;border:1px solid rgba(101,123,104,.31);pointer-events:none} /* 占位内描边 */
-.media-placeholder:after{content:"";position:absolute;inset:0;background:linear-gradient(145deg,rgba(255,255,255,.38),transparent 43%,rgba(68,89,70,.07));pointer-events:none} /* 占位光泽 */
-.media-film-one{background-image:radial-gradient(ellipse at 72% 28%,rgba(244,230,202,.55),transparent 30%),linear-gradient(135deg,#c7c9b8,#e5e4d5 48%,#aeb9aa)} /* 影视占位·暖调 */
-.media-film-two{background-image:radial-gradient(ellipse at 28% 76%,rgba(230,207,174,.55),transparent 32%),linear-gradient(135deg,#c3ccc2,#e8e7d9 50%,#b7bfae)} /* 影视占位·冷调 */
-.media-game-one{background-image:radial-gradient(ellipse at 72% 68%,rgba(216,199,174,.53),transparent 30%),linear-gradient(135deg,#bdc7bd,#e2e4d8 50%,#aeb8b0)} /* 游戏占位·暖调 */
-.media-game-two{background-image:radial-gradient(ellipse at 30% 26%,rgba(237,219,183,.52),transparent 30%),linear-gradient(135deg,#c5c8b9,#e5e2d5 50%,#b4beb2)} /* 游戏占位·冷调 */
+.media-placeholder{position:relative;display:grid;place-items:center;aspect-ratio:1.72;min-height:180px;overflow:hidden;background-color:#e3e7dd;color:#69786a}
+.media-placeholder:before{content:"";position:absolute;inset:12px;border:1px solid rgba(101,123,104,.31);pointer-events:none}
+.media-placeholder:after{content:"";position:absolute;inset:0;background:linear-gradient(145deg,rgba(255,255,255,.38),transparent 43%,rgba(68,89,70,.07));pointer-events:none}
+.media-film-one{background-image:radial-gradient(ellipse at 72% 28%,rgba(244,230,202,.55),transparent 30%),linear-gradient(135deg,#c7c9b8,#e5e4d5 48%,#aeb9aa)}
+.media-film-two{background-image:radial-gradient(ellipse at 28% 76%,rgba(230,207,174,.55),transparent 32%),linear-gradient(135deg,#c3ccc2,#e8e7d9 50%,#b7bfae)}
+.media-game-one{background-image:radial-gradient(ellipse at 72% 68%,rgba(216,199,174,.53),transparent 30%),linear-gradient(135deg,#bdc7bd,#e2e4d8 50%,#aeb8b0)}
+.media-game-two{background-image:radial-gradient(ellipse at 30% 26%,rgba(237,219,183,.52),transparent 30%),linear-gradient(135deg,#c5c8b9,#e5e2d5 50%,#b4beb2)} /* 四张占位卡的渐变配色 */
 .media-placeholder-type,.media-placeholder-number,.media-placeholder-note{position:absolute;z-index:1}
-.media-placeholder-type{top:25px;left:28px;padding:5px 9px;background:rgba(243,243,237,.77);font:9px var(--sans);letter-spacing:.12em} /* 类型标签(左上) */
-.media-placeholder-number{right:27px;top:18px;font:30px var(--serif);color:rgba(48,77,63,.28)} /* 序号(右上) */
+.media-placeholder-type{top:25px;left:28px;padding:5px 9px;background:rgba(243,243,237,.77);font:9px var(--sans);letter-spacing:.12em}
+.media-placeholder-number{right:27px;top:18px;font:30px var(--serif);color:rgba(48,77,63,.28)}
 .media-placeholder-note{text-align:center;font-size:12px;letter-spacing:.12em;line-height:1.9;color:#657465}
-.media-placeholder-note:before{content:"＋";display:grid;place-items:center;width:32px;height:32px;margin:0 auto 9px;border:1px solid rgba(101,123,104,.52);border-radius:50%;font:18px var(--sans);color:#718273} /* 加号图标 */
+.media-placeholder-note:before{content:"＋";display:grid;place-items:center;width:32px;height:32px;margin:0 auto 9px;border:1px solid rgba(101,123,104,.52);border-radius:50%;font:18px var(--sans);color:#718273}
 .media-placeholder-note small{font:8px var(--sans);letter-spacing:.2em;color:#8a9387}
 .media-caption{padding:17px 21px 19px}
-.media-caption>span{font:8px var(--sans);letter-spacing:.16em;color:#9b6852} /* 编号(锈红小字) */
+.media-caption>span{font:8px var(--sans);letter-spacing:.16em;color:#9b6852}
 .media-caption h3{font-size:16px;font-weight:500;letter-spacing:.07em;margin:6px 0 4px}
 .media-caption p{font-size:11px;line-height:1.8;color:#788176;margin:0}
-.screen-world-footnote{margin:24px 0 0 18%;padding-left:13px;border-left:1px solid rgba(169,104,76,.55);font-size:10px;line-height:1.9;color:#7b8478} /* 底部说明(锈红左边线) */
-
-.living-echo{position:relative;padding-top:86px;padding-bottom:82px;text-align:center;background:radial-gradient(ellipse at 50% 50%,rgba(207,216,201,.55),transparent 65%)} /* 居中引文区 */
-.echo-quote{display:block;height:43px;font:72px Georgia,serif;line-height:1;color:rgba(169,104,76,.48)} /* 大引号装饰 */
+.screen-world-footnote{margin:24px 0 0 18%;padding-left:13px;border-left:1px solid rgba(169,104,76,.55);font-size:10px;line-height:1.9;color:#7b8478}
+.living-echo{position:relative;padding-top:86px;padding-bottom:82px;text-align:center;background:radial-gradient(ellipse at 50% 50%,rgba(207,216,201,.55),transparent 65%)} /* 当代回声区 */
+.echo-quote{display:block;height:43px;font:72px Georgia,serif;line-height:1;color:rgba(169,104,76,.48)}
 .living-echo p{font-size:clamp(20px,2.5vw,29px);letter-spacing:.1em;line-height:2;margin:9px 0 17px}
 .living-echo>span:last-child{font:9px var(--sans);letter-spacing:.19em;color:#8b7660}
 
-/* ---------- 16. 词作页首屏 ci-hero + 浮词圈 ---------- */
+/* ---------- 11. 词作笺赏 ci ---------- */
 .ci-hero{background:radial-gradient(ellipse at 80% 50%,rgba(201,215,200,.6),transparent 36%),linear-gradient(115deg,#eff0e9,#e3e9e0)}
 .floating-verse{z-index:2;width:210px;height:210px;border-radius:50%;border:1px solid rgba(113,131,111,.35);display:flex;flex-direction:column;align-items:center;justify-content:center;margin-right:15%;color:#69796a}
 .floating-verse:before,.floating-verse:after{content:"";position:absolute;width:165px;height:165px;border:1px solid rgba(113,131,111,.25);border-radius:50%}
-.floating-verse:after{width:240px;height:240px;border-style:dashed;opacity:.5}
+.floating-verse:after{width:240px;height:240px;border-style:dashed;opacity:.5} /* 浮词圈(同心圆) */
 .floating-verse span{font-size:12px;letter-spacing:.3em;writing-mode:vertical-rl}
 .floating-verse b{font-weight:500;font-size:40px;color:var(--rust);margin-top:8px}
 .floating-verse small{font:8px var(--sans);letter-spacing:.2em;margin-top:10px}
-
-/* ---------- 17. 词作列表 works ---------- */
 .works{padding-top:95px;padding-bottom:80px}
 .works>.section-kicker{margin-bottom:27px}
 .works-heading{display:flex;justify-content:space-between;align-items:end;margin-left:18%;margin-bottom:34px}
 .works-heading h2{font-size:35px;margin:0}
 .works-heading p{font-size:12px;color:#727d72;line-height:2.1;margin:0 7% 5px 0}
-.poem-tabs{margin-left:18%;display:flex;gap:25px;border-bottom:1px solid var(--line);margin-bottom:0}
+.poem-tabs{margin-left:18%;display:flex;gap:25px;border-bottom:1px solid var(--line);margin-bottom:0} /* 词牌标签 */
 .poem-tabs a{padding:12px 4px;font-size:12px;color:#788177}
 .poem-tabs a:hover{color:var(--rust)}
-.work-entry{display:grid;grid-template-columns:12% 1fr 20%;gap:28px;padding:40px 0 47px;border-bottom:1px solid var(--line);scroll-margin-top:100px} /* 单首词：序号 / 正文 / 侧栏 */
+.work-entry{display:grid;grid-template-columns:12% 1fr 20%;gap:28px;padding:40px 0 47px;border-bottom:1px solid var(--line);scroll-margin-top:100px} /* 单首词条目 */
 .work-number{font:29px var(--sans);font-weight:400;color:#bdc5b9}
 .work-meta{display:flex;gap:9px;align-items:center}
 .work-main h3{font-size:24px;font-weight:500;letter-spacing:.1em;margin:8px 0 20px}
@@ -295,25 +265,23 @@ textarea::placeholder{color:#9aa297}
 .work-actions,.recite-buttons{display:flex;align-items:center;gap:21px;flex-wrap:wrap;margin-top:21px}
 .work-actions button,.recite-buttons button{padding:0;border:0;background:none;font-size:10px;color:var(--pine);cursor:pointer}
 .work-actions button:hover,.recite-buttons button:hover{color:var(--rust)}
-.work-actions .favorite-button[aria-pressed="true"]{color:var(--rust)} /* “已收藏”态 */
+.work-actions .favorite-button[aria-pressed="true"]{color:var(--rust)} /* 已收藏态(锈红) */
 .work-actions .text-link,.recite-buttons .text-link{font-size:10px}
-.work-side{margin-top:53px;border-left:1px solid #cbd3c8;padding-left:17px;height:max-content} /* 词旁笺注(小字) */
+.work-side{margin-top:53px;border-left:1px solid #cbd3c8;padding-left:17px;height:max-content} /* 读词提示侧栏 */
 .work-side span{font:9px var(--sans);color:var(--rust);letter-spacing:.12em}
 .work-side p{font-size:10px;color:#788177;line-height:1.9;margin:7px 0 0}
-
-/* ---------- 18. 词作笺注 annotation ---------- */
-.annotation{margin-top:20px;border-top:1px solid #d8ddd4;max-width:660px}
+.annotation{margin-top:20px;border-top:1px solid #d8ddd4;max-width:660px} /* 展开笺注 */
 .annotation summary{cursor:pointer;list-style:none;padding:11px 0;font-size:10px;color:#737f73}
 .annotation summary::-webkit-details-marker{display:none}
 .annotation summary span{float:right;color:var(--rust);font-size:14px}
-.annotation[open] summary span{transform:rotate(45deg)} /* 展开时“+”转“×” */
+.annotation[open] summary span{transform:rotate(45deg)} /* 展开时“＋”转“×” */
 .annotation>div{padding:3px 0 5px}
 .annotation p{font-size:11px;color:#6c776d;line-height:2;margin:7px 0}
 .annotation strong{color:#405544;font-weight:500}
 
-/* ---------- 19. 听词页 listen ---------- */
+/* ---------- 12. 听词入梦 listen ---------- */
 .listen-hero{background:radial-gradient(ellipse at 78% 50%,rgba(215,207,184,.36),transparent 30%),linear-gradient(120deg,#ecefe7,#e1e8df)}
-.sound-orbit{position:relative;z-index:2;width:210px;height:210px;margin-right:14%;border:1px solid rgba(111,129,110,.35);border-radius:50%;display:grid;place-items:center;color:var(--rust);font-size:46px}
+.sound-orbit{position:relative;z-index:2;width:210px;height:210px;margin-right:14%;border:1px solid rgba(111,129,110,.35);border-radius:50%;display:grid;place-items:center;color:var(--rust);font-size:46px} /* 声波同心圆 */
 .sound-orbit:before,.sound-orbit:after,.sound-orbit i,.sound-orbit b{content:"";position:absolute;inset:15px;border:1px solid rgba(111,129,110,.24);border-radius:50%}
 .sound-orbit:after{inset:-16px;border-style:dashed;opacity:.6}
 .sound-orbit i{inset:32px}.sound-orbit b{inset:49px;background:rgba(194,203,188,.2)}
@@ -324,22 +292,20 @@ textarea::placeholder{color:#9aa297}
 .listen-title h2{font-size:35px;margin:0}
 .listen-title p{font-size:12px;margin:0 7% 5px 0}
 .recite-list{margin-left:18%}
-.recite-card{display:grid;grid-template-columns:190px 1fr;gap:31px;padding:21px 0;border-bottom:1px solid var(--line)}
+.recite-card{display:grid;grid-template-columns:190px 1fr;gap:31px;padding:21px 0;border-bottom:1px solid var(--line)} /* 朗诵卡片 */
 .recite-art{min-height:158px;position:relative;overflow:hidden;background:linear-gradient(150deg,#8a9a82,#435d4a);display:flex;flex-direction:column;justify-content:center;align-items:center;color:#f4f0e5}
-.recite-art:after{content:"";position:absolute;inset:37% -12% -20%;border-radius:50%;background:rgba(28,54,39,.36)}
+.recite-art:after{content:"";position:absolute;inset:37% -12% -20%;border-radius:50%;background:rgba(28,54,39,.36)} /* 卡内弧光 */
 .recite-art>span,.recite-art>b,.recite-art>small{position:relative;z-index:1}
 .recite-art>span{font:9px var(--sans);letter-spacing:.14em;align-self:flex-start;margin:13px 15px 0}
 .recite-art>b{font-size:26px;font-weight:400;letter-spacing:.22em;margin:auto}
 .recite-art>small{font:8px var(--sans);letter-spacing:.2em;color:#d8dacd;margin-bottom:14px}
-.art-moon{background:linear-gradient(140deg,#9a9d83,#4d5b51)} /* 月夜封面配色 */
-.art-rain{background:linear-gradient(140deg,#8a9691,#4a6162)} /* 雨夜封面配色 */
+.art-moon{background:linear-gradient(140deg,#9a9d83,#4d5b51)}
+.art-rain{background:linear-gradient(140deg,#8a9691,#4a6162)} /* 不同词配不同底图色 */
 .recite-info{padding:11px 0}
 .recite-info h3{font-size:19px;font-weight:500;letter-spacing:.08em;margin:8px 0}
 .recite-info p{font-size:11px;color:#7c857b;margin:0}
 .recite-buttons{margin-top:17px}
-
-/* ---------- 20. 互动区 interactive ---------- */
-.interactive{padding-top:84px;padding-bottom:84px;background:#e9ebe4}
+.interactive{padding-top:84px;padding-bottom:84px;background:#e9ebe4} /* 互动写词区 */
 .interactive>.section-kicker{margin-bottom:25px}
 .interactive-grid{display:grid;grid-template-columns:1fr 1fr;gap:9%;align-items:center;margin-left:18%}
 .interactive h2{font-size:34px;margin:0 0 10px}
@@ -348,243 +314,101 @@ textarea::placeholder{color:#9aa297}
 .prompt-words button{padding:5px 12px;border:1px solid #c5cdc0;background:transparent;font-size:10px;color:#667466;cursor:pointer}
 .prompt-words button:hover{background:var(--pine);color:white}
 .poem-form{background:#f1f1eb}
-
-/* ---------- 21. 音频面板 ---------- */
-.audio-panel{position:fixed;right:25px;top:100px;width:min(340px,calc(100vw - 32px));z-index:40;padding:25px;background:#f7f6ef;box-shadow:0 15px 55px rgba(31,50,38,.2);border:1px solid #dce0d7} /* 右上浮层：选本地音频 */
+.audio-panel{position:fixed;right:25px;top:100px;width:min(340px,calc(100vw - 32px));z-index:40;padding:25px;background:#f7f6ef;box-shadow:0 15px 55px rgba(31,50,38,.2);border:1px solid #dce0d7} /* 背景音乐面板(脚本控制显隐) */
 .audio-panel[hidden]{display:none}
 .audio-panel strong{font-size:16px;font-weight:500;letter-spacing:.06em}
 .audio-panel p{font-size:11px;line-height:1.9;color:#717b70;margin:9px 0 14px}
 .audio-panel audio{display:block;width:100%;height:36px;margin:15px 0}
 .audio-panel .text-link{display:inline-block;font-size:10px}
-.audio-close{position:absolute;top:12px;right:14px;border:0;background:none;font-size:21px;color:#718071;cursor:pointer}
+.audio-close{position:absolute;top:12px;right:14px;border:0;background:none;font-size:21px;color:#718071;cursor:pointer} /* 面板关闭按钮 */
 .file-button{display:inline-flex;padding:8px 12px;background:var(--pine);color:white;font:10px var(--sans);cursor:pointer}
-.file-button input{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)} /* 原生 file input 视觉隐藏，用 label 触发 */
+.file-button input{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)} /* 隐藏原生 file input */
 
-/* ---------- 22. 花瓣 / 粒子特效 + 翻页水波 ---------- */
-.petal-burst{position:fixed;inset:0;z-index:100;pointer-events:none} /* 花瓣爆发容器(覆盖全屏，不挡点击) */
-
-/* 22b. 翻页水波 page-ripple(由 script.js 无刷新导航触发) */
-.page-ripple{position:fixed;inset:0;z-index:90;overflow:hidden;pointer-events:none} /* 翻页时从点击点扩散的水波层 */
-.page-ripple:before,.page-ripple:after{content:"";position:absolute;left:var(--ripple-x);top:var(--ripple-y);width:150vmax;height:150vmax;border-radius:50%;transform:translate(-50%,-50%) scale(.015);opacity:0;background:radial-gradient(circle,transparent 0 47%,rgba(242,244,233,.48) 47.2% 47.7%,rgba(48,77,63,.22) 48% 48.3%,transparent 48.6%)} /* 水波圆环(两圈错位) */
+/* ---------- 13. 动效层(花瓣/水波/粒子)与关键帧 ---------- */
+.petal-burst{position:fixed;inset:0;z-index:100;pointer-events:none}      /* 一次点击生成的花瓣/星火容器 */
+.page-ripple{position:fixed;inset:0;z-index:90;overflow:hidden;pointer-events:none} /* 翻页水波层 */
+.page-ripple:before,.page-ripple:after{content:"";position:absolute;left:var(--ripple-x);top:var(--ripple-y);width:150vmax;height:150vmax;border-radius:50%;transform:translate(-50%,-50%) scale(.015);opacity:0;background:radial-gradient(circle,transparent 0 47%,rgba(242,244,233,.48) 47.2% 47.7%,rgba(48,77,63,.22) 48% 48.3%,transparent 48.6%)}
 .page-ripple:before{animation:page-ripple-wave .82s cubic-bezier(.16,.62,.3,1) forwards}
-.page-ripple:after{background:radial-gradient(circle,transparent 0 59%,rgba(242,244,233,.34) 59.2% 59.6%,rgba(48,77,63,.15) 59.9% 60.2%,transparent 60.5%);animation:page-ripple-wave .9s .12s cubic-bezier(.16,.62,.3,1) forwards} /* 第二圈延迟 0.12s */
-main{transition:opacity .24s ease,transform .24s ease,filter .24s ease} /* 翻页时主体淡出 / 微缩 / 模糊 */
-html.page-transitioning main{opacity:.08;transform:translateY(8px) scale(.995);filter:blur(3px)}
-@keyframes page-ripple-wave{0%{transform:translate(-50%,-50%) scale(.015);opacity:0}12%{opacity:1}100%{transform:translate(-50%,-50%) scale(1.35);opacity:0}} /* 水波由小放大并淡出 */
-
+.page-ripple:after{background:radial-gradient(circle,transparent 0 59%,rgba(242,244,233,.34) 59.2% 59.6%,rgba(48,77,63,.15) 59.9% 60.2%,transparent 60.5%);animation:page-ripple-wave .9s .12s cubic-bezier(.16,.62,.3,1) forwards} /* 双层水波(后层延迟) */
+main{transition:opacity .24s ease,transform .24s ease,filter .24s ease}
+html.page-transitioning main{opacity:.08;transform:translateY(8px) scale(.995);filter:blur(3px)} /* 换页时主体淡出模糊 */
+@keyframes page-ripple-wave{0%{transform:translate(-50%,-50%) scale(.015);opacity:0}12%{opacity:1}100%{transform:translate(-50%,-50%) scale(1.35);opacity:0}}
 .petal-particle,.spark-particle{position:fixed;left:0;top:0;pointer-events:none;animation-delay:var(--delay);animation-fill-mode:both}
-.petal-particle{width:var(--petal-width,11px);height:var(--petal-height,16px);border-radius:88% 5% 82% 8%;background:linear-gradient(145deg,#ffe4eb 0%,#f7a1b5 34%,#e45479 70%,#b72550 100%);box-shadow:0 1px 5px rgba(196,43,88,.2),inset -1px -1px 2px rgba(140,24,57,.16);animation:petal-fall 4.4s linear forwards;transform-origin:70% 70%} /* 单片花瓣(粉红渐变，4.4s 飘落) */
+.petal-particle{width:var(--petal-width,11px);height:var(--petal-height,16px);border-radius:88% 5% 82% 8%;background:linear-gradient(145deg,#ffe4eb 0%,#f7a1b5 34%,#e45479 70%,#b72550 100%);box-shadow:0 1px 5px rgba(196,43,88,.2),inset -1px -1px 2px rgba(140,24,57,.16);animation:petal-fall 4.4s linear forwards;transform-origin:70% 70%} /* 花瓣(粉) */
 .petal-particle:after{content:"";position:absolute;width:1px;height:68%;top:14%;left:48%;background:rgba(255,246,248,.75);transform:rotate(-24deg)} /* 花瓣中脉 */
-.spark-particle{width:var(--spark-size,3px);height:var(--spark-size,3px);border-radius:50%;background:#fff5fb;box-shadow:0 0 3px 1px rgba(255,190,220,.58),0 0 7px 2px rgba(234,79,140,.25);animation:sparkle-fade 1.7s ease-out forwards}
-/* 花瓣轨迹：与 script.js 写入的 --fall-* / --sway-* / --spin-* 一一对应 */
+.spark-particle{width:var(--spark-size,3px);height:var(--spark-size,3px);border-radius:50%;background:#fff5fb;box-shadow:0 0 3px 1px rgba(255,190,220,.58),0 0 7px 2px rgba(234,79,140,.25);animation:sparkle-fade 1.7s ease-out forwards} /* 星火 */
 @keyframes petal-fall{0%{transform:translate3d(0,-8px,0) rotate(0) scale(.82);opacity:0}8%{opacity:.82}20%{transform:translate3d(var(--sway-a),var(--fall-a),0) rotate(var(--spin-a)) scale(1);opacity:.82}40%{transform:translate3d(var(--sway-b),var(--fall-b),0) rotate(var(--spin-b)) scale(.98);opacity:.8}60%{transform:translate3d(var(--sway-c),var(--fall-c),0) rotate(var(--spin-c)) scale(.94);opacity:.72}80%{transform:translate3d(var(--sway-b),var(--fall-d),0) rotate(var(--spin-end)) scale(.9);opacity:.55}100%{transform:translate3d(var(--sway-end),var(--fall-end),0) rotate(var(--spin-end)) scale(.84);opacity:0}}
-@keyframes sparkle-fade{0%{transform:translate3d(0,0,0) scale(.5);opacity:0}20%{transform:translate3d(var(--spark-drift-x),var(--spark-drift-y),0) scale(.2);opacity:.75}100%{transform:translate3d(var(--spark-drift-x),var(--spark-drift-y),0) scale(.2);opacity:0}} /* 星火向上漂移并淡出 */
+@keyframes sparkle-fade{0%{transform:translate3d(0,0,0) scale(.5);opacity:0}20%{opacity:.75}100%{transform:translate3d(var(--spark-drift-x),var(--spark-drift-y),0) scale(.2);opacity:0}}
 
-/* ---------- 23. 响应式：平板 ≤1000px ---------- */
-@media(max-width:1000px){
-  .site-header{padding:0 4%}
-  .main-nav{gap:22px}
-  .hero{padding-left:7%;padding-right:7%}
-  .hero-art{right:2%;width:50vw;height:50vw}
-  .section-wrap{padding-left:7%;padding-right:7%}
-  .intro{grid-template-columns:.3fr 1fr .8fr;gap:26px}
-  .feature-section{padding-left:7%;padding-right:7%}
-  .poem-card{padding:19px 15px}
-  .closing{grid-template-columns:.2fr 1fr .9fr;gap:25px}
-  .subhero{padding-left:7%;padding-right:7%}
-  .works,.listen-content,.story{padding-left:7%;padding-right:7%}
-  .work-entry{grid-template-columns:8% 1fr 18%;gap:18px}
-}
-
-/* ---------- 24. 响应式：手机 ≤700px ---------- */
-@media(max-width:700px){
-  html{scroll-padding-top:75px}
-  .site-header{height:70px;padding:0 5%}
-  .brand{font-size:13px}
-  .brand-seal{width:34px;height:34px}
-  .menu-toggle{display:block;margin-left:auto;order:3} /* 显示汉堡，排到最右 */
-  .sound-toggle{order:2;padding:7px 10px}
-  .sound-toggle span:last-child{display:none} /* 隐藏状态文字，仅留图标 */
-  .main-nav{display:none;position:absolute;left:0;right:0;top:69px;height:auto;padding:11px 5% 19px;background:rgba(243,243,237,.98);border-bottom:1px solid var(--line);gap:0;flex-direction:column;align-items:stretch} /* 收起为下拉 */
-  .main-nav.open{display:flex}
-  .main-nav a{height:auto;padding:12px 5px}
-  .main-nav a.active:after{left:auto;right:4px;bottom:18px} /* 当前页下划线改到右侧 */
-  .hero{min-height:810px;min-height:calc(100svh - 70px);padding:72px 7% 50px;align-items:flex-start}
-  .hero-copy{width:100%;max-width:none}
-  .hero h1{font-size:48px}
-  .hero-intro{max-width:330px;font-size:12px}
-  .hero-art{top:auto;bottom:22px;right:0;transform:none;width:91vw;height:390px;border-radius:48% 48% 4px 4px} /* 插画移到首屏底部 */
-  .art-label{top:11%;left:17%;font-size:9px}
-  .art-poem{right:7%;bottom:16%;font-size:12px}
-  .art-stamp{bottom:8%;left:8%;width:48px;height:38px;font-size:8px}
-  .hero-verse{margin-top:30px;font-size:10px}
-  .hero-bottom{bottom:13px;left:7%;right:7%;font-size:8px}
-  .hero-bottom .scroll-line{width:45px}
-  .intro{grid-template-columns:1fr;gap:16px;padding-top:72px;padding-bottom:78px} /* 单列堆叠 */
-  .intro-poet{display:grid;grid-template-columns:1fr;justify-items:start}
-  .portrait-frame{width:min(100%,360px);margin-top:20px}
-  .poet-portrait{aspect-ratio:1.42;object-position:center 24%}
-  .intro-heading{padding-left:0}
-  .intro-heading h2,.feature-head h2,.story-lead h2,.works-heading h2,.listen-title h2,.interactive h2,.next-step h2,.closing h2{font-size:29px}
-  .intro-card{margin:5px 0 0;min-height:210px}
-  .feature-section{padding:66px 6% 73px}
-  .feature-head{align-items:start;gap:15px}
-  .feature-head .under-link{margin-top:30px;white-space:nowrap;font-size:10px}
-  .poem-grid{grid-template-columns:repeat(2,1fr);gap:9px} /* 词卡两列 */
-  .poem-card{min-height:230px;padding:17px 14px}
-  .poem-card h3{font-size:21px;margin-top:35px}
-  .poem-card p{font-size:11px}
-  .closing{grid-template-columns:36px 1fr;padding-top:70px;padding-bottom:70px;gap:16px}
-  .closing-pine{height:145px}
-  .closing .mood-form{grid-column:1/-1} /* 表单占满整行 */
-  .site-footer{padding:24px 5%;flex-wrap:wrap}
-  .site-footer>span{display:none}
-  .site-footer .brand small{font-size:8px}
-  .subhero{min-height:390px;padding:55px 7%;align-items:flex-start}
-  .subhero h1{font-size:43px}
-  .subhero-copy>p:not(.eyebrow){font-size:12px;max-width:290px}
-  .subhero-mark,.floating-verse,.sound-orbit{position:absolute;right:7%;bottom:24px;transform:scale(.72);transform-origin:bottom right;margin:0} /* 右侧装饰缩放到右下角 */
-  .subhero-mark{right:15%;bottom:52px}
-  .story,.works,.listen-content{padding:65px 7%}
-  .story>.section-kicker,.works>.section-kicker,.listen-content>.section-kicker{margin-bottom:20px}
-  .story-lead{grid-template-columns:1fr;gap:14px;padding:0 0 35px 0}
-  .story-lead h2{font-size:30px}
-  .timeline{margin-left:12px;padding-left:28px}
-  .timeline-item{padding-bottom:24px}
-  .timeline-year{position:static;display:block;margin-bottom:8px} /* 年份改到卡片上方 */
-  .timeline-dot{left:-33px;top:6px}
-  .timeline-card{padding:18px 17px}
-  .timeline-card h3{font-size:17px}
-  .timeline-card p{font-size:11px}
-  .life-note blockquote{font-size:22px}
-  .next-step{padding-top:62px;padding-bottom:62px;gap:15px}
-  .next-step h2{font-size:25px}
-  .next-step .button{padding:10px 13px;gap:10px;white-space:nowrap;font-size:9px}
-  .works-heading,.listen-title{display:block;margin:0 0 22px} /* 标题与说明上下排列 */
-  .works-heading h2,.listen-title h2{font-size:30px;margin-bottom:10px}
-  .works-heading p,.listen-title p{font-size:11px}
-  .poem-tabs{margin:0 -2px;gap:16px;overflow-x:auto;white-space:nowrap} /* 标签横向滚动 */
-  .poem-tabs a{font-size:11px}
-  .work-entry{grid-template-columns:34px 1fr;gap:10px;padding:27px 0} /* 隐藏侧栏，仅留序号 + 正文 */
-  .work-number{font-size:20px}
-  .work-main h3{font-size:22px}
-  .work-main h3 small{display:block;margin:1px 0 0;font-size:10px}
-  .poem-text{font-size:13px;line-height:2.1}
-  .work-side{display:none}
-  .work-actions{gap:14px}
-  .work-actions .text-link{font-size:9px}
-  .recite-list{margin:0}
-  .recite-card{grid-template-columns:105px 1fr;gap:16px;padding:15px 0} /* 朗诵封面缩小 */
-  .recite-art{min-height:145px}
-  .recite-art>b{font-size:20px}
-  .recite-info{padding:3px 0}
-  .recite-info h3{font-size:15px}
-  .recite-info p{font-size:10px}
-  .recite-buttons{gap:11px;margin-top:12px}
-  .recite-buttons button,.recite-buttons .text-link{font-size:9px}
-  .interactive{padding:64px 7%}
-  .interactive-grid{grid-template-columns:1fr;gap:17px;margin:0} /* 单列 */
-  .interactive h2{font-size:29px}
-  .audio-panel{right:12px;top:80px}
-  .floating-verse{transform:scale(.58);right:4%;bottom:8px}
-  .sound-orbit{transform:scale(.58);right:5%;bottom:23px}
-  .subhero:after{width:77%} /* 远山更宽 */
-}
-
-/* ---------- 25. 减弱动效：无障碍降级 ---------- */
-@media(prefers-reduced-motion:reduce){
-  *,*::before,*::after{
-    scroll-behavior:auto!important;            /* 关掉平滑滚动 */
-    animation-duration:.01ms!important;         /* 动画近乎瞬停 */
-    animation-iteration-count:1!important;
-    transition-duration:.01ms!important
-  }
-}
-
-/* ---------- 26. 声音控件补充(开关态 / 音量条) ---------- */
-.sound-controls{display:flex;align-items:center;gap:10px;flex-shrink:0} /* 页头声音区容器 */
-.sound-toggle[aria-pressed="true"]{background:var(--pine);border-color:var(--pine);color:#f7f5ef} /* “开启”态：松绿填充(覆盖通用样式) */
+/* ---------- 14. 响应式(平板 ≤1000 / 手机 ≤700 / 减弱动效) ---------- */
+@media(max-width:1000px){.site-header{padding:0 4%}.main-nav{gap:22px}.hero{padding-left:7%;padding-right:7%}.hero-art{right:4%;width:50vw;height:50vw}.section-wrap{padding-left:7%;padding-right:7%}.intro{grid-template-columns:.3fr 1fr .8fr;gap:26px}.feature-section{padding-left:7%;padding-right:7%}.poem-card{padding:19px 15px}.closing{grid-template-columns:.2fr 1fr .9fr;gap:25px}.subhero{padding-left:7%;padding-right:7%}.works,.listen-content,.story{padding-left:7%;padding-right:7%}.work-entry{grid-template-columns:8% 1fr 18%;gap:18px}}
+@media(max-width:700px){html{scroll-padding-top:75px}.site-header{height:70px;padding:0 5%}.brand{font-size:13px}.brand-seal{width:34px;height:34px}.menu-toggle{display:block;margin-left:auto;order:3}.sound-toggle{order:2;padding:7px 10px}.sound-toggle span:last-child{display:none}.main-nav{display:none;position:absolute;left:0;right:0;top:69px;height:auto;padding:11px 5% 19px;background:rgba(243,243,237,.98);border-bottom:1px solid var(--line);gap:0;flex-direction:column;align-items:stretch}.main-nav.open{display:flex}.main-nav a{height:auto;padding:12px 5px}.main-nav a.active:after{left:auto;right:4px;bottom:18px}.hero{min-height:810px;min-height:calc(100svh - 70px);padding:72px 7% 50px;align-items:flex-start}.hero-copy{width:100%;max-width:none}.hero h1{font-size:48px}.hero-intro{max-width:330px;font-size:12px}.hero-art{top:auto;bottom:22px;right:0;transform:none;width:91vw;height:390px;border-radius:48% 48% 4px 4px}.art-label{top:11%;left:17%;font-size:9px}.art-poem{right:7%;bottom:16%;font-size:12px}.art-stamp{bottom:8%;left:8%;width:48px;height:38px;font-size:8px}.hero-verse{margin-top:30px;font-size:10px}.hero-bottom{bottom:13px;left:7%;right:7%;font-size:8px}.hero-bottom .scroll-line{width:45px}.intro{grid-template-columns:1fr;gap:16px;padding-top:72px;padding-bottom:78px}.intro-poet{display:grid;grid-template-columns:1fr;justify-items:start}.portrait-frame{width:min(100%,360px);margin-top:20px}.poet-portrait{aspect-ratio:1.42;object-position:center 24%}.intro-heading{padding-left:0}.intro-heading h2,.feature-head h2,.story-lead h2,.works-heading h2,.listen-title h2,.interactive h2,.next-step h2,.closing h2{font-size:29px}.intro-card{margin:5px 0 0;min-height:210px}.feature-section{padding:66px 6% 73px}.feature-head{align-items:start;gap:15px}.feature-head .under-link{margin-top:30px;white-space:nowrap;font-size:10px}.poem-grid{grid-template-columns:repeat(2,1fr);gap:9px}.poem-card{min-height:230px;padding:17px 14px}.poem-card h3{font-size:21px;margin-top:35px}.poem-card p{font-size:11px}.closing{grid-template-columns:36px 1fr;padding-top:70px;padding-bottom:70px;gap:16px}.closing-pine{height:145px}.closing .mood-form{grid-column:1/-1}.site-footer{padding:24px 5%;flex-wrap:wrap}.site-footer>span{display:none}.site-footer .brand small{font-size:8px}.subhero{min-height:390px;padding:55px 7%;align-items:flex-start}.subhero h1{font-size:43px}.subhero-copy>p:not(.eyebrow){font-size:12px;max-width:290px}.subhero-mark,.floating-verse,.sound-orbit{position:absolute;right:7%;bottom:24px;transform:scale(.72);transform-origin:bottom right;margin:0}.subhero-mark{right:15%;bottom:52px}.story,.works,.listen-content{padding:65px 7%}.story>.section-kicker,.works>.section-kicker,.listen-content>.section-kicker{margin-bottom:20px}.story-lead{grid-template-columns:1fr;gap:14px;padding:0 0 35px 0}.story-lead h2{font-size:30px}.timeline{margin-left:12px;padding-left:28px}.timeline-item{padding-bottom:24px}.timeline-year{position:static;display:block;margin-bottom:8px}.timeline-dot{left:-33px;top:6px}.timeline-card{padding:18px 17px}.timeline-card h3{font-size:17px}.timeline-card p{font-size:11px}.life-note blockquote{font-size:22px}.next-step{padding-top:62px;padding-bottom:62px;gap:15px}.next-step h2{font-size:25px}.next-step .button{padding:10px 13px;gap:10px;white-space:nowrap;font-size:9px}.works-heading,.listen-title{display:block;margin:0 0 22px}.works-heading h2,.listen-title h2{font-size:30px;margin-bottom:10px}.works-heading p,.listen-title p{font-size:11px}.poem-tabs{margin:0 -2px;gap:16px;overflow-x:auto;white-space:nowrap}.poem-tabs a{font-size:11px}.work-entry{grid-template-columns:34px 1fr;gap:10px;padding:27px 0}.work-number{font-size:20px}.work-main h3{font-size:22px}.work-main h3 small{display:block;margin:1px 0 0;font-size:10px}.poem-text{font-size:13px;line-height:2.1}.work-side{display:none}.work-actions{gap:14px}.work-actions .text-link{font-size:9px}.recite-list{margin:0}.recite-card{grid-template-columns:105px 1fr;gap:16px;padding:15px 0}.recite-art{min-height:145px}.recite-art>b{font-size:20px}.recite-info{padding:3px 0}.recite-info h3{font-size:15px}.recite-info p{font-size:10px}.recite-buttons{gap:11px;margin-top:12px}.recite-buttons button,.recite-buttons .text-link{font-size:9px}.interactive{padding:64px 7%}.interactive-grid{grid-template-columns:1fr;gap:17px;margin:0}.interactive h2{font-size:29px}.audio-panel{right:12px;top:80px}.floating-verse{transform:scale(.58);right:4%;bottom:8px}.sound-orbit{transform:scale(.58);right:5%;bottom:23px}.subhero:after{width:77%}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+.sound-controls{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.sound-toggle[aria-pressed="true"]{background:var(--pine);border-color:var(--pine);color:#f7f5ef}
 .sound-toggle[aria-pressed="true"] .sound-icon{color:#e7c99c}
 .sound-status{white-space:nowrap}
 .volume-control{display:flex;align-items:center}
-.volume-slider{width:72px;height:4px;accent-color:var(--pine);cursor:pointer} /* 音量滑块，主题色描边 */
-.visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0} /* 仅供读屏的隐藏标签 */
+.volume-slider{width:72px;height:4px;accent-color:var(--pine);cursor:pointer}
+.visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.background-audio{display:none} /* 背景音乐标签本身不显示(由面板/脚本控制) */
+@media(max-width:700px){.sound-controls{gap:6px}.sound-toggle{padding:7px 9px}.sound-toggle .sound-status{display:inline;font-size:9px}.volume-slider{width:48px}}
 
-/* ---------- 27. 背景音乐元素隐藏原生控件 ---------- */
-.background-audio{display:none} /* 自动播放背景乐，控件由音量条 / 按钮接管，不显示原生 UI */
-
-/* ---------- 28. 手机端声音控件微调 ---------- */
-@media(max-width:700px){
-  .sound-controls{gap:6px}
-  .sound-toggle{padding:7px 9px}
-  .sound-toggle .sound-status{display:inline;font-size:9px} /* 手机上恢复显示状态文字 */
-  .volume-slider{width:48px}
-}
-
-/* ---------- 29. 大屏增强：宽≥1100px 且 高≥700px ---------- */
-/* 大桌面 / 笔记本上进一步放大首屏与 intro，留白与竖向居中更舒展 */
+/* ---------- 15. 大屏增强 + 各页响应式补充 + poem-gallery ---------- */
 @media(min-width:1100px) and (min-height:700px){
-  .hero{min-height:min(820px,calc(100svh - 86px))} /* 首屏更高(最高 820px) */
-  .intro{min-height:calc(100svh - 86px);grid-template-columns:minmax(260px,.78fr) minmax(420px,1.25fr) minmax(280px,.9fr);gap:clamp(28px,3.2vw,48px);align-items:center;padding-top:clamp(58px,8vh,100px);padding-bottom:clamp(58px,8vh,100px)} /* intro 占满视口并垂直居中 */
+  .hero{min-height:min(820px,calc(100svh - 86px))}
+  .intro{min-height:calc(100svh - 86px);grid-template-columns:minmax(260px,.78fr) minmax(420px,1.25fr) minmax(280px,.9fr);gap:clamp(28px,3.2vw,48px);align-items:center;padding-top:clamp(58px,8vh,100px);padding-bottom:clamp(58px,8vh,100px)}
   .intro-poet{align-self:center}
   .portrait-frame{width:calc(100% + 18px);margin-top:34px}
   .poet-portrait{aspect-ratio:1.42}
-  .intro-heading h2{font-size:clamp(38px,3.6vw,52px)} /* 标题略放大 */
+  .intro-heading h2{font-size:clamp(38px,3.6vw,52px)}
   .intro-card{margin-top:0;min-height:280px;padding:clamp(28px,3.2vw,44px)}
 }
-
-/* ---------- 30. 粒子 / 水波在减弱动效下整体隐藏 ---------- */
-@media(prefers-reduced-motion:reduce){
-  .petal-burst,.page-ripple{display:none}      /* 关掉花瓣与水波 */
-  main{transition:none}                          /* 翻页过渡也关 */
-  html.page-transitioning main{opacity:1;transform:none;filter:none}
-}
-
-/* ---------- 31. 词容万象页响应式（平板 900 / 手机 700）---------- */
+@media(prefers-reduced-motion:reduce){.petal-burst,.page-ripple{display:none}main{transition:none}html.page-transitioning main{opacity:1;transform:none;filter:none}} /* 减弱动效时直接关掉粒子/水波 */
 @media(max-width:900px){
   .wanxiang-hero{padding-top:60px;padding-bottom:60px}
   .wanxiang-portrait{flex-basis:30vw;height:38vw;min-height:260px;margin-right:0}
-  .memory-line,.mirror-grid{margin-left:8%} /* 缩进变小 */
+  .memory-line,.mirror-grid{margin-left:8%}
   .memory-lead,.mirrors-heading{padding-left:8%;margin-left:0}
-  .screen-world-heading,.media-grid{margin-left:8%} /* 影视/游戏区：缩进与上方一致 */
+  .screen-world-heading,.media-grid{margin-left:8%}
   .screen-world-footnote{margin-left:8%}
 }
 @media(max-width:700px){
-  .wanxiang-hero{min-height:0;display:block;padding:62px 8% 55px} /* 取消左右分栏，改上下堆叠 */
+  .wanxiang-hero{min-height:0;display:block;padding:62px 8% 55px}
   .wanxiang-hero .subhero-copy{max-width:none}
   .wanxiang-hero .subhero-copy>p:not(.eyebrow){font-size:12px}
-  .wanxiang-portrait{width:min(76%,330px);height:310px;min-height:0;margin:42px auto 0} /* 肖像移到文案下方居中 */
+  .wanxiang-portrait{width:min(76%,330px);height:310px;min-height:0;margin:42px auto 0}
   .wanxiang-mark{right:3%;top:45%;font-size:54px}
   .memory-section{padding-top:68px;padding-bottom:72px}
   .memory-lead{display:block;padding-left:0}
   .memory-lead h2,.mirrors-heading h2{font-size:29px}
   .memory-lead p{margin-top:17px}
-  .memory-line{grid-template-columns:1fr;margin:34px 0 0 8px;gap:12px} /* 视角卡单列 */
+  .memory-line{grid-template-columns:1fr;margin:34px 0 0 8px;gap:12px}
   .memory-line article{min-height:0;padding:22px}
   .memory-line p{min-height:0}
   .many-mirrors{padding:67px 0 72px}
   .mirrors-heading{display:block;padding-left:0;margin:0 0 27px}
   .mirrors-heading>p{margin:12px 0 0}
-  .mirror-grid{grid-template-columns:1fr;margin-left:0;gap:11px} /* 镜像卡单列 */
+  .mirror-grid{grid-template-columns:1fr;margin-left:0;gap:11px}
   .mirror-card{min-height:0;padding:22px}
   .mirror-card h3{margin:16px 0 8px}
   .mirror-card p{min-height:0}
-  .living-echo{padding-top:62px;padding-bottom:60px}
-  .living-echo p{font-size:18px}
-  .screen-world{padding-top:68px;padding-bottom:70px} /* 影视/游戏区上下留白收紧 */
+  .screen-world{padding-top:68px;padding-bottom:70px}
   .screen-world-heading{display:block;padding-left:0;margin:0 0 25px}
   .screen-world-heading h2{font-size:29px}
   .screen-world-heading p{margin:11px 0 0}
-  .media-grid{grid-template-columns:1fr;margin-left:0;gap:14px} /* 媒体卡单列 */
+  .media-grid{grid-template-columns:1fr;margin-left:0;gap:14px}
   .media-placeholder{aspect-ratio:1.55;min-height:160px}
   .media-caption{padding:14px 17px 16px}
   .screen-world-footnote{margin:20px 0 0}
+  .living-echo{padding-top:62px;padding-bottom:60px}
+  .living-echo p{font-size:18px}
 }
 
-/* ---------- 32. 词作画廊容器 poem-gallery（词作页：词牌标签 + 四首词的统一通栏背景框）---------- */
-.poem-gallery{position:relative;isolation:isolate;width:100vw;margin-left:calc(50% - 50vw);padding:8px 10vw 4px;overflow:hidden} /* 通栏：width:100vw 配合负 margin-left 突破父容器居中限制，铺满视口；隔离层叠上下文，内含半透明纸色背景 */
-.poem-gallery:before{content:"";position:absolute;z-index:-1;inset:0;background:linear-gradient(rgba(243,243,237,.62),rgba(243,243,237,.62)),url("poem-background.jpg") center 42%/cover no-repeat} /* 背景图：词作背景图上叠半透明纸色，置于内容之下(z-index:-1) */
-.poem-gallery .poem-tabs{margin-left:0} /* 画廊内的词牌标签不再额外左缩进 */
-.works{overflow-x:clip} /* 父容器裁掉通栏画廊可能产生的横向溢出，避免页面出现横向滚动条 */
-@media(max-width:1000px){.poem-gallery{padding-left:7vw;padding-right:7vw}} /* 平板：左右内边距改 7vw */
-@media(max-width:700px){.poem-gallery{padding:8px 7vw 2px}.poem-gallery .poem-tabs{margin:0 -2px}} /* 手机：上下内边距收紧、左右 7vw；词牌标签可横向微溢出滚动 */
+/* —— 15a. 词作画廊容器 poem-gallery(词作页：词牌标签 + 四首词的统一背景框) —— */
+.poem-gallery{position:relative;isolation:isolate;width:100vw;margin-left:calc(50% - 50vw);padding:8px 10vw 4px;overflow:hidden} /* 通栏容器，突破版心 */
+.poem-gallery:before{content:"";position:absolute;z-index:-1;inset:0;background:linear-gradient(rgba(243,243,237,.62),rgba(243,243,237,.62)),url("poem-background.jpg") center 42%/cover no-repeat} /* 叠半透明纸色的词意背景 */
+.poem-gallery .poem-tabs{margin-left:0}
+.works{overflow-x:clip} /* 裁掉横向溢出，避免滚动条 */
+@media(max-width:1000px){.poem-gallery{padding-left:7vw;padding-right:7vw}}
+@media(max-width:700px){.poem-gallery{padding:8px 7vw 2px}.poem-gallery .poem-tabs{margin:0 -2px}}
