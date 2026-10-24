@@ -164,22 +164,30 @@
     }, { once: true });
   }
 
-  /* ---------- 4. 首页翻书落地页：翻开封面 ---------- */
-  // 点击「翻开词境」：禁用按钮 → 加 is-opening 触发翻书动画 → 动画后移除封面并解除 inert 遮罩
+  /* ---------- 4. 首页翻书落地页：翻开封面(翻书向上 + 淡出) ---------- */
+  // 点击「翻开词境」：禁用按钮 → 加 is-opening 触发翻书动画 → 动画后加 is-leaving 淡出 + 给 body 加 book-opened(解除隐藏) → 移除封面
   const bookOpening = document.querySelector(".book-opening");
   const bookOpenButton = document.querySelector(".book-open-button");
   if (bookOpening && bookOpenButton) {
     bookOpenButton.addEventListener("click", () => {
       bookOpenButton.disabled = true;
-      bookOpening.classList.add("is-opening"); // 触发 CSS 翻书动画
+      // 收尾：封面淡出并移除；body 加 book-opened 让首页内容(由 CSS 隐藏)淡入可见
       const finishOpening = () => {
-        bookOpening.remove(); // 移除封面遮罩
-        // 解除页头 / 主体 / 页脚 / 音频的 inert，恢复全站可交互
+        bookOpening.classList.add("is-leaving");    // 触发 CSS 淡出(封面整体 opacity→0)
+        document.body.classList.add("book-opened"); // 解除 body.home-page:not(.book-opened) 对页头/主体的隐藏
+        // 若 HTML 仍带 inert，一并解除(兼容旧结构)；无则无副作用
         document.querySelectorAll("header[inert], main[inert], footer[inert], audio[inert]").forEach((element) => element.removeAttribute("inert"));
-        document.querySelector(".hero-actions a")?.focus({ preventScroll: true }); // 焦点移到首屏按钮
+        window.setTimeout(() => {
+          bookOpening.remove(); // 淡出后彻底移除封面遮罩
+          document.querySelector(".hero-actions a")?.focus({ preventScroll: true }); // 焦点移到首屏按钮
+        }, reducedMotion ? 0 : 400); // 减弱动效则立即可移除
       };
-      if (reducedMotion) finishOpening(); // 减弱动效则直接完成
-      else window.setTimeout(finishOpening, 1350); // 等翻书动画(1.35s)结束
+      if (reducedMotion) {
+        finishOpening(); // 减弱动效：跳过翻书动画直接收尾
+        return;
+      }
+      bookOpening.classList.add("is-opening"); // 触发 CSS 翻书动画(book-page-turn-up，1.05s)
+      window.setTimeout(finishOpening, 1100);  // 等翻书动画结束后收尾
     });
   }
 
