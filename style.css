@@ -387,7 +387,7 @@ html.page-transitioning main{opacity:.08;transform:translateY(8px) scale(.995);f
 .book-cover-kicker{top:13%;left:50%;transform:translateX(-50%);white-space:nowrap}
 .book-cover-foot{bottom:12%;left:50%;transform:translateX(-50%);white-space:nowrap}
 /* 封面标题区：题字以图片(book-title.png)呈现，宽占满、居中 */
-.book-cover-title{position:relative;z-index:1;width:100%;display:flex;flex-direction:column;align-items:center;gap:16px}
+.book-cover-title{position:relative;z-index:1;width:100%;display:flex;flex-direction:column;align-items:center;gap:16px;transform:translateY(-72px)} /* 整体上移，使书法题字在封面偏上居中更稳 */
 .book-cover-title img{display:block;width:clamp(210px,54vw,560px);max-width:78%;height:auto;filter:drop-shadow(0 2px 2px rgba(36,39,32,.16))}
 .book-cover-title i{width:52px;height:1px;background:linear-gradient(90deg,transparent,#a9684c,transparent)} /* 标题下锈红细线 */
 .book-cover-title small{font:10px var(--sans);letter-spacing:.2em;color:#737d70}
@@ -427,6 +427,7 @@ body.home-page.book-opened>.site-header,body.home-page.book-opened>main,body.hom
   .book-cover-front:after{inset:19px}
   .book-cover-kicker{top:16%;font-size:8px}
   .book-cover-seal{right:11%;top:17%;width:34px;height:34px}
+  .book-cover-title{transform:translateY(-48px)} /* 手机端标题上移，避让翻开按钮 */
   .book-open-button{top:70%;white-space:nowrap}
   .book-cover-foot{bottom:15%;font-size:7px}
 }
