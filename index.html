@@ -15,26 +15,31 @@
 
   <!-- ============ 翻书落地页(封面遮罩) ============
        初始以封面盖住整站；header / main / footer / audio 均加 inert，
-       点击「翻开词境」后由 script.js 移除 inert 并隐藏封面。 -->
+       点击「翻开词境」后由 script.js 移除 inert 并移除封面。 -->
   <section class="book-opening" role="dialog" aria-modal="true" aria-labelledby="book-cover-heading">
     <div class="book-cover">
       <!-- 封面正面：标题 / 印章 / 翻开按钮 -->
       <div class="book-cover-front">
         <span class="book-cover-kicker">南唐 · 李煜 · 词中帝王</span>
-        <!-- 封面主标题，配一道锈红短线( i )与副标题 -->
-        <div class="book-cover-title"><span id="book-cover-heading">一江春水</span><i></i><small>李煜词境 · 南唐旧梦</small></div>
+        <!-- 封面主标题：以书法题字图片(book-title.png)呈现，id 供 aria-labelledby 关联 -->
+        <div class="book-cover-title"><img id="book-cover-heading" src="book-title.png" alt="春水留痕，书法题字"><i></i><small>李煜词境 · 南唐旧梦</small></div>
         <!-- 印章式标记 -->
         <span class="book-cover-seal" aria-hidden="true">煜</span>
+        <!-- 四角花饰装饰(❧)，纯视觉、对读屏隐藏 -->
+        <span class="book-cover-corner book-cover-corner-tl" aria-hidden="true">❧</span>
+        <span class="book-cover-corner book-cover-corner-tr" aria-hidden="true">❧</span>
+        <span class="book-cover-corner book-cover-corner-bl" aria-hidden="true">❧</span>
+        <span class="book-cover-corner book-cover-corner-br" aria-hidden="true">❧</span>
         <!-- 翻开按钮：autofocus 让加载后可直接回车/空格打开 -->
         <button class="book-open-button" type="button" autofocus>翻开词境 <span>↗</span></button>
         <span class="book-cover-foot">A JOURNEY THROUGH LI YU'S VERSES</span>
       </div>
-      <!-- 封面背面(书脊暗面)：装饰用，对读屏隐藏 -->
+      <!-- 封面背面(书页)：装饰用，对读屏隐藏 -->
       <div class="book-cover-back" aria-hidden="true"></div>
     </div>
   </section>
 
-  <!-- ============ 共用页头(首页 / 词人故事 / 词作 / 词容万象 / 听词 五页结构一致) ============ -->
+  <!-- ============ 共用页头(五页结构一致) ============ -->
   <header class="site-header" inert>
     <!-- 品牌标识：点击回首页 -->
     <a class="brand" href="index.html"><span class="brand-seal">煜</span><span>一江春水<small>李煜词境 · 南唐旧梦</small></span></a>
