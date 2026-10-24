@@ -147,7 +147,7 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}      /* 标题中强调字用�
 .afterlife-copy h2 em{font-style:normal;color:#755b3f} /* 标题中强调字用赭黄 */
 .afterlife-copy p{max-width:500px;margin:0;color:#4f594e;font-size:13px;line-height:2.1;text-shadow:0 1px 14px rgba(255,255,245,.85)}
 .afterlife-copy .button{flex-shrink:0;box-shadow:0 3px 18px rgba(255,255,245,.48)} /* 行动按钮：不伸缩 + 浅色投影 */
-.closing{padding-top:108px;padding-bottom:110px;display:grid;grid-template-columns:.35fr 1fr .85fr;gap:45px;align-items:center}
+.closing{position:relative;isolation:isolate;padding-top:108px;padding-bottom:110px;display:grid;grid-template-columns:.35fr 1fr .85fr;gap:45px;align-items:center}  /* 建立定位上下文 + 隔离层叠，使 ::before 背景图收敛到本区块 */
 .closing:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(rgba(243,244,236,.04),rgba(243,244,236,.04)),url("closing-background.jpg") center 54%/cover no-repeat;opacity:.7} /* 结语整屏背景图 + 极淡纸色叠层（透明度 .9→.7 调淡），z-index:-1 沉到文字之下 */
 .closing-pine{color:#879483;font-size:13px;letter-spacing:.3em;writing-mode:vertical-rl;border-left:1px solid #b8c1b5;height:170px;padding:10px 0 0 16px} /* 竖排“松”字意境 */
 .closing h2{margin-top:17px}
@@ -180,7 +180,7 @@ textarea::placeholder{color:#9aa297}
 .subhero-mark small{grid-column:1 / -1;line-height:1.8;font-size:10px;color:#405748;font-weight:500} /* 生卒年标记 */
 
 /* ---------- 10. 生平时间线 story ---------- */
-.story{padding-top:94px;padding-bottom:95px}
+.story{padding-top:94px;padding-bottom:95px;background:linear-gradient(rgba(243,243,237,.28),rgba(243,243,237,.4)),url("life-story-background.jpg") center 48%/cover no-repeat}  /* 生平区背景图(life-story) + 纸色渐变叠层 */
 .story>.section-kicker{margin-bottom:28px}
 .story-lead{display:grid;grid-template-columns:1fr 1fr;gap:10%;padding:0 0 55px 18%}
 .story-lead h2{font-size:37px;margin:0}
@@ -189,7 +189,7 @@ textarea::placeholder{color:#9aa297}
 .timeline-item{position:relative;display:grid;grid-template-columns:1fr;max-width:690px;padding:0 0 39px}
 .timeline-year{position:absolute;right:calc(100% + 76px);top:0;font:12px var(--sans);color:var(--rust);letter-spacing:.1em}
 .timeline-dot{position:absolute;width:9px;height:9px;border-radius:50%;background:var(--rust);left:-59px;top:9px;box-shadow:0 0 0 5px var(--paper)} /* 轴上节点 */
-.timeline-card{padding:23px 28px;background:#eaebe4}
+.timeline-card{padding:23px 28px;background:rgba(234,235,228,.88);backdrop-filter:blur(2px)}  /* 卡片改半透明 + 背景磨砂，叠在生平背景图上更通透 */
 .timeline-label,.work-meta{font:9px var(--sans);letter-spacing:.14em;color:var(--rust)}
 .timeline-card h3{font-size:19px;font-weight:500;letter-spacing:.07em;margin:8px 0}
 .timeline-card p{font-size:12px;color:#707b70;line-height:2.1;margin:0 0 10px}
@@ -418,7 +418,7 @@ html.page-transitioning main{opacity:.08;transform:translateY(8px) scale(.995);f
 .book-cover-front:after{content:"";position:absolute;inset:25px;border:1px solid rgba(48,77,63,.16);pointer-events:none}
 .book-cover-kicker,.book-cover-foot{position:absolute;font:9px var(--sans);letter-spacing:.2em;color:#69766a}
 .book-cover-kicker{top:13%;left:50%;transform:translateX(-50%);white-space:nowrap}
-.book-cover-foot{bottom:12%;left:50%;transform:translateX(-50%);white-space:nowrap}
+.book-cover-foot{bottom:12%;left:50%;transform:translateX(-50%);white-space:nowrap;color:#85887b}  /* 封面页脚文字用淡灰，区别于标题主色 */
 /* 封面标题区：题字以图片(book-title.png)呈现，宽占满、居中 */
 .book-cover-title{position:relative;z-index:1;width:100%;display:flex;flex-direction:column;align-items:center;gap:16px;transform:translateY(-72px)} /* 整体上移，使书法题字在封面偏上居中更稳 */
 .book-cover-title img{display:block;width:clamp(210px,54vw,560px);max-width:78%;height:auto;filter:drop-shadow(0 2px 2px rgba(36,39,32,.16))}
