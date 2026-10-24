@@ -2,8 +2,9 @@
 // 主要功能模块：
 //   1) 点击花瓣 / 星火粒子特效   2) 移动端汉堡菜单
 //   3) 背景音乐(开关 / 音量 / 进度记忆)
-//   4) 无刷新翻页(水波过渡 + SPA 式导航，含 file:// 回退)
-//   5) 页面内交互(语音诵读 / 收藏 / 字数统计 / 心情与填词表单)
+//   4) 首页翻书落地页(翻开封面)
+//   5) 无刷新翻页(水波过渡 + SPA 式导航，含 file:// 回退)
+//   6) 页面内交互(语音诵读 / 收藏 / 字数统计 / 心情与填词表单)
 
 (() => {
   // 是否开启“减弱动效”偏好：开启后跳过花瓣、水波等动画
@@ -163,7 +164,26 @@
     }, { once: true });
   }
 
-  /* ---------- 4. 无刷新翻页(水波过渡 + SPA 式导航，含 file:// 回退) ---------- */
+  /* ---------- 4. 首页翻书落地页：翻开封面 ---------- */
+  // 点击「翻开词境」：禁用按钮 → 加 is-opening 触发翻书动画 → 动画后移除封面并解除 inert 遮罩
+  const bookOpening = document.querySelector(".book-opening");
+  const bookOpenButton = document.querySelector(".book-open-button");
+  if (bookOpening && bookOpenButton) {
+    bookOpenButton.addEventListener("click", () => {
+      bookOpenButton.disabled = true;
+      bookOpening.classList.add("is-opening"); // 触发 CSS 翻书动画
+      const finishOpening = () => {
+        bookOpening.remove(); // 移除封面遮罩
+        // 解除页头 / 主体 / 页脚 / 音频的 inert，恢复全站可交互
+        document.querySelectorAll("header[inert], main[inert], footer[inert], audio[inert]").forEach((element) => element.removeAttribute("inert"));
+        document.querySelector(".hero-actions a")?.focus({ preventScroll: true }); // 焦点移到首屏按钮
+      };
+      if (reducedMotion) finishOpening(); // 减弱动效则直接完成
+      else window.setTimeout(finishOpening, 1350); // 等翻书动画(1.35s)结束
+    });
+  }
+
+  /* ---------- 5. 无刷新翻页(水波过渡 + SPA 式导航，含 file:// 回退) ---------- */
   let navigationVersion = 0;     // 导航版本号，防止并发 / 过时请求误替换
   let activePageRipple = null;   // 当前进行中的水波层
   // 从点击点(origin)展开水波，返回 ready(过渡就绪) 与 finish(收尾) 两个钩子
@@ -182,7 +202,10 @@
     return {
       ready: new Promise((resolve) => window.setTimeout(resolve, 240)), // 等水波铺开再换页
       finish: () => {
-        if (activePageRipple !== ripple) { ripple.remove(); return; } // 已被更新的导航接管
+        if (activePageRipple !== ripple) { // 已被更新的导航接管
+          ripple.remove();
+          return;
+        }
         activePageRipple = null;
         document.documentElement.classList.remove("page-transitioning");
         window.setTimeout(() => ripple.remove(), 850); // 水波收尾后移除
@@ -225,7 +248,10 @@
       if (version !== navigationVersion) return; // 已有更新的导航，放弃本次
       ripple = startPageRipple(origin);
       await ripple.ready;
-      if (version !== navigationVersion) { ripple.finish(); return; } // 期间被新导航抢占
+      if (version !== navigationVersion) { // 期间被新导航抢占
+        ripple.finish();
+        return;
+      }
       currentMain.replaceWith(nextMain);                 // 无整页刷新的关键：替换主体
       document.title = nextPage.title;
       document.body.classList.toggle("home-page", nextPage.body.classList.contains("home-page"));
@@ -274,9 +300,9 @@
     if (location.protocol !== "file:" && location.pathname.endsWith(".html")) navigateTo(new URL(location.href), false);
   });
 
-  /* ---------- 5. 页面内交互(每次换页后重新初始化) ---------- */
+  /* ---------- 6. 页面内交互(每次换页后重新初始化) ---------- */
   function initializePageContent() {
-    // 5a. 语音诵读(为我诵读)
+    // 6a. 语音诵读(为我诵读)
     let speaking = false;
     document.querySelectorAll(".read-aloud").forEach((button) => {
       button.addEventListener("click", () => {
@@ -295,7 +321,7 @@
       });
     });
 
-    // 5b. 收藏按钮(按索引分别记忆到 localStorage)
+    // 6b. 收藏按钮(按索引分别记忆到 localStorage)
     document.querySelectorAll(".favorite-button").forEach((button, index) => {
       const key = `liyu-favorite-${index}`;
       const saved = localStorage.getItem(key) === "true";
@@ -309,7 +335,7 @@
       });
     });
 
-    // 5c. 字数计数器(心情 / 写句共用)：实时显示 “已输入 / 上限”
+    // 6c. 字数计数器(心情 / 写句共用)：实时显示 “已输入 / 上限”
     const setupCounter = (fieldId, countId, max) => {
       const field = document.getElementById(fieldId);
       const count = document.getElementById(countId);
@@ -321,7 +347,7 @@
     setupCounter("mood", "mood-count", 80);
     setupCounter("my-line", "line-count", 100);
 
-    // 5d. 首页“此刻心情”表单提交
+    // 6d. 首页“此刻心情”表单提交
     document.querySelector(".mood-form")?.addEventListener("submit", (event) => {
       event.preventDefault();
       const field = document.getElementById("mood");
@@ -335,8 +361,7 @@
       field.value = "";
       document.getElementById("mood-count").textContent = "0 / 80";
     });
-
-    // 5e. 互动区：点击提示词直接填入“写一句”
+    // 6e. 互动区：点击提示词直接填入“写一句”
     document.querySelectorAll(".prompt-words button").forEach((button) => {
       button.addEventListener("click", () => {
         const field = document.getElementById("my-line");
@@ -345,8 +370,7 @@
         field.dispatchEvent(new Event("input", { bubbles: true })); // 触发字数刷新
       });
     });
-
-    // 5f. 互动区“写一句”表单提交
+    // 6f. 互动区“写一句”表单提交
     document.querySelector(".poem-form")?.addEventListener("submit", (event) => {
       event.preventDefault();
       const field = document.getElementById("my-line");
