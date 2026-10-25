@@ -468,7 +468,7 @@ html.page-transitioning main{opacity:.08;transform:translateY(8px) scale(.995);f
 .book-cover-front,.book-cover-back{position:absolute;inset:0;backface-visibility:hidden}
 /* 封面正面：纸色叠背景图，内描双线 */
 .book-cover-front{display:grid;place-items:center;overflow:hidden;color:#304638;background:linear-gradient(135deg,rgba(243,243,237,.82),rgba(236,238,228,.77)),url("home-background.jpg") center 45%/cover no-repeat;border:1px solid rgba(169,104,76,.55);box-shadow:inset 0 0 70px rgba(255,255,255,.23),inset 0 -14px 28px rgba(73,72,52,.08)}
-.book-cover-front:before{content:"";position:absolute;inset:18px;border:1px solid rgba(169,104,76,.46);background:linear-gradient(90deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) left top/22px 22px no-repeat,linear-gradient(180deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) left top/22px 22px no-repeat,linear-gradient(270deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) right top/22px 22px no-repeat,linear-gradient(180deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) right top/22px 22px no-repeat,linear-gradient(90deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) left bottom/22px 22px no-repeat,linear-gradient(0deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) left bottom/22px 22px no-repeat,linear-gradient(270deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) right bottom/22px 22px no-repeat,linear-gradient(0deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) right bottom/22px 30px no-repeat}
+.book-cover-front:before{content:"";position:absolute;inset:18px;border:1px solid rgba(169,104,76,.46);background:linear-gradient(90deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) left top/22px 22px no-repeat,linear-gradient(180deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) left top/22px 22px no-repeat,linear-gradient(270deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) right top/22px 22px no-repeat,linear-gradient(180deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) right top/22px 22px no-repeat,linear-gradient(90deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) left bottom/22px 22px no-repeat,linear-gradient(0deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) left bottom/22px 22px no-repeat,linear-gradient(270deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) right bottom/22px 22px no-repeat,linear-gradient(0deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) right bottom/22px 22px no-repeat;pointer-events:none}
 .book-cover-front:after{content:"";position:absolute;inset:25px;border:1px solid rgba(48,77,63,.16);pointer-events:none}
 .book-cover-kicker,.book-cover-foot{position:absolute;font:9px var(--sans);letter-spacing:.2em;color:#69766a}
 .book-cover-kicker{top:13%;left:50%;transform:translateX(-50%);white-space:nowrap}
@@ -521,11 +521,15 @@ body.home-page.book-opened>.site-header,body.home-page.book-opened>main,body.hom
 @media(prefers-reduced-motion:reduce){.book-opening.is-opening .book-cover{animation-duration:.01ms}.book-opening.is-leaving{transition-duration:.01ms}}
 
 /* —— 17b. 书法飞落开场（封面翻开后的过渡序列，由脚本生成 .calligraphy-flight 元素） —— */
-/* 序列层：铺满屏幕的浅色纸雾底，默认隐藏，脚本加 is-active 后显现 */
-.calligraphy-sequence{position:fixed;inset:0;z-index:1001;overflow:hidden;visibility:hidden;opacity:0;pointer-events:none;background:radial-gradient(ellipse at 50% 46%,rgba(249,248,241,.92),rgba(235,239,230,.84) 58%,rgba(232,238,228,.72))}
+/* 序列层：铺满屏幕，默认隐藏，脚本加 is-active 后显现；底色为素雅纸绿 */
+.calligraphy-sequence{position:fixed;inset:0;z-index:1001;overflow:hidden;visibility:hidden;opacity:0;pointer-events:none;background:#e8eee4}
 .calligraphy-sequence.is-active{visibility:visible;opacity:1}
-/* 单张飞落的书法图：绝对定位在给定横向位置，由关键帧自上而下穿过屏幕 */
-.calligraphy-flight{position:absolute;top:0;width:auto;height:auto;max-width:min(38vw,340px);max-height:68vh;object-fit:contain;filter:drop-shadow(0 5px 10px rgba(34,48,38,.12));will-change:transform,opacity;animation:calligraphy-fall .55s cubic-bezier(.42,0,.58,1) both}
+/* 背景视频与蒙版层：铺满序列层，视频为底层(z-index:0)，蒙版(z-index:1)提亮并柔化画面 */
+.calligraphy-background,.calligraphy-sequence:after{position:absolute;inset:0;width:100%;height:100%}
+.calligraphy-background{z-index:0;object-fit:cover;object-position:center;opacity:.7}
+.calligraphy-sequence:after{content:"";z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(242,244,237,.48),rgba(242,244,237,.26) 50%,rgba(242,244,237,.48))}
+/* 单张飞落的书法图：绝对定位在给定横向位置，由关键帧自上而下穿过屏幕(位于视频与蒙版之上) */
+.calligraphy-flight{position:absolute;z-index:2;top:0;width:auto;height:auto;max-width:min(38vw,340px);max-height:68vh;object-fit:contain;filter:drop-shadow(0 5px 10px rgba(34,48,38,.2));will-change:transform,opacity;animation:calligraphy-fall .55s cubic-bezier(.42,0,.58,1) both}
 /* 末张落定的书法图：使用单独关键帧，落底后不消失，留在画面上收尾 */
 .calligraphy-flight-final{animation-name:calligraphy-fall-final}
 @keyframes calligraphy-fall{0%{opacity:.34;transform:translate3d(-50%,calc(-100% + 52px),0)}18%{opacity:.94}76%{opacity:.94}100%{opacity:0;transform:translate3d(-50%,calc(100vh - 52px),0)}}
