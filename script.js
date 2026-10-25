@@ -1,6 +1,6 @@
 // 一江春水 · 李煜词境 — 交互脚本 script.js
 // 主要功能模块：
-//   1) 点击花瓣 / 星火粒子特效   2) 移动端汉堡菜单
+//   1) 点击水波涟漪特效   2) 移动端汉堡菜单
 //   3) 背景音乐(开关 / 音量 / 进度记忆)
 //   4) 首页翻书落地页(翻开封面)
 //   5) 无刷新翻页(水波过渡 + SPA 式导航，含 file:// 回退)
@@ -10,68 +10,23 @@
   // 是否开启“减弱动效”偏好：开启后跳过花瓣、水波等动画
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  /* ---------- 1. 点击花瓣 / 星火粒子特效 ---------- */
-  // 全局点击：在鼠标坐标处生成一组花瓣(8) + 星火(5)，飘落后自动清理
+  /* ---------- 1. 点击水波涟漪特效 ---------- */
+  // 全局点击：在点击坐标处生成一层水波涟漪(装饰层，自动清理)；站内链接点击交由翻页逻辑处理，不在此重复生成
   document.addEventListener("click", (event) => {
-    // 减弱动效，或在可输入/媒体元素上点击时不触发
     if (reducedMotion || event.target.closest("input, textarea, select, audio, video")) return;
-    const x = event.clientX;
-    const y = event.clientY;
-    if (!x && !y) return; // 键盘触发的点击(坐标为 0,0)不处理
-    const petals = document.createElement("span");
-    petals.className = "petal-burst";
-    petals.setAttribute("aria-hidden", "true"); // 纯装饰，对读屏隐藏
-
-    // 1a. 8 片花瓣：每片随机大小、下落距离、横向漂移、旋转、延迟
-    for (let index = 0; index < 8; index += 1) {
-      const petal = document.createElement("span");
-      const startX = (Math.random() - 0.5) * 42;        // 起始横向散布
-      const sway = (Math.random() - 0.5) * 110;         // 整体漂移幅度
-      const duration = 5.5 + Math.random() * 1.7;       // 每片飘落时长(秒)
-      const spin = (Math.random() - 0.5) * 520;         // 总旋转角度
-      petal.className = "petal-particle";
-      petal.style.left = `${x + startX}px`;
-      petal.style.top = `${y + (Math.random() - 0.5) * 20}px`;
-      const width = 8 + Math.random() * 6;              // 花瓣宽
-      // —— 把各阶段尺寸写入 CSS 变量(供 @keyframes petal-fall 读取)——
-      petal.style.setProperty("--petal-width", `${width}px`);
-      petal.style.setProperty("--petal-height", `${width * 1.45}px`); // 高约为宽的 1.45 倍
-      // 四个下落关键帧的纵向位移(以视口高度为基准，越往后落得越远)
-      petal.style.setProperty("--fall-a", `${window.innerHeight * 0.24}px`);
-      petal.style.setProperty("--fall-b", `${window.innerHeight * 0.52}px`);
-      petal.style.setProperty("--fall-c", `${window.innerHeight * 0.8}px`);
-      petal.style.setProperty("--fall-d", `${window.innerHeight * 0.8}px`);
-      petal.style.setProperty("--fall-end", `${window.innerHeight + 80}px`); // 最终落到视口下方
-      // 三段横向漂移(正弦式左右摇摆)
-      petal.style.setProperty("--sway-a", `${sway * 0.35}px`);
-      petal.style.setProperty("--sway-b", `${-sway * 0.45}px`);
-      petal.style.setProperty("--sway-c", `${sway * 0.6}px`);
-      petal.style.setProperty("--sway-end", `${-sway * 0.2}px`);
-      // 三段旋转(旋转量逐步累加)
-      petal.style.setProperty("--spin-a", `${spin * 0.25}deg`);
-      petal.style.setProperty("--spin-b", `${spin * 0.6}deg`);
-      petal.style.setProperty("--spin-c", `${spin * 0.85}deg`);
-      petal.style.setProperty("--spin-end", `${spin}deg`);
-      petal.style.setProperty("--delay", `${Math.random() * 520}ms`); // 错峰出现
-      petal.style.animationDuration = `${duration}s`;
-      petals.append(petal);
+    const link = event.target.closest("a[href]");
+    if (link) {
+      const url = new URL(link.href, location.href);
+      if (url.origin === location.origin && url.pathname.endsWith(".html")
+        && (url.pathname !== location.pathname || url.search !== location.search)) return;
     }
-
-    // 1b. 5 颗星火：在点击点附近随机散布，向上飘并淡出
-    for (let index = 0; index < 5; index += 1) {
-      const spark = document.createElement("span");
-      spark.className = "spark-particle";
-      spark.style.left = `${x + (Math.random() - 0.5) * 46}px`;
-      spark.style.top = `${y + (Math.random() - 0.5) * 42}px`;
-      spark.style.setProperty("--spark-size", `${1.5 + Math.random() * 2}px`);   // 星火大小
-      spark.style.setProperty("--spark-drift-x", `${(Math.random() - 0.5) * 24}px`); // 横向漂移
-      spark.style.setProperty("--spark-drift-y", `${-14 - Math.random() * 30}px`);  // 纵向向上漂移
-      spark.style.setProperty("--delay", `${Math.random() * 460}ms`);
-      petals.append(spark);
-    }
-
-    document.body.append(petals);
-    window.setTimeout(() => petals.remove(), 8400); // 动画最长约 8.4s，结束后清理 DOM
+    const ripple = document.createElement("span");
+    ripple.className = "click-ripple";
+    ripple.setAttribute("aria-hidden", "true");
+    ripple.style.setProperty("--ripple-x", `${event.clientX}px`);
+    ripple.style.setProperty("--ripple-y", `${event.clientY}px`);
+    document.body.append(ripple);
+    window.setTimeout(() => ripple.remove(), 1100);
   });
 
   /* ---------- 2. 移动端汉堡菜单 ---------- */

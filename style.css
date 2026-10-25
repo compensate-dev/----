@@ -164,7 +164,8 @@ textarea::placeholder{color:#9aa297}
 .mood-feedback,.poem-feedback{font-size:11px;color:var(--rust);margin:10px 0 0;min-height:1.5em} /* 提交反馈行 */
 
 /* ---------- 8. 页脚 ---------- */
-.site-footer{min-height:112px;background:#e7e9e2;padding:25px 6.6%;display:flex;align-items:center;justify-content:space-between;gap:20px;border-top:1px solid #d9ddd4}
+.site-footer{position:relative;isolation:isolate;min-height:112px;background:transparent;padding:25px 6.6%;display:flex;align-items:center;justify-content:space-between;gap:20px;border-top:1px solid #d9ddd4}  /* 改为透明底 + 隔离层叠上下文，河景背景改由 ::before 承载 */
+.site-footer:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(rgba(243,243,237,.2),rgba(243,243,237,.2)),url("footer-river-background.jpg") center 53%/cover no-repeat}  /* 页脚河景背景(极淡纸色叠层) */
 .site-footer>span{font-size:11px;color:#7b8479;letter-spacing:.08em}
 .site-footer>a:last-child{font:10px var(--sans);color:var(--pine);border-bottom:1px solid #bac3b8;padding-bottom:5px}
 
@@ -331,19 +332,22 @@ textarea::placeholder{color:#9aa297}
 .listen-title p{font-size:12px;margin:0 7% 5px 0}
 .recite-list{margin-left:18%}
 .recite-card{display:grid;grid-template-columns:190px 1fr;gap:31px;padding:21px 0;border-bottom:1px solid var(--line)} /* 朗诵卡片 */
-.recite-art{min-height:158px;position:relative;overflow:hidden;background:linear-gradient(150deg,#8a9a82,#435d4a);display:flex;flex-direction:column;justify-content:center;align-items:center;color:#f4f0e5}
-.recite-art:after{content:"";position:absolute;inset:37% -12% -20%;border-radius:50%;background:rgba(28,54,39,.36)} /* 卡内弧光 */
+.recite-art{min-height:158px;position:relative;overflow:hidden;background:linear-gradient(150deg,#8a9a82,#435d4a);background-position:center;background-size:cover;display:flex;flex-direction:column;justify-content:center;align-items:center;color:#f4f0e5}
+.recite-art:not(.art-moon):not(.art-rain){background-image:url("recite-spring-river.jpg")}  /* 默认(虞美人)配春水图；月夜/夜雨另设背景图 */
+.recite-art:after{content:none} /* 改以背景图呈现，取消卡内弧光 */
 .recite-art>span,.recite-art>b,.recite-art>small{position:relative;z-index:1}
 .recite-art>span{font:9px var(--sans);letter-spacing:.14em;align-self:flex-start;margin:13px 15px 0}
 .recite-art>b{font-size:26px;font-weight:400;letter-spacing:.22em;margin:auto}
 .recite-art>small{font:8px var(--sans);letter-spacing:.2em;color:#d8dacd;margin-bottom:14px}
-.art-moon{background:linear-gradient(140deg,#9a9d83,#4d5b51)}
-.art-rain{background:linear-gradient(140deg,#8a9691,#4a6162)} /* 不同词配不同底图色 */
+.art-moon{background-image:url("recite-moon-courtyard.jpg")}   /* 相见欢·月夜配图 */
+.art-rain{background-image:url("recite-rain-courtyard.jpg")}  /* 浪淘沙·夜雨配图 */
 .recite-info{padding:11px 0}
 .recite-info h3{font-size:19px;font-weight:500;letter-spacing:.08em;margin:8px 0}
 .recite-info p{font-size:11px;color:#7c857b;margin:0}
 .recite-buttons{margin-top:17px}
 .interactive{padding-top:84px;padding-bottom:84px;background:#e9ebe4} /* 互动写词区 */
+.listen-interactive{position:relative;isolation:isolate} /* 互动区隔离层叠上下文，使 ::before 背景图沉到内容之下 */
+.listen-interactive:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(rgba(243,243,237,.61),rgba(243,243,237,.68)),url("listen-writing-background.jpg") center 48%/cover no-repeat} /* 互动区书写背景图叠层 */
 .interactive>.section-kicker{margin-bottom:25px}
 .interactive-grid{display:grid;grid-template-columns:1fr 1fr;gap:9%;align-items:center;margin-left:18%}
 .interactive h2{font-size:34px;margin:0 0 10px}
@@ -362,8 +366,10 @@ textarea::placeholder{color:#9aa297}
 .file-button{display:inline-flex;padding:8px 12px;background:var(--pine);color:white;font:10px var(--sans);cursor:pointer}
 .file-button input{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)} /* 隐藏原生 file input */
 
-/* ---------- 14. 动效层(花瓣/水波/粒子)与关键帧 ---------- */
-.petal-burst{position:fixed;inset:0;z-index:100;pointer-events:none}      /* 一次点击生成的花瓣/星火容器 */
+/* ---------- 14. 动效层(点击水波 / 翻页水波)与关键帧 ---------- */
+.click-ripple{position:fixed;inset:0;z-index:89;overflow:hidden;pointer-events:none} /* 点击水波层(替代原花瓣容器) */
+.click-ripple:before,.click-ripple:after{content:"";position:absolute;left:var(--ripple-x);top:var(--ripple-y);width:150vmax;height:150vmax;border-radius:50%;transform:translate(-50%,-50%) scale(.015);opacity:0;background:radial-gradient(circle,transparent 0 47%,rgba(242,244,233,.48) 47.2% 47.7%,rgba(48,77,63,.22) 48% 48.3%,transparent 48.6%);animation:page-ripple-wave .82s cubic-bezier(.16,.62,.3,1) forwards} /* 点击涟漪:双层水波从点击点扩散 */
+.click-ripple:after{background:radial-gradient(circle,transparent 0 59%,rgba(242,244,233,.34) 59.2% 59.6%,rgba(48,77,63,.15) 59.9% 60.2%,transparent 60.5%);animation-duration:.9s;animation-delay:.12s} /* 第二层水波(延迟扩散，双环涟漪) */
 .page-ripple{position:fixed;inset:0;z-index:90;overflow:hidden;pointer-events:none} /* 翻页水波层 */
 .page-ripple:before,.page-ripple:after{content:"";position:absolute;left:var(--ripple-x);top:var(--ripple-y);width:150vmax;height:150vmax;border-radius:50%;transform:translate(-50%,-50%) scale(.015);opacity:0;background:radial-gradient(circle,transparent 0 47%,rgba(242,244,233,.48) 47.2% 47.7%,rgba(48,77,63,.22) 48% 48.3%,transparent 48.6%)}
 .page-ripple:before{animation:page-ripple-wave .82s cubic-bezier(.16,.62,.3,1) forwards}
@@ -371,12 +377,7 @@ textarea::placeholder{color:#9aa297}
 main{transition:opacity .24s ease,transform .24s ease,filter .24s ease}
 html.page-transitioning main{opacity:.08;transform:translateY(8px) scale(.995);filter:blur(3px)} /* 换页时主体淡出模糊 */
 @keyframes page-ripple-wave{0%{transform:translate(-50%,-50%) scale(.015);opacity:0}12%{opacity:1}100%{transform:translate(-50%,-50%) scale(1.35);opacity:0}}
-.petal-particle,.spark-particle{position:fixed;left:0;top:0;pointer-events:none;animation-delay:var(--delay);animation-fill-mode:both}
-.petal-particle{width:var(--petal-width,11px);height:var(--petal-height,16px);border-radius:88% 5% 82% 8%;background:linear-gradient(145deg,#ffe4eb 0%,#f7a1b5 34%,#e45479 70%,#b72550 100%);box-shadow:0 1px 5px rgba(196,43,88,.2),inset -1px -1px 2px rgba(140,24,57,.16);animation:petal-fall 4.4s linear forwards;transform-origin:70% 70%} /* 花瓣(粉) */
-.petal-particle:after{content:"";position:absolute;width:1px;height:68%;top:14%;left:48%;background:rgba(255,246,248,.75);transform:rotate(-24deg)} /* 花瓣中脉 */
-.spark-particle{width:var(--spark-size,3px);height:var(--spark-size,3px);border-radius:50%;background:#fff5fb;box-shadow:0 0 3px 1px rgba(255,190,220,.58),0 0 7px 2px rgba(234,79,140,.25);animation:sparkle-fade 1.7s ease-out forwards} /* 星火 */
-@keyframes petal-fall{0%{transform:translate3d(0,-8px,0) rotate(0) scale(.82);opacity:0}8%{opacity:.82}20%{transform:translate3d(var(--sway-a),var(--fall-a),0) rotate(var(--spin-a)) scale(1);opacity:.82}40%{transform:translate3d(var(--sway-b),var(--fall-b),0) rotate(var(--spin-b)) scale(.98);opacity:.8}60%{transform:translate3d(var(--sway-c),var(--fall-c),0) rotate(var(--spin-c)) scale(.94);opacity:.72}80%{transform:translate3d(var(--sway-b),var(--fall-d),0) rotate(var(--spin-end)) scale(.9);opacity:.55}100%{transform:translate3d(var(--sway-end),var(--fall-end),0) rotate(var(--spin-end)) scale(.84);opacity:0}}
-@keyframes sparkle-fade{0%{transform:translate3d(0,0,0) scale(.5);opacity:0}20%{opacity:.75}100%{transform:translate3d(var(--spark-drift-x),var(--spark-drift-y),0) scale(.2);opacity:0}}
+/* 花瓣 / 星火粒子样式已随交互脚本精简而移除(.click-ripple 取代 .petal-burst，仅保留水波涟漪) */
 
 /* ---------- 15. 响应式(平板 ≤1000 / 手机 ≤700 / 减弱动效) ---------- */
 @media(max-width:1000px){.site-header{padding:0 4%}.main-nav{gap:22px}.hero{padding-left:7%;padding-right:7%}.hero-art{right:4%;width:50vw;height:50vw}.section-wrap{padding-left:7%;padding-right:7%}.intro{grid-template-columns:.3fr 1fr .8fr;gap:26px}.feature-section{padding-left:7%;padding-right:7%}.poem-card{padding:19px 15px}.closing{grid-template-columns:.2fr 1fr .9fr;gap:25px}.subhero{padding-left:7%;padding-right:7%}.works,.listen-content,.story{padding-left:7%;padding-right:7%}.work-entry{grid-template-columns:8% 1fr 18%;gap:18px}}
@@ -474,7 +475,7 @@ body.home-page.book-opened>.site-header,body.home-page.book-opened>main,body.hom
 }
 
 /* 减弱动效时直接关掉粒子/水波，避免卡顿 */
-@media(prefers-reduced-motion:reduce){.petal-burst,.page-ripple{display:none}main{transition:none}html.page-transitioning main{opacity:1;transform:none;filter:none}}
+@media(prefers-reduced-motion:reduce){.click-ripple,.page-ripple{display:none}main{transition:none}html.page-transitioning main{opacity:1;transform:none;filter:none}}
 
 /* —— 18a. 词容万象页响应式补充 —— */
 @media(max-width:900px){
