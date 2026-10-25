@@ -41,6 +41,13 @@ a{color:inherit;text-decoration:none}
 button,input,textarea{font:inherit}
 button{color:inherit}
 ::selection{background:#c8d1c3;color:#24362e}          /* 选中态配色 */
+/* 全局键盘焦点描边：所有可聚焦元素获得统一的锈褐描边，保证键盘可达性 */
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:3px solid #a9684c;outline-offset:4px}
+/* 跳过导航链接：默认移出视口(仅对读屏可见)，聚焦时归位显示 */
+.skip-link{position:fixed;top:12px;left:12px;z-index:2000;padding:10px 16px;background:#24362e;color:#fff;transform:translateY(calc(-100% - 16px));transition:transform .2s ease}
+.skip-link:focus{transform:translateY(0)}
+/* 首页开场封面未翻开时，跳过导航链接一并隐藏 */
+.home-page:not(.book-opened) .skip-link{display:none}
 
 /* ---------- 2. 页头 / 品牌 / 导航 / 声音 ---------- */
 .site-header{height:86px;padding:0 6.6%;display:flex;align-items:center;justify-content:space-between;gap:28px;background:linear-gradient(rgba(243,243,237,.76),rgba(243,243,237,.76)),url("navigation-background.jpg") center 52%/cover no-repeat;border-bottom:1px solid rgba(48,77,63,.1);position:sticky;top:0;z-index:20;backdrop-filter:blur(14px)}  /* 页头：纸色半透明叠导航背景图，毛玻璃模糊 */
@@ -146,6 +153,8 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}      /* 标题中强调字用�
 .poem-card p{position:relative;z-index:1;font-size:12px;line-height:2;letter-spacing:.05em;color:rgba(255,255,255,.82)}
 .poem-arrow{position:absolute;bottom:18px;right:20px;z-index:1;font-size:18px;color:#e7d7ba}
 @media(prefers-reduced-motion:reduce){.poem-card,.poem-card-image{transition:none;will-change:auto}.poem-card:hover,.poem-card:focus-visible,.poem-card:hover .poem-card-image,.poem-card:focus-visible .poem-card-image{transform:none}} /* 减弱动效：词卡上浮放大与配图推近全部取消，保留静态悬停反馈 */
+/* 减弱动效：子页首屏背景视频整体隐藏，只保留静态画面 */
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.life-hero-video,.listen-hero-video,.wanxiang-hero-video{display:none}}
 
 /* ---------- 7. 词外余韵 + 首页结语 closing + 表单 ---------- */
 /* 7a. 词外余韵 afterlife（承接词作、过渡到结语的形象区：整屏背景图 + 左对齐文案 + 行动按钮） */
@@ -543,6 +552,22 @@ body.home-page.book-opened>.site-header,body.home-page.book-opened>main,body.hom
 @keyframes calligraphy-fall-final{0%{opacity:.34;transform:translate3d(-50%,calc(-100% + 52px),0)}18%,100%{opacity:.94;transform:translate3d(-50%,calc(100vh - 52px),0)}}
 @media(max-width:700px){.calligraphy-flight{max-width:48vw;max-height:62vh}} /* 手机端：书法图放大以保证可读 */
 @media(prefers-reduced-motion:reduce){.calligraphy-sequence{display:none!important}.calligraphy-flight{animation:none!important}}
+
+/* —— 17c. 墨迹插页 ink-interlude（书法飞落之后的过渡页：水墨画布 + 居中文案） —— */
+/* 插页层：铺满全屏，默认隐藏；脚本加 is-visible 后显现，位于序列层之上、首页内容之下 */
+.ink-interlude{position:fixed;inset:0;z-index:1002;display:grid;place-items:center;overflow:hidden;opacity:0;visibility:hidden;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,#faf9f2 0%,#e8ebe2 66%,#dce3d9 100%);transition:opacity .6s ease,visibility .6s}
+/* 显现态：淡入并接管画面
+   说明：文案层 z-index 高于画布，保证文字不被墨迹粒子淹没 */
+.ink-interlude.is-visible{opacity:1;visibility:visible}
+/* 水墨画布：铺满插页层，作为墨色晕染的绘制底板 */
+.ink-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:0}
+/* 居中文案：标题与说明，浮于画布之上 */
+.ink-interlude-content{position:relative;z-index:1;text-align:center;padding:0 8%}
+.ink-interlude-content h2{font-family:"HongLei Calligraphy",var(--serif);font-weight:400;font-size:clamp(28px,4vw,46px);line-height:1.6;letter-spacing:.08em;margin:0 0 14px;color:#293b30}
+.ink-interlude-content p{font-family:"Xuandong Kaishu",var(--serif);font-size:15px;line-height:2.1;letter-spacing:.05em;color:#4d594d;margin:0}
+/* 减弱动效：插页不做淡入淡出，直接呈现 */
+@media(prefers-reduced-motion:reduce){.ink-interlude{transition:none}.ink-canvas{display:none}}
+@media(max-width:700px){.ink-interlude-content h2{font-size:26px}.ink-interlude-content p{font-size:13px}} /* 手机端：插页文案缩小 */
 
 /* ---------- 18. 大屏增强(≥1100×700) ---------- */
 @media(min-width:1100px) and (min-height:700px){

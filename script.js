@@ -67,11 +67,16 @@
     });
   };
   if (audio) {
+    // 与按钮上的 autoplay 属性保持一致：会话中被关闭过就立刻暂停，避免自动播放
+    audio.autoplay = audioEnabled;
+    if (!audioEnabled) audio.pause();
     // 恢复上次保存的音量
     const savedVolume = sessionStorage.getItem("liyu-audio-volume");
     if (volumeSlider && savedVolume !== null) volumeSlider.value = savedVolume;
     audio.volume = Number(volumeSlider?.value || 0.32); // 默认音量 0.32
     audio.muted = false;
+    // 初始化按钮文案：若因自动播放策略未能播放，提示"点击开启"
+    updateSoundControls(!audio.paused, audio.paused ? (audioEnabled ? "点击开启" : "音乐关闭") : "音乐开启");
     // 音频加载失败提示
     audio.addEventListener("error", () => {
       updateSoundControls(false, "音频加载失败");
@@ -87,7 +92,8 @@
     const restoreAudioPosition = () => {
       const savedTime = Number(sessionStorage.getItem("liyu-audio-time") || 0);
       if (savedTime > 0 && savedTime < audio.duration - 1) audio.currentTime = savedTime;
-      if (audioEnabled) playBackgroundMusic();
+      // 仅在需要手动播放(浏览器拦截了自动播放)时补一次 play
+      if (audioEnabled && !audio.autoplay) playBackgroundMusic();
     };
     if (audio.readyState >= 1) restoreAudioPosition(); // 元数据已就绪
     else audio.addEventListener("loadedmetadata", restoreAudioPosition, { once: true });
@@ -131,6 +137,10 @@
     const introStorageKey = "liyu-home-intro-completed";
     // 序列层里的背景视频(书法意象)：揭开首页时暂停播放
     const calligraphyBackground = calligraphySequence.querySelector(".calligraphy-background");
+    // 墨迹插页层：书法飞落之后、正式揭开首页之前的过渡页(内含水墨画布)
+    const inkInterlude = document.querySelector(".ink-interlude");
+    const inkCanvas = inkInterlude?.querySelector(".ink-canvas");
+    const inkContext = inkCanvas?.getContext("2d");
     // 书法素材库：显式列出实际存在的 22 张图（14 张飞落 PNG + 8 张新增 PNG），序列期间随机取用
     const calligraphyAssets = [
       "calligraphy-flight-01.png",
@@ -172,9 +182,190 @@
       }
       return shuffled;
     };
+    // 墨迹画布动画：在插页层上绘制缓慢上浮的墨色粒子与横向笔触；指针靠近时粒子被推开
+    // 返回一个停止函数，供插页结束或出错时调用以释放 rAF 与事件监听
+    const startInkAnimation = () => {
+      if (!inkCanvas || !inkContext) throw new Error("The ink interlude canvas is unavailable.");
+      const context = inkContext;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2); // 高分屏最多 2 倍像素，控制绘制开销
+      let width = 0;
+      let height = 0;
+      let frameId = 0;
+      let previousFrame = 0;
+      let time = 0;
+      const mouse = { x: -9999, y: -9999 }; // 初始放到画面外，避免开场就被指针影响
+      const particleCount = window.innerWidth < 700 ? 42 : 90; // 手机端减少粒子数
+      const strokeCount = window.innerWidth < 700 ? 12 : 28;   // 手机端减少笔触数
+      const random = (min, max) => min + Math.random() * (max - min);
+      // 按当前视口尺寸重设画布像素，并应用 dpr 缩放
+      const resize = () => {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        inkCanvas.width = Math.round(width * dpr);
+        inkCanvas.height = Math.round(height * dpr);
+        context.setTransform(dpr, 0, 0, dpr, 0, 0);
+      };
+      // 简易噪声场：由两组正弦叠加而成，用于给粒子施加缓慢的横向漂移
+      const noise = (x, y, t) => (
+        Math.sin(x * 0.003 + t * 0.4)
+        + Math.cos(y * 0.0035 - t * 0.3)
+        + Math.sin((x + y) * 0.002 + t * 0.15)
+      ) / 3;
+      // 生成一个墨色粒子：initial 为 true 时随机分布于屏幕内(用于初始化)
+      const makeParticle = (initial = false) => {
+        const maxLife = random(300, 900);
+        return {
+          x: Math.random() * width,
+          y: initial ? Math.random() * height : height + Math.random() * 120,
+          radius: random(30, 90),
+          baseAlpha: random(0.025, 0.08),
+          alpha: 0,
+          life: initial ? Math.random() * maxLife : 0,
+          maxLife,
+          vx: 0,
+          vy: random(-0.33, -0.08), // 缓慢上浮
+          hue: random(185, 215),
+          saturation: random(3, 10),
+          lightness: random(42, 62)
+        };
+      };
+      // 生成一道横向墨迹笔触
+      const makeStroke = () => ({
+        x: Math.random() * width,
+        y: random(height * 0.2, height * 0.8),
+        width: random(60, 200),
+        height: random(10, 50),
+        alpha: random(0.025, 0.065),
+        vx: random(-0.075, 0.075),
+        vy: random(-0.04, 0.04),
+        rotation: Math.random() * Math.PI * 2,
+        rotationSpeed: random(-0.001, 0.001),
+        life: Math.random() * 1000,
+        maxLife: random(400, 1200),
+        currentAlpha: 0
+      });
+      resize();
+      let particles = Array.from({ length: particleCount }, () => makeParticle(true));
+      let strokes = Array.from({ length: strokeCount }, makeStroke);
+      // 视口变化时重建画布与全部粒子、笔触
+      const onResize = () => {
+        resize();
+        particles = Array.from({ length: particleCount }, () => makeParticle(true));
+        strokes = Array.from({ length: strokeCount }, makeStroke);
+      };
+      // 记录指针位置，用于粒子避让
+      const onPointerMove = (event) => {
+        mouse.x = event.clientX;
+        mouse.y = event.clientY;
+      };
+      // 绘制单个粒子：径向渐变 + screen 混合，模拟墨色晕开
+      const drawParticle = (particle) => {
+        if (particle.alpha <= 0.005) return;
+        const gradient = context.createRadialGradient(
+          particle.x, particle.y, 0,
+          particle.x, particle.y, particle.radius
+        );
+        gradient.addColorStop(0, `hsla(${particle.hue}, ${particle.saturation}%, ${particle.lightness}%, ${particle.alpha})`);
+        gradient.addColorStop(1, `hsla(${particle.hue}, ${particle.saturation}%, ${particle.lightness}%, 0)`);
+        context.globalCompositeOperation = "screen";
+        context.fillStyle = gradient;
+        context.beginPath();
+        context.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+        context.fill();
+      };
+      // 绘制一道笔触：旋转的椭圆径向渐变
+      const drawStroke = (stroke) => {
+        if (stroke.currentAlpha < 0.005) return;
+        context.save();
+        context.translate(stroke.x, stroke.y);
+        context.rotate(stroke.rotation);
+        context.globalCompositeOperation = "screen";
+        const gradient = context.createRadialGradient(0, 0, 0, 0, 0, stroke.width / 2);
+        gradient.addColorStop(0, `rgba(115, 127, 132, ${stroke.currentAlpha})`);
+        gradient.addColorStop(0.5, `rgba(87, 100, 108, ${stroke.currentAlpha * 0.6})`);
+        gradient.addColorStop(1, "rgba(70, 80, 88, 0)");
+        context.fillStyle = gradient;
+        context.beginPath();
+        context.ellipse(0, 0, stroke.width / 2, stroke.height / 2, 0, 0, Math.PI * 2);
+        context.fill();
+        context.restore();
+      };
+      // 主渲染循环：按帧推进粒子与笔触，帧间隔做归一化以免不同刷新率下速度不一
+      const render = (now) => {
+        const frameScale = previousFrame ? Math.min((now - previousFrame) / 16.67, 2) : 1;
+        previousFrame = now;
+        time += 0.01 * frameScale;
+        // 每帧用 destination-out 淡出一层，形成墨迹消散的拖尾
+        context.globalCompositeOperation = "destination-out";
+        context.fillStyle = "rgba(0, 0, 0, 0.12)";
+        context.fillRect(0, 0, width, height);
+        for (const particle of particles) {
+          particle.life += frameScale;
+          const field = noise(particle.x, particle.y, time);
+          particle.vx += field * 0.02 * frameScale;
+          particle.vy += Math.sin(time * 0.4 + particle.x * 0.01) * 0.005 * frameScale;
+          particle.vx *= Math.pow(0.98, frameScale);
+          particle.vy *= Math.pow(0.99, frameScale);
+          // 指针 160px 半径内的粒子被推开
+          const dx = particle.x - mouse.x;
+          const dy = particle.y - mouse.y;
+          const distance = Math.hypot(dx, dy);
+          if (distance < 160 && distance > 0) {
+            const force = (160 - distance) / 160 * frameScale * 0.18;
+            particle.vx += dx / distance * force;
+            particle.vy += dy / distance * force;
+          }
+          particle.x += particle.vx * frameScale;
+          particle.y += particle.vy * frameScale;
+          particle.alpha = particle.baseAlpha * Math.sin(Math.PI * particle.life / particle.maxLife); // 生命期内淡入淡出
+          if (particle.life > particle.maxLife || particle.y < -particle.radius * 2) {
+            Object.assign(particle, makeParticle()); // 生命周期结束则在底部重新生成
+          }
+          drawParticle(particle);
+        }
+        for (const stroke of strokes) {
+          stroke.life += frameScale;
+          const field = noise(stroke.x, stroke.y, time * 0.7);
+          stroke.vx += field * 0.008 * frameScale;
+          stroke.vy += Math.cos(time * 0.3 + stroke.y * 0.005) * 0.004 * frameScale;
+          stroke.vx *= Math.pow(0.99, frameScale);
+          stroke.vy *= Math.pow(0.99, frameScale);
+          stroke.x += stroke.vx * frameScale;
+          stroke.y += stroke.vy * frameScale;
+          stroke.rotation += stroke.rotationSpeed * frameScale;
+          stroke.currentAlpha = stroke.alpha * Math.sin(Math.PI * stroke.life / stroke.maxLife);
+          if (stroke.life > stroke.maxLife) Object.assign(stroke, makeStroke());
+          drawStroke(stroke);
+        }
+        frameId = window.requestAnimationFrame(render);
+      };
+      window.addEventListener("resize", onResize);
+      window.addEventListener("pointermove", onPointerMove, { passive: true });
+      frameId = window.requestAnimationFrame(render);
+      return () => {
+        window.cancelAnimationFrame(frameId);
+        window.removeEventListener("resize", onResize);
+        window.removeEventListener("pointermove", onPointerMove);
+      };
+    };
     // 飞落主循环：把全部书法素材按 scheduleSpan 的时间窗均匀错峰投下，形成自上而下的连绵雨幕
     const runCalligraphySequence = async (assetsReady, revealHome) => {
       const assets = await assetsReady;
+      // 等待背景视频播放结束：视频不再循环，播完即进入墨迹插页
+      const backgroundVideoEnded = new Promise((resolve, reject) => {
+        if (!calligraphyBackground) {
+          reject(new Error("The calligraphy background video is missing."));
+          return;
+        }
+        if (calligraphyBackground.ended) {
+          resolve();
+          return;
+        }
+        calligraphyBackground.addEventListener("ended", resolve, { once: true });
+        calligraphyBackground.addEventListener("error", () => {
+          reject(new Error("The calligraphy background video could not be played."));
+        }, { once: true });
+      });
       const deadline = performance.now() + 5000; // 整段序列的总时长上限
       const startedAt = performance.now();
       const revealAt = startedAt + 4000;   // 到点揭开首页(与投放同时进行，形成交叠)
@@ -188,6 +379,8 @@
           return margin + index * (spread / (assets.length - 1));
         })
       );
+      // 已投下的书法图集合：用于等待全部飞落动画结束
+      const flights = [];
       // 逐张投放：在时间窗内等分投下，每张用内联 animationDuration 覆盖 CSS 默认时长
       const displayCalligraphy = async () => {
         for (const [index, src] of shuffle(assets).entries()) {
@@ -210,18 +403,37 @@
           image.setAttribute("aria-hidden", "true"); // 纯装饰，对读屏隐藏
           image.style.left = `${positions.pop()}%`;
           image.style.animationDuration = `${duration}ms`;
+          flights.push(image); // 记录已投放的图，供后续等待动画结束
           calligraphySequence.append(image);
         }
       };
-      // 到 revealAt 后揭开首页(与投放并行)，使飞落与首页展开交叠进行
-      const revealWithCalligraphy = async () => {
-        const wait = revealAt - performance.now();
-        if (wait > 0) await new Promise((resolve) => window.setTimeout(resolve, wait));
-        await revealHome();
+      // 书法飞落结束后：等背景视频播完 → 显现墨迹插页(4 秒) → 淡出插页 → 揭开首页
+      const showInterludeAfterCalligraphy = async () => {
+        await displayCalligraphyPromise;                                   // 等投放结束
+        await Promise.all(flights.map((image) => image.getAnimations()[0]?.finished.catch(() => undefined))); // 等每张书法字落底
+        if (!inkInterlude) throw new Error("The ink interlude is missing.");
+        await backgroundVideoEnded;                                        // 等背景视频播完
+        const interludeDuration = 4000;      // 插页停留总时长
+        const interludeFadeDuration = 600;   // 插页淡出预留时间
+        const interludeStartedAt = performance.now();
+        const stopInkAnimation = startInkAnimation(); // 启动墨迹画布动画
+        inkInterlude.classList.add("is-visible");       // 显现插页
+        const homeReveal = revealHome();                 // 首页内容在插页底层展开
+        await new Promise((resolve) => window.requestAnimationFrame(() => resolve()));
+        const beforeFadeOut = interludeStartedAt + interludeDuration - interludeFadeDuration - performance.now();
+        if (beforeFadeOut > 0) await new Promise((resolve) => window.setTimeout(resolve, beforeFadeOut));
+        inkInterlude.classList.remove("is-visible");     // 插页淡出
+        const untilTransition = interludeStartedAt + interludeDuration - performance.now();
+        if (untilTransition > 0) await new Promise((resolve) => window.setTimeout(resolve, untilTransition));
+        stopInkAnimation();   // 停止画布动画
+        inkInterlude.remove(); // 移除插页层
+        await homeReveal;
+        document.querySelector(".hero-actions a")?.focus({ preventScroll: true }); // 焦点交回首屏按钮
       };
-      await Promise.all([displayCalligraphy(), revealWithCalligraphy()]);
+      const displayCalligraphyPromise = displayCalligraphy();
+      await showInterludeAfterCalligraphy();
     };
-    // 首页揭开：只执行一次；序列层淡出后解除首页隐藏，最后把焦点移到首屏按钮
+    // 首页揭开：只执行一次；序列层淡出后解除首页隐藏（焦点交由调用方在动画结束后处理）
     let homeRevealPromise;
     const revealHome = () => {
       if (homeRevealPromise) return homeRevealPromise;
@@ -234,7 +446,6 @@
           calligraphyBackground?.pause();              // 暂停背景视频，释放解码资源
           calligraphySequence.remove();                // 移除序列层
           bookOpening.remove();                        // 移除封面
-          document.querySelector(".hero-actions a")?.focus({ preventScroll: true });
           resolve();
         }, reducedMotion ? 0 : 1500);                 // 等淡出动画播完再清理
       });
@@ -245,9 +456,11 @@
       document.body.classList.add("book-opened");
       bookOpening.remove();      // 移除封面
       calligraphySequence.remove(); // 移除飞落序列层
+      inkInterlude?.remove();      // 移除墨迹插页
       document.querySelectorAll("header[inert], main[inert], footer[inert], audio[inert]").forEach((element) => element.removeAttribute("inert"));
+      document.querySelector(".hero-actions a")?.focus({ preventScroll: true }); // 焦点交回首屏按钮
     } else {
-      // 分支二：首次进入 → 绑定「翻开词境」按钮，走完整的翻书 + 书法飞落开场
+      // 分支二：首次进入 → 绑定「翻开词境」按钮，走完整的翻书 + 书法飞落 + 墨迹插页开场
       bookOpenButton.addEventListener("click", () => {
         bookOpenButton.disabled = true;
         if (reducedMotion) {
@@ -261,12 +474,19 @@
             await assetsReady; // 等素材就绪，再揭开封面，避免飞落层空白
             bookOpening.classList.add("is-leaving");    // 封面淡出
             calligraphySequence.classList.add("is-active"); // 显现书法飞落层
+            // 播放序列层背景视频(不循环)，播完即进入墨迹插页；失败不阻断开场
+            calligraphyBackground?.play().catch((error) => {
+              console.warn("The decorative calligraphy background video could not be played.", error);
+            });
             window.setTimeout(() => bookOpening.remove(), 180); // 淡出后彻底移除封面
             await runCalligraphySequence(assetsReady, revealHome);
           } catch (error) {
             // 素材加载失败也要保证能进入首页，不阻断浏览
             console.error("The calligraphy intro could not be completed.", error);
-            revealHome();
+            inkInterlude?.remove(); // 清掉可能已插入的墨迹插页
+            revealHome().then(() => {
+              document.querySelector(".hero-actions a")?.focus({ preventScroll: true });
+            });
           }
         }, 500);
       });
