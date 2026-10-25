@@ -1,13 +1,15 @@
 <!doctype html>
 <!-- 一江春水 · 李煜词境 — 词作笺赏页 / ci.html -->
 <html lang="zh-CN">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#e8eee4"><title>春水留痕·后主词境</title><link rel="stylesheet" href="style.css"><script src="script.js" defer></script></head>
+<head><!-- 文档头部：字符集、移动端视口、主题色、SEO 描述、分页标题，以及共用的样式表与交互脚本 --><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#e8eee4"><meta name="description" content="阅读李煜《虞美人》《相见欢》等词作，查看笺注、创作背景与朗读建议。"><title>词作笺赏｜春水留痕·李煜词境</title><link rel="stylesheet" href="style.css"><script src="script.js" defer></script></head>
 <body>
+  <!-- 跳过导航：键盘用户按 Tab 时可直接跳入正文(#main-content) -->
+  <a class="skip-link" href="#main-content">跳至主要内容</a>
   <!-- 页头：品牌 + 主导航(当前页高亮「词作笺赏」) + 声音开关 -->
   <header class="site-header"><a class="brand" href="index.html"><span class="brand-seal">煜</span><span>一江春水<small>李煜词境 · 南唐旧梦</small></span></a><button class="menu-toggle" aria-label="打开导航" aria-expanded="false">☰</button><nav class="main-nav" aria-label="主导航"><a href="index.html">首页</a><a href="life.html">词人故事</a><a class="active" href="ci.html">词作笺赏</a><a href="wanxiang.html">词容万象</a><a href="listen.html">听词入梦</a></nav><div class="sound-controls"><button class="sound-toggle" type="button" aria-label="关闭背景音乐" aria-pressed="true"><span class="sound-icon">♫</span><span class="sound-status">音乐开启</span></button><label class="volume-control"><span class="visually-hidden">背景音乐音量</span><input class="volume-slider" type="range" min="0" max="1" step="0.01" value="0.32"></label></div></header>
 
-  <!-- 主体：四阕词 + 笺注 -->
-  <main>
+  <!-- 主体：四阕词 + 笺注；id="main-content" 供顶部「跳至主要内容」链接定位，tabindex="-1" 使其可被程序聚焦 -->
+  <main id="main-content" tabindex="-1">
     <!-- 首屏：标题 + 圆形「愁」字浮词圈 -->
     <section class="subhero ci-hero"><div class="subhero-copy"><p class="eyebrow">SELECTED CI · 03</p><h1>词短情长，<br><em>余味</em>悠远。</h1><p>四阕词，四种心绪。点选词牌，读词、读背景，也读见李煜的一生。</p><a class="button button-dark" href="#虞美人">从《虞美人》开始 <span>↓</span></a></div><div class="floating-verse"><span>春水向东</span><b>愁</b><small>LI YU · CI</small></div></section>
 
@@ -40,7 +42,7 @@
   <!-- 页脚 -->
   <footer class="site-footer"><a class="brand" href="index.html"><span class="brand-seal">煜</span><span>一江春水<small>愿每个读词的人，都有一刻安宁。</small></span></a><span>词有尽时，春水长流。</span><a href="listen.html">听一首词 ↗</a></footer>
 
-  <!-- 背景音乐：自动播放、循环；实际播放由 script.js 控制 -->
-  <audio class="background-audio" src="background-music.mp3" autoplay loop preload="auto"></audio>
+  <!-- 背景音乐：自动播放、循环；实际播放由 script.js 控制；preload="metadata" 只预取时长信息，不整段下载 -->
+  <audio class="background-audio" src="background-music.mp3" autoplay loop preload="metadata"></audio>
 </body>
 </html>
