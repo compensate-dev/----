@@ -127,6 +127,8 @@
   const bookOpenButton = document.querySelector(".book-open-button");
   const calligraphySequence = document.querySelector(".calligraphy-sequence");
   if (bookOpening && bookOpenButton && calligraphySequence) {
+    // 开场是否已播放过的标记键：写入 sessionStorage，保证同一次会话内首页开场动画只演一次
+    const introStorageKey = "liyu-home-intro-completed";
     // 序列层里的背景视频(书法意象)：揭开首页时暂停播放
     const calligraphyBackground = calligraphySequence.querySelector(".calligraphy-background");
     // 书法素材库：显式列出实际存在的 22 张图（14 张飞落 PNG + 8 张新增 PNG），序列期间随机取用
@@ -223,6 +225,7 @@
     let homeRevealPromise;
     const revealHome = () => {
       if (homeRevealPromise) return homeRevealPromise;
+      sessionStorage.setItem(introStorageKey, "true"); // 记下"开场已演过"，后续进入首页直接跳过
       calligraphySequence.classList.add("is-revealing"); // 序列层整体淡出(书法字随层一同隐去)
       document.body.classList.add("book-opened");
       document.querySelectorAll("header[inert], main[inert], footer[inert], audio[inert]").forEach((element) => element.removeAttribute("inert"));
@@ -237,28 +240,37 @@
       });
       return homeRevealPromise;
     };
-    bookOpenButton.addEventListener("click", () => {
-      bookOpenButton.disabled = true;
-      if (reducedMotion) {
-        revealHome(); // 减弱动效：跳过整段开场，直接进入首页
-        return;
-      }
-      const assetsReady = preloadCalligraphy();
-      bookOpening.classList.add("is-opening"); // 触发 CSS 翻书动画(book-page-turn-up，0.5s)
-      window.setTimeout(async () => {
-        try {
-          await assetsReady; // 等素材就绪，再揭开封面，避免飞落层空白
-          bookOpening.classList.add("is-leaving");    // 封面淡出
-          calligraphySequence.classList.add("is-active"); // 显现书法飞落层
-          window.setTimeout(() => bookOpening.remove(), 180); // 淡出后彻底移除封面
-          await runCalligraphySequence(assetsReady, revealHome);
-        } catch (error) {
-          // 素材加载失败也要保证能进入首页，不阻断浏览
-          console.error("The calligraphy intro could not be completed.", error);
-          revealHome();
+    // 分支一：本次会话已看过开场 → 跳过封面与飞落序列，直接显示首页
+    if (sessionStorage.getItem(introStorageKey) === "true") {
+      document.body.classList.add("book-opened");
+      bookOpening.remove();      // 移除封面
+      calligraphySequence.remove(); // 移除飞落序列层
+      document.querySelectorAll("header[inert], main[inert], footer[inert], audio[inert]").forEach((element) => element.removeAttribute("inert"));
+    } else {
+      // 分支二：首次进入 → 绑定「翻开词境」按钮，走完整的翻书 + 书法飞落开场
+      bookOpenButton.addEventListener("click", () => {
+        bookOpenButton.disabled = true;
+        if (reducedMotion) {
+          revealHome(); // 减弱动效：跳过整段开场，直接进入首页
+          return;
         }
-      }, 500);
-    });
+        const assetsReady = preloadCalligraphy();
+        bookOpening.classList.add("is-opening"); // 触发 CSS 翻书动画(book-page-turn-up，0.5s)
+        window.setTimeout(async () => {
+          try {
+            await assetsReady; // 等素材就绪，再揭开封面，避免飞落层空白
+            bookOpening.classList.add("is-leaving");    // 封面淡出
+            calligraphySequence.classList.add("is-active"); // 显现书法飞落层
+            window.setTimeout(() => bookOpening.remove(), 180); // 淡出后彻底移除封面
+            await runCalligraphySequence(assetsReady, revealHome);
+          } catch (error) {
+            // 素材加载失败也要保证能进入首页，不阻断浏览
+            console.error("The calligraphy intro could not be completed.", error);
+            revealHome();
+          }
+        }, 500);
+      });
+    }
   }
 
   /* ---------- 5. 无刷新翻页(水波过渡 + SPA 式导航，含 file:// 回退) ---------- */
@@ -760,9 +772,18 @@
         const utterance = new SpeechSynthesisUtterance(button.dataset.poem || "");
         utterance.lang = "zh-CN";   // 中文
         utterance.rate = 0.82;      // 稍慢，更接近吟诵
-        utterance.onstart = () => { speaking = true; button.textContent = "正在诵读　■"; };
-        utterance.onend = () => { speaking = false; button.textContent = "为我诵读　▶"; };
-        utterance.onerror = () => { speaking = false; button.textContent = "诵读未能播放，请重试"; };
+        utterance.onstart = () => {
+          speaking = true;
+          button.textContent = "正在诵读　■";
+        };
+        utterance.onend = () => {
+          speaking = false;
+          button.textContent = "为我诵读　▶";
+        };
+        utterance.onerror = () => {
+          speaking = false;
+          button.textContent = "诵读未能播放，请重试";
+        };
         window.speechSynthesis.speak(utterance);
       });
     });
