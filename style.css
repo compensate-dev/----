@@ -1,11 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap');
 
-/* 引入三套本地书法字体：首页主标题用"钟齐志莽"(笔画雄浑)；其余主要标题用"洪雷"手写体；正文段落用"旋动楷书"手写衬底（均中文/标点友好） */
+/* 引入四套本地书法字体：首页主标题用"钟齐志莽"(笔画雄浑)；其余主要标题用"洪雷"手写体；正文段落用"旋动楷书"手写衬底；词作笺赏页(词牌/词题/笺注/操作)用"李煜行楷"(liyu-xingkai)（均中文/标点友好） */
 @font-face{font-family:"HongLei Calligraphy";src:url("honglei-calligraphy.otf") format("opentype");font-style:normal;font-weight:400;font-display:swap}
 /* 钟齐志莽手写体：专为首页主标题补充，作为 hero h1 的首选字体（洪雷作回退） */
 @font-face{font-family:"ZhongQi ZhiMang";src:url("zhongqi-zhimang-calligraphy.ttf") format("truetype");font-style:normal;font-weight:400;font-display:swap}
 /* 旋动楷书：用于正文段落(首页导语/诗句/引语/余韵/结语段落)的"手写感"衬底，作为段落字体的首选 */
 @font-face{font-family:"Xuandong Kaishu";src:url("xuandong-kaishu.ttf") format("truetype");font-style:normal;font-weight:400;font-display:swap}
+/* 李煜行楷：专用于词作笺赏页(词牌标签/词题/词句/读词提示/笺注/操作按钮)的手写书法体，统一该页书写气质 */
+@font-face{font-family:"Liyu Xingkai";src:url("liyu-xingkai.ttf") format("truetype");font-style:normal;font-weight:400;font-display:swap}
 
 /* ============================================================
    一江春水 · 李煜词境 — 主样式表 style.css
@@ -297,30 +299,32 @@ textarea::placeholder{color:#9aa297}
 .works-heading{display:flex;justify-content:space-between;align-items:end;margin-left:18%;margin-bottom:34px}
 .works-heading h2{font-size:35px;margin:0}
 .works-heading p{font-size:12px;color:#727d72;line-height:2.1;margin:0 7% 5px 0}
+/* 词作画廊：整区套用"李煜行楷"手写体、墨绿字色，使词牌/词题/笺注统一书写气质 */
+.poem-gallery{font-family:"Liyu Xingkai",var(--serif);font-weight:400;color:#354439}
 .poem-tabs{margin-left:18%;display:flex;gap:25px;border-bottom:1px solid var(--line);margin-bottom:0} /* 词牌标签 */
-.poem-tabs a{padding:12px 4px;font-size:12px;color:#788177}
+.poem-tabs a{padding:12px 4px;font-size:16px;color:#536250}  /* 词牌标签字号放大、改用墨绿，与行楷页更协调 */
 .poem-tabs a:hover{color:var(--rust)}
 .work-entry{display:grid;grid-template-columns:12% 1fr 20%;gap:28px;padding:40px 0 47px;border-bottom:1px solid var(--line);scroll-margin-top:100px} /* 单首词条目 */
 .work-number{font:29px var(--sans);font-weight:400;color:#bdc5b9}
-.work-meta{display:flex;gap:9px;align-items:center}
-.work-main h3{font-size:24px;font-weight:500;letter-spacing:.1em;margin:8px 0 20px}
-.work-main h3 small{font-size:11px;color:#8b9388;letter-spacing:.07em;margin-left:12px;font-weight:400}
-.poem-text{font-size:14px;line-height:2.2;letter-spacing:.07em;color:#394c3e}
+.work-meta{display:flex;gap:9px;align-items:center;font-size:14px;color:#685b49}  /* 词作元信息(词牌/年代)放大、改赭褐，呼应行楷页 */
+.work-main h3{font-size:28px;font-weight:400;letter-spacing:.1em;margin:8px 0 20px;color:#293b30}  /* 词题放大、改常规字重+墨绿，与行楷书法体协调 */
+.work-main h3 small{font-size:15px;color:#5e685a;letter-spacing:.07em;margin-left:12px;font-weight:400}  /* 副标题(体裁/出处)放大、改柔和墨绿 */
+.poem-text{font-size:18px;line-height:2.2;letter-spacing:.07em;color:#293d31}  /* 词正文放大、改深墨绿，提升可读性 */
 .work-actions,.recite-buttons{display:flex;align-items:center;gap:21px;flex-wrap:wrap;margin-top:21px}
-.work-actions button,.recite-buttons button{padding:0;border:0;background:none;font-size:10px;color:var(--pine);cursor:pointer}
+.work-actions button,.recite-buttons button{padding:0;border:0;background:none;font-family:"Liyu Xingkai",var(--serif);font-size:14px;color:#304d3f;cursor:pointer}  /* 操作按钮(诵读/收藏/展开)套行楷、放大、墨绿 */
 .work-actions button:hover,.recite-buttons button:hover{color:var(--rust)}
 .work-actions .favorite-button[aria-pressed="true"]{color:var(--rust)} /* 已收藏态(锈红) */
-.work-actions .text-link,.recite-buttons .text-link{font-size:10px}
+.work-actions .text-link,.recite-buttons .text-link{font-family:"Liyu Xingkai",var(--serif);font-size:14px;color:#304d3f}  /* 词页文字链接套行楷、放大、墨绿 */
 .work-side{margin-top:53px;border-left:1px solid #cbd3c8;padding-left:17px;height:max-content} /* 读词提示侧栏 */
-.work-side span{font:9px var(--sans);color:var(--rust);letter-spacing:.12em}
-.work-side p{font-size:10px;color:#788177;line-height:1.9;margin:7px 0 0}
+.work-side span{font-family:"Liyu Xingkai",var(--serif);font-size:14px;color:#8d523c;letter-spacing:.12em}  /* 读词提示小标题套行楷、放大、锈红偏赭 */
+.work-side p{font-size:14px;color:#4d594d;line-height:2;margin:7px 0 0}  /* 读词提示正文放大、改深灰绿 */
 .annotation{margin-top:20px;border-top:1px solid #d8ddd4;max-width:660px} /* 展开笺注 */
-.annotation summary{cursor:pointer;list-style:none;padding:11px 0;font-size:10px;color:#737f73}
+.annotation summary{cursor:pointer;list-style:none;padding:11px 0;font-size:14px;color:#4d5a4e}  /* 笺注展开条放大、改柔绿 */
 .annotation summary::-webkit-details-marker{display:none}
-.annotation summary span{float:right;color:var(--rust);font-size:14px}
+.annotation summary span{float:right;color:var(--rust);font-size:17px}  /* 展开符号(＋/×)略放大 */
 .annotation[open] summary span{transform:rotate(45deg)} /* 展开时“＋”转“×” */
 .annotation>div{padding:3px 0 5px}
-.annotation p{font-size:11px;color:#6c776d;line-height:2;margin:7px 0}
+.annotation p{font-size:14px;color:#414f43;line-height:2.1;margin:9px 0}  /* 笺注正文放大、改深墨绿、略增行距 */
 .annotation strong{color:#405544;font-weight:500}
 
 /* ---------- 13. 听词入梦 listen ---------- */
@@ -392,6 +396,9 @@ html.page-transitioning main{opacity:.08;transform:translateY(8px) scale(.995);f
 /* 手机端词卡：配图降高、标题下移到图下方(其余沿用上方 700 媒体查询的 padding/字号) */
 @media(max-width:700px){.poem-card{min-height:275px}.poem-card-image{height:105px}.poem-card:after{height:106px}.poem-card h3{margin-top:101px}}
 
+/* 手机端·词作笺赏页：词牌标签/词题/词句/读词提示/笺注/操作按钮的局部覆盖（行楷页在窄屏下的字号回退） */
+@media(max-width:700px){.poem-tabs a{font-size:15px}.work-entry{grid-template-columns:30px minmax(0,1fr);gap:9px}.work-meta{font-size:12px;flex-wrap:wrap;gap:5px}.work-main h3{font-size:25px}.work-main h3 small{font-size:14px}.poem-text{font-size:16px;line-height:2.15}.poem-gallery .work-side{display:block;grid-column:2;margin:0;padding-left:11px}.work-side span{font-size:13px}.work-side p{font-size:13px}.annotation summary{font-size:13px}.annotation p{font-size:13px}.poem-gallery .work-actions button,.poem-gallery .work-actions .text-link{font-size:13px}}
+
 /* ---------- 16. 声音控件补充 ---------- */
 .sound-controls{display:flex;align-items:center;gap:10px;flex-shrink:0}
 .sound-toggle[aria-pressed="true"]{background:var(--pine);border-color:var(--pine);color:#f7f5ef}
@@ -408,7 +415,6 @@ html.page-transitioning main{opacity:.08;transform:translateY(8px) scale(.995);f
 .book-opening{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;perspective:1800px;overflow:hidden;background:radial-gradient(ellipse at 50% 45%,#faf9f2 0%,#e8ebe2 66%,#dce3d9 100%)}
 .book-opening:before,.book-opening:after{content:"";position:absolute;pointer-events:none} /* 封面双线边框(:before 另带四角 L 形装饰) */
 .book-opening:before{inset:15px;border:1px solid rgba(169,104,76,.3);background:linear-gradient(90deg,#a9684c 0 2px,transparent 2px 100%) left top/30px 30px no-repeat,linear-gradient(180deg,#a9684c 0 2px,transparent 2px 100%) left top/30px 30px no-repeat,linear-gradient(270deg,#a9684c 0 2px,transparent 2px 100%) right top/30px 30px no-repeat,linear-gradient(180deg,#a9684c 0 2px,transparent 2px 100%) right top/30px 30px no-repeat,linear-gradient(90deg,#a9684c 0 2px,transparent 2px 100%) left bottom/30px 30px no-repeat,linear-gradient(0deg,#a9684c 0 2px,transparent 2px 100%) left bottom/30px 30px no-repeat,linear-gradient(270deg,#a9684c 0 2px,transparent 2px 100%) right bottom/30px 30px no-repeat,linear-gradient(0deg,#a9684c 0 2px,transparent 2px 100%) right bottom/30px 30px no-repeat}
-.book-opening:after{inset:22px;border:1px solid rgba(48,77,63,.12)}
 /* 翻书容器：居中卡片，以顶边为轴向上翻(rotateX) */
 .book-cover{position:relative;width:min(76vw,790px);height:min(78vh,740px);min-height:520px;transform-origin:center top;transform-style:preserve-3d;filter:drop-shadow(0 24px 40px rgba(42,55,43,.2))}
 .book-cover-front,.book-cover-back{position:absolute;inset:0;backface-visibility:hidden}
