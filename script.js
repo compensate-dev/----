@@ -453,6 +453,39 @@
     });
   };
 
+  // 写句随风飘散：把刚写下的一句拆成单字逐个随风散去，并伴随三道风痕横扫
+  const animateWrittenLineAway = (form, text) => {
+    if (reducedMotion) return; // 减弱动效时不做飞散，直接由反馈文案交代结果
+    form.querySelector(".wind-release")?.remove(); // 若上一次风动层仍在，先移除避免叠加
+    const effect = document.createElement("div");
+    effect.className = "wind-release";
+    effect.setAttribute("aria-hidden", "true"); // 纯装饰层，对读屏软件隐藏
+    // 三道风痕：宽窄与深浅不同，依次扫过
+    for (let index = 0; index < 3; index += 1) {
+      const current = document.createElement("span");
+      current.className = "wind-current";
+      current.style.setProperty("--wind-index", String(index));
+      current.style.setProperty("--wind-angle", `${index * -13}deg`);
+      effect.append(current);
+    }
+    // 词句整体：逐字拆分为 .wind-glyph，交由 CSS 关键帧完成飞散
+    const phrase = document.createElement("span");
+    phrase.className = "wind-phrase";
+    Array.from(text).forEach((character, index) => {
+      const glyph = document.createElement("span");
+      glyph.className = "wind-glyph";
+      glyph.textContent = character;
+      glyph.style.setProperty("--wind-delay", `${Math.min(index, 50) * 12}ms`); // 逐字延迟起风，形成连绵感
+      glyph.style.setProperty("--wind-x", `${Math.round((Math.random() - 0.42) * 180)}px`); // 横向随机飘散
+      glyph.style.setProperty("--wind-y", `${Math.round(-45 + Math.random() * 105)}px`);  // 纵向随机飘散
+      glyph.style.setProperty("--wind-turn", `${Math.round((Math.random() - 0.5) * 300)}deg`); // 随机翻转角度
+      phrase.append(glyph);
+    });
+    effect.append(phrase);
+    form.append(effect);
+    window.setTimeout(() => effect.remove(), 1800); // 动画播完后清理节点
+  };
+
   /* ---------- 8. 页面内交互(每次换页后重新初始化) ---------- */
   function initializePageContent() {
     // 8a. 滚动进度条 / 返回顶部 / 渐显入场
@@ -537,7 +570,10 @@
         field.focus();
         return;
       }
-      feedback.textContent = `“${field.value.trim()}” —— 已随涟漪融入词境。`;
+      // 先取出所写的一句（清空前取词，供风动层逐字使用）
+      const writtenLine = field.value.trim();
+      animateWrittenLineAway(event.currentTarget, writtenLine); // 让这一句随风飘散
+      feedback.textContent = `“${writtenLine}” —— 已随风带入词境。`;
       field.value = "";
       document.getElementById("line-count").textContent = "0 / 100";
     });

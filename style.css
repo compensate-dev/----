@@ -376,7 +376,13 @@ textarea::placeholder{color:#9aa297}
 .prompt-words{display:flex;gap:8px;flex-wrap:wrap}
 .prompt-words button{padding:5px 12px;border:1px solid #c5cdc0;background:transparent;font-size:10px;color:#667466;cursor:pointer}
 .prompt-words button:hover{background:var(--pine);color:white}
-.poem-form{background:#f1f1eb}
+.poem-form{position:relative;background:#f1f1eb} /* 写句表单：定位上下文，供 .wind-release 风动层相对定位覆盖 */
+.wind-release{position:absolute;inset:0;z-index:3;display:grid;place-items:center;overflow:hidden;pointer-events:none;background:rgba(241,241,235,.16)} /* 写句随风飘散层(脚本生成，绝对定位铺满表单，不拦截交互) */
+.wind-phrase{position:relative;z-index:1;display:flex;flex-wrap:wrap;justify-content:center;max-width:88%;color:#42584a;font-family:"Liyu Xingkai UI","Liyu Xingkai",var(--serif);font-size:clamp(20px,3vw,30px);line-height:1.6;letter-spacing:.08em;text-shadow:0 1px 8px rgba(243,243,237,.9)} /* 随风飘散的词句整体 */
+.wind-glyph{display:inline-block;white-space:pre;animation:wind-carry-away .95s cubic-bezier(.2,.66,.27,1) var(--wind-delay) forwards} /* 单字飞散：逐字延迟起风，保留空格与标点原样 */
+.wind-current{position:absolute;left:50%;top:50%;width:68%;height:35%;border-top:1px solid rgba(116,139,119,.58);border-radius:50%;transform:translate(-50%,-50%) rotate(var(--wind-angle)) scaleX(.18);animation:wind-sweep .95s ease-out calc(var(--wind-index)*90ms) forwards} /* 风痕：细长椭圆线横扫而过 */
+.wind-current:nth-child(2){width:54%;height:27%;border-color:rgba(169,104,76,.42)} /* 第二道风痕：赭褐色、更短促 */
+.wind-current:nth-child(3){width:76%;height:44%;border-color:rgba(116,139,119,.34)} /* 第三道风痕：更宽更淡，托起整体氛围 */
 .audio-panel{position:fixed;right:25px;top:100px;width:min(340px,calc(100vw - 32px));z-index:40;padding:25px;background:#f7f6ef;box-shadow:0 15px 55px rgba(31,50,38,.2);border:1px solid #dce0d7} /* 背景音乐面板(脚本控制显隐) */
 .audio-panel[hidden]{display:none}
 .audio-panel strong{font-size:16px;font-weight:500;letter-spacing:.06em}
@@ -407,6 +413,10 @@ html.page-transitioning main{opacity:.08;transform:translateY(8px) scale(.995);f
 @keyframes page-ripple-wave{0%{transform:translate(-50%,-50%) scale(.015);opacity:0}12%{opacity:1}100%{transform:translate(-50%,-50%) scale(1.35);opacity:0}}
 /* 点击涟漪专用关键帧：墨圈由 0.12 倍放大至 1 倍并淡出(区别于翻页的大面积水波) */
 @keyframes click-ripple-wave{0%{transform:translate(-50%,-50%) scale(.12);opacity:0}16%{opacity:.9}100%{transform:translate(-50%,-50%) scale(1);opacity:0}}
+/* 写句随风飘散·关键帧一：单字随风飘远(位移/旋转/缩放由 --wind-x / --wind-y / --wind-turn 随机注入) */
+@keyframes wind-carry-away{0%{opacity:0;transform:translate(0,8px) rotate(0) scale(.94)}12%{opacity:1}100%{opacity:0;transform:translate(var(--wind-x),var(--wind-y)) rotate(var(--wind-turn)) scale(.18);filter:blur(2px)}}
+/* 写句随风飘散·关键帧二：风痕椭圆由中心横扫并淡出 */
+@keyframes wind-sweep{0%{opacity:0;transform:translate(-50%,-50%) rotate(var(--wind-angle)) scaleX(.18)}18%{opacity:.75}100%{opacity:0;transform:translate(calc(-50% + 34px),calc(-50% - 20px)) rotate(calc(var(--wind-angle) - 18deg)) scaleX(1.15)}}
 /* 花瓣 / 星火粒子样式已随交互脚本精简而移除(.click-ripple 取代 .petal-burst，仅保留水波涟漪) */
 
 /* ---------- 15. 响应式(平板 ≤1000 / 手机 ≤700 / 减弱动效) ---------- */
