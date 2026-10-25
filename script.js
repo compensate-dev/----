@@ -139,6 +139,11 @@
     const calligraphyBackground = calligraphySequence.querySelector(".calligraphy-background");
     // 墨迹插页层：书法飞落之后、正式揭开首页之前的过渡页(内含水墨画布)
     const inkInterlude = document.querySelector(".ink-interlude");
+    // 视差入场段：滚动驱动的开场场景（远山 / 月 / 人物 / 松），需滚动到一定进度才能「继续」
+    const arrivalInterlude = document.querySelector(".arrival-interlude");
+    const arrivalScroller = arrivalInterlude?.querySelector(".arrival-scroller");
+    const arrivalEnterButton = arrivalInterlude?.querySelector(".arrival-enter-button");
+    const arrivalSkipButton = arrivalInterlude?.querySelector(".arrival-skip-button");
     const inkCanvas = inkInterlude?.querySelector(".ink-canvas");
     const inkContext = inkCanvas?.getContext("2d");
     // 书法素材库：显式列出实际存在的 22 张图（14 张飞落 PNG + 8 张新增 PNG），序列期间随机取用
@@ -348,6 +353,51 @@
         window.removeEventListener("pointermove", onPointerMove);
       };
     };
+    // 视差入场：按滚动进度写入 --arrival-* 变量（山景上移、月亮下沉、人物上浮、文案上移淡出）
+    const updateArrivalProgress = () => {
+      if (!arrivalScroller || !arrivalInterlude) return;
+      const scrollRange = arrivalScroller.scrollHeight - arrivalScroller.clientHeight;
+      const progress = scrollRange > 0 ? Math.min(1, Math.max(0, arrivalScroller.scrollTop / scrollRange)) : 1;
+      arrivalInterlude.style.setProperty("--arrival-progress", String(progress));
+      arrivalInterlude.style.setProperty("--arrival-progress-width", `${progress * 100}%`);
+      arrivalInterlude.style.setProperty("--arrival-landscape-y", `${-progress * 95}px`);
+      arrivalInterlude.style.setProperty("--arrival-moon-y", `${progress * 36}px`);
+      arrivalInterlude.style.setProperty("--arrival-figure-y", `${progress * 82}px`);
+      arrivalInterlude.style.setProperty("--arrival-copy-y", `${-progress * 38}px`);
+      arrivalInterlude.style.setProperty("--arrival-copy-opacity", String(1 - progress * 0.24));
+      // 进度不足 72% 时「继续」按钮保持禁用，逼迫用户滚动或选择跳过
+      if (arrivalEnterButton) arrivalEnterButton.disabled = progress < 0.72;
+    };
+    // 视差入场：显示入场段并等待用户「继续」或「跳过」，返回 Promise 供开场链路串联
+    const showArrivalInterlude = () => new Promise((resolve, reject) => {
+      if (!arrivalInterlude || !arrivalScroller || !arrivalEnterButton || !arrivalSkipButton) {
+        reject(new Error("The parallax arrival interlude is incomplete."));
+        return;
+      }
+      let finished = false;
+      const finish = () => {
+        if (finished) return;
+        if (arrivalEnterButton.disabled && document.activeElement === arrivalEnterButton) return;
+        finished = true;
+        arrivalScroller.removeEventListener("scroll", updateArrivalProgress);
+        arrivalEnterButton.removeEventListener("click", finish);
+        arrivalSkipButton.removeEventListener("click", finish);
+        arrivalInterlude.classList.add("is-leaving");
+        window.setTimeout(() => {
+          arrivalInterlude.remove();
+          resolve();
+        }, 600);
+      };
+      arrivalScroller.scrollTop = 0;
+      arrivalInterlude.removeAttribute("aria-hidden");
+      arrivalInterlude.removeAttribute("inert");
+      arrivalInterlude.classList.add("is-visible");
+      arrivalScroller.addEventListener("scroll", updateArrivalProgress, { passive: true });
+      arrivalEnterButton.addEventListener("click", finish);
+      arrivalSkipButton.addEventListener("click", finish);
+      updateArrivalProgress();
+      window.requestAnimationFrame(() => arrivalScroller.focus({ preventScroll: true }));
+    });
     // 飞落主循环：把全部书法素材按 scheduleSpan 的时间窗均匀错峰投下，形成自上而下的连绵雨幕
     const runCalligraphySequence = async (assetsReady, revealHome) => {
       const assets = await assetsReady;
@@ -431,6 +481,7 @@
         if (untilTransition > 0) await new Promise((resolve) => window.setTimeout(resolve, untilTransition));
         stopInkAnimation();   // 停止画布动画
         inkInterlude.remove(); // 移除插页层
+        await showArrivalInterlude(); // 墨迹插页之后进入视差入场段（需滚动或跳过才继续）
         await revealHome();    // 插页结束后才揭开首页
         document.querySelector(".hero-actions a")?.focus({ preventScroll: true }); // 焦点交回首屏按钮
       };
@@ -449,6 +500,8 @@
         window.setTimeout(() => {
           calligraphyBackground?.pause();              // 暂停背景视频，释放解码资源
           calligraphySequence.remove();                // 移除序列层
+          inkInterlude?.remove();                      // 移除墨迹插页
+          arrivalInterlude?.remove();                  // 移除视差入场段
           bookOpening.remove();                        // 移除封面
           resolve();
         }, reducedMotion ? 0 : 1500);                 // 等淡出动画播完再清理
@@ -461,6 +514,7 @@
       bookOpening.remove();      // 移除封面
       calligraphySequence.remove(); // 移除飞落序列层
       inkInterlude?.remove();      // 移除墨迹插页
+      arrivalInterlude?.remove();  // 移除视差入场段
       document.querySelectorAll("header[inert], main[inert], footer[inert], audio[inert]").forEach((element) => element.removeAttribute("inert"));
       document.querySelector(".hero-actions a")?.focus({ preventScroll: true }); // 焦点交回首屏按钮
     } else {
@@ -488,6 +542,7 @@
             // 素材加载失败也要保证能进入首页，不阻断浏览
             console.error("The calligraphy intro could not be completed.", error);
             inkInterlude?.remove(); // 清掉可能已插入的墨迹插页
+            arrivalInterlude?.remove(); // 清掉可能已插入的视差入场段
             revealHome().then(() => {
               document.querySelector(".hero-actions a")?.focus({ preventScroll: true });
             });
