@@ -43,11 +43,11 @@
         <h2>他的一生有尽，<br>词的回声未尽。</h2>
         <p>公元978年，李煜走完了四十二年的人生。留下来的不只是一位南唐君主的身世，还有一颗敏感、真切的词心。后来的读者透过词句望向他，也不断把自己的时代经验映照其中。</p>
       </div>
-      <!-- 三张视角卡：历史中的他 / 词句中的他 / 今人心中的他 -->
+      <!-- 三张视角卡：历史中的他 / 词句中的他 / 今人心中的他（可点击或按 Enter / 空格展开详情） -->
       <div class="memory-line">
-        <article><span>历史中的他</span><h3>南唐末主</h3><p>从金陵宫阙到汴京囚居，命运的骤变成为理解其后期词作的一把钥匙。</p><a href="life.html">沿时间读他的故事 <span>↗</span></a></article>
-        <article><span>词句中的他</span><h3>把愁写成江水</h3><p>春花秋月、深院梧桐、流水落花，让难以言说的情绪有了可以触摸的形状。</p><a href="ci.html">读他的词与笺注 <span>↗</span></a></article>
-        <article><span>今人心中的他</span><h3>被重新看见</h3><p>每一次阅读、诵读与再创作，都会生成新的理解。想象各不相同，却都从那些仍能抵达人的词句出发。</p><a href="listen.html">听一阕词如何回响 <span>↗</span></a></article>
+        <article tabindex="0" role="button" aria-haspopup="dialog" aria-label="展开李煜作为南唐末主的历史故事"><span>历史中的他</span><h3>南唐末主</h3><p>从金陵宫阙到汴京囚居，命运的骤变成为理解其后期词作的一把钥匙。</p><a href="life.html">沿时间读他的故事 <span>↗</span></a><span class="memory-open-hint">点击了解更多 <span aria-hidden="true">↗</span></span></article>
+        <article tabindex="0" role="button" aria-haspopup="dialog" aria-label="展开李煜词作意象与表达的故事"><span>词句中的他</span><h3>把愁写成江水</h3><p>春花秋月、深院梧桐、流水落花，让难以言说的情绪有了可以触摸的形状。</p><a href="ci.html">读他的词与笺注 <span>↗</span></a><span class="memory-open-hint">点击了解更多 <span aria-hidden="true">↗</span></span></article>
+        <article tabindex="0" role="button" aria-haspopup="dialog" aria-label="展开后世如何阅读和演绎李煜的故事"><span>今人心中的他</span><h3>被重新看见</h3><p>每一次阅读、诵读与再创作，都会生成新的理解。想象各不相同，却都从那些仍能抵达人的词句出发。</p><a href="listen.html">听一阕词如何回响 <span>↗</span></a><span class="memory-open-hint">点击了解更多 <span aria-hidden="true">↗</span></span></article>
       </div>
     </section>
 
@@ -98,6 +98,8 @@
       <div><span class="section-kicker">NEXT <span>LET THE WORDS BE HEARD</span></span><h2>若你愿意，<br>让他的词再响一次。</h2></div>
       <a class="button button-dark" href="listen.html">去听词入梦 <span>↗</span></a>
     </section>
+    <!-- 视角卡详情弹窗：由 script.js 按卡片索引填入对应故事（原生 dialog 模态） -->
+    <dialog class="memory-story-dialog" aria-labelledby="memory-story-title"><button class="memory-story-close" type="button" aria-label="关闭详情">×</button><span class="memory-story-kicker"></span><h2 id="memory-story-title"></h2><div class="memory-story-content"></div><p class="memory-story-note">点击卡片空白处可查看详情；卡片中的页面链接仍可直接跳转。</p></dialog>
   </main>
 
   <!-- 页脚：品牌 + 标语 + 跳转链接 -->

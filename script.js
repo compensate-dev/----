@@ -453,6 +453,96 @@
     });
   };
 
+  // 词容万象页·三张视角卡的详情文案（按卡片顺序：历史中的他 / 词句中的他 / 今人心中的他）
+  const memoryStories = [
+    {
+      kicker: "HISTORY · SOUTHERN TANG",
+      title: "南唐末主：从金陵到汴京",
+      paragraphs: [
+        "李煜于961年继位。南唐当时已处于北宋持续扩张的压力之下，他以称臣、纳贡等方式求取喘息空间，但最终未能扭转国势。",
+        "975年，宋军攻取金陵，南唐灭亡。李煜被俘后迁居汴京，曾受封违命侯。由君主成为异乡囚居者，这一身份与生活的骤变，构成理解其后期词作的重要背景。",
+        "从史实看，政权覆亡有复杂的军事与政治原因，不宜简化为个人性格的结果。时间轴记录的是可考的大事；作品呈现的，则是这些变故如何转化为一个人的记忆与感受。"
+      ]
+    },
+    {
+      kicker: "POETRY · IMAGERY & VOICE",
+      title: "词句中的他：把愁写成江水",
+      paragraphs: [
+        "李煜前期词多写宫廷宴乐、男女情思与日常感受，语言婉丽；南唐覆亡后，故国、往事与身世之痛进入作品，词境变得沉郁开阔。",
+        "他善于把抽象情绪化成可感的景象：春花秋月让时间与往事浮现，深院梧桐衬出孤寂，流水则使愁绪有了方向与绵延感。",
+        "《虞美人》结尾以“一江春水”比喻无尽愁绪，既是个人哀思，也因意象明白而富有余韵，成为后世反复传诵的名句。"
+      ]
+    },
+    {
+      kicker: "AFTERLIFE · READERS & ADAPTATIONS",
+      title: "今人心中的他：被不断重新看见",
+      paragraphs: [
+        "李煜离开千年后，读者仍会在他的词里辨认离别、怀旧与无常。每个时代带着自己的经验阅读，因此会照见不同侧面的词人。",
+        "舞台、影视、游戏与网络创作也不断重述李煜：有的突出帝王身份，有的聚焦亡国后的漂泊，也有的从他的词句出发，讲述普通人的离愁。",
+        "这些当代形象属于艺术演绎，并非李煜真实容貌或生平史料的直接记录。把史实与想象区分开来，既能欣赏再创作，也能回到作品本身，继续读出新的理解。"
+      ]
+    }
+  ];
+
+  // 词容万象页·视角卡详情弹窗：点击卡片（或按 Enter / 空格）展开对应故事
+  const initializeMemoryStories = () => {
+    const dialog = document.querySelector(".memory-story-dialog");
+    if (!dialog) return;
+    const closeButton = dialog.querySelector(".memory-story-close");
+    const kicker = dialog.querySelector(".memory-story-kicker");
+    const title = dialog.querySelector("#memory-story-title");
+    const content = dialog.querySelector(".memory-story-content");
+    let returnFocus = null; // 记录打开弹窗的卡片，关闭后归还焦点
+
+    // 弹窗自身的关闭行为只绑定一次(用 data 标记，换页重绑也不会重复)
+    if (dialog.dataset.initialized !== "true") {
+      closeButton.addEventListener("click", () => dialog.close());
+      // 点击背板(弹窗本体以外区域)也可关闭
+      dialog.addEventListener("click", (event) => {
+        if (event.target === dialog) dialog.close();
+      });
+      // Esc 键关闭(阻止浏览器默认的关闭行为，统一走 close 流程以归还焦点)
+      dialog.addEventListener("cancel", (event) => {
+        event.preventDefault();
+        dialog.close();
+      });
+      // 关闭后把焦点还给来时的卡片
+      dialog.addEventListener("close", () => {
+        if (returnFocus?.isConnected) returnFocus.focus({ preventScroll: true });
+      });
+      dialog.dataset.initialized = "true";
+    }
+
+    // 三张视角卡按索引对应一段故事
+    document.querySelectorAll(".memory-line article[aria-haspopup='dialog']").forEach((card, index) => {
+      const openStory = () => {
+        const story = memoryStories[index];
+        if (!story) return;
+        returnFocus = card;
+        kicker.textContent = story.kicker; // 弹窗小标
+        title.textContent = story.title;   // 弹窗标题
+        content.replaceChildren();         // 清空旧内容，避免换页后残留
+        story.paragraphs.forEach((text) => {
+          const paragraph = document.createElement("p");
+          paragraph.textContent = text;
+          content.append(paragraph);
+        });
+        dialog.showModal();                // 原生模态弹窗(自带焦点陷阱与 ::backdrop)
+        closeButton.focus();
+      };
+      card.addEventListener("click", (event) => {
+        // 卡片内的页面链接与按钮仍可直接跳转，不触发弹窗
+        if (event.target.closest("a, button")) return;
+        openStory();
+      });
+      card.addEventListener("keydown", (event) => {
+        if (event.target !== card || (event.key !== "Enter" && event.key !== " ")) return;
+        event.preventDefault();
+        openStory();
+      });
+    });
+  };
+
   // 写句随风飘散：把刚写下的一句拆成单字逐个随风散去，并伴随三道风痕横扫
   const animateWrittenLineAway = (form, text) => {
     if (reducedMotion) return; // 减弱动效时不做飞散，直接由反馈文案交代结果
@@ -492,6 +582,8 @@
     initializeScrollInteractions();
     // 8b. 时间线故事弹窗绑定
     initializeTimelineStories();
+    // 8b-2. 词容万象页·视角卡详情弹窗绑定
+    initializeMemoryStories();
     // 8c. 语音诵读(为我诵读)
     let speaking = false;
     document.querySelectorAll(".read-aloud").forEach((button) => {
