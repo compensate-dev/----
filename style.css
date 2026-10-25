@@ -132,11 +132,12 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}      /* 标题中强调字用�
 .feature-head{padding:0;display:flex;justify-content:space-between;align-items:end;margin:0 0 38px}
 .feature-head h2{margin:15px 0 0}
 .poem-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}
-.poem-card{position:relative;min-height:310px;padding:23px 20px;background:#536b59;color:#f5f2e9;overflow:hidden;transition:transform .34s cubic-bezier(.2,.7,.25,1),box-shadow .34s ease} /* 词卡：加高以容纳顶部配图 */
-.poem-card:hover{transform:translateY(-6px) scale(1.035);box-shadow:0 17px 30px rgba(43,61,48,.18);z-index:2} /* 悬停时轻微上浮并放大，抬至同层之上 */
+.poem-card{position:relative;min-height:310px;padding:23px 20px;background:#536b59;color:#f5f2e9;overflow:hidden;transform-origin:center;transition:transform .42s cubic-bezier(.2,.75,.25,1),box-shadow .42s ease;will-change:transform} /* 词卡：加高以容纳顶部配图；transform-origin 居中 + 过渡时长 .42s，使悬停位移与缩放更柔和，will-change 提前预留合成层避免抖动 */
+.poem-card.reveal-on-scroll:hover,.poem-card.reveal-on-scroll:focus-visible,.poem-card:hover,.poem-card:focus-visible{transform:translateY(-7px) scale(1.045);box-shadow:0 18px 34px rgba(43,61,48,.2);z-index:2} /* 悬停/键盘聚焦时上浮并放大：同时覆盖 .reveal-on-scroll 渐显态与 :focus-visible 键盘可达态 */
 .poem-card:before{content:"";position:absolute;inset:auto -10% -35% -10%;height:60%;background:rgba(20,44,33,.3);border-radius:50%;filter:blur(2px)} /* 卡底暗色弧 */
 .poem-card:after{content:"";position:absolute;inset:0 0 auto;height:129px;background:linear-gradient(180deg,rgba(19,31,24,.34),rgba(19,31,24,.06));pointer-events:none} /* 顶部图片区叠暗渐变，压住配图、保证其上文字可读 */
-.poem-card-image{position:absolute;top:0;left:0;width:100%;height:128px;object-fit:cover} /* 词卡配图：贴顶铺满、裁切显示 */
+.poem-card-image{position:absolute;top:0;left:0;width:100%;height:128px;object-fit:cover;transition:transform .55s cubic-bezier(.2,.75,.25,1)} /* 词卡配图：贴顶铺满、裁切显示；过渡略慢于卡片本体，形成层次 */
+.poem-card:hover .poem-card-image,.poem-card:focus-visible .poem-card-image{transform:scale(1.04)} /* 卡片悬停/聚焦时配图轻微推近，形成视差纵深 */
 .card-one .poem-card-image{object-position:35% center}.card-two .poem-card-image{object-position:82% center}.card-three .poem-card-image{object-position:18% center}.card-four .poem-card-image{object-position:83% center} /* 各卡取图不同焦点位置 */
 .card-two{background:#89917a}.card-three{background:#546b70}.card-four{background:#9b806d} /* 四卡配色 */
 .poem-number,.poem-tag{position:relative;z-index:1;font:9px var(--sans);letter-spacing:.12em}
@@ -144,6 +145,7 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}      /* 标题中强调字用�
 .poem-card h3{position:relative;z-index:1;margin:126px 0 7px;font-size:24px;font-weight:500;letter-spacing:.12em} /* 标题下移，避开顶部配图 */
 .poem-card p{position:relative;z-index:1;font-size:12px;line-height:2;letter-spacing:.05em;color:rgba(255,255,255,.82)}
 .poem-arrow{position:absolute;bottom:18px;right:20px;z-index:1;font-size:18px;color:#e7d7ba}
+@media(prefers-reduced-motion:reduce){.poem-card,.poem-card-image{transition:none;will-change:auto}.poem-card:hover,.poem-card:focus-visible,.poem-card:hover .poem-card-image,.poem-card:focus-visible .poem-card-image{transform:none}} /* 减弱动效：词卡上浮放大与配图推近全部取消，保留静态悬停反馈 */
 
 /* ---------- 7. 词外余韵 + 首页结语 closing + 表单 ---------- */
 /* 7a. 词外余韵 afterlife（承接词作、过渡到结语的形象区：整屏背景图 + 左对齐文案 + 行动按钮） */
