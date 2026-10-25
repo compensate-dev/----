@@ -132,8 +132,8 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}      /* 标题中强调字用�
 .feature-head{padding:0;display:flex;justify-content:space-between;align-items:end;margin:0 0 38px}
 .feature-head h2{margin:15px 0 0}
 .poem-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}
-.poem-card{position:relative;min-height:310px;padding:23px 20px;background:#536b59;color:#f5f2e9;overflow:hidden;transition:transform .25s,box-shadow .25s} /* 词卡：加高以容纳顶部配图 */
-.poem-card:hover{transform:translateY(-6px);box-shadow:0 17px 30px rgba(43,61,48,.15)}
+.poem-card{position:relative;min-height:310px;padding:23px 20px;background:#536b59;color:#f5f2e9;overflow:hidden;transition:transform .34s cubic-bezier(.2,.7,.25,1),box-shadow .34s ease} /* 词卡：加高以容纳顶部配图 */
+.poem-card:hover{transform:translateY(-6px) scale(1.035);box-shadow:0 17px 30px rgba(43,61,48,.18);z-index:2} /* 悬停时轻微上浮并放大，抬至同层之上 */
 .poem-card:before{content:"";position:absolute;inset:auto -10% -35% -10%;height:60%;background:rgba(20,44,33,.3);border-radius:50%;filter:blur(2px)} /* 卡底暗色弧 */
 .poem-card:after{content:"";position:absolute;inset:0 0 auto;height:129px;background:linear-gradient(180deg,rgba(19,31,24,.34),rgba(19,31,24,.06));pointer-events:none} /* 顶部图片区叠暗渐变，压住配图、保证其上文字可读 */
 .poem-card-image{position:absolute;top:0;left:0;width:100%;height:128px;object-fit:cover} /* 词卡配图：贴顶铺满、裁切显示 */
@@ -468,7 +468,7 @@ html.page-transitioning main{opacity:.08;transform:translateY(8px) scale(.995);f
 .book-cover-front,.book-cover-back{position:absolute;inset:0;backface-visibility:hidden}
 /* 封面正面：纸色叠背景图，内描双线 */
 .book-cover-front{display:grid;place-items:center;overflow:hidden;color:#304638;background:linear-gradient(135deg,rgba(243,243,237,.82),rgba(236,238,228,.77)),url("home-background.jpg") center 45%/cover no-repeat;border:1px solid rgba(169,104,76,.55);box-shadow:inset 0 0 70px rgba(255,255,255,.23),inset 0 -14px 28px rgba(73,72,52,.08)}
-.book-cover-front:before{content:"";position:absolute;inset:18px;border:1px solid rgba(169,104,76,.46);background:linear-gradient(90deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) left top/22px 22px no-repeat,linear-gradient(180deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) left top/22px 22px no-repeat,linear-gradient(270deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) right top/22px 22px no-repeat,linear-gradient(180deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) right top/22px 22px no-repeat,linear-gradient(90deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) left bottom/22px 22px no-repeat,linear-gradient(0deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) left bottom/22px 22px no-repeat,linear-gradient(270deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) right bottom/22px 22px no-repeat,linear-gradient(0deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) right bottom/22px 22px no-repeat;pointer-events:none}
+.book-cover-front:before{content:"";position:absolute;inset:18px;border:1px solid rgba(169,104,76,.46);background:linear-gradient(90deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) left top/22px 22px no-repeat,linear-gradient(180deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) left top/22px 22px no-repeat,linear-gradient(270deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) right top/22px 22px no-repeat,linear-gradient(180deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) right top/22px 22px no-repeat,linear-gradient(90deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) left bottom/22px 22px no-repeat,linear-gradient(0deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) left bottom/22px 22px no-repeat,linear-gradient(270deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) right bottom/22px 22px no-repeat,linear-gradient(0deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) right bottom/22px 30px no-repeat}
 .book-cover-front:after{content:"";position:absolute;inset:25px;border:1px solid rgba(48,77,63,.16);pointer-events:none}
 .book-cover-kicker,.book-cover-foot{position:absolute;font:9px var(--sans);letter-spacing:.2em;color:#69766a}
 .book-cover-kicker{top:13%;left:50%;transform:translateX(-50%);white-space:nowrap}
@@ -498,12 +498,12 @@ html.page-transitioning main{opacity:.08;transform:translateY(8px) scale(.995);f
 /* 翻开前：首页的页头/主体/页脚先隐藏并锁滚动(避免封面下透出内容) */
 body.home-page:not(.book-opened)>.site-header,body.home-page:not(.book-opened)>main,body.home-page:not(.book-opened)>.site-footer{visibility:hidden;opacity:0}
 body.home-page:not(.book-opened){overflow:hidden}
-/* 翻开后：首页内容淡入 */
-body.home-page.book-opened>.site-header,body.home-page.book-opened>main,body.home-page.book-opened>.site-footer{animation:home-content-fade-in .55s ease both}
+/* 翻开后：首页内容自中间向两侧展开淡入(clip-path) */
+body.home-page.book-opened>.site-header,body.home-page.book-opened>main,body.home-page.book-opened>.site-footer{animation:home-content-open 1.5s cubic-bezier(.2,.75,.25,1) both;will-change:clip-path,opacity}
 /* 翻书关键帧：从 0° 向上翻到 180° */
 @keyframes book-page-turn-up{0%{transform:rotateX(0)}100%{transform:rotateX(180deg)}}
-/* 首页内容淡入关键帧 */
-@keyframes home-content-fade-in{from{opacity:0}to{opacity:1}}
+/* 首页内容展开关键帧：由中心向两侧掀开并淡入 */
+@keyframes home-content-open{from{opacity:.35;clip-path:inset(0 50%)}to{opacity:1;clip-path:inset(0)}}
 
 /* —— 17a. 翻书落地页响应式 —— */
 @media(max-width:700px){
@@ -522,12 +522,14 @@ body.home-page.book-opened>.site-header,body.home-page.book-opened>main,body.hom
 
 /* —— 17b. 书法飞落开场（封面翻开后的过渡序列，由脚本生成 .calligraphy-flight 元素） —— */
 /* 序列层：铺满屏幕的浅色纸雾底，默认隐藏，脚本加 is-active 后显现 */
-.calligraphy-sequence{position:fixed;inset:0;z-index:1001;overflow:hidden;visibility:hidden;opacity:0;pointer-events:none;background:radial-gradient(ellipse at 50% 46%,rgba(249,248,241,.92),rgba(235,239,230,.84) 58%,rgba(232,238,228,.72));transition:opacity .18s ease,visibility .18s}
+.calligraphy-sequence{position:fixed;inset:0;z-index:1001;overflow:hidden;visibility:hidden;opacity:0;pointer-events:none;background:radial-gradient(ellipse at 50% 46%,rgba(249,248,241,.92),rgba(235,239,230,.84) 58%,rgba(232,238,228,.72))}
 .calligraphy-sequence.is-active{visibility:visible;opacity:1}
-.calligraphy-sequence.is-fading{opacity:0} /* 序列结束后整体淡出 */
 /* 单张飞落的书法图：绝对定位在给定横向位置，由关键帧自上而下穿过屏幕 */
 .calligraphy-flight{position:absolute;top:0;width:auto;height:auto;max-width:min(38vw,340px);max-height:68vh;object-fit:contain;filter:drop-shadow(0 5px 10px rgba(34,48,38,.12));will-change:transform,opacity;animation:calligraphy-fall .55s cubic-bezier(.42,0,.58,1) both}
-@keyframes calligraphy-fall{0%{opacity:0;transform:translate3d(-50%,-112vh,0)}18%{opacity:.94}76%{opacity:.94}100%{opacity:0;transform:translate3d(-50%,112vh,0)}}
+/* 末张落定的书法图：使用单独关键帧，落底后不消失，留在画面上收尾 */
+.calligraphy-flight-final{animation-name:calligraphy-fall-final}
+@keyframes calligraphy-fall{0%{opacity:.34;transform:translate3d(-50%,calc(-100% + 52px),0)}18%{opacity:.94}76%{opacity:.94}100%{opacity:0;transform:translate3d(-50%,calc(100vh - 52px),0)}}
+@keyframes calligraphy-fall-final{0%{opacity:.34;transform:translate3d(-50%,calc(-100% + 52px),0)}18%,100%{opacity:.94;transform:translate3d(-50%,calc(100vh - 52px),0)}}
 @media(max-width:700px){.calligraphy-flight{max-width:58vw;max-height:70vh}} /* 手机端：书法图放大以保证可读 */
 @media(prefers-reduced-motion:reduce){.calligraphy-sequence{display:none!important}.calligraphy-flight{animation:none!important}}
 
@@ -543,7 +545,7 @@ body.home-page.book-opened>.site-header,body.home-page.book-opened>main,body.hom
 }
 
 /* 减弱动效时直接关掉粒子/水波，避免卡顿 */
-@media(prefers-reduced-motion:reduce){.click-ripple,.page-ripple{display:none}.reveal-on-scroll{opacity:1;transform:none;transition:none}main{transition:none}html.page-transitioning main{opacity:1;transform:none;filter:none}}
+@media(prefers-reduced-motion:reduce){.click-ripple,.page-ripple{display:none}.reveal-on-scroll{opacity:1;transform:none;transition:none}main{transition:none}html.page-transitioning main{opacity:1;transform:none;filter:none}body.home-page.book-opened>.site-header,body.home-page.book-opened>main,body.home-page.book-opened>.site-footer{animation:none;opacity:1;clip-path:none;will-change:auto}} /* 减弱动效：首页内容直接完整显示，不做展开动画 */
 
 /* —— 18a. 词容万象页响应式补充 —— */
 @media(max-width:900px){
