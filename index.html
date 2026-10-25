@@ -39,9 +39,13 @@
     </div>
   </section>
 
-  <!-- 书法飞落层：序列期间承载随机飞落的书法字；背景视频不作 loop，播完即进入墨迹插页 -->
+  <!-- 书法飞落层：序列期间承载随机飞落的书法字与「字化飞墨」粒子画布；背景视频不作 loop，播完即进入墨迹插页 -->
   <div class="calligraphy-sequence" aria-hidden="true">
     <video class="calligraphy-background" src="calligraphy-background.mp4" muted playsinline preload="none" tabindex="-1"></video>
+    <!-- 粒子画布：飞落收尾阶段的粒子动画（字化飞墨），由 script.js 绘制，进入粒子阶段后渐显 -->
+    <canvas class="calligraphy-particle-canvas"></canvas>
+    <!-- 粒子阶段文案：视频淡出后延迟渐显的「由词入画」题注 -->
+    <div class="calligraphy-particle-caption" aria-hidden="true"><span>由词入画</span><b>字化飞墨，凝为月下人</b></div>
   </div>
 
   <!-- 墨迹插页：书法飞落结束后的水墨过渡页，canvas 绘制墨色晕染，文案居中 -->
@@ -55,7 +59,7 @@
 
   <!-- 视差入场段：墨迹插页之后的滚动驱动开场场景，默认 aria-hidden + inert，由 script.js 揭示
        结构：arrival-scroller（可滚动容器）→ arrival-track（滚动行程）→ arrival-stage（固定舞台）
-       场景层：远山、场景切换层、月、松枝、墨韵光晕、水面、余烬、暗角；文案按滚动进度分三幕切换 -->
+       场景层：远山、场景切换层、月、松枝、墨韵光晕、水面、余烬、暗角、水墨晕染、离场碎裂；文案按滚动进度分三幕切换 -->
   <section class="arrival-interlude" aria-hidden="true" inert aria-labelledby="arrival-title">
     <!-- 滚动容器：用户在此区域内滚动推进入场进度，tabindex=-1 供脚本聚焦 -->
     <div class="arrival-scroller" role="region" aria-label="向下滚动，展开李煜词境" tabindex="-1">
@@ -79,6 +83,8 @@
           <div class="arrival-embers" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
           <!-- 暗角：压暗四周，聚焦视线 -->
           <div class="arrival-vignette" aria-hidden="true"></div>
+          <!-- 水墨晕染层：分幕切换 / 离场时的墨色洗染，由 script.js 切换 is-active / is-opening -->
+          <div class="arrival-ink-wash" aria-hidden="true"></div>
           <!-- 第一幕：题眼 + 主标题 + 导语 + 耳语 + 墨迹笔触 + 滚动提示；默认 is-current 为当前幕 -->
           <div class="arrival-copy is-current" data-scene="0">
             <span class="arrival-kicker">南唐 · 开宝年间 · 金陵</span>
@@ -126,6 +132,8 @@
           </nav>
           <!-- 侧边竖排英文注记，纯视觉 -->
           <span class="arrival-side-note" aria-hidden="true">SPRING RIVER · ENDLESS SORROW</span>
+          <!-- 碎裂层：离场转场时画面碎裂的碎片容器，由 script.js 生成 .shatter-shard -->
+          <div class="shatter-layer" aria-hidden="true"></div>
         </div>
       </div>
     </div>
