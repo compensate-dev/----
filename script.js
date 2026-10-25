@@ -648,6 +648,35 @@
       }
     });
     items.forEach((item, index) => item.classList.toggle("is-active", index === activeIndex));
+    // 章节侧栏(.timeline-scene)联动：把当前段落的年份 / 地名 / 标题 / 词句同步到侧栏
+    const scene = document.querySelector(".timeline-scene");
+    if (!scene || Number(scene.dataset.activeIndex) === activeIndex) return; // 侧栏不存在或章节未变化则不处理
+    scene.dataset.activeIndex = String(activeIndex);
+    scene.dataset.chapter = String(activeIndex + 1);
+    const activeItem = items[activeIndex];
+    const year = activeItem.querySelector(".timeline-year")?.textContent.trim();
+    const label = activeItem.querySelector(".timeline-label")?.textContent.trim();
+    const title = activeItem.querySelector(".timeline-card h3")?.textContent.trim();
+    const quote = activeItem.querySelector(".timeline-quote")?.textContent.trim();
+    const copy = scene.querySelector(".timeline-scene-copy");
+    copy?.classList.add("is-changing"); // 先淡出旧文案
+    window.setTimeout(() => {
+      scene.querySelector(".timeline-scene-year").textContent = year || "";
+      scene.querySelector(".timeline-scene-label").textContent = label || "";
+      scene.querySelector(".timeline-scene-copy h2").textContent = title || "";
+      scene.querySelector(".timeline-scene-copy blockquote").textContent = quote || "";
+      // 章节计数：形如 "01 / 04"
+      const count = scene.querySelector(".timeline-scene-count");
+      count.firstChild.textContent = `${String(activeIndex + 1).padStart(2, "0")} `;
+      count.querySelector("i").textContent = `/ ${String(items.length).padStart(2, "0")}`;
+      scene.querySelector(".timeline-scene-kicker").textContent = `A LIFE IN VERSE · CHAPTER ${String(activeIndex + 1).padStart(2, "0")}`;
+      // 底部进度段：当前段高亮，已读段标为完成
+      scene.querySelectorAll(".timeline-scene-progress span").forEach((segment, index) => {
+        segment.classList.toggle("is-current", index === activeIndex);
+        segment.classList.toggle("is-complete", index < activeIndex);
+      });
+      copy?.classList.remove("is-changing"); // 再淡入新文案
+    }, 120);
   };
   // 滚动 / 缩放时以 requestAnimationFrame 节流更新
   const scheduleTimelineNarrativeUpdate = () => {

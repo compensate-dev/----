@@ -222,12 +222,50 @@ textarea::placeholder{color:#9aa297}
 /* 进度条：脚本动态插入 .timeline-progress 元素，沿主轴随阅读进度生长 */
 .timeline-progress{position:absolute;left:-1px;top:0;width:2px;height:calc(var(--narrative-progress,0) * 100%);background:linear-gradient(180deg,var(--rust),var(--gold));transition:height .18s linear;pointer-events:none} /* 贴着主轴左侧的锈红→金渐变细线 */
 .timeline-item{transition:opacity .3s ease,transform .3s ease} /* 段落整体过渡，配合当前段落的明暗变化 */
-.timeline-item:not(.is-active){opacity:.52} /* 非当前段落略微淡出，让注意力聚焦于正在读的一段 */
+.timeline-item.reveal-on-scroll.is-visible:not(.is-active){opacity:.52} /* 已渐显但非当前的段落略微淡出，让注意力聚焦于正在读的一段(未渐显时仍由 .reveal-on-scroll 保持透明) */
 .timeline-item.is-active{opacity:1} /* 当前阅读段落保持全亮 */
 .timeline-item.is-active .timeline-dot{transform:scale(1.5);box-shadow:0 0 0 5px var(--paper),0 0 0 8px rgba(169,104,76,.22)} /* 当前段落节点放大并加一圈柔光 */
 .timeline-item.is-active .timeline-year{color:var(--rust)} /* 当前段落年份转为赭红强调 */
 .timeline-item .timeline-dot{transition:transform .3s ease,box-shadow .3s ease} /* 节点缩放与光晕的过渡 */
 @media(prefers-reduced-motion:reduce){.timeline-progress{transition:none}.timeline-item,.timeline-item .timeline-dot{transition:none;opacity:1}} /* 减弱动效：取消过渡且所有段落保持全亮 */
+/* —— 10b. 章节侧栏 timeline-scene(与右侧时间线联动，随滚动切换章节) —— */
+/* 叙事容器：左侧固定侧栏 + 右侧时间线的双栏布局 */
+.timeline-narrative{display:grid;grid-template-columns:minmax(220px,.62fr) minmax(0,1.38fr);gap:clamp(28px,4.4vw,66px);align-items:start;margin-left:0}
+/* 侧栏本体：随页面滚动吸顶，保持当前章节始终可见 */
+.timeline-scene{position:sticky;top:118px;padding:34px 32px 30px;background:linear-gradient(155deg,rgba(255,255,255,.52),rgba(240,242,232,.42));border:1px solid rgba(134,151,131,.28);box-shadow:0 14px 40px rgba(49,67,53,.07);backdrop-filter:blur(3px)}
+/* 侧栏顶部装饰：竖排「南唐」二字 + 一道分隔线 */
+.timeline-scene-art{display:flex;align-items:center;gap:12px;margin:0 0 22px}
+.timeline-scene-art span{writing-mode:vertical-rl;font-family:"HongLei Calligraphy",var(--serif);font-size:26px;letter-spacing:.16em;color:rgba(169,104,76,.34)}
+.timeline-scene-art i{display:block;width:46px;height:1px;background:linear-gradient(90deg,rgba(169,104,76,.42),transparent)}
+/* 章节小标：形如 A LIFE IN VERSE · CHAPTER 01 */
+.timeline-scene-kicker{display:block;font:9px var(--sans);letter-spacing:.2em;color:#9b6852;margin:0 0 12px}
+/* 年份：大号数字，是侧栏最醒目的元素 */
+.timeline-scene-year{display:block;font-family:"HongLei Calligraphy",var(--serif);font-size:56px;line-height:1;letter-spacing:.04em;color:#2b3a30;margin:0 0 6px}
+/* 地名小标 */
+.timeline-scene-label{display:block;font:11px var(--sans);letter-spacing:.14em;color:#80513e;margin:0 0 12px}
+/* 章节标题 */
+.timeline-scene-copy h2{font-family:"HongLei Calligraphy",var(--serif);font-weight:400;font-size:clamp(21px,2.1vw,28px);line-height:1.5;letter-spacing:.06em;color:#29372c;margin:0 0 14px}
+/* 章节词句引用 */
+.timeline-scene-copy blockquote{margin:0 0 22px;padding:12px 16px;border-left:2px solid var(--rust);background:rgba(255,255,255,.4);font-family:"Liyu Xingkai UI",var(--serif);font-size:16px;line-height:1.85;color:#4a5d4c}
+/* 底部：章节计数 + 四段进度指示 */
+.timeline-scene-footer{display:flex;align-items:center;gap:16px;padding-top:14px;border-top:1px solid rgba(134,151,131,.24)}
+.timeline-scene-count{font:10px var(--sans);letter-spacing:.14em;color:#5b6a5d}
+.timeline-scene-count i{font-style:normal;color:#9aa297}
+/* 四段进度条：未读为浅灰，当前段为赭红，已读段为实心 */
+.timeline-scene-progress{display:flex;gap:5px;flex:1}
+.timeline-scene-progress span{flex:1;height:2px;background:rgba(134,151,131,.28);transition:background .3s ease}
+.timeline-scene-progress span.is-current{background:var(--rust)}
+.timeline-scene-progress span.is-complete{background:rgba(169,104,76,.5)}
+/* 文案切换动画：脚本先加 is-changing 淡出旧文案，再淡入新文案 */
+.timeline-scene-copy{transition:opacity .12s ease,transform .12s ease}
+.timeline-scene-copy.is-changing{opacity:0;transform:translateY(6px)}
+/* 双栏下时间线自身不再需要外缩，改为常规左边距 */
+.timeline-narrative .timeline{margin-left:0;padding-left:46px}
+/* 平板与手机：侧栏改为静态置顶，单栏纵向排列 */
+@media(max-width:1000px){.timeline-narrative{grid-template-columns:1fr;gap:32px}.timeline-scene{position:static;padding:28px 26px 24px}.timeline-narrative .timeline{margin-left:0;padding-left:34px}}
+@media(max-width:700px){.timeline-scene{padding:24px 20px 20px}.timeline-scene-year{font-size:46px}.timeline-scene-copy blockquote{font-size:15px}.timeline-narrative .timeline{margin-left:0;padding-left:28px}}
+@media(prefers-reduced-motion:reduce){.timeline-scene-copy{transition:none}.timeline-scene-progress span{transition:none}} /* 减弱动效：取消章节切换的淡出淡入与进度条过渡 */
+
 .timeline-story-dialog{position:fixed;width:min(660px,calc(100vw - 36px));max-width:none;max-height:min(82vh,780px);overflow:auto;margin:auto;padding:clamp(28px,5vw,54px);border:1px solid rgba(134,151,131,.46);background:linear-gradient(145deg,rgba(249,248,240,.99),rgba(232,236,226,.99));color:var(--ink);box-shadow:0 24px 90px rgba(24,39,30,.32)} /* 时间线故事弹窗：纸色渐变底 + 居中定宽 + 可滚动长文 */
 .timeline-story-dialog::backdrop{background:rgba(24,39,31,.52);backdrop-filter:blur(4px)} /* 弹窗背板：深绿半透明 + 模糊 */
 .timeline-story-close{position:sticky;float:right;top:0;display:grid;place-items:center;width:38px;height:38px;margin:-18px -18px 0 12px;border:1px solid #cbd2c8;border-radius:50%;background:rgba(249,248,240,.9);color:var(--pine);font-size:26px;line-height:1;cursor:pointer} /* 右上角圆形关闭钮(吸顶，滚动长文时始终可达) */
