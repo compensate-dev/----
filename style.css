@@ -41,7 +41,7 @@ button{color:inherit}
 ::selection{background:#c8d1c3;color:#24362e}          /* 选中态配色 */
 
 /* ---------- 2. 页头 / 品牌 / 导航 / 声音 ---------- */
-.site-header{height:86px;padding:0 6.6%;display:flex;align-items:center;justify-content:space-between;gap:28px;background:rgba(243,243,237,.93);border-bottom:1px solid rgba(48,77,63,.1);position:sticky;top:0;z-index:20;backdrop-filter:blur(14px)}
+.site-header{height:86px;padding:0 6.6%;display:flex;align-items:center;justify-content:space-between;gap:28px;background:linear-gradient(rgba(243,243,237,.76),rgba(243,243,237,.76)),url("navigation-background.jpg") center 52%/cover no-repeat;border-bottom:1px solid rgba(48,77,63,.1);position:sticky;top:0;z-index:20;backdrop-filter:blur(14px)}  /* 页头：纸色半透明叠导航背景图，毛玻璃模糊 */
 .brand{display:flex;align-items:center;gap:12px;font-weight:600;letter-spacing:.12em;font-size:15px;line-height:1.25;white-space:nowrap}
 .brand small{display:block;font-family:var(--sans);font-size:9px;color:var(--muted);font-weight:400;letter-spacing:.13em;margin-top:5px}
 .brand-seal{display:grid;place-items:center;width:39px;height:39px;border:1px solid var(--rust);color:var(--rust);font-size:19px;font-weight:500;transform:rotate(-5deg)} /* 印章式品牌标记 */
@@ -72,7 +72,7 @@ h1,h2,h3,p{margin-top:0}
 /* 翻书封面副标题 small：套用"旋动楷书"手写体，并自定义字号/字重/字距（后文封面区另有同选择器规则设定通用样式，此处前置其字体） */
 .book-cover-title small{font-family:"Xuandong Kaishu",var(--serif);font-size:13px;font-weight:400;letter-spacing:.12em}
 h1 em,h2 em{font-style:normal;color:var(--rust)}      /* 标题中强调字用锈红 */
-.hero-intro{font-size:16px;letter-spacing:.07em;line-height:2.15;color:#34483b;max-width:470px;margin:0 0 30px;text-shadow:0 1px 0 rgba(243,243,237,.72)}  /* 首页导语：略放大字号、放宽行距与宽度，提升可读性 */
+.hero-intro{font-size:18px;letter-spacing:.07em;line-height:2.05;color:#34483b;max-width:500px;margin:0 0 30px;text-shadow:0 1px 0 rgba(243,243,237,.72)}  /* 首页导语：手写楷书衬底，米白投影提升可读性 */
 .hero-actions{display:flex;align-items:center;gap:27px}
 .button{min-height:47px;padding:11px 20px;display:inline-flex;align-items:center;justify-content:center;gap:23px;font-family:var(--sans);font-size:11px;letter-spacing:.1em;transition:transform .2s,background .2s}
 .button:hover{transform:translateY(-2px)}
@@ -81,7 +81,7 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}      /* 标题中强调字用�
 .button span{font-size:16px;color:#d2b990}            /* 按钮内箭头/符号(金) */
 .text-link,.under-link{font-family:var(--sans);font-size:11px;letter-spacing:.06em;color:var(--pine);border-bottom:1px solid #bac4b9;padding-bottom:5px}
 .text-link span,.under-link span{color:var(--rust);margin-left:8px}
-.hero-verse{display:flex;align-items:center;gap:14px;color:#304638;font-size:14px;letter-spacing:.07em;margin-top:48px;text-shadow:0 1px 0 rgba(243,243,237,.78)}  /* 首屏诗句栏：放大字号、上移贴近导语 */
+.hero-verse{display:flex;align-items:center;gap:14px;color:#304638;font-size:16px;letter-spacing:.07em;margin-top:42px;text-shadow:0 1px 0 rgba(243,243,237,.78)}  /* 首屏诗句栏：手写楷书衬底，与导语衔接 */
 .verse-rule{height:1px;width:35px;background:var(--rust)}
 .hero-art{position:absolute;width:min(44vw,570px);height:min(48vw,570px);right:10%;top:48%;transform:translateY(-49%);overflow:hidden;background:#273a48;border:1px solid rgba(199,170,119,.72);border-radius:48% 48% 5px 5px;box-shadow:0 0 0 5px rgba(243,243,237,.68),0 0 0 6px rgba(169,104,76,.38),0 28px 65px rgba(35,54,46,.18)} /* 弧形画框 */
 .hero-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 48%}
@@ -110,7 +110,7 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}      /* 标题中强调字用�
 .section-kicker{display:flex;align-items:center;gap:12px;padding-top:11px;white-space:nowrap}
 .section-kicker span{color:#929a8f;font-size:9px}
 .intro-heading h2,.feature-head h2,.story-lead h2,.works-heading h2,.listen-title h2,.interactive h2,.next-step h2,.closing h2{font-size:clamp(30px,3.2vw,43px);line-height:1.6;letter-spacing:.06em;font-weight:500;margin:0 0 17px}
-.intro-heading p,.story-lead p,.listen-title p,.interactive p{max-width:470px;color:#6d786d;font-size:15px;line-height:2.15;letter-spacing:.04em;margin-bottom:22px}  /* 各区块引导段：放大字号、略收行距 */
+.intro-heading p,.story-lead p,.listen-title p,.interactive p{max-width:470px;color:#6d786d;font-size:17px;line-height:2.05;letter-spacing:.04em;margin-bottom:22px}  /* 各区块引导段：手写楷书衬底，放宽行距更易读 */
 .intro-card{position:relative;margin-top:37px;min-height:255px;padding:31px 30px;background:linear-gradient(135deg,rgba(249,249,242,.96),rgba(239,241,232,.96));border:1px solid #42554a;border-radius:21px;box-shadow:0 8px 24px rgba(47,62,49,.08);overflow:hidden} /* 引语卡片：浅渐变底 + 松绿描边 + 圆角 + 柔影 */
 .intro-card:before{content:"";position:absolute;inset:5px;border:1px solid rgba(48,77,63,.72);border-radius:16px;pointer-events:none} /* 卡片内描边，形成双线框效果 */
 .card-index{font:9px var(--sans);letter-spacing:.17em;color:#818b7f}
@@ -153,7 +153,7 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}      /* 标题中强调字用�
 .closing:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(rgba(238,240,232,.14),rgba(238,240,232,.14)),url("closing-background.jpg") center 54%/cover no-repeat;opacity:.56} /* 结语整屏背景图 + 极淡纸色叠层（透明度 .7→.56 调淡），z-index:-1 沉到文字之下 */
 .closing-pine{color:#879483;font-size:13px;letter-spacing:.3em;writing-mode:vertical-rl;border-left:1px solid #b8c1b5;height:170px;padding:10px 0 0 16px} /* 竖排“松”字意境 */
 .closing h2{margin-top:17px}
-.closing p{font-size:12px;color:#768074;letter-spacing:.05em;margin-bottom:23px}
+.closing p{font-size:15px;color:#657063;letter-spacing:.05em;margin-bottom:23px}  /* 结语正文：放大字号、改为墨绿灰，与手写段落协调 */
 .mood-form,.poem-form{padding:25px 26px;background:#e7e9e0}
 .mood-form label,.poem-form label{display:block;font-size:12px;letter-spacing:.08em;margin-bottom:12px}
 textarea{display:block;width:100%;resize:vertical;min-height:94px;border:0;border-bottom:1px solid #c5cdc1;background:transparent;outline:none;font-size:13px;line-height:1.8;padding:8px 0;color:var(--ink)}
@@ -204,21 +204,14 @@ textarea::placeholder{color:#9aa297}
 .next-step h2{font-size:31px;margin:15px 0 0}
 
 /* ---------- 11. 词容万象 wanxiang(当代想象视角) ---------- */
-.wanxiang-hero{min-height:540px;gap:7%;background:linear-gradient(100deg,rgba(239,241,234,.94),rgba(224,232,222,.78)),url("intro-background.jpg") center/cover no-repeat}
-.wanxiang-hero:after{width:68%;height:90%;background:linear-gradient(145deg,transparent 25%,rgba(79,103,83,.13));opacity:.8}
+.wanxiang-hero{position:relative;isolation:isolate;min-height:540px;gap:7%;background:#dfe6dc}  /* 万象首屏容器：定位+隔离上下文，纯色淡绿底(视频作背景时由 ::before 叠纸色、video 沉底) */
+.wanxiang-hero:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(100deg,rgba(239,241,234,.76),rgba(224,232,222,.46));pointer-events:none}  /* 纸色叠层(盖在视频之上、文字之下)，保证可读 */
+.wanxiang-hero-video{position:absolute;inset:0;z-index:-2;width:100%;height:100%;object-fit:cover;object-position:center 50%}  /* 背景视频(脚本注入 src)，沉到最底层 */
+.wanxiang-hero:after{width:68%;height:90%;background:linear-gradient(145deg,transparent 25%,rgba(79,103,83,.13));opacity:.8}  /* 右侧山形剪影装饰 */
 .wanxiang-hero .subhero-copy{max-width:510px}
 .wanxiang-hero .eyebrow{margin-bottom:18px}
 .wanxiang-hero .subhero-copy>p:not(.eyebrow){max-width:460px;color:#405248;font-size:14px;line-height:2.2;letter-spacing:.04em}
 .wanxiang-hero .button{margin-top:15px}
-.wanxiang-portrait{position:relative;z-index:2;flex:0 0 min(31vw,370px);height:min(37vw,410px);min-height:300px;margin:0 2% 0 0;padding:9px;background:linear-gradient(145deg,#f9f5e8,#d5d9cd);border:1px solid rgba(169,104,76,.6);box-shadow:0 16px 42px rgba(35,54,46,.2),0 0 0 5px rgba(243,243,237,.48)} /* 肖像卡 */
-.wanxiang-portrait:before,.wanxiang-portrait:after{content:"";position:absolute;width:24px;height:24px;z-index:2;pointer-events:none}
-.wanxiang-portrait:before{top:3px;left:3px;border-top:1px solid #ba8a68;border-left:1px solid #ba8a68}
-.wanxiang-portrait:after{right:3px;bottom:3px;border-right:1px solid #ba8a68;border-bottom:1px solid #ba8a68}
-.wanxiang-portrait img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 25%;filter:saturate(.82)}
-.wanxiang-portrait figcaption{position:absolute;left:18px;right:18px;bottom:18px;padding:10px 13px;background:rgba(243,243,237,.87);border-left:2px solid var(--rust);line-height:1.6}
-.wanxiang-portrait figcaption span,.wanxiang-portrait figcaption small{display:block}
-.wanxiang-portrait figcaption span{font-size:12px;letter-spacing:.08em}
-.wanxiang-portrait figcaption small{font:9px var(--sans);letter-spacing:.06em;color:#737c70}
 .wanxiang-mark{position:absolute;right:3%;top:13%;z-index:1;color:rgba(169,104,76,.14);font-size:clamp(65px,9vw,130px);line-height:1.1;writing-mode:vertical-rl;letter-spacing:.18em;pointer-events:none} /* 大字水印 */
 .memory-section{padding-top:100px;padding-bottom:106px}
 .memory-section>.section-kicker,.many-mirrors .section-kicker{margin-bottom:28px}
@@ -287,7 +280,8 @@ textarea::placeholder{color:#9aa297}
 .living-echo>span:last-child{font:9px var(--sans);letter-spacing:.19em;color:#8b7660}
 
 /* ---------- 12. 词作笺赏 ci ---------- */
-.ci-hero{background:radial-gradient(ellipse at 80% 50%,rgba(201,215,200,.6),transparent 36%),linear-gradient(115deg,#eff0e9,#e3e9e0)}
+.ci-hero{isolation:isolate;background:radial-gradient(ellipse at 80% 50%,rgba(201,215,200,.6),transparent 36%),linear-gradient(115deg,#eff0e9,#e3e9e0)}  /* 词作首屏：隔离上下文，使 ::before 背景图收敛到本区 */
+.ci-hero:before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:url("ci-hero-background.jpg") center 48%/cover no-repeat;opacity:.24}  /* 词作首屏背景图(极淡 0.24)，隐约映出词意 */
 .floating-verse{z-index:2;width:210px;height:210px;border-radius:50%;border:1px solid rgba(113,131,111,.35);display:flex;flex-direction:column;align-items:center;justify-content:center;margin-right:15%;color:#69796a}
 .floating-verse:before,.floating-verse:after{content:"";position:absolute;width:165px;height:165px;border:1px solid rgba(113,131,111,.25);border-radius:50%}
 .floating-verse:after{width:240px;height:240px;border-style:dashed;opacity:.5} /* 浮词圈(同心圆) */
@@ -489,7 +483,6 @@ body.home-page.book-opened>.site-header,body.home-page.book-opened>main,body.hom
 /* —— 18a. 词容万象页响应式补充 —— */
 @media(max-width:900px){
   .wanxiang-hero{padding-top:60px;padding-bottom:60px}
-  .wanxiang-portrait{flex-basis:30vw;height:38vw;min-height:260px;margin-right:0}
   .memory-line,.mirror-grid{margin-left:8%}
   .memory-lead,.mirrors-heading{padding-left:8%;margin-left:0}
   .screen-world-heading,.media-grid{margin-left:8%}
@@ -500,7 +493,6 @@ body.home-page.book-opened>.site-header,body.home-page.book-opened>main,body.hom
   .wanxiang-hero{min-height:0;display:block;padding:62px 8% 55px}
   .wanxiang-hero .subhero-copy{max-width:none}
   .wanxiang-hero .subhero-copy>p:not(.eyebrow){font-size:12px}
-  .wanxiang-portrait{width:min(76%,330px);height:310px;min-height:0;margin:42px auto 0}
   .wanxiang-mark{right:3%;top:45%;font-size:54px}
   .memory-section{padding-top:68px;padding-bottom:72px}
   .memory-lead{display:block;padding-left:0}
