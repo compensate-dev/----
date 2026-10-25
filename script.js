@@ -405,28 +405,31 @@
         window.removeEventListener("pointermove", onPointerMove);
       };
     };
-    // 视差入场：按滚动进度写入 --arrival-* 变量（山景上移、月亮下沉、人物上浮、文案上移淡出）
+    // 视差入场：按滚动进度写入 --arrival-* 变量（山景上移、月亮下沉、松枝与水面上移、墨韵渐显、文案上移淡出）
     const updateArrivalProgress = () => {
       if (!arrivalScroller || !arrivalInterlude) return;
       const scrollRange = arrivalScroller.scrollHeight - arrivalScroller.clientHeight;
       const progress = scrollRange > 0 ? Math.min(1, Math.max(0, arrivalScroller.scrollTop / scrollRange)) : 1;
       // 当前幕序号：整段滚动行程均分为三幕(0/1/2)
       const sceneIndex = Math.min(2, Math.floor(progress * 3));
+      // 幕内局部进度：当前这一幕内部的 0~1 进度（预留量，暂未参与渲染）
+      const currentSceneProgress = Math.min(1, Math.max(0, progress * 3 - sceneIndex));
       arrivalInterlude.style.setProperty("--arrival-progress", String(progress));
       arrivalInterlude.style.setProperty("--arrival-progress-width", `${progress * 100}%`);
-      arrivalInterlude.style.setProperty("--arrival-landscape-y", `${-progress * 220}px`);
-      arrivalInterlude.style.setProperty("--arrival-moon-y", `${progress * 130}px`);
-      arrivalInterlude.style.setProperty("--arrival-figure-y", `${progress * 165}px`);
-      arrivalInterlude.style.setProperty("--arrival-figure-rotate", `${progress * -8}deg`);
+      arrivalInterlude.style.setProperty("--arrival-landscape-y", `${-progress * 300}px`);
+      arrivalInterlude.style.setProperty("--arrival-moon-y", `${progress * 180}px`);
       arrivalInterlude.style.setProperty("--arrival-pine-y", `${progress * 34}px`);
       arrivalInterlude.style.setProperty("--arrival-copy-y", `${-progress * 68}px`);
       // 写入 data-scene，供 CSS 按幕切换世界底图、滤镜与暗角
       arrivalInterlude.dataset.scene = String(sceneIndex + 1);
-      // 推镜：相机 / 远山 / 人物分别按不同系数缩放，形成纵深推进
+      // 推镜：相机与远山分别按不同系数缩放，形成纵深推进
       arrivalInterlude.style.setProperty("--arrival-camera-scale", String(1 + progress * 0.13));
-      arrivalInterlude.style.setProperty("--arrival-landscape-scale", String(1.18 + progress * 0.2));
-      arrivalInterlude.style.setProperty("--arrival-figure-scale", String(1.02 + progress * 0.15));
+      arrivalInterlude.style.setProperty("--arrival-landscape-scale", String(1.04 + progress * 0.16));
       arrivalInterlude.style.setProperty("--arrival-world-x", `${-progress * 48}px`);
+      // 墨韵光晕：正弦曲线渐显(行程中段最亮)，驱动 .arrival-ink-bloom 的透明度
+      arrivalInterlude.style.setProperty("--arrival-bloom", String(Math.sin(progress * Math.PI)));
+      // 水面：随进度缓慢上移，驱动 .arrival-water 的纵向位移
+      arrivalInterlude.style.setProperty("--arrival-river-y", `${progress * 110}px`);
       // 章节导航高亮：与当前幕同步 aria-pressed
       arrivalChapterButtons?.forEach((button, index) => {
         button.setAttribute("aria-pressed", String(index === sceneIndex));
@@ -445,6 +448,15 @@
       // 进度不足 90% 时「继续」按钮保持禁用，逼迫用户滚动或选择跳过
       if (arrivalEnterButton) arrivalEnterButton.disabled = progress < 0.9;
     };
+    // 指针视差：鼠标在入场段内移动时，按视口比例微调 --arrival-pointer-x/y
+    // 山景/月亮/松枝/水面/墨韵光晕的 transform 均引用该变量，形成联动视差；触屏与减弱动效不启用
+    const updateArrivalPointer = (event) => {
+      if (reducedMotion || event.pointerType === "touch") return;
+      const x = event.clientX / window.innerWidth - 0.5;
+      const y = event.clientY / window.innerHeight - 0.5;
+      arrivalInterlude.style.setProperty("--arrival-pointer-x", `${(x * 18).toFixed(1)}px`);
+      arrivalInterlude.style.setProperty("--arrival-pointer-y", `${(y * 14).toFixed(1)}px`);
+    };
     // 视差入场：显示入场段并等待用户「继续」或「跳过」，返回 Promise 供开场链路串联
     const showArrivalInterlude = () => new Promise((resolve, reject) => {
       if (!arrivalInterlude || !arrivalScroller || !arrivalEnterButton || !arrivalSkipButton) {
@@ -457,6 +469,7 @@
         if (arrivalEnterButton.disabled && document.activeElement === arrivalEnterButton) return;
         finished = true;
         arrivalScroller.removeEventListener("scroll", updateArrivalProgress);
+        arrivalScroller.removeEventListener("pointermove", updateArrivalPointer);
         arrivalEnterButton.removeEventListener("click", finish);
         arrivalSkipButton.removeEventListener("click", finish);
         arrivalInterlude.classList.add("is-leaving");
@@ -471,6 +484,7 @@
       arrivalInterlude.removeAttribute("inert");
       arrivalInterlude.classList.add("is-visible");
       arrivalScroller.addEventListener("scroll", updateArrivalProgress, { passive: true });
+      arrivalScroller.addEventListener("pointermove", updateArrivalPointer, { passive: true });
       arrivalEnterButton.addEventListener("click", finish);
       arrivalSkipButton.addEventListener("click", finish);
       // 章节导航：点击即平滑滚动到对应幕的进度位置(末幕取 0.95，确保「继续」按钮解禁)
@@ -1060,7 +1074,7 @@
     if (!dialog) return;
     const closeButton = dialog.querySelector(".memory-story-close");
     const kicker = dialog.querySelector(".memory-story-kicker");
-    const title = document.querySelector("#memory-story-title");
+    const title = dialog.querySelector("#memory-story-title");
     const content = dialog.querySelector(".memory-story-content");
     const image = dialog.querySelector(".memory-story-image"); // 弹窗内的大图(视角卡场景不显示)
     let returnFocus = null; // 记录打开弹窗的卡片，关闭后归还焦点
