@@ -535,7 +535,7 @@ body.home-page.book-opened>.site-header,body.home-page.book-opened>main,body.hom
 
 /* —— 17b. 书法飞落开场（封面翻开后的过渡序列，由脚本生成 .calligraphy-flight 元素） —— */
 /* 序列层：铺满屏幕，默认隐藏，脚本加 is-active 后显现；底色为素雅纸绿 */
-.calligraphy-sequence{position:fixed;inset:0;z-index:1001;overflow:hidden;visibility:hidden;opacity:0;pointer-events:none;background:#e8eee4;transition:opacity 1.2s ease}
+.calligraphy-sequence{position:fixed;inset:0;z-index:1001;overflow:hidden;visibility:hidden;opacity:0;pointer-events:none;background:#e8eee4;transition:opacity .4s ease}
 /* 序列层显现：脚本加 is-active 后铺满屏幕 */
 .calligraphy-sequence.is-active{visibility:visible;opacity:1}
 /* 收尾淡出：脚本加 is-revealing 后整层淡出，配合书法字淡出后揭开首页 */
@@ -554,17 +554,20 @@ body.home-page.book-opened>.site-header,body.home-page.book-opened>main,body.hom
 @media(prefers-reduced-motion:reduce){.calligraphy-sequence{display:none!important}.calligraphy-flight{animation:none!important}}
 
 /* —— 17c. 墨迹插页 ink-interlude（书法飞落之后的过渡页：水墨画布 + 居中文案） —— */
-/* 插页层：铺满全屏，默认隐藏；脚本加 is-visible 后显现，位于序列层之上、首页内容之下 */
-.ink-interlude{position:fixed;inset:0;z-index:1002;display:grid;place-items:center;overflow:hidden;opacity:0;visibility:hidden;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,#faf9f2 0%,#e8ebe2 66%,#dce3d9 100%);transition:opacity .6s ease,visibility .6s}
+/* 插页层：铺满全屏，默认隐藏；脚本加 is-visible 后显现，位于序列层之上、首页内容之下
+   说明：本版改为深色底（近墨黑 #0e0f12）+ 浅色文字，让水墨粒子在暗背景上更清晰 */
+.ink-interlude{position:fixed;inset:0;z-index:1002;overflow:hidden;display:grid;place-items:center;background:#0e0f12;color:#e8e6e1;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .6s ease,visibility .6s;will-change:opacity}
 /* 显现态：淡入并接管画面
    说明：文案层 z-index 高于画布，保证文字不被墨迹粒子淹没 */
 .ink-interlude.is-visible{opacity:1;visibility:visible}
-/* 水墨画布：铺满插页层，作为墨色晕染的绘制底板 */
-.ink-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:0}
-/* 居中文案：标题与说明，浮于画布之上 */
-.ink-interlude-content{position:relative;z-index:1;text-align:center;padding:0 8%}
-.ink-interlude-content h2{font-family:"HongLei Calligraphy",var(--serif);font-weight:400;font-size:clamp(28px,4vw,46px);line-height:1.6;letter-spacing:.08em;margin:0 0 14px;color:#293b30}
-.ink-interlude-content p{font-family:"Xuandong Kaishu",var(--serif);font-size:15px;line-height:2.1;letter-spacing:.05em;color:#4d594d;margin:0}
+/* 水墨画布：铺满插页层，作为墨色晕染的绘制底板；不拦截指针事件，保证交互不被遮挡 */
+.ink-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+/* 居中文案：标题与说明，浮于画布之上；整块 flex 居中并禁止自身选中 */
+.ink-interlude-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;padding:40px;text-align:center;pointer-events:none}
+/* 插页标题：改用衬线体并加轻微辉光，配合深色底 */
+.ink-interlude-content h2{margin:0;font-family:var(--serif);font-size:clamp(28px,4vw,48px);font-weight:500;letter-spacing:.12em;opacity:.92;text-shadow:0 0 40px rgba(0,0,0,.6)}
+/* 插页正文：限宽居中，随屏幕缩放 */
+.ink-interlude-content p{max-width:640px;margin:16px 0 0;font-size:clamp(14px,1.6vw,18px);line-height:1.8;opacity:.7}
 /* 减弱动效：插页不做淡入淡出，直接呈现 */
 @media(prefers-reduced-motion:reduce){.ink-interlude{transition:none}.ink-canvas{display:none}}
 @media(max-width:700px){.ink-interlude-content h2{font-size:26px}.ink-interlude-content p{font-size:13px}} /* 手机端：插页文案缩小 */
@@ -647,3 +650,40 @@ body.home-page.book-opened>.site-header,body.home-page.book-opened>main,body.hom
   .hero-intro{font-size:15px}.hero-verse{font-size:14px;margin-top:28px}.intro-heading p{font-size:15px}.closing p{font-size:14px}
 }
 @media(max-width:700px){.hero h1{font-size:52px}}  /* 手机端首页主标题最终字号(覆盖前面 700 块中的 48px) */
+
+/* ---------- 20. 呼吸动效区(标题入场 / 墨字呼吸 / 诗句与圆环呼吸 / 导航下划线展开 / 按压反馈 / 立体悬停) ---------- */
+/* 标题排版平衡：让多行大标题各行宽度更均匀，避免"孤字"行 */
+.hero h1,.subhero h1,.intro-heading h2,.feature-head h2,.story-lead h2,.works-heading h2,.listen-title h2,.interactive h2,.next-step h2,.closing h2,.memory-lead h2,.screen-world-heading h2{text-wrap:balance}
+/* 页面主标题入场：自下方 12px 淡入并收紧字距 */
+.hero h1,.subhero h1{animation:verse-title-arrive .85s cubic-bezier(.2,.72,.25,1) both}
+/* 标题中的重点词(em)：独立成块后做墨色呼吸辉光 */
+.hero h1 em,.subhero h1 em,.intro-heading h2 em,.feature-head h2 em,.afterlife-copy h2 em,.memory-lead h2 em,.screen-world-heading h2 em{display:inline-block;animation:ink-word-breathe 6s ease-in-out 1s infinite}
+/* 首页诗句栏：极缓的投影呼吸，营造纸面微光 */
+.hero-verse{animation:verse-line-breathe 7s ease-in-out infinite}
+/* 浮词圈与声波同心圆：整体轻微缩放呼吸 */
+.floating-verse,.sound-orbit{animation:orbit-breathe 7s ease-in-out infinite}
+/* 导航下划线：宽度变化带过渡，悬停/聚焦时展开到 19px */
+.main-nav a:after{transition:width .24s ease}
+.main-nav a:hover:after,.main-nav a:focus-visible:after{width:19px}
+/* 按钮按压反馈：点击时整体下压 1px（翻书按钮除外，避免与翻书动画冲突） */
+button:not(.book-open-button):active,.button:active{translate:0 1px}
+/* 关键帧：标题入场 */
+@keyframes verse-title-arrive{from{opacity:0;transform:translateY(12px);letter-spacing:.16em}to{opacity:1;transform:translateY(0);letter-spacing:.08em}}
+/* 关键帧：墨字呼吸（金色微光 + 透明度起伏） */
+@keyframes ink-word-breathe{0%,100%{filter:drop-shadow(0 0 0 rgba(199,170,119,0));opacity:.94}50%{filter:drop-shadow(0 0 8px rgba(199,170,119,.3));opacity:1}}
+/* 关键帧：诗句呼吸（底部投影微亮） */
+@keyframes verse-line-breathe{0%,100%{text-shadow:0 1px 0 rgba(243,243,237,.78)}50%{text-shadow:0 1px 12px rgba(169,104,76,.16)}}
+/* 关键帧：圆环呼吸（等比缩放） */
+@keyframes orbit-breathe{0%,100%{scale:1}50%{scale:1.025}}
+/* 立体悬停：仅在精确指针设备上启用，卡片轻微转动并让子元素浮起 */
+@media(hover:hover) and (pointer:fine){
+  .depth-surface{perspective:900px;transform-style:preserve-3d;transition:rotate .28s cubic-bezier(.2,.7,.25,1)}
+  .depth-surface.is-depth-active{rotate:var(--depth-rotation)}
+  .depth-surface>*{transition:translate .3s cubic-bezier(.2,.7,.25,1)}
+  .depth-surface.is-depth-active>*{translate:0 0 7px}
+}
+/* 减弱动效：关闭全部呼吸与入场动画，并取消立体悬停位移 */
+@media(prefers-reduced-motion:reduce){
+  .hero h1,.subhero h1,.hero h1 em,.subhero h1 em,.intro-heading h2 em,.feature-head h2 em,.afterlife-copy h2 em,.memory-lead h2 em,.screen-world-heading h2 em,.hero-verse,.floating-verse,.sound-orbit{animation:none}
+  .depth-surface,.depth-surface>*{transition:none;rotate:none;translate:none}
+}
