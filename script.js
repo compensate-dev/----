@@ -352,25 +352,25 @@
     const runCalligraphySequence = async (assetsReady, revealHome) => {
       const assets = await assetsReady;
       // 等待背景视频播放结束：视频不再循环，播完即进入墨迹插页
+      let backgroundVideoHasEnded = Boolean(calligraphyBackground?.ended); // 视频是否已播完
       const backgroundVideoEnded = new Promise((resolve, reject) => {
         if (!calligraphyBackground) {
           reject(new Error("The calligraphy background video is missing."));
           return;
         }
-        if (calligraphyBackground.ended) {
+        if (backgroundVideoHasEnded) {
           resolve();
           return;
         }
-        calligraphyBackground.addEventListener("ended", resolve, { once: true });
+        calligraphyBackground.addEventListener("ended", () => {
+          backgroundVideoHasEnded = true; // 标记已播完，飞落循环随之停止
+          resolve();
+        }, { once: true });
         calligraphyBackground.addEventListener("error", () => {
           reject(new Error("The calligraphy background video could not be played."));
         }, { once: true });
       });
-      const deadline = performance.now() + 5000; // 整段序列的总时长上限
-      const startedAt = performance.now();
-      const revealAt = startedAt + 4000;   // 到点揭开首页(与投放同时进行，形成交叠)
-      const stopNewFlightsAt = revealAt - 400; // 提前 400ms 停止投放新图，留出淡出缓冲
-      const scheduleSpan = 3800;           // 全部素材铺满的时间窗(毫秒)
+      const flightInterval = 180; // 两次投放之间的间隔(毫秒)，越小飞落越密集
       // 横向落点池：按素材数量在屏幕中部均分铺开再打乱；手机端收窄，避免飞出屏幕
       const positions = shuffle(
         Array.from({ length: assets.length }, (_, index) => {
@@ -379,43 +379,44 @@
           return margin + index * (spread / (assets.length - 1));
         })
       );
-      // 已投下的书法图集合：用于等待全部飞落动画结束
-      const flights = [];
-      // 逐张投放：在时间窗内等分投下，每张用内联 animationDuration 覆盖 CSS 默认时长
+      // 持续投放：每 180ms 投下一张，循环往复直到背景视频播完，形成连绵不断的书法雨
       const displayCalligraphy = async () => {
-        for (const [index, src] of shuffle(assets).entries()) {
-          const scheduledStart = startedAt + index * (scheduleSpan / (assets.length - 1));
-          const wait = scheduledStart - performance.now();
-          if (wait > 0) await new Promise((resolve) => window.setTimeout(resolve, wait));
-          // 到达停止投放的时点或总时长上限即结束，确保揭开首页时画面已经收住
-          if (performance.now() >= stopNewFlightsAt || performance.now() >= deadline) break;
-          // 最后三张为收束批：时长更久(不少于 1.8s)，落底时正好赶上首页揭开
-          const isClosingFlight = index >= assets.length - 3;
-          const minimumDuration = isClosingFlight ? 1800 : 600;
-          // 首张固定 600ms 快速掠过，形成开场第一下的干脆感
-          const duration = index === 0
-            ? 600
-            : minimumDuration + Math.random() * (3000 - minimumDuration);
+        let index = 0;
+        const shuffledAssets = shuffle(assets);
+        while (!backgroundVideoHasEnded) {
           const image = document.createElement("img");
           image.className = "calligraphy-flight";
-          image.src = src;
+          image.src = shuffledAssets[index % shuffledAssets.length];
           image.alt = "";
           image.setAttribute("aria-hidden", "true"); // 纯装饰，对读屏隐藏
           image.style.left = `${positions.pop()}%`;
+          // 落点用完后重新生成一轮，保证整段飞落始终铺满屏幕中部
+          if (!positions.length) {
+            positions.push(...shuffle(
+              Array.from({ length: assets.length }, (_, positionIndex) => {
+                const spread = window.innerWidth <= 700 ? 70 : 76;
+                const margin = (100 - spread) / 2;
+                return margin + positionIndex * (spread / (assets.length - 1));
+              })
+            ));
+          }
+          const duration = 600 + Math.random() * 2400; // 每张时长随机，避免节奏呆板
           image.style.animationDuration = `${duration}ms`;
-          flights.push(image); // 记录已投放的图，供后续等待动画结束
+          // 动画结束后自行移除，避免元素堆积
+          image.addEventListener("animationend", () => image.remove(), { once: true });
           calligraphySequence.append(image);
+          index += 1;
+          await new Promise((resolve) => window.setTimeout(resolve, flightInterval));
         }
       };
       // 书法飞落结束后：等背景视频播完 → 淡出并移除序列层 → 显现墨迹插页(4 秒) → 淡出插页 → 揭开首页
       const showInterludeAfterCalligraphy = async () => {
         await displayCalligraphyPromise;                                   // 等投放结束
-        await Promise.all(flights.map((image) => image.getAnimations()[0]?.finished.catch(() => undefined))); // 等每张书法字落底
         if (!inkInterlude) throw new Error("The ink interlude is missing.");
         await backgroundVideoEnded;                                        // 等背景视频播完
         // 先让书法飞落层整体淡出并移除，插页作为独立的过渡画面出现
         calligraphySequence.classList.add("is-revealing");
-        await new Promise((resolve) => window.setTimeout(resolve, 1200));
+        await new Promise((resolve) => window.setTimeout(resolve, 400));
         calligraphySequence.remove();
         const interludeDuration = 4000;      // 插页停留总时长
         const interludeFadeDuration = 600;   // 插页淡出预留时间
