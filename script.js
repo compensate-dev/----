@@ -121,30 +121,91 @@
     }, { once: true });
   }
 
-  /* ---------- 4. 首页翻书落地页：翻开封面(翻书向上 + 淡出) ---------- */
-  // 点击「翻开词境」：禁用按钮 → 加 is-opening 触发翻书动画 → 动画后加 is-leaving 淡出 + 给 body 加 book-opened(解除隐藏) → 移除封面
+  /* ---------- 4. 首页开场：翻书落地页 + 书法飞落序列 ---------- */
+  // 点击「翻开词境」：禁用按钮 → 加 is-opening 触发翻书动画 → 封面淡出 → 书法字依次自上而下飞落 → 淡出序列并解除首页隐藏
   const bookOpening = document.querySelector(".book-opening");
   const bookOpenButton = document.querySelector(".book-open-button");
-  if (bookOpening && bookOpenButton) {
+  const calligraphySequence = document.querySelector(".calligraphy-sequence");
+  if (bookOpening && bookOpenButton && calligraphySequence) {
+    // 书法素材库：13 张飞落图，随机抽取其中若干张
+    const calligraphyAssets = Array.from({ length: 13 }, (_, index) =>
+      `calligraphy-flight-${String(index + 1).padStart(2, "0")}.png`
+    );
+    // 随机挑选 3 张书法图，并给它们分配互不相同的横向落点
+    const chooseCalligraphy = () => {
+      const shuffled = [...calligraphyAssets];
+      // Fisher-Yates 洗牌
+      for (let index = shuffled.length - 1; index > 0; index -= 1) {
+        const swapIndex = Math.floor(Math.random() * (index + 1));
+        [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+      }
+      const positions = [18, 34, 50, 66, 82];
+      // 落点同样洗牌，避免每次都出现在相同位置
+      for (let index = positions.length - 1; index > 0; index -= 1) {
+        const swapIndex = Math.floor(Math.random() * (index + 1));
+        [positions[index], positions[swapIndex]] = [positions[swapIndex], positions[index]];
+      }
+      return shuffled.slice(0, 3).map((src, index) => ({ src, position: positions[index] }));
+    };
+    // 预加载所选书法图，全部就绪后再开始飞落，避免中途出现空图
+    const preloadCalligraphy = (assets) => Promise.all(assets.map(({ src }) => new Promise((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => resolve(src);
+      image.onerror = () => reject(new Error(`Unable to load calligraphy image: ${src}`));
+      image.src = src;
+    })));
+    // 依次播放飞落：每张等动画结束(或超时兜底)后再移除，进入下一张
+    const runCalligraphySequence = async (assets, assetsReady) => {
+      await assetsReady;
+      for (const { src, position } of assets) {
+        const image = document.createElement("img");
+        image.className = "calligraphy-flight";
+        image.src = src;
+        image.alt = "";
+        image.setAttribute("aria-hidden", "true"); // 纯装饰，对读屏隐藏
+        image.style.left = `${position}%`;
+        const flightFinished = new Promise((resolve) => {
+          const fallback = window.setTimeout(resolve, 650); // 兜底：动画事件丢失时按时继续
+          image.addEventListener("animationend", () => {
+            window.clearTimeout(fallback);
+            resolve();
+          }, { once: true });
+        });
+        calligraphySequence.append(image);
+        await flightFinished;
+        image.remove();
+      }
+    };
+    // 收尾：移除序列层与封面；body 加 book-opened 让首页内容淡入；焦点移到首屏按钮
+    const revealHome = () => {
+      calligraphySequence.remove();
+      bookOpening.remove();
+      document.body.classList.add("book-opened");
+      document.querySelectorAll("header[inert], main[inert], footer[inert], audio[inert]").forEach((element) => element.removeAttribute("inert"));
+      window.setTimeout(() => document.querySelector(".hero-actions a")?.focus({ preventScroll: true }), reducedMotion ? 0 : 550);
+    };
     bookOpenButton.addEventListener("click", () => {
       bookOpenButton.disabled = true;
-      // 收尾：封面淡出并移除；body 加 book-opened 让首页内容(由 CSS 隐藏)淡入可见
-      const finishOpening = () => {
-        bookOpening.classList.add("is-leaving");    // 触发 CSS 淡出(封面整体 opacity→0)
-        document.body.classList.add("book-opened"); // 解除 body.home-page:not(.book-opened) 对页头/主体的隐藏
-        // 若 HTML 仍带 inert，一并解除(兼容旧结构)；无则无副作用
-        document.querySelectorAll("header[inert], main[inert], footer[inert], audio[inert]").forEach((element) => element.removeAttribute("inert"));
-        window.setTimeout(() => {
-          bookOpening.remove(); // 淡出后彻底移除封面遮罩
-          document.querySelector(".hero-actions a")?.focus({ preventScroll: true }); // 焦点移到首屏按钮
-        }, reducedMotion ? 0 : 400); // 减弱动效则立即可移除
-      };
       if (reducedMotion) {
-        finishOpening(); // 减弱动效：跳过翻书动画直接收尾
+        revealHome(); // 减弱动效：跳过整段开场，直接进入首页
         return;
       }
-      bookOpening.classList.add("is-opening"); // 触发 CSS 翻书动画(book-page-turn-up，1.05s)
-      window.setTimeout(finishOpening, 1100);  // 等翻书动画结束后收尾
+      const selectedCalligraphy = chooseCalligraphy();
+      const assetsReady = preloadCalligraphy(selectedCalligraphy);
+      bookOpening.classList.add("is-opening"); // 触发 CSS 翻书动画(book-page-turn-up，0.5s)
+      window.setTimeout(() => {
+        bookOpening.classList.add("is-leaving");    // 封面淡出
+        calligraphySequence.classList.add("is-active"); // 显现书法飞落层
+        window.setTimeout(() => bookOpening.remove(), 180); // 淡出后彻底移除封面
+        runCalligraphySequence(selectedCalligraphy, assetsReady).then(() => {
+          calligraphySequence.classList.add("is-fading"); // 序列播完，整体淡出
+          window.setTimeout(revealHome, 180);
+        }).catch((error) => {
+          // 素材加载失败也要保证能进入首页，不阻断浏览
+          console.error("The calligraphy intro could not be completed.", error);
+          revealHome();
+        });
+      }, 500);
     });
   }
 
