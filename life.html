@@ -1,7 +1,7 @@
 <!doctype html>
 <!-- 一江春水 · 李煜词境 — 词人故事页 / life.html -->
 <html lang="zh-CN">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#e8eee4"><title>词人故事 · 一江春水</title><link rel="stylesheet" href="style.css"><script src="script.js" defer></script></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#e8eee4"><title>春水留痕·后主词境</title><link rel="stylesheet" href="style.css"><script src="script.js" defer></script></head>
 <body>
   <!-- 页头：品牌 + 主导航(当前页高亮「词人故事」) + 声音开关 + 音量 -->
   <header class="site-header"><a class="brand" href="index.html"><span class="brand-seal">煜</span><span>一江春水<small>李煜词境 · 南唐旧梦</small></span></a><button class="menu-toggle" aria-label="打开导航" aria-expanded="false">☰</button><nav class="main-nav" aria-label="主导航"><a href="index.html">首页</a><a class="active" href="life.html">词人故事</a><a href="ci.html">词作笺赏</a><a href="wanxiang.html">词容万象</a><a href="listen.html">听词入梦</a></nav><div class="sound-controls"><button class="sound-toggle" type="button" aria-label="关闭背景音乐" aria-pressed="true"><span class="sound-icon">♫</span><span class="sound-status">音乐开启</span></button><label class="volume-control"><span class="visually-hidden">背景音乐音量</span><input class="volume-slider" type="range" min="0" max="1" step="0.01" value="0.32"></label></div></header>
@@ -10,17 +10,17 @@
     <!-- 区块一：首屏。背景视频 + 标题与引导文案 -->
     <section class="subhero life-hero"><video class="life-hero-video" autoplay muted loop playsinline preload="metadata" aria-hidden="true" tabindex="-1"><source src="life-hero.mp4" type="video/mp4"></video><div class="subhero-copy"><p class="eyebrow">A LIFE IN VERSE · 02</p><h1>半生帝王梦，<br><em>一阕</em>故国词。</h1><p>生于锦绣，终于囚居。命运的转折，成就了词史上最深的一声叹息。</p><a class="button button-dark" href="#timeline">沿时间读他的故事 <span>↓</span></a></div></section>
 
-    <!-- 区块二：生平时间线。四个关键年份(937 / 961 / 975 / 978) -->
+    <!-- 区块二：生平时间线。四个关键年份(937 / 961 / 975 / 978)，每张卡片可点击展开完整故事 -->
     <section class="story section-wrap">
       <div class="timeline" id="timeline">
         <!-- 937：金陵初生 -->
-        <article class="timeline-item"><span class="timeline-year">937</span><div class="timeline-dot"></div><div class="timeline-card"><span class="timeline-label">金陵 · 初生</span><h3>生于南唐，长于宫苑</h3><p>李煜出生于南唐都城金陵。自幼喜爱诗书、音乐与书画，性情温厚敏感。宫苑的繁华与细腻的艺术修养，成为早期词作中绮丽风格的底色。</p><span class="timeline-quote">“晚妆初了明肌雪，春殿嫔娥鱼贯列。”</span></div></article>
+        <article class="timeline-item"><span class="timeline-year">937</span><div class="timeline-dot"></div><div class="timeline-card" role="button" tabindex="0" aria-haspopup="dialog" aria-label="展开李煜出生与南唐宫廷生活的故事"><span class="timeline-label">金陵 · 初生</span><h3>生于南唐，长于宫苑</h3><p>李煜出生于南唐都城金陵。自幼喜爱诗书、音乐与书画，性情温厚敏感。宫苑的繁华与细腻的艺术修养，成为早期词作中绮丽风格的底色。</p><span class="timeline-quote">“晚妆初了明肌雪，春殿嫔娥鱼贯列。”</span><span class="timeline-open-hint">点击展开故事 <span aria-hidden="true">↗</span></span></div></article>
         <!-- 961：南唐即位 -->
-        <article class="timeline-item"><span class="timeline-year">961</span><div class="timeline-dot"></div><div class="timeline-card"><span class="timeline-label">南唐 · 即位</span><h3>仓促登上帝位</h3><p>李煜继位后，南唐已处在宋的强势之下。他偏爱艺术与清雅生活，却不得不面对日渐逼近的政治危局。词中仍可见宴游、离情与宫廷生活的柔美。</p><span class="timeline-quote">“晚妆初了明肌雪，春殿嫔娥鱼贯列。”</span></div></article>
+        <article class="timeline-item"><span class="timeline-year">961</span><div class="timeline-dot"></div><div class="timeline-card" role="button" tabindex="0" aria-haspopup="dialog" aria-label="展开李煜继位与南唐局势的故事"><span class="timeline-label">南唐 · 即位</span><h3>仓促登上帝位</h3><p>李煜继位后，南唐已处在宋的强势之下。他偏爱艺术与清雅生活，却不得不面对日渐逼近的政治危局。词中仍可见宴游、离情与宫廷生活的柔美。</p><span class="timeline-quote">“晚妆初了明肌雪，春殿嫔娥鱼贯列。”</span><span class="timeline-open-hint">点击展开故事 <span aria-hidden="true">↗</span></span></div></article>
         <!-- 975：金陵城破 -->
-        <article class="timeline-item"><span class="timeline-year">975</span><div class="timeline-dot"></div><div class="timeline-card"><span class="timeline-label">金陵 · 城破</span><h3>故国山河，一朝易主</h3><p>宋军攻下金陵，南唐灭亡。李煜被俘北上，封违命侯。从君主到囚徒，生活骤变，昔日宫阙成为再也回不去的旧梦，词风也随之转向沉郁。</p><span class="timeline-quote">“最是仓皇辞庙日，教坊犹奏别离歌。”</span></div></article>
+        <article class="timeline-item"><span class="timeline-year">975</span><div class="timeline-dot"></div><div class="timeline-card" role="button" tabindex="0" aria-haspopup="dialog" aria-label="展开金陵陷落与李煜被俘的故事"><span class="timeline-label">金陵 · 城破</span><h3>故国山河，一朝易主</h3><p>宋军攻下金陵，南唐灭亡。李煜被俘北上，封违命侯。从君主到囚徒，生活骤变，昔日宫阙成为再也回不去的旧梦，词风也随之转向沉郁。</p><span class="timeline-quote">“最是仓皇辞庙日，教坊犹奏别离歌。”</span><span class="timeline-open-hint">点击展开故事 <span aria-hidden="true">↗</span></span></div></article>
         <!-- 978：汴京绝唱 -->
-        <article class="timeline-item"><span class="timeline-year">978</span><div class="timeline-dot"></div><div class="timeline-card"><span class="timeline-label">汴京 · 绝唱</span><h3>春水东流，词心不朽</h3><p>囚居汴京期间，李煜写下《虞美人》等名篇。春花秋月触动对故国的追忆，一江春水成为无尽愁绪的比喻。他的一生止于四十二岁，词却越过千年仍能抵达读者心中。</p><span class="timeline-quote">“问君能有几多愁？恰似一江春水向东流。”</span></div></article>
+        <article class="timeline-item"><span class="timeline-year">978</span><div class="timeline-dot"></div><div class="timeline-card" role="button" tabindex="0" aria-haspopup="dialog" aria-label="展开李煜汴京囚居与词作绝唱的故事"><span class="timeline-label">汴京 · 绝唱</span><h3>春水东流，词心不朽</h3><p>囚居汴京期间，李煜写下《虞美人》等名篇。春花秋月触动对故国的追忆，一江春水成为无尽愁绪的比喻。他的一生止于四十二岁，词却越过千年仍能抵达读者心中。</p><span class="timeline-quote">“问君能有几多愁？恰似一江春水向东流。”</span><span class="timeline-open-hint">点击展开故事 <span aria-hidden="true">↗</span></span></div></article>
       </div>
     </section>
 
@@ -29,6 +29,9 @@
 
     <!-- 区块四：下一页引导。跳到词作笺赏 -->
     <section class="next-step section-wrap"><div><span class="section-kicker">NEXT <span>READ HIS WORDS</span></span><h2>人生的波折，<br>在词里有了回声。</h2></div><a class="button button-dark" href="ci.html">去读词作笺赏 <span>↗</span></a></section>
+
+    <!-- 故事弹窗：点击时间线卡片后由 script.js 填充年代、标题与正文，并以原生模态方式打开 -->
+    <dialog class="timeline-story-dialog" aria-labelledby="timeline-story-title"><button class="timeline-story-close" type="button" aria-label="关闭故事">×</button><span class="timeline-story-kicker"></span><h2 id="timeline-story-title"></h2><div class="timeline-story-content"></div><p class="timeline-story-note">史实叙述以可考史料为准；词句解读为文学赏析。</p></dialog>
   </main>
 
   <!-- 页脚 -->

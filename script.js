@@ -4,7 +4,9 @@
 //   3) 背景音乐(开关 / 音量 / 进度记忆)
 //   4) 首页翻书落地页(翻开封面)
 //   5) 无刷新翻页(水波过渡 + SPA 式导航，含 file:// 回退)
-//   6) 页面内交互(语音诵读 / 收藏 / 字数统计 / 心情与填词表单)
+//   6) 阅读进度条 / 返回顶部 / 滚动渐显
+//   7) 时间线故事弹窗(点击时间线卡片展开长篇故事)
+//   8) 页面内交互(语音诵读 / 收藏 / 字数统计 / 心情与填词表单)
 
 (() => {
   // 是否开启“减弱动效”偏好：开启后跳过花瓣、水波等动画
@@ -263,9 +265,201 @@
     if (location.protocol !== "file:" && location.pathname.endsWith(".html")) navigateTo(new URL(location.href), false);
   });
 
-  /* ---------- 6. 页面内交互(每次换页后重新初始化) ---------- */
+  /* ---------- 6. 阅读进度条 / 返回顶部 / 滚动渐显 ---------- */
+  // IntersectionObserver 实例(换页后需重新接管新的目标元素)
+  let revealObserver;
+  // 进度条与返回顶部按钮只绑定一次滚动监听(避免换页后重复叠加)
+  let scrollUiInitialized = false;
+  const initializeScrollInteractions = () => {
+    // 顶部阅读进度条：不存在则动态创建
+    let progress = document.querySelector(".reading-progress");
+    let topButton = document.querySelector(".back-to-top");
+    if (!progress) {
+      progress = document.createElement("div");
+      progress.className = "reading-progress";
+      progress.setAttribute("aria-hidden", "true");
+      document.body.append(progress);
+    }
+    // 右下角返回顶部按钮：不存在则动态创建并绑定点击
+    if (!topButton) {
+      topButton = document.createElement("button");
+      topButton.className = "back-to-top";
+      topButton.type = "button";
+      topButton.setAttribute("aria-label", "回到页面顶部");
+      topButton.title = "回到页面顶部";
+      topButton.textContent = "↑";
+      topButton.hidden = true;
+      document.body.append(topButton);
+      topButton.addEventListener("click", () => window.scrollTo({ top: 0, behavior: reducedMotion ? "auto" : "smooth" }));
+    }
+    // 滚动监听只装一次：用 requestAnimationFrame 节流，避免高频重排
+    if (!scrollUiInitialized) {
+      let scrollTicking = false;
+      const updateScrollUi = () => {
+        const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+        // 进度条按已滚动比例横向缩放
+        progress.style.transform = `scaleX(${scrollable > 0 ? window.scrollY / scrollable : 0})`;
+        // 滚动超过 420px 才显示返回顶部按钮
+        topButton.hidden = window.scrollY < 420;
+        scrollTicking = false;
+      };
+      window.addEventListener("scroll", () => {
+        if (!scrollTicking) {
+          window.requestAnimationFrame(updateScrollUi);
+          scrollTicking = true;
+        }
+      }, { passive: true });
+      window.addEventListener("resize", updateScrollUi);
+      scrollUiInitialized = true;
+      updateScrollUi();
+    }
+
+    // 换页后先断开旧的观察器，再对新的卡片重新观察
+    revealObserver?.disconnect();
+    // 需要渐显的卡片类型：时间线、词作、诵读、媒体卡、记忆条目、词条、首页导语卡
+    const revealTargets = document.querySelectorAll(".timeline-item, .poem-card, .recite-card, .media-card, .memory-line article, .work-entry, .intro-card");
+    // 减弱动效或浏览器不支持时：直接全部显示
+    if (reducedMotion || !("IntersectionObserver" in window)) {
+      revealTargets.forEach((element) => element.classList.add("is-visible"));
+      return;
+    }
+    revealObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target); // 只需触发一次
+        }
+      });
+    }, { threshold: 0.12 });
+    revealTargets.forEach((element, index) => {
+      element.classList.add("reveal-on-scroll");
+      // 同组内按序错开 0/75/150ms 延迟，形成自然的层叠入场
+      element.style.setProperty("--reveal-delay", `${(index % 3) * 75}ms`);
+      revealObserver.observe(element);
+    });
+  };
+
+  /* ---------- 7. 时间线故事弹窗(点击卡片展开长篇故事) ---------- */
+  // 四段生平故事的完整文本：与时间线上的年份卡片一一对应
+  const timelineStories = [
+    {
+      period: "937 · 金陵",
+      title: "生于南唐，长于宫苑",
+      paragraphs: [
+        "李煜生于南唐都城金陵，初名从嘉。南唐承接江南文脉，宫廷中诗书、音乐、书画相互滋养；他自幼浸润其中，逐渐显露出对文学与艺术的敏锐感受。",
+        "他并非以治国抱负闻名的储君形象。后世记述常以温和、好学、多才来描绘他，但其少年生活的具体细节并不都能确证。可以确定的是，南唐宫廷的审美经验，为他早期词作提供了熟悉的场景与声色。",
+        "《玉楼春》等作品写宫廷宴乐、妆饰与春夜，语言明丽，意象细密。读这些词，可以看到一位熟悉宫廷生活的创作者；也能看出他后来转向故国之思之前，词艺已相当成熟。"
+      ],
+      poem: "晚妆初了明肌雪，春殿嫔娥鱼贯列。",
+      poemNote: "《玉楼春》"
+    },
+    {
+      period: "961 · 南唐",
+      title: "仓促登上帝位",
+      paragraphs: [
+        "961年，李煜继位，成为南唐后主。此时北方宋朝日益强盛，南唐处境受到挤压。新君面对的不只是宫廷事务，也包括如何在强邻压力下维持政权。",
+        "李煜在位期间，南唐对宋采取称臣、纳贡等方式求取喘息空间。关于他的政治决断，后世评价不一；若回到当时局势，便能看见一个文化气息浓厚的江南政权，正处在不断收缩的时代夹缝中。",
+        "早期词作多写宴饮、歌舞、离情与宫廷生活，风格婉丽。《玉楼春》中的春殿与嫔娥，并非单纯的繁华装饰，也保存了南唐宫廷日常审美的一角。"
+      ],
+      poem: "晚妆初了明肌雪，春殿嫔娥鱼贯列。",
+      poemNote: "《玉楼春》"
+    },
+    {
+      period: "975 · 金陵",
+      title: "故国山河，一朝易主",
+      paragraphs: [
+        "975年，宋军攻取金陵，南唐灭亡。李煜出降后被带往北方，结束了作为一国之君的生活。对于宫城、宗庙与旧日臣民而言，这是政权更替；对李煜个人而言，则是身份、居所与生活秩序同时断裂。",
+        "后来的词作把这种巨变写成可以感知的细节：离开宗庙时的仓皇、梦中不知身为客、凭栏时望不尽的江山。作品并不是史书式的战事记录，而是把失去之后的记忆与情绪留在词句中。",
+        "《破阵子》追写离开金陵的场景，短短数句让告别的仓促与哀痛凝在一起。读者由此听见的，不只是一个君主的失国，也是一个人回望故园时无从挽回的怅惘。"
+      ],
+      poem: "最是仓皇辞庙日，教坊犹奏别离歌。",
+      poemNote: "《破阵子·四十年来家国》"
+    },
+    {
+      period: "978 · 汴京",
+      title: "春水东流，词心不朽",
+      paragraphs: [
+        "被俘之后，李煜居于汴京。远离金陵的日子里，故国不再是眼前的疆土，而成为记忆、梦境与词中的意象。后期作品因此呈现出更深的身世之感，也将个人愁绪写成读者能够共感的生命经验。",
+        "《虞美人》以春花秋月起兴，从追问往事写到故国不堪回首，最后把愁绪比作东流春水。它没有铺陈繁复典故，而用日常可见的季节、月色与流水，形成绵延不尽的情感力量。",
+        "李煜于978年在汴京去世，年四十二（传统虚岁说法）。关于其生命终结的具体经过，史籍记载与后世叙述并不完全一致；不宜把传闻当作定论。可以确定的是，他的词作跨越了南唐兴亡，持续影响后世词体与读者。"
+      ],
+      poem: "问君能有几多愁？恰似一江春水向东流。",
+      poemNote: "《虞美人·春花秋月何时了》"
+    }
+  ];
+
+  // 弹窗关闭后把焦点还给触发卡片(无障碍：焦点不丢失)
+  let timelineReturnFocus = null;
+  const initializeTimelineStories = () => {
+    const dialog = document.querySelector(".timeline-story-dialog");
+    if (!dialog) return;
+    const closeButton = dialog.querySelector(".timeline-story-close");
+    const kicker = dialog.querySelector(".timeline-story-kicker");
+    const title = dialog.querySelector("#timeline-story-title");
+    const content = dialog.querySelector(".timeline-story-content");
+    // 弹窗自身的关闭行为只绑定一次(用 data 标记，换页重绑也不会重复)
+    if (dialog.dataset.initialized !== "true") {
+      const closeStory = () => {
+        if (dialog.open) dialog.close();
+      };
+      closeButton.addEventListener("click", closeStory);
+      // 点击背板(弹窗本体以外区域)也可关闭
+      dialog.addEventListener("click", (event) => {
+        if (event.target === dialog) closeStory();
+      });
+      // Esc 键关闭
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && dialog.open) {
+          event.preventDefault();
+          closeStory();
+        }
+      });
+      // 关闭后把焦点还给来时的卡片
+      dialog.addEventListener("close", () => {
+        if (timelineReturnFocus?.isConnected) timelineReturnFocus.focus({ preventScroll: true });
+      });
+      dialog.dataset.initialized = "true";
+    }
+    // 每张时间线卡片按索引对应一段故事：点击或按 Enter / 空格展开
+    document.querySelectorAll(".timeline-card[aria-haspopup='dialog']").forEach((card, index) => {
+      const openStory = () => {
+        const story = timelineStories[index];
+        if (!story) return;
+        timelineReturnFocus = card;
+        kicker.textContent = story.period;   // 年代 · 地点
+        title.textContent = story.title;     // 故事标题
+        content.replaceChildren();           // 清空旧内容，避免换页后残留
+        story.paragraphs.forEach((text) => {
+          const paragraph = document.createElement("p");
+          paragraph.textContent = text;
+          content.append(paragraph);
+        });
+        const quote = document.createElement("blockquote");
+        quote.textContent = `“${story.poem}”`;
+        const attribution = document.createElement("span");
+        attribution.className = "timeline-story-attribution";
+        attribution.textContent = story.poemNote;
+        content.append(quote, attribution);
+        dialog.showModal();                  // 原生模态弹窗(自带焦点陷阱与 ::backdrop)
+        closeButton.focus();
+      };
+      card.addEventListener("click", openStory);
+      card.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          openStory();
+        }
+      });
+    });
+  };
+
+  /* ---------- 8. 页面内交互(每次换页后重新初始化) ---------- */
   function initializePageContent() {
-    // 6a. 语音诵读(为我诵读)
+    // 8a. 滚动进度条 / 返回顶部 / 渐显入场
+    initializeScrollInteractions();
+    // 8b. 时间线故事弹窗绑定
+    initializeTimelineStories();
+    // 8c. 语音诵读(为我诵读)
     let speaking = false;
     document.querySelectorAll(".read-aloud").forEach((button) => {
       button.addEventListener("click", () => {
@@ -284,7 +478,7 @@
       });
     });
 
-    // 6b. 收藏按钮(按索引分别记忆到 localStorage)
+    // 8d. 收藏按钮(按索引分别记忆到 localStorage)
     document.querySelectorAll(".favorite-button").forEach((button, index) => {
       const key = `liyu-favorite-${index}`;
       const saved = localStorage.getItem(key) === "true";
@@ -298,7 +492,7 @@
       });
     });
 
-    // 6c. 字数计数器(心情 / 写句共用)：实时显示 “已输入 / 上限”
+    // 8e. 字数计数器(心情 / 写句共用)：实时显示 “已输入 / 上限”
     const setupCounter = (fieldId, countId, max) => {
       const field = document.getElementById(fieldId);
       const count = document.getElementById(countId);
@@ -310,7 +504,7 @@
     setupCounter("mood", "mood-count", 80);
     setupCounter("my-line", "line-count", 100);
 
-    // 6d. 首页“此刻心情”表单提交
+    // 8f. 首页“此刻心情”表单提交
     document.querySelector(".mood-form")?.addEventListener("submit", (event) => {
       event.preventDefault();
       const field = document.getElementById("mood");
@@ -324,7 +518,7 @@
       field.value = "";
       document.getElementById("mood-count").textContent = "0 / 80";
     });
-    // 6e. 互动区：点击提示词直接填入“写一句”
+    // 8g. 互动区：点击提示词直接填入“写一句”
     document.querySelectorAll(".prompt-words button").forEach((button) => {
       button.addEventListener("click", () => {
         const field = document.getElementById("my-line");
@@ -333,17 +527,17 @@
         field.dispatchEvent(new Event("input", { bubbles: true })); // 触发字数刷新
       });
     });
-    // 6f. 互动区“写一句”表单提交
+    // 8h. 互动区“写一句”表单提交
     document.querySelector(".poem-form")?.addEventListener("submit", (event) => {
       event.preventDefault();
       const field = document.getElementById("my-line");
       const feedback = document.querySelector(".poem-feedback");
       if (!field.value.trim()) {
-        feedback.textContent = "先写一句心情，再让花瓣带走它。";
+        feedback.textContent = "先写下一句心情，再让涟漪带走它。";
         field.focus();
         return;
       }
-      feedback.textContent = `“${field.value.trim()}” —— 已随花瓣飘入词境。`;
+      feedback.textContent = `“${field.value.trim()}” —— 已随涟漪融入词境。`;
       field.value = "";
       document.getElementById("line-count").textContent = "0 / 100";
     });
