@@ -147,7 +147,7 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}      /* 标题中强调字用�
 .afterlife-copy{display:flex;align-items:end;justify-content:space-between;gap:34px;max-width:900px;margin:48px 0 0 9%} /* 文案 + 按钮左右排布，左侧 9% 起排 */
 .afterlife-copy h2{font-size:clamp(34px,4.3vw,56px);line-height:1.55;font-weight:500;letter-spacing:.08em;margin:0 0 13px;color:#29372c;text-shadow:0 1px 18px rgba(255,255,245,.72)}
 .afterlife-copy h2 em{font-style:normal;color:#755b3f} /* 标题中强调字用赭黄 */
-.afterlife-copy p{max-width:500px;margin:0;color:#4f594e;font-size:13px;line-height:2.1;text-shadow:0 1px 14px rgba(255,255,245,.85)}
+.afterlife-copy p{max-width:500px;margin:0;color:#4f594e;font-size:13px;line-height:2.1;text-shadow:0 1px 14px rgba(255,255,255,.85)}
 .afterlife-copy .button{flex-shrink:0;box-shadow:0 3px 18px rgba(255,255,245,.48)} /* 行动按钮：不伸缩 + 浅色投影 */
 .closing{position:relative;isolation:isolate;padding-top:108px;padding-bottom:110px;display:grid;grid-template-columns:.35fr 1fr .85fr;gap:45px;align-items:center}  /* 建立定位上下文 + 隔离层叠，使 ::before 背景图收敛到本区块 */
 .closing:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(rgba(238,240,232,.14),rgba(238,240,232,.14)),url("closing-background.jpg") center 54%/cover no-repeat;opacity:.56} /* 结语整屏背景图 + 极淡纸色叠层（透明度 .7→.56 调淡），z-index:-1 沉到文字之下 */
@@ -215,27 +215,18 @@ textarea::placeholder{color:#9aa297}
 .wanxiang-hero .button{margin-top:15px}
 .wanxiang-mark{position:absolute;right:3%;top:13%;z-index:1;color:rgba(169,104,76,.14);font-size:clamp(65px,9vw,130px);line-height:1.1;writing-mode:vertical-rl;letter-spacing:.18em;pointer-events:none} /* 大字水印 */
 .memory-section{padding-top:100px;padding-bottom:106px}
-.memory-section>.section-kicker,.many-mirrors .section-kicker{margin-bottom:28px}
+.memory-section>.section-kicker{margin-bottom:28px}
 .memory-lead{display:grid;grid-template-columns:1fr 1fr;gap:9%;padding-left:18%;align-items:start}
-.memory-lead h2,.mirrors-heading h2{font-size:clamp(30px,3.1vw,42px);line-height:1.65;font-weight:500;letter-spacing:.06em;margin:0}
-.memory-lead p,.mirrors-heading>p{font-size:13px;line-height:2.2;color:#68766b;margin:9px 0 0;max-width:470px}
+.memory-lead h2{font-size:clamp(30px,3.1vw,42px);line-height:1.65;font-weight:500;letter-spacing:.06em;margin:0}
+.memory-lead p{font-size:13px;line-height:2.2;color:#68766b;margin:9px 0 0;max-width:470px}
 .memory-line{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin:54px 0 0 18%}
 .memory-line article{position:relative;min-height:225px;padding:25px 24px 23px;background:rgba(255,255,255,.39);border-top:1px solid #c5cfc3;box-shadow:0 8px 24px rgba(49,67,53,.045)}
 .memory-line article:before{content:"";position:absolute;width:7px;height:7px;border-radius:50%;top:-4px;left:23px;background:var(--rust);box-shadow:0 0 0 4px var(--paper)} /* 卡顶红点 */
-.memory-line article>span,.mirror-card>span{font:9px var(--sans);letter-spacing:.13em;color:#9c654d}
+.memory-line article>span{font:9px var(--sans);letter-spacing:.13em;color:#9c654d}
 .memory-line h3{font-size:20px;font-weight:500;letter-spacing:.08em;margin:14px 0 9px}
 .memory-line p{font-size:12px;line-height:2.05;color:#6c776b;min-height:75px;margin:0 0 13px}
 .memory-line a{font:10px var(--sans);letter-spacing:.04em;color:var(--pine);border-bottom:1px solid #bec8ba;padding-bottom:4px}
 .memory-line a span{color:var(--rust);margin-left:7px}
-.many-mirrors{padding:92px 0 105px;background:linear-gradient(130deg,#e8ebe3,#dfe6dc)}
-.mirrors-heading{display:flex;align-items:end;justify-content:space-between;margin-left:18%;margin-bottom:35px}
-.mirrors-heading>p{max-width:350px;margin:0 4% 6px 25px}
-.mirror-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-left:18%}
-.mirror-card{position:relative;min-height:250px;padding:26px 25px 24px;background:rgba(247,247,240,.67);border:1px solid rgba(134,151,131,.25);transition:transform .25s,box-shadow .25s}
-.mirror-card:hover{transform:translateY(-5px);box-shadow:0 14px 28px rgba(48,77,63,.1)}
-.mirror-card h3{font-weight:500;font-size:23px;letter-spacing:.12em;margin:25px 0 10px}
-.mirror-card p{font-size:12px;line-height:2.1;color:#68766b;min-height:80px;margin:0 0 14px}
-.mirror-card em{font-style:normal;font-size:12px;letter-spacing:.06em;color:#9a6149}
 .screen-world{position:relative;isolation:isolate;padding-top:100px;padding-bottom:95px;background:#eef0e9}  /* 建立隔离层叠上下文 + 满铺纸色底，使 ::before 背景图沉到内容之下 */
 .screen-world:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(rgba(243,243,237,.54),rgba(243,243,237,.64)),url("screen-world-background.jpg") center 46%/cover no-repeat}  /* 影视游戏区背景图叠层 */
 .screen-world>.section-kicker{margin-bottom:28px}
@@ -488,8 +479,8 @@ body.home-page.book-opened>.site-header,body.home-page.book-opened>main,body.hom
 /* —— 18a. 词容万象页响应式补充 —— */
 @media(max-width:900px){
   .wanxiang-hero{padding-top:60px;padding-bottom:60px}
-  .memory-line,.mirror-grid{margin-left:8%}
-  .memory-lead,.mirrors-heading{padding-left:8%;margin-left:0}
+  .memory-line{margin-left:8%}
+  .memory-lead{padding-left:8%;margin-left:0}
   .screen-world-heading,.media-grid{margin-left:8%}
   .screen-world-footnote{margin-left:8%}
   .screen-world-summary{margin-left:8%}
@@ -501,18 +492,11 @@ body.home-page.book-opened>.site-header,body.home-page.book-opened>main,body.hom
   .wanxiang-mark{right:3%;top:45%;font-size:54px}
   .memory-section{padding-top:68px;padding-bottom:72px}
   .memory-lead{display:block;padding-left:0}
-  .memory-lead h2,.mirrors-heading h2{font-size:29px}
+  .memory-lead h2{font-size:29px}
   .memory-lead p{margin-top:17px}
   .memory-line{grid-template-columns:1fr;margin:34px 0 0 8px;gap:12px}
   .memory-line article{min-height:0;padding:22px}
   .memory-line p{min-height:0}
-  .many-mirrors{padding:67px 0 72px}
-  .mirrors-heading{display:block;padding-left:0;margin:0 0 27px}
-  .mirrors-heading>p{margin:12px 0 0}
-  .mirror-grid{grid-template-columns:1fr;margin-left:0;gap:11px}
-  .mirror-card{min-height:0;padding:22px}
-  .mirror-card h3{margin:16px 0 8px}
-  .mirror-card p{min-height:0}
   .screen-world{padding-top:68px;padding-bottom:70px}
   .screen-world-heading{display:block;padding-left:0;margin:0 0 25px}
   .screen-world-heading h2{font-size:29px}
