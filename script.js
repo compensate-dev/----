@@ -122,22 +122,52 @@
   }
 
   /* ---------- 4. 首页开场：翻书落地页 + 书法飞落序列 ---------- */
+<<<<<<< HEAD
   // 点击「翻开词境」：禁用按钮 → 加 is-opening 触发翻书动画 → 封面淡出 → 书法字持续随机飞落(约 5 秒) → 序列淡出并解除首页隐藏
+=======
+  // 点击「翻开词境」：禁用按钮 → 加 is-opening 触发翻书动画 → 封面淡出 → 书法字依次自上而下飞落 → 淡出序列并解除首页隐藏
+>>>>>>> 1a897d94a1ef15fbbbf2be8818269088aed718a7
   const bookOpening = document.querySelector(".book-opening");
   const bookOpenButton = document.querySelector(".book-open-button");
   const calligraphySequence = document.querySelector(".calligraphy-sequence");
   if (bookOpening && bookOpenButton && calligraphySequence) {
+<<<<<<< HEAD
     // 书法素材库：13 张飞落图，序列期间可反复取用
     const calligraphyAssets = Array.from({ length: 13 }, (_, index) =>
       `calligraphy-flight-${String(index + 1).padStart(2, "0")}.png`
     );
     // 预加载全部书法图：任一张缺失即 reject，交给 catch 分支兜底进入首页
     const preloadCalligraphy = () => Promise.all(calligraphyAssets.map((src) => new Promise((resolve, reject) => {
+=======
+    // 书法素材库：13 张飞落图，随机抽取其中若干张
+    const calligraphyAssets = Array.from({ length: 13 }, (_, index) =>
+      `calligraphy-flight-${String(index + 1).padStart(2, "0")}.png`
+    );
+    // 随机挑选 3 张书法图，并给它们分配互不相同的横向落点
+    const chooseCalligraphy = () => {
+      const shuffled = [...calligraphyAssets];
+      // Fisher-Yates 洗牌
+      for (let index = shuffled.length - 1; index > 0; index -= 1) {
+        const swapIndex = Math.floor(Math.random() * (index + 1));
+        [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+      }
+      const positions = [18, 34, 50, 66, 82];
+      // 落点同样洗牌，避免每次都出现在相同位置
+      for (let index = positions.length - 1; index > 0; index -= 1) {
+        const swapIndex = Math.floor(Math.random() * (index + 1));
+        [positions[index], positions[swapIndex]] = [positions[swapIndex], positions[index]];
+      }
+      return shuffled.slice(0, 3).map((src, index) => ({ src, position: positions[index] }));
+    };
+    // 预加载所选书法图，全部就绪后再开始飞落，避免中途出现空图
+    const preloadCalligraphy = (assets) => Promise.all(assets.map(({ src }) => new Promise((resolve, reject) => {
+>>>>>>> 1a897d94a1ef15fbbbf2be8818269088aed718a7
       const image = new Image();
       image.onload = () => resolve(src);
       image.onerror = () => reject(new Error(`Unable to load calligraphy image: ${src}`));
       image.src = src;
     })));
+<<<<<<< HEAD
     // Fisher-Yates 洗牌：返回新数组，不改动原数组
     const shuffle = (items) => {
       const shuffled = [...items];
@@ -199,6 +229,29 @@
       // 补足剩余时间，让最后一轮也完整落下
       const remaining = deadline - performance.now();
       if (remaining > 0) await new Promise((resolve) => window.setTimeout(resolve, remaining));
+=======
+    // 依次播放飞落：每张等动画结束(或超时兜底)后再移除，进入下一张
+    const runCalligraphySequence = async (assets, assetsReady) => {
+      await assetsReady;
+      for (const { src, position } of assets) {
+        const image = document.createElement("img");
+        image.className = "calligraphy-flight";
+        image.src = src;
+        image.alt = "";
+        image.setAttribute("aria-hidden", "true"); // 纯装饰，对读屏隐藏
+        image.style.left = `${position}%`;
+        const flightFinished = new Promise((resolve) => {
+          const fallback = window.setTimeout(resolve, 650); // 兜底：动画事件丢失时按时继续
+          image.addEventListener("animationend", () => {
+            window.clearTimeout(fallback);
+            resolve();
+          }, { once: true });
+        });
+        calligraphySequence.append(image);
+        await flightFinished;
+        image.remove();
+      }
+>>>>>>> 1a897d94a1ef15fbbbf2be8818269088aed718a7
     };
     // 收尾：移除序列层与封面；body 加 book-opened 让首页内容淡入；焦点移到首屏按钮
     const revealHome = () => {
@@ -214,13 +267,22 @@
         revealHome(); // 减弱动效：跳过整段开场，直接进入首页
         return;
       }
+<<<<<<< HEAD
       const assetsReady = preloadCalligraphy();
+=======
+      const selectedCalligraphy = chooseCalligraphy();
+      const assetsReady = preloadCalligraphy(selectedCalligraphy);
+>>>>>>> 1a897d94a1ef15fbbbf2be8818269088aed718a7
       bookOpening.classList.add("is-opening"); // 触发 CSS 翻书动画(book-page-turn-up，0.5s)
       window.setTimeout(() => {
         bookOpening.classList.add("is-leaving");    // 封面淡出
         calligraphySequence.classList.add("is-active"); // 显现书法飞落层
         window.setTimeout(() => bookOpening.remove(), 180); // 淡出后彻底移除封面
+<<<<<<< HEAD
         runCalligraphySequence(assetsReady).then(() => {
+=======
+        runCalligraphySequence(selectedCalligraphy, assetsReady).then(() => {
+>>>>>>> 1a897d94a1ef15fbbbf2be8818269088aed718a7
           calligraphySequence.classList.add("is-fading"); // 序列播完，整体淡出
           window.setTimeout(revealHome, 180);
         }).catch((error) => {
