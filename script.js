@@ -1,6 +1,19 @@
+// 一江春水 · 李煜词境 — 交互脚本 script.js
+// 主要功能模块：
+//   1) 点击水波涟漪特效   2) 移动端汉堡菜单
+//   3) 背景音乐(开关 / 音量 / 进度记忆)
+//   4) 首页翻书落地页(翻开封面)
+//   5) 无刷新翻页(水波过渡 + SPA 式导航，含 file:// 回退)
+//   6) 阅读进度条 / 返回顶部 / 滚动渐显
+//   7) 时间线故事弹窗(点击时间线卡片展开长篇故事)
+//   8) 页面内交互(语音诵读 / 收藏 / 字数统计 / 心情与填词表单)
+
 (() => {
+  // 是否开启“减弱动效”偏好：开启后跳过花瓣、水波等动画
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  /* ---------- 1. 点击水波涟漪特效 ---------- */
+  // 全局点击：在点击坐标处生成一层水波涟漪(装饰层，自动清理)；站内链接点击交由翻页逻辑处理，不在此重复生成
   document.addEventListener("click", (event) => {
     if (reducedMotion || event.target.closest("input, textarea, select, audio, video")) return;
     const link = event.target.closest("a[href]");
@@ -18,20 +31,24 @@
     window.setTimeout(() => ripple.remove(), 1100);
   });
 
+  /* ---------- 2. 移动端汉堡菜单 ---------- */
   const menuButton = document.querySelector(".menu-toggle");
   const nav = document.querySelector(".main-nav");
   if (menuButton && nav) {
     menuButton.addEventListener("click", () => {
-      const open = nav.classList.toggle("open");
-      menuButton.setAttribute("aria-expanded", String(open));
+      const open = nav.classList.toggle("open"); // 切换下拉展开 / 收起
+      menuButton.setAttribute("aria-expanded", String(open)); // 无障碍状态
       menuButton.setAttribute("aria-label", open ? "关闭导航" : "打开导航");
     });
   }
 
+  /* ---------- 3. 背景音乐：开关 / 音量 / 进度记忆 ---------- */
   const audio = document.querySelector(".background-audio");
   const soundButtons = document.querySelectorAll(".sound-toggle");
   const volumeSlider = document.querySelector(".volume-slider");
+  // 用 sessionStorage 记忆开关状态(默认开启；仅当显式存 "false" 才关闭)
   let audioEnabled = sessionStorage.getItem("liyu-audio-enabled") !== "false";
+  // 同步所有声音按钮的“开启 / 关闭”视觉与无障碍文案
   const updateSoundControls = (playing, message) => {
     soundButtons.forEach((button) => {
       button.setAttribute("aria-pressed", String(playing));
@@ -40,6 +57,7 @@
       if (status) status.textContent = message || (playing ? "音乐开启" : "开启音乐");
     });
   };
+  // 尝试播放；失败(多为浏览器自动播放限制)则提示“点击开启”
   const playBackgroundMusic = () => {
     if (!audio || !audioEnabled) return;
     audio.play().then(() => {
@@ -49,35 +67,45 @@
     });
   };
   if (audio) {
+    // 与按钮上的 autoplay 属性保持一致：会话中被关闭过就立刻暂停，避免自动播放
     audio.autoplay = audioEnabled;
     if (!audioEnabled) audio.pause();
+    // 恢复上次保存的音量
     const savedVolume = sessionStorage.getItem("liyu-audio-volume");
     if (volumeSlider && savedVolume !== null) volumeSlider.value = savedVolume;
-    audio.volume = Number(volumeSlider?.value || 0.32);
+    audio.volume = Number(volumeSlider?.value || 0.32); // 默认音量 0.32
     audio.muted = false;
+    // 初始化按钮文案：若因自动播放策略未能播放，提示"点击开启"
     updateSoundControls(!audio.paused, audio.paused ? (audioEnabled ? "点击开启" : "音乐关闭") : "音乐开启");
+    // 音频加载失败提示
     audio.addEventListener("error", () => {
       updateSoundControls(false, "音频加载失败");
     });
+    // 拖动音量条：实时调节 + 写入 sessionStorage
     if (volumeSlider) {
       volumeSlider.addEventListener("input", () => {
         audio.volume = Number(volumeSlider.value);
         sessionStorage.setItem("liyu-audio-volume", volumeSlider.value);
       });
     }
+    // 恢复播放进度(刷新后不从头播)
     const restoreAudioPosition = () => {
       const savedTime = Number(sessionStorage.getItem("liyu-audio-time") || 0);
       if (savedTime > 0 && savedTime < audio.duration - 1) audio.currentTime = savedTime;
+      // 仅在需要手动播放(浏览器拦截了自动播放)时补一次 play
       if (audioEnabled && !audio.autoplay) playBackgroundMusic();
     };
-    if (audio.readyState >= 1) restoreAudioPosition();
+    if (audio.readyState >= 1) restoreAudioPosition(); // 元数据已就绪
     else audio.addEventListener("loadedmetadata", restoreAudioPosition, { once: true });
+    // 持续记录播放进度
     audio.addEventListener("timeupdate", () => {
       sessionStorage.setItem("liyu-audio-time", String(audio.currentTime));
     });
+    // 离开页面前保存进度
     window.addEventListener("pagehide", () => {
       sessionStorage.setItem("liyu-audio-time", String(audio.currentTime));
     });
+    // 声音按钮点击：开启则播放，关闭则暂停
     soundButtons.forEach((button) => {
       button.addEventListener("click", () => {
         audioEnabled = audio.paused;
@@ -90,6 +118,7 @@
         }
       });
     });
+    // 首次交互(点击 / 按键)后，借自动播放策略尝试续播一次
     document.addEventListener("pointerdown", (event) => {
       if (audioEnabled && audio.paused && !event.target.closest(".sound-toggle")) playBackgroundMusic();
     }, { once: true });
@@ -98,19 +127,78 @@
     }, { once: true });
   }
 
+  /* ---------- 4. 首页开场：翻书落地页 + 书法飞落序列 ---------- */
+  // 点击「翻开词境」：禁用按钮 → 加 is-opening 触发翻书动画 → 封面淡出 → 书法字按节奏持续飞落(约 4 秒) → 序列层淡出并揭开首页
   const bookOpening = document.querySelector(".book-opening");
   const bookOpenButton = document.querySelector(".book-open-button");
   const calligraphySequence = document.querySelector(".calligraphy-sequence");
   if (bookOpening && bookOpenButton && calligraphySequence) {
+    // 开场是否已播放过的标记键：写入 sessionStorage，保证同一次会话内首页开场动画只演一次
     const introStorageKey = "liyu-home-intro-completed";
+    // 序列层里的背景视频(书法意象)：揭开首页时暂停播放
     const calligraphyBackground = calligraphySequence.querySelector(".calligraphy-background");
+    // 墨迹插页层：书法飞落之后、正式揭开首页之前的过渡页(内含水墨画布)
     const inkInterlude = document.querySelector(".ink-interlude");
+    // 视差入场段：滚动驱动的开场场景（远山 / 月 / 人物 / 松），需滚动到一定进度才能「继续」
     const arrivalInterlude = document.querySelector(".arrival-interlude");
     const arrivalScroller = arrivalInterlude?.querySelector(".arrival-scroller");
     const arrivalEnterButton = arrivalInterlude?.querySelector(".arrival-enter-button");
     const arrivalSkipButton = arrivalInterlude?.querySelector(".arrival-skip-button");
+    // 入场段右侧章节导航：三枚按钮对应三幕，可点击直接跳幕
+    const arrivalChapterButtons = arrivalInterlude?.querySelectorAll("[data-arrival-scene]");
     const inkCanvas = inkInterlude?.querySelector(".ink-canvas");
     const inkContext = inkCanvas?.getContext("2d");
+    // 书法素材库：显式列出实际存在的 22 张图（14 张飞落 PNG + 8 张新增 PNG），序列期间随机取用
+    // 逐字拆解：把三幕文案的文本节点拆成 .arrival-glyph(保留空白与标点)，为逐字显现做准备
+    const prepareArrivalCopy = () => {
+      arrivalInterlude?.querySelectorAll(".arrival-copy h1, .arrival-copy h2, .arrival-copy p, .arrival-whisper").forEach((element) => {
+        if (element.dataset.glyphsPrepared === "true") return;
+        const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+        const textNodes = [];
+        while (walker.nextNode()) textNodes.push(walker.currentNode);
+        let glyphIndex = 0;
+        textNodes.forEach((textNode) => {
+          const fragment = document.createDocumentFragment();
+          for (const character of textNode.textContent) {
+            if (/\s/.test(character)) {
+              fragment.append(document.createTextNode(character));
+              continue;
+            }
+            const glyph = document.createElement("span");
+            glyph.className = "arrival-glyph";
+            glyph.textContent = character;
+            glyph.style.setProperty("--glyph-index", String(glyphIndex));
+            fragment.append(glyph);
+            glyphIndex += 1;
+          }
+          textNode.replaceWith(fragment);
+        });
+        element.style.setProperty("--glyph-count", String(glyphIndex));
+        element.dataset.glyphsPrepared = "true";
+      });
+    };
+    // 逐字显现：按「当前幕进度 × 3 - 幕序号」得到该幕进度，再按文案块的起止区间算出局部进度，
+    // 逐字写 --glyph-reveal(0~1) 驱动 CSS 的透明度/位移/模糊；墨迹笔触同步按幕进度描画
+    const updateArrivalGlyphs = (progress) => {
+      arrivalInterlude?.querySelectorAll(".arrival-copy").forEach((copy, index) => {
+        const sceneProgress = Math.min(1, Math.max(0, progress * 3 - index));
+        copy.style.setProperty("--scene-progress", String(sceneProgress));
+        const ranges = [[0, 0.38], [0.32, 0.78], [0.68, 1]];
+        copy.querySelectorAll(".arrival-copy h1, .arrival-copy h2, .arrival-copy p, .arrival-whisper").forEach((element, textIndex) => {
+          const [start, end] = ranges[textIndex] || [0, 1];
+          let localProgress = Math.min(1, Math.max(0, (sceneProgress - start) / (end - start)));
+          if (reducedMotion) localProgress = index === Math.floor(progress * 3) ? 1 : 0;
+          else if (index === 0 && textIndex < 2) localProgress = 1;
+          const glyphCount = Number(element.style.getPropertyValue("--glyph-count")) || 0;
+          element.querySelectorAll(".arrival-glyph").forEach((glyph, glyphIndex) => {
+            const reveal = Math.min(1, Math.max(0, localProgress * glyphCount - glyphIndex));
+            glyph.style.setProperty("--glyph-reveal", String(reveal));
+          });
+        });
+        const stroke = copy.querySelector(".arrival-ink-stroke path");
+        if (stroke) stroke.style.strokeDashoffset = String(1 - sceneProgress);
+      });
+    };
     const calligraphyAssets = [
       "calligraphy-flight-01.png",
       "calligraphy-flight-03.png",
@@ -135,12 +223,14 @@
       "calligraphy-added-09.png",
       "calligraphy-added-11.png"
     ];
+    // 预加载全部书法图：任一张缺失即 reject，交给 catch 分支兜底进入首页
     const preloadCalligraphy = () => Promise.all(calligraphyAssets.map((src) => new Promise((resolve, reject) => {
       const image = new Image();
       image.onload = () => resolve(src);
       image.onerror = () => reject(new Error(`Unable to load calligraphy image: ${src}`));
       image.src = src;
     })));
+    // Fisher-Yates 洗牌：返回新数组，不改动原数组
     const shuffle = (items) => {
       const shuffled = [...items];
       for (let index = shuffled.length - 1; index > 0; index -= 1) {
@@ -149,19 +239,22 @@
       }
       return shuffled;
     };
+    // 墨迹画布动画：在插页层上绘制缓慢上浮的墨色粒子与横向笔触；指针靠近时粒子被推开
+    // 返回一个停止函数，供插页结束或出错时调用以释放 rAF 与事件监听
     const startInkAnimation = () => {
       if (!inkCanvas || !inkContext) throw new Error("The ink interlude canvas is unavailable.");
       const context = inkContext;
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const dpr = Math.min(window.devicePixelRatio || 1, 2); // 高分屏最多 2 倍像素，控制绘制开销
       let width = 0;
       let height = 0;
       let frameId = 0;
       let previousFrame = 0;
       let time = 0;
-      const mouse = { x: -9999, y: -9999 };
-      const particleCount = window.innerWidth < 700 ? 42 : 90;
-      const strokeCount = window.innerWidth < 700 ? 12 : 28;
+      const mouse = { x: -9999, y: -9999 }; // 初始放到画面外，避免开场就被指针影响
+      const particleCount = window.innerWidth < 700 ? 42 : 90; // 手机端减少粒子数
+      const strokeCount = window.innerWidth < 700 ? 12 : 28;   // 手机端减少笔触数
       const random = (min, max) => min + Math.random() * (max - min);
+      // 按当前视口尺寸重设画布像素，并应用 dpr 缩放
       const resize = () => {
         width = window.innerWidth;
         height = window.innerHeight;
@@ -169,11 +262,13 @@
         inkCanvas.height = Math.round(height * dpr);
         context.setTransform(dpr, 0, 0, dpr, 0, 0);
       };
+      // 简易噪声场：由两组正弦叠加而成，用于给粒子施加缓慢的横向漂移
       const noise = (x, y, t) => (
         Math.sin(x * 0.003 + t * 0.4)
         + Math.cos(y * 0.0035 - t * 0.3)
         + Math.sin((x + y) * 0.002 + t * 0.15)
       ) / 3;
+      // 生成一个墨色粒子：initial 为 true 时随机分布于屏幕内(用于初始化)
       const makeParticle = (initial = false) => {
         const maxLife = random(300, 900);
         return {
@@ -185,12 +280,13 @@
           life: initial ? Math.random() * maxLife : 0,
           maxLife,
           vx: 0,
-          vy: random(-0.33, -0.08),
+          vy: random(-0.33, -0.08), // 缓慢上浮
           hue: random(185, 215),
           saturation: random(3, 10),
           lightness: random(42, 62)
         };
       };
+      // 生成一道横向墨迹笔触
       const makeStroke = () => ({
         x: Math.random() * width,
         y: random(height * 0.2, height * 0.8),
@@ -208,15 +304,18 @@
       resize();
       let particles = Array.from({ length: particleCount }, () => makeParticle(true));
       let strokes = Array.from({ length: strokeCount }, makeStroke);
+      // 视口变化时重建画布与全部粒子、笔触
       const onResize = () => {
         resize();
         particles = Array.from({ length: particleCount }, () => makeParticle(true));
         strokes = Array.from({ length: strokeCount }, makeStroke);
       };
+      // 记录指针位置，用于粒子避让
       const onPointerMove = (event) => {
         mouse.x = event.clientX;
         mouse.y = event.clientY;
       };
+      // 绘制单个粒子：径向渐变 + screen 混合，模拟墨色晕开
       const drawParticle = (particle) => {
         if (particle.alpha <= 0.005) return;
         const gradient = context.createRadialGradient(
@@ -231,6 +330,7 @@
         context.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
         context.fill();
       };
+      // 绘制一道笔触：旋转的椭圆径向渐变
       const drawStroke = (stroke) => {
         if (stroke.currentAlpha < 0.005) return;
         context.save();
@@ -247,10 +347,12 @@
         context.fill();
         context.restore();
       };
+      // 主渲染循环：按帧推进粒子与笔触，帧间隔做归一化以免不同刷新率下速度不一
       const render = (now) => {
         const frameScale = previousFrame ? Math.min((now - previousFrame) / 16.67, 2) : 1;
         previousFrame = now;
         time += 0.01 * frameScale;
+        // 每帧用 destination-out 淡出一层，形成墨迹消散的拖尾
         context.globalCompositeOperation = "destination-out";
         context.fillStyle = "rgba(0, 0, 0, 0.12)";
         context.fillRect(0, 0, width, height);
@@ -261,6 +363,7 @@
           particle.vy += Math.sin(time * 0.4 + particle.x * 0.01) * 0.005 * frameScale;
           particle.vx *= Math.pow(0.98, frameScale);
           particle.vy *= Math.pow(0.99, frameScale);
+          // 指针 160px 半径内的粒子被推开
           const dx = particle.x - mouse.x;
           const dy = particle.y - mouse.y;
           const distance = Math.hypot(dx, dy);
@@ -271,9 +374,9 @@
           }
           particle.x += particle.vx * frameScale;
           particle.y += particle.vy * frameScale;
-          particle.alpha = particle.baseAlpha * Math.sin(Math.PI * particle.life / particle.maxLife);
+          particle.alpha = particle.baseAlpha * Math.sin(Math.PI * particle.life / particle.maxLife); // 生命期内淡入淡出
           if (particle.life > particle.maxLife || particle.y < -particle.radius * 2) {
-            Object.assign(particle, makeParticle());
+            Object.assign(particle, makeParticle()); // 生命周期结束则在底部重新生成
           }
           drawParticle(particle);
         }
@@ -302,10 +405,12 @@
         window.removeEventListener("pointermove", onPointerMove);
       };
     };
+    // 视差入场：按滚动进度写入 --arrival-* 变量（山景上移、月亮下沉、人物上浮、文案上移淡出）
     const updateArrivalProgress = () => {
       if (!arrivalScroller || !arrivalInterlude) return;
       const scrollRange = arrivalScroller.scrollHeight - arrivalScroller.clientHeight;
       const progress = scrollRange > 0 ? Math.min(1, Math.max(0, arrivalScroller.scrollTop / scrollRange)) : 1;
+      // 当前幕序号：整段滚动行程均分为三幕(0/1/2)
       const sceneIndex = Math.min(2, Math.floor(progress * 3));
       arrivalInterlude.style.setProperty("--arrival-progress", String(progress));
       arrivalInterlude.style.setProperty("--arrival-progress-width", `${progress * 100}%`);
@@ -315,17 +420,32 @@
       arrivalInterlude.style.setProperty("--arrival-figure-rotate", `${progress * -8}deg`);
       arrivalInterlude.style.setProperty("--arrival-pine-y", `${progress * 34}px`);
       arrivalInterlude.style.setProperty("--arrival-copy-y", `${-progress * 68}px`);
+      // 写入 data-scene，供 CSS 按幕切换世界底图、滤镜与暗角
       arrivalInterlude.dataset.scene = String(sceneIndex + 1);
+      // 推镜：相机 / 远山 / 人物分别按不同系数缩放，形成纵深推进
+      arrivalInterlude.style.setProperty("--arrival-camera-scale", String(1 + progress * 0.13));
+      arrivalInterlude.style.setProperty("--arrival-landscape-scale", String(1.18 + progress * 0.2));
+      arrivalInterlude.style.setProperty("--arrival-figure-scale", String(1.02 + progress * 0.15));
+      arrivalInterlude.style.setProperty("--arrival-world-x", `${-progress * 48}px`);
+      // 章节导航高亮：与当前幕同步 aria-pressed
+      arrivalChapterButtons?.forEach((button, index) => {
+        button.setAttribute("aria-pressed", String(index === sceneIndex));
+      });
+      updateArrivalGlyphs(progress);
+      // 文案切幕：仅当前幕加 is-current 并解除 aria-hidden，其余幕对读屏隐藏
       arrivalInterlude.querySelectorAll(".arrival-copy").forEach((copy, index) => {
         const isCurrent = index === sceneIndex;
         copy.classList.toggle("is-current", isCurrent);
         if (isCurrent) copy.removeAttribute("aria-hidden");
         else copy.setAttribute("aria-hidden", "true");
       });
+      // 页码：随幕更新「0X / 03」
       const progressCount = arrivalInterlude.querySelector(".arrival-progress-label b");
       if (progressCount) progressCount.textContent = `${String(sceneIndex + 1).padStart(2, "0")} / 03`;
+      // 进度不足 90% 时「继续」按钮保持禁用，逼迫用户滚动或选择跳过
       if (arrivalEnterButton) arrivalEnterButton.disabled = progress < 0.9;
     };
+    // 视差入场：显示入场段并等待用户「继续」或「跳过」，返回 Promise 供开场链路串联
     const showArrivalInterlude = () => new Promise((resolve, reject) => {
       if (!arrivalInterlude || !arrivalScroller || !arrivalEnterButton || !arrivalSkipButton) {
         reject(new Error("The parallax arrival interlude is incomplete."));
@@ -346,18 +466,33 @@
         }, 600);
       };
       arrivalScroller.scrollTop = 0;
+      prepareArrivalCopy();   // 先拆字，再让首幕按进度逐字显现
       arrivalInterlude.removeAttribute("aria-hidden");
       arrivalInterlude.removeAttribute("inert");
       arrivalInterlude.classList.add("is-visible");
       arrivalScroller.addEventListener("scroll", updateArrivalProgress, { passive: true });
       arrivalEnterButton.addEventListener("click", finish);
       arrivalSkipButton.addEventListener("click", finish);
+      // 章节导航：点击即平滑滚动到对应幕的进度位置(末幕取 0.95，确保「继续」按钮解禁)
+      arrivalChapterButtons?.forEach((button) => {
+        button.addEventListener("click", () => {
+          const chapter = Number(button.dataset.arrivalScene);
+          const scrollRange = arrivalScroller.scrollHeight - arrivalScroller.clientHeight;
+          const chapterProgress = chapter === 2 ? 0.95 : (chapter + 0.5) / 3;
+          arrivalScroller.scrollTo({
+            top: scrollRange * chapterProgress,
+            behavior: reducedMotion ? "auto" : "smooth"
+          });
+        });
+      });
       updateArrivalProgress();
       window.requestAnimationFrame(() => arrivalScroller.focus({ preventScroll: true }));
     });
+    // 飞落主循环：把全部书法素材按 scheduleSpan 的时间窗均匀错峰投下，形成自上而下的连绵雨幕
     const runCalligraphySequence = async (assetsReady, revealHome) => {
       const assets = await assetsReady;
-      let backgroundVideoHasEnded = Boolean(calligraphyBackground?.ended);
+      // 等待背景视频播放结束：视频不再循环，播完即进入墨迹插页
+      let backgroundVideoHasEnded = Boolean(calligraphyBackground?.ended); // 视频是否已播完
       const backgroundVideoEnded = new Promise((resolve, reject) => {
         if (!calligraphyBackground) {
           reject(new Error("The calligraphy background video is missing."));
@@ -368,14 +503,15 @@
           return;
         }
         calligraphyBackground.addEventListener("ended", () => {
-          backgroundVideoHasEnded = true;
+          backgroundVideoHasEnded = true; // 标记已播完，飞落循环随之停止
           resolve();
         }, { once: true });
         calligraphyBackground.addEventListener("error", () => {
           reject(new Error("The calligraphy background video could not be played."));
         }, { once: true });
       });
-      const flightInterval = 180;
+      const flightInterval = 180; // 两次投放之间的间隔(毫秒)，越小飞落越密集
+      // 横向落点池：按素材数量在屏幕中部均分铺开再打乱；手机端收窄，避免飞出屏幕
       const positions = shuffle(
         Array.from({ length: assets.length }, (_, index) => {
           const spread = window.innerWidth <= 700 ? 70 : 76;
@@ -383,6 +519,7 @@
           return margin + index * (spread / (assets.length - 1));
         })
       );
+      // 持续投放：每 180ms 投下一张，循环往复直到背景视频播完，形成连绵不断的书法雨
       const displayCalligraphy = async () => {
         let index = 0;
         const shuffledAssets = shuffle(assets);
@@ -391,8 +528,9 @@
           image.className = "calligraphy-flight";
           image.src = shuffledAssets[index % shuffledAssets.length];
           image.alt = "";
-          image.setAttribute("aria-hidden", "true");
+          image.setAttribute("aria-hidden", "true"); // 纯装饰，对读屏隐藏
           image.style.left = `${positions.pop()}%`;
+          // 落点用完后重新生成一轮，保证整段飞落始终铺满屏幕中部
           if (!positions.length) {
             positions.push(...shuffle(
               Array.from({ length: assets.length }, (_, positionIndex) => {
@@ -402,91 +540,99 @@
               })
             ));
           }
-          const duration = 600 + Math.random() * 2400;
+          const duration = 600 + Math.random() * 2400; // 每张时长随机，避免节奏呆板
           image.style.animationDuration = `${duration}ms`;
+          // 动画结束后自行移除，避免元素堆积
           image.addEventListener("animationend", () => image.remove(), { once: true });
           calligraphySequence.append(image);
           index += 1;
           await new Promise((resolve) => window.setTimeout(resolve, flightInterval));
         }
       };
+      // 书法飞落结束后：等背景视频播完 → 淡出并移除序列层 → 显现墨迹插页(4 秒) → 淡出插页 → 揭开首页
       const showInterludeAfterCalligraphy = async () => {
-        await displayCalligraphyPromise;
+        await displayCalligraphyPromise;                                   // 等投放结束
         if (!inkInterlude) throw new Error("The ink interlude is missing.");
-        await backgroundVideoEnded;
+        await backgroundVideoEnded;                                        // 等背景视频播完
+        // 先让书法飞落层整体淡出并移除，插页作为独立的过渡画面出现
         calligraphySequence.classList.add("is-revealing");
         await new Promise((resolve) => window.setTimeout(resolve, 400));
         calligraphySequence.remove();
-        const interludeDuration = 4000;
-        const interludeFadeDuration = 600;
+        const interludeDuration = 4000;      // 插页停留总时长
+        const interludeFadeDuration = 600;   // 插页淡出预留时间
         const interludeStartedAt = performance.now();
-        const stopInkAnimation = startInkAnimation();
-        inkInterlude.classList.add("is-visible");
+        const stopInkAnimation = startInkAnimation(); // 启动墨迹画布动画
+        inkInterlude.classList.add("is-visible");       // 显现插页
         await new Promise((resolve) => window.requestAnimationFrame(() => resolve()));
         const beforeFadeOut = interludeStartedAt + interludeDuration - interludeFadeDuration - performance.now();
         if (beforeFadeOut > 0) await new Promise((resolve) => window.setTimeout(resolve, beforeFadeOut));
-        inkInterlude.classList.remove("is-visible");
+        inkInterlude.classList.remove("is-visible");     // 插页淡出
         const untilTransition = interludeStartedAt + interludeDuration - performance.now();
         if (untilTransition > 0) await new Promise((resolve) => window.setTimeout(resolve, untilTransition));
-        stopInkAnimation();
-        inkInterlude.remove();
-        await showArrivalInterlude();
-        await revealHome();
-        document.querySelector(".hero-actions a")?.focus({ preventScroll: true });
+        stopInkAnimation();   // 停止画布动画
+        inkInterlude.remove(); // 移除插页层
+        await showArrivalInterlude(); // 墨迹插页之后进入视差入场段（需滚动或跳过才继续）
+        await revealHome();    // 插页结束后才揭开首页
+        document.querySelector(".hero-actions a")?.focus({ preventScroll: true }); // 焦点交回首屏按钮
       };
       const displayCalligraphyPromise = displayCalligraphy();
       await showInterludeAfterCalligraphy();
     };
+    // 首页揭开：只执行一次；序列层淡出后解除首页隐藏（焦点交由调用方在动画结束后处理）
     let homeRevealPromise;
     const revealHome = () => {
       if (homeRevealPromise) return homeRevealPromise;
-      sessionStorage.setItem(introStorageKey, "true");
-      calligraphySequence.classList.add("is-revealing");
+      sessionStorage.setItem(introStorageKey, "true"); // 记下"开场已演过"，后续进入首页直接跳过
+      calligraphySequence.classList.add("is-revealing"); // 序列层整体淡出(书法字随层一同隐去)
       document.body.classList.add("book-opened");
       document.querySelectorAll("header[inert], main[inert], footer[inert], audio[inert]").forEach((element) => element.removeAttribute("inert"));
       homeRevealPromise = new Promise((resolve) => {
         window.setTimeout(() => {
-          calligraphyBackground?.pause();
-          calligraphySequence.remove();
-          inkInterlude?.remove();
-          arrivalInterlude?.remove();
-          bookOpening.remove();
+          calligraphyBackground?.pause();              // 暂停背景视频，释放解码资源
+          calligraphySequence.remove();                // 移除序列层
+          inkInterlude?.remove();                      // 移除墨迹插页
+          arrivalInterlude?.remove();                  // 移除视差入场段
+          bookOpening.remove();                        // 移除封面
           resolve();
-        }, reducedMotion ? 0 : 1500);
+        }, reducedMotion ? 0 : 1500);                 // 等淡出动画播完再清理
       });
       return homeRevealPromise;
     };
+    // 分支一：本次会话已看过开场 → 跳过封面与飞落序列，直接显示首页
     if (sessionStorage.getItem(introStorageKey) === "true") {
       document.body.classList.add("book-opened");
-      bookOpening.remove();
-      calligraphySequence.remove();
-      inkInterlude?.remove();
-      arrivalInterlude?.remove();
+      bookOpening.remove();      // 移除封面
+      calligraphySequence.remove(); // 移除飞落序列层
+      inkInterlude?.remove();      // 移除墨迹插页
+      arrivalInterlude?.remove();  // 移除视差入场段
       document.querySelectorAll("header[inert], main[inert], footer[inert], audio[inert]").forEach((element) => element.removeAttribute("inert"));
-      document.querySelector(".hero-actions a")?.focus({ preventScroll: true });
+      document.querySelector(".hero-actions a")?.focus({ preventScroll: true }); // 焦点交回首屏按钮
     } else {
+      // 分支二：首次进入 → 绑定「翻开词境」按钮，走完整的翻书 + 书法飞落 + 墨迹插页开场
       bookOpenButton.addEventListener("click", () => {
         bookOpenButton.disabled = true;
         if (reducedMotion) {
-          revealHome();
+          revealHome(); // 减弱动效：跳过整段开场，直接进入首页
           return;
         }
         const assetsReady = preloadCalligraphy();
-        bookOpening.classList.add("is-opening");
+        bookOpening.classList.add("is-opening"); // 触发 CSS 翻书动画(book-page-turn-up，0.5s)
         window.setTimeout(async () => {
           try {
-            await assetsReady;
-            bookOpening.classList.add("is-leaving");
-            calligraphySequence.classList.add("is-active");
+            await assetsReady; // 等素材就绪，再揭开封面，避免飞落层空白
+            bookOpening.classList.add("is-leaving");    // 封面淡出
+            calligraphySequence.classList.add("is-active"); // 显现书法飞落层
+            // 播放序列层背景视频(不循环)，播完即进入墨迹插页；失败不阻断开场
             calligraphyBackground?.play().catch((error) => {
               console.warn("The decorative calligraphy background video could not be played.", error);
             });
-            window.setTimeout(() => bookOpening.remove(), 180);
+            window.setTimeout(() => bookOpening.remove(), 180); // 淡出后彻底移除封面
             await runCalligraphySequence(assetsReady, revealHome);
           } catch (error) {
+            // 素材加载失败也要保证能进入首页，不阻断浏览
             console.error("The calligraphy intro could not be completed.", error);
-            inkInterlude?.remove();
-            arrivalInterlude?.remove();
+            inkInterlude?.remove(); // 清掉可能已插入的墨迹插页
+            arrivalInterlude?.remove(); // 清掉可能已插入的视差入场段
             revealHome().then(() => {
               document.querySelector(".hero-actions a")?.focus({ preventScroll: true });
             });
@@ -496,32 +642,36 @@
     }
   }
 
-  let navigationVersion = 0;
-  let activePageRipple = null;
+  /* ---------- 5. 无刷新翻页(水波过渡 + SPA 式导航，含 file:// 回退) ---------- */
+  let navigationVersion = 0;     // 导航版本号，防止并发 / 过时请求误替换
+  let activePageRipple = null;   // 当前进行中的水波层
+  // 从点击点(origin)展开水波，返回 ready(过渡就绪) 与 finish(收尾) 两个钩子
   const startPageRipple = (origin = {}) => {
-    if (reducedMotion) return { ready: Promise.resolve(), finish: () => {} };
-    document.querySelectorAll(".page-ripple").forEach((ripple) => ripple.remove());
+    if (reducedMotion) return { ready: Promise.resolve(), finish: () => {} }; // 减弱动效则无动画
+    document.querySelectorAll(".page-ripple").forEach((ripple) => ripple.remove()); // 清掉上一个
     const ripple = document.createElement("div");
     ripple.className = "page-ripple";
     ripple.setAttribute("aria-hidden", "true");
+    // 水波圆心 = 点击坐标(缺省屏幕中心)
     ripple.style.setProperty("--ripple-x", `${origin.x ?? window.innerWidth / 2}px`);
     ripple.style.setProperty("--ripple-y", `${origin.y ?? window.innerHeight / 2}px`);
     document.body.append(ripple);
-    document.documentElement.classList.add("page-transitioning");
+    document.documentElement.classList.add("page-transitioning"); // 触发 <main> 淡出模糊
     activePageRipple = ripple;
     return {
-      ready: new Promise((resolve) => window.setTimeout(resolve, 240)),
+      ready: new Promise((resolve) => window.setTimeout(resolve, 240)), // 等水波铺开再换页
       finish: () => {
-        if (activePageRipple !== ripple) {
+        if (activePageRipple !== ripple) { // 已被更新的导航接管
           ripple.remove();
           return;
         }
         activePageRipple = null;
         document.documentElement.classList.remove("page-transitioning");
-        window.setTimeout(() => ripple.remove(), 850);
+        window.setTimeout(() => ripple.remove(), 850); // 水波收尾后移除
       }
     };
   };
+  // —— file:// 协议特例：本页加载时若有暂存的点击原点，补播一次水波，使跨页跳转仍有过渡感 ——
   if (location.protocol === "file:") {
     const savedOrigin = sessionStorage.getItem("liyu-page-ripple-origin");
     if (savedOrigin) {
@@ -534,6 +684,7 @@
       window.setTimeout(ripple.finish, 240);
     }
   }
+  // 根据目标 URL 高亮对应导航项(并标注 aria-current)
   const updateActiveNavigation = (url) => {
     document.querySelectorAll(".main-nav a").forEach((link) => {
       const active = new URL(link.href, location.href).pathname === url.pathname;
@@ -542,8 +693,9 @@
       else link.removeAttribute("aria-current");
     });
   };
+  // 核心：拉取目标页 HTML → 取出 <main> → 就地替换；同步标题 / 导航 / 历史
   const navigateTo = async (url, addHistory = true, origin) => {
-    const version = ++navigationVersion;
+    const version = ++navigationVersion; // 标记本次导航
     let ripple;
     try {
       const response = await fetch(url.href, { headers: { "X-Requested-With": "fetch" } });
@@ -552,22 +704,23 @@
       const nextMain = nextPage.querySelector("main");
       const currentMain = document.querySelector("main");
       if (!nextMain || !currentMain) throw new Error("The destination page is missing its main content.");
-      if (version !== navigationVersion) return;
+      if (version !== navigationVersion) return; // 已有更新的导航，放弃本次
       ripple = startPageRipple(origin);
       await ripple.ready;
-      if (version !== navigationVersion) {
+      if (version !== navigationVersion) { // 期间被新导航抢占
         ripple.finish();
         return;
       }
-      currentMain.replaceWith(nextMain);
+      currentMain.replaceWith(nextMain);                 // 无整页刷新的关键：替换主体
       document.title = nextPage.title;
       document.body.classList.toggle("home-page", nextPage.body.classList.contains("home-page"));
       updateActiveNavigation(url);
-      document.querySelector(".main-nav")?.classList.remove("open");
+      document.querySelector(".main-nav")?.classList.remove("open");           // 翻页后收起移动端菜单
       document.querySelector(".menu-toggle")?.setAttribute("aria-expanded", "false");
-      if (addHistory) history.pushState({}, "", url.href);
-      initializePageContent();
+      if (addHistory) history.pushState({}, "", url.href); // 更新地址栏(不刷新)
+      initializePageContent();                            // 重新绑定新页面内的交互
       if (url.hash) {
+        // 带锚点：滚动到对应区块
         requestAnimationFrame(() => {
           const anchor = document.getElementById(decodeURIComponent(url.hash.slice(1)));
           if (anchor) anchor.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth" });
@@ -579,18 +732,20 @@
     } catch (error) {
       ripple?.finish();
       console.error("Unable to navigate without reloading:", error);
-      location.assign(url.href);
+      location.assign(url.href); // 失败回退到原生整页跳转
     }
   };
+  // 拦截站内链接的默认跳转，改用无刷新导航(仅限同站 .html、左键、无修饰键)
   document.addEventListener("click", (event) => {
     const link = event.target.closest("a[href]");
     if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     if (link.target && link.target !== "_self" || link.hasAttribute("download")) return;
     const url = new URL(link.href, location.href);
-    if (url.origin !== location.origin || !url.pathname.endsWith(".html")) return;
-    if (url.pathname === location.pathname && url.search === location.search) return;
+    if (url.origin !== location.origin || !url.pathname.endsWith(".html")) return; // 仅处理站内 html
+    if (url.pathname === location.pathname && url.search === location.search) return; // 同页不处理
     event.preventDefault();
     const origin = { x: event.clientX, y: event.clientY };
+    // file:// 下 fetch 受限：先播水波并将原点暂存，再整页跳转(新页加载时补播)
     if (location.protocol === "file:") {
       sessionStorage.setItem("liyu-page-ripple-origin", `${origin.x},${origin.y}`);
       startPageRipple(origin);
@@ -599,27 +754,34 @@
     }
     navigateTo(url, true, origin);
   });
+  // 浏览器前进 / 后退：同样走无刷新导航
   window.addEventListener("popstate", () => {
     if (location.protocol !== "file:" && location.pathname.endsWith(".html")) navigateTo(new URL(location.href), false);
   });
 
+  /* ---------- 5-1. 生平时间线叙事进度(滚动时高亮当前段落) ---------- */
+  // 滚动节流标记：避免同一帧内重复计算
   let timelineScrollTicking = false;
+  // 计算时间线阅读进度：依据视口"阅读线"(屏幕 46% 处)与时间线的相对位置
   const updateTimelineNarrative = () => {
     const timeline = document.querySelector(".timeline");
-    if (!timeline) return;
+    if (!timeline) return; // 非生平页无此模块
     const items = [...timeline.querySelectorAll(".timeline-item")];
     if (!items.length) return;
+    // 进度条元素：不存在则动态创建并挂到时间线末尾
     let progress = timeline.querySelector(".timeline-progress");
     if (!progress) {
       progress = document.createElement("span");
       progress.className = "timeline-progress";
-      progress.setAttribute("aria-hidden", "true");
+      progress.setAttribute("aria-hidden", "true"); // 纯装饰，对读屏软件隐藏
       timeline.append(progress);
     }
     const timelineBounds = timeline.getBoundingClientRect();
-    const readingLine = window.innerHeight * 0.46;
+    const readingLine = window.innerHeight * 0.46; // 阅读线取视口偏上位置
+    // 进度比例：时间线顶端进入阅读线之前为 0，末端之后为 1
     const progressAmount = Math.min(1, Math.max(0, (readingLine - timelineBounds.top) / timelineBounds.height));
     timeline.style.setProperty("--narrative-progress", String(progressAmount));
+    // 找出离阅读线最近的段落，标记为当前段落
     let activeIndex = 0;
     let nearestDistance = Infinity;
     items.forEach((item, index) => {
@@ -631,8 +793,9 @@
       }
     });
     items.forEach((item, index) => item.classList.toggle("is-active", index === activeIndex));
+    // 章节侧栏(.timeline-scene)联动：把当前段落的年份 / 地名 / 标题 / 词句同步到侧栏
     const scene = document.querySelector(".timeline-scene");
-    if (!scene || Number(scene.dataset.activeIndex) === activeIndex) return;
+    if (!scene || Number(scene.dataset.activeIndex) === activeIndex) return; // 侧栏不存在或章节未变化则不处理
     scene.dataset.activeIndex = String(activeIndex);
     scene.dataset.chapter = String(activeIndex + 1);
     const activeItem = items[activeIndex];
@@ -641,23 +804,26 @@
     const title = activeItem.querySelector(".timeline-card h3")?.textContent.trim();
     const quote = activeItem.querySelector(".timeline-quote")?.textContent.trim();
     const copy = scene.querySelector(".timeline-scene-copy");
-    copy?.classList.add("is-changing");
+    copy?.classList.add("is-changing"); // 先淡出旧文案
     window.setTimeout(() => {
       scene.querySelector(".timeline-scene-year").textContent = year || "";
       scene.querySelector(".timeline-scene-label").textContent = label || "";
       scene.querySelector(".timeline-scene-copy h2").textContent = title || "";
       scene.querySelector(".timeline-scene-copy blockquote").textContent = quote || "";
+      // 章节计数：形如 "01 / 04"
       const count = scene.querySelector(".timeline-scene-count");
       count.firstChild.textContent = `${String(activeIndex + 1).padStart(2, "0")} `;
       count.querySelector("i").textContent = `/ ${String(items.length).padStart(2, "0")}`;
       scene.querySelector(".timeline-scene-kicker").textContent = `A LIFE IN VERSE · CHAPTER ${String(activeIndex + 1).padStart(2, "0")}`;
+      // 底部进度段：当前段高亮，已读段标为完成
       scene.querySelectorAll(".timeline-scene-progress span").forEach((segment, index) => {
         segment.classList.toggle("is-current", index === activeIndex);
         segment.classList.toggle("is-complete", index < activeIndex);
       });
-      copy?.classList.remove("is-changing");
+      copy?.classList.remove("is-changing"); // 再淡入新文案
     }, 120);
   };
+  // 滚动 / 缩放时以 requestAnimationFrame 节流更新
   const scheduleTimelineNarrativeUpdate = () => {
     if (timelineScrollTicking) return;
     timelineScrollTicking = true;
@@ -669,9 +835,13 @@
   window.addEventListener("scroll", scheduleTimelineNarrativeUpdate, { passive: true });
   window.addEventListener("resize", scheduleTimelineNarrativeUpdate);
 
+  /* ---------- 6. 阅读进度条 / 返回顶部 / 滚动渐显 ---------- */
+  // IntersectionObserver 实例(换页后需重新接管新的目标元素)
   let revealObserver;
+  // 进度条与返回顶部按钮只绑定一次滚动监听(避免换页后重复叠加)
   let scrollUiInitialized = false;
   const initializeScrollInteractions = () => {
+    // 顶部阅读进度条：不存在则动态创建
     let progress = document.querySelector(".reading-progress");
     let topButton = document.querySelector(".back-to-top");
     if (!progress) {
@@ -680,6 +850,7 @@
       progress.setAttribute("aria-hidden", "true");
       document.body.append(progress);
     }
+    // 右下角返回顶部按钮：不存在则动态创建并绑定点击
     if (!topButton) {
       topButton = document.createElement("button");
       topButton.className = "back-to-top";
@@ -691,11 +862,14 @@
       document.body.append(topButton);
       topButton.addEventListener("click", () => window.scrollTo({ top: 0, behavior: reducedMotion ? "auto" : "smooth" }));
     }
+    // 滚动监听只装一次：用 requestAnimationFrame 节流，避免高频重排
     if (!scrollUiInitialized) {
       let scrollTicking = false;
       const updateScrollUi = () => {
         const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+        // 进度条按已滚动比例横向缩放
         progress.style.transform = `scaleX(${scrollable > 0 ? window.scrollY / scrollable : 0})`;
+        // 滚动超过 420px 才显示返回顶部按钮
         topButton.hidden = window.scrollY < 420;
         scrollTicking = false;
       };
@@ -710,8 +884,11 @@
       updateScrollUi();
     }
 
+    // 换页后先断开旧的观察器，再对新的卡片重新观察
     revealObserver?.disconnect();
+    // 需要渐显的卡片类型：时间线、词作、诵读、媒体卡、记忆条目、词条、首页导语卡
     const revealTargets = document.querySelectorAll(".timeline-item, .poem-card, .recite-card, .media-card, .memory-line article, .work-entry, .intro-card");
+    // 减弱动效或浏览器不支持时：直接全部显示
     if (reducedMotion || !("IntersectionObserver" in window)) {
       revealTargets.forEach((element) => element.classList.add("is-visible"));
       return;
@@ -720,17 +897,20 @@
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           entry.target.classList.add("is-visible");
-          observer.unobserve(entry.target);
+          observer.unobserve(entry.target); // 只需触发一次
         }
       });
     }, { threshold: 0.12 });
     revealTargets.forEach((element, index) => {
       element.classList.add("reveal-on-scroll");
+      // 同组内按序错开 0/75/150ms 延迟，形成自然的层叠入场
       element.style.setProperty("--reveal-delay", `${(index % 3) * 75}ms`);
       revealObserver.observe(element);
     });
   };
 
+  /* ---------- 7. 时间线故事弹窗(点击卡片展开长篇故事) ---------- */
+  // 四段生平故事的完整文本：与时间线上的年份卡片一一对应
   const timelineStories = [
     {
       period: "937 · 金陵",
@@ -778,6 +958,7 @@
     }
   ];
 
+  // 弹窗关闭后把焦点还给触发卡片(无障碍：焦点不丢失)
   let timelineReturnFocus = null;
   const initializeTimelineStories = () => {
     const dialog = document.querySelector(".timeline-story-dialog");
@@ -786,33 +967,38 @@
     const kicker = dialog.querySelector(".timeline-story-kicker");
     const title = dialog.querySelector("#timeline-story-title");
     const content = dialog.querySelector(".timeline-story-content");
+    // 弹窗自身的关闭行为只绑定一次(用 data 标记，换页重绑也不会重复)
     if (dialog.dataset.initialized !== "true") {
       const closeStory = () => {
         if (dialog.open) dialog.close();
       };
       closeButton.addEventListener("click", closeStory);
+      // 点击背板(弹窗本体以外区域)也可关闭
       dialog.addEventListener("click", (event) => {
         if (event.target === dialog) closeStory();
       });
+      // Esc 键关闭
       document.addEventListener("keydown", (event) => {
         if (event.key === "Escape" && dialog.open) {
           event.preventDefault();
           closeStory();
         }
       });
+      // 关闭后把焦点还给来时的卡片
       dialog.addEventListener("close", () => {
         if (timelineReturnFocus?.isConnected) timelineReturnFocus.focus({ preventScroll: true });
       });
       dialog.dataset.initialized = "true";
     }
+    // 每张时间线卡片按索引对应一段故事：点击或按 Enter / 空格展开
     document.querySelectorAll(".timeline-card[aria-haspopup='dialog']").forEach((card, index) => {
       const openStory = () => {
         const story = timelineStories[index];
         if (!story) return;
         timelineReturnFocus = card;
-        kicker.textContent = story.period;
-        title.textContent = story.title;
-        content.replaceChildren();
+        kicker.textContent = story.period;   // 年代 · 地点
+        title.textContent = story.title;     // 故事标题
+        content.replaceChildren();           // 清空旧内容，避免换页后残留
         story.paragraphs.forEach((text) => {
           const paragraph = document.createElement("p");
           paragraph.textContent = text;
@@ -824,7 +1010,7 @@
         attribution.className = "timeline-story-attribution";
         attribution.textContent = story.poemNote;
         content.append(quote, attribution);
-        dialog.showModal();
+        dialog.showModal();                  // 原生模态弹窗(自带焦点陷阱与 ::backdrop)
         closeButton.focus();
       };
       card.addEventListener("click", openStory);
@@ -837,6 +1023,7 @@
     });
   };
 
+  // 词容万象页·三张视角卡的详情文案（按卡片顺序：历史中的他 / 词句中的他 / 今人心中的他）
   const memoryStories = [
     {
       kicker: "HISTORY · SOUTHERN TANG",
@@ -867,16 +1054,18 @@
     }
   ];
 
+  // 词容万象页·详情弹窗：点击视角卡展开故事；点击配图则展开该图的大图与说明
   const initializeMemoryStories = () => {
     const dialog = document.querySelector(".memory-story-dialog");
     if (!dialog) return;
     const closeButton = dialog.querySelector(".memory-story-close");
     const kicker = dialog.querySelector(".memory-story-kicker");
-    const title = dialog.querySelector("#memory-story-title");
+    const title = document.querySelector("#memory-story-title");
     const content = dialog.querySelector(".memory-story-content");
-    const image = dialog.querySelector(".memory-story-image");
-    let returnFocus = null;
+    const image = dialog.querySelector(".memory-story-image"); // 弹窗内的大图(视角卡场景不显示)
+    let returnFocus = null; // 记录打开弹窗的卡片，关闭后归还焦点
 
+    // Esc 键关闭：全局只绑一次(用 html 上的 data 标记，换页重绑也不会重复叠加)
     if (document.documentElement.dataset.memoryDialogEscapeBound !== "true") {
       document.addEventListener("keydown", (event) => {
         if (event.key !== "Escape") return;
@@ -888,40 +1077,45 @@
       document.documentElement.dataset.memoryDialogEscapeBound = "true";
     }
 
+    // 弹窗自身的关闭行为只绑定一次(用 data 标记，换页重绑也不会重复)
     if (dialog.dataset.initialized !== "true") {
       closeButton.addEventListener("click", () => dialog.close());
+      // 点击背板(弹窗本体以外区域)也可关闭
       dialog.addEventListener("click", (event) => {
         if (event.target === dialog) dialog.close();
       });
+      // 关闭后把焦点还给来时的卡片
       dialog.addEventListener("close", () => {
         if (returnFocus?.isConnected) returnFocus.focus({ preventScroll: true });
       });
       dialog.dataset.initialized = "true";
     }
 
+    // 统一填充并展示弹窗：artwork 为空则只显示文字，否则同时显示大图
     const showStory = (story, trigger, artwork = null) => {
       returnFocus = trigger;
-      kicker.textContent = story.kicker;
-      title.textContent = story.title;
-      content.replaceChildren();
+      kicker.textContent = story.kicker; // 弹窗小标
+      title.textContent = story.title;   // 弹窗标题
+      content.replaceChildren();         // 清空旧内容，避免换页后残留
       story.paragraphs.forEach((text) => {
         const paragraph = document.createElement("p");
         paragraph.textContent = text;
         content.append(paragraph);
       });
       if (artwork) {
-        image.src = artwork.src;
-        image.alt = artwork.alt;
-        image.hidden = false;
+        image.src = artwork.src;   // 大图地址
+        image.alt = artwork.alt;   // 大图替代文本
+        image.hidden = false;      // 显示大图
       } else {
-        image.hidden = true;
-        image.removeAttribute("src");
+        image.hidden = true;                    // 无图场景：隐藏
+        image.removeAttribute("src");          // 同时清掉地址，避免残留上一次的大图
         image.alt = "";
       }
-      dialog.showModal();
+      dialog.showModal();          // 原生模态弹窗(自带焦点陷阱与 ::backdrop)
       closeButton.focus();
     };
 
+    // 三张视角卡按索引对应一段故事
     document.querySelectorAll(".memory-line article[aria-haspopup='dialog']").forEach((card, index) => {
       const openStory = () => {
         const story = memoryStories[index];
@@ -929,6 +1123,7 @@
         showStory(story, card);
       };
       card.addEventListener("click", (event) => {
+        // 卡片内的页面链接与按钮仍可直接跳转，不触发弹窗
         if (event.target.closest("a, button")) return;
         openStory();
       });
@@ -939,6 +1134,7 @@
       });
     });
 
+    // 四张配图：点击后展开该图大图，并把图注内容搬进弹窗正文
     document.querySelectorAll(".media-art[aria-haspopup='dialog']").forEach((artwork) => {
       const openArtwork = () => {
         const image = artwork.querySelector("img");
@@ -946,12 +1142,12 @@
         const heading = caption?.querySelector("h3");
         if (!image || !caption || !heading) return;
         const paragraphs = [];
-        const subheading = caption.querySelector("h4")?.textContent.trim();
+        const subheading = caption.querySelector("h4")?.textContent.trim(); // 小标题(如「纸上君王，笔底春愁」)
         if (subheading) paragraphs.push(subheading);
         caption.querySelectorAll("p:not(.media-caption-note)").forEach((paragraph) => {
           if (paragraph.textContent.trim()) paragraphs.push(paragraph.textContent.trim());
         });
-        const note = caption.querySelector(".media-caption-note")?.textContent.trim();
+        const note = caption.querySelector(".media-caption-note")?.textContent.trim(); // 免责/考辨说明
         if (note) paragraphs.push(note);
         showStory({
           kicker: caption.querySelector("span")?.textContent.trim() || "李煜 · 当代叙事",
@@ -968,12 +1164,14 @@
     });
   };
 
+  // 写句随风飘散：把刚写下的一句拆成单字逐个随风散去，并伴随三道风痕横扫
   const animateWrittenLineAway = (form, text) => {
-    if (reducedMotion) return;
-    form.querySelector(".wind-release")?.remove();
+    if (reducedMotion) return; // 减弱动效时不做飞散，直接由反馈文案交代结果
+    form.querySelector(".wind-release")?.remove(); // 若上一次风动层仍在，先移除避免叠加
     const effect = document.createElement("div");
     effect.className = "wind-release";
-    effect.setAttribute("aria-hidden", "true");
+    effect.setAttribute("aria-hidden", "true"); // 纯装饰层，对读屏软件隐藏
+    // 三道风痕：宽窄与深浅不同，依次扫过
     for (let index = 0; index < 3; index += 1) {
       const current = document.createElement("span");
       current.className = "wind-current";
@@ -981,43 +1179,49 @@
       current.style.setProperty("--wind-angle", `${index * -13}deg`);
       effect.append(current);
     }
+    // 词句整体：逐字拆分为 .wind-glyph，交由 CSS 关键帧完成飞散
     const phrase = document.createElement("span");
     phrase.className = "wind-phrase";
     Array.from(text).forEach((character, index) => {
       const glyph = document.createElement("span");
       glyph.className = "wind-glyph";
       glyph.textContent = character;
-      glyph.style.setProperty("--wind-delay", `${Math.min(index, 50) * 12}ms`);
-      glyph.style.setProperty("--wind-x", `${Math.round((Math.random() - 0.42) * 180)}px`);
-      glyph.style.setProperty("--wind-y", `${Math.round(-45 + Math.random() * 105)}px`);
-      glyph.style.setProperty("--wind-turn", `${Math.round((Math.random() - 0.5) * 300)}deg`);
+      glyph.style.setProperty("--wind-delay", `${Math.min(index, 50) * 12}ms`); // 逐字延迟起风，形成连绵感
+      glyph.style.setProperty("--wind-x", `${Math.round((Math.random() - 0.42) * 180)}px`); // 横向随机飘散
+      glyph.style.setProperty("--wind-y", `${Math.round(-45 + Math.random() * 105)}px`);  // 纵向随机飘散
+      glyph.style.setProperty("--wind-turn", `${Math.round((Math.random() - 0.5) * 300)}deg`); // 随机翻转角度
       phrase.append(glyph);
     });
     effect.append(phrase);
     form.append(effect);
-    window.setTimeout(() => effect.remove(), 1800);
+    window.setTimeout(() => effect.remove(), 1800); // 动画播完后清理节点
   };
 
+  /* ---------- 7-1. 立体悬停交互(卡片随指针轻微转动) ---------- */
   const initializeDepthInteractions = () => {
+    // 减弱动效、移动端窄屏、触屏设备均不启用
     if (reducedMotion || window.innerWidth <= 700 || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+    // 需要立体感的表面：词卡 / 时间线卡 / 记忆卡 / 媒体卡 / 介绍卡 / 首屏图 / 浮词圈 / 声波圈 / 诵读图
     document.querySelectorAll(".poem-card, .timeline-card, .memory-line article, .media-card, .intro-card, .hero-art, .floating-verse, .sound-orbit, .recite-art").forEach((surface) => {
-      if (surface.dataset.depthInitialized === "true") return;
+      if (surface.dataset.depthInitialized === "true") return; // 换页后同一元素不重复绑定
       surface.dataset.depthInitialized = "true";
-      surface.classList.add("depth-surface");
+      surface.classList.add("depth-surface"); // 供 CSS 挂 3D 透视与过渡
+      // 复位：移出时撤销转动
       const resetTilt = () => {
         surface.classList.remove("is-depth-active");
         surface.style.removeProperty("--depth-rotation");
       };
+      // 指针移动：按指针相对卡片中心的偏移量算出转轴与角度
       surface.addEventListener("pointermove", (event) => {
         if (event.pointerType === "touch") return;
         const bounds = surface.getBoundingClientRect();
-        const horizontal = ((event.clientX - bounds.left) / bounds.width - 0.5) * 2;
-        const vertical = ((event.clientY - bounds.top) / bounds.height - 0.5) * 2;
-        const tiltX = -vertical * 1.6;
-        const tiltY = horizontal * 1.6;
-        const angle = Math.hypot(tiltX, tiltY);
-        const axisX = angle ? tiltX / angle : 0;
-        const axisY = angle ? tiltY / angle : 1;
+        const horizontal = ((event.clientX - bounds.left) / bounds.width - 0.5) * 2; // 水平方向归一化到 -1 ~ 1
+        const vertical = ((event.clientY - bounds.top) / bounds.height - 0.5) * 2;   // 垂直方向归一化到 -1 ~ 1
+        const tiltX = -vertical * 1.6; // 上下偏移 → 绕 X 轴
+        const tiltY = horizontal * 1.6; // 左右偏移 → 绕 Y 轴
+        const angle = Math.hypot(tiltX, tiltY); // 总转角
+        const axisX = angle ? tiltX / angle : 0; // 转轴 X 分量
+        const axisY = angle ? tiltY / angle : 1; // 转轴 Y 分量
         surface.style.setProperty("--depth-rotation", `${axisX.toFixed(3)} ${axisY.toFixed(3)} 0 ${angle.toFixed(2)}deg`);
         surface.classList.add("is-depth-active");
       });
@@ -1026,99 +1230,112 @@
     });
   };
 
+  /* ---------- 8. 页面内交互(每次换页后重新初始化) ---------- */
   function initializePageContent() {
-  initializeScrollInteractions();
-  updateTimelineNarrative();
-  initializeDepthInteractions();
-  initializeTimelineStories();
-  initializeMemoryStories();
-  let speaking = false;
-  document.querySelectorAll(".read-aloud").forEach((button) => {
-    button.addEventListener("click", () => {
-      if (!("speechSynthesis" in window)) {
-        button.textContent = "此浏览器暂不支持语音诵读";
+    // 8a. 滚动进度条 / 返回顶部 / 渐显入场
+    initializeScrollInteractions();
+    // 8a-1. 时间线叙事进度(当前段落高亮)
+    updateTimelineNarrative();
+    // 8a-2. 立体悬停绑定
+    initializeDepthInteractions();
+    // 8b. 时间线故事弹窗绑定
+    initializeTimelineStories();
+    // 8b-2. 词容万象页·视角卡详情弹窗绑定
+    initializeMemoryStories();
+    // 8c. 语音诵读(为我诵读)
+    let speaking = false;
+    document.querySelectorAll(".read-aloud").forEach((button) => {
+      button.addEventListener("click", () => {
+        if (!("speechSynthesis" in window)) {
+          button.textContent = "此浏览器暂不支持语音诵读";
+          return;
+        }
+        if (speaking) window.speechSynthesis.cancel(); // 打断上一段
+        const utterance = new SpeechSynthesisUtterance(button.dataset.poem || "");
+        utterance.lang = "zh-CN";   // 中文
+        utterance.rate = 0.82;      // 稍慢，更接近吟诵
+        utterance.onstart = () => {
+          speaking = true;
+          button.textContent = "正在诵读　■";
+        };
+        utterance.onend = () => {
+          speaking = false;
+          button.textContent = "为我诵读　▶";
+        };
+        utterance.onerror = () => {
+          speaking = false;
+          button.textContent = "诵读未能播放，请重试";
+        };
+        window.speechSynthesis.speak(utterance);
+      });
+    });
+
+    // 8d. 收藏按钮(按索引分别记忆到 localStorage)
+    document.querySelectorAll(".favorite-button").forEach((button, index) => {
+      const key = `liyu-favorite-${index}`;
+      const saved = localStorage.getItem(key) === "true";
+      button.setAttribute("aria-pressed", String(saved));
+      button.textContent = saved ? "♥ 已收藏" : "♡ 收藏这首";
+      button.addEventListener("click", () => {
+        const selected = button.getAttribute("aria-pressed") !== "true";
+        button.setAttribute("aria-pressed", String(selected));
+        button.textContent = selected ? "♥ 已收藏" : "♡ 收藏这首";
+        localStorage.setItem(key, String(selected));
+      });
+    });
+
+    // 8e. 字数计数器(心情 / 写句共用)：实时显示 “已输入 / 上限”
+    const setupCounter = (fieldId, countId, max) => {
+      const field = document.getElementById(fieldId);
+      const count = document.getElementById(countId);
+      if (!field || !count) return;
+      const update = () => { count.textContent = `${field.value.length} / ${max}`; };
+      field.addEventListener("input", update);
+      update();
+    };
+    setupCounter("mood", "mood-count", 80);
+    setupCounter("my-line", "line-count", 100);
+
+    // 8f. 首页“此刻心情”表单提交
+    document.querySelector(".mood-form")?.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const field = document.getElementById("mood");
+      const feedback = document.querySelector(".mood-feedback");
+      if (!field.value.trim()) {
+        feedback.textContent = "写下一点心情，再让它随春水而去。";
+        field.focus();
         return;
       }
-      if (speaking) window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(button.dataset.poem || "");
-      utterance.lang = "zh-CN";
-      utterance.rate = 0.82;
-      utterance.onstart = () => {
-        speaking = true;
-        button.textContent = "正在诵读　■";
-      };
-      utterance.onend = () => {
-        speaking = false;
-        button.textContent = "为我诵读　▶";
-      };
-      utterance.onerror = () => {
-        speaking = false;
-        button.textContent = "诵读未能播放，请重试";
-      };
-      window.speechSynthesis.speak(utterance);
+      feedback.textContent = "收到了。愿这份心情，在词里找到回声。";
+      field.value = "";
+      document.getElementById("mood-count").textContent = "0 / 80";
     });
-  });
-
-  document.querySelectorAll(".favorite-button").forEach((button, index) => {
-    const key = `liyu-favorite-${index}`;
-    const saved = localStorage.getItem(key) === "true";
-    button.setAttribute("aria-pressed", String(saved));
-    button.textContent = saved ? "♥ 已收藏" : "♡ 收藏这首";
-    button.addEventListener("click", () => {
-      const selected = button.getAttribute("aria-pressed") !== "true";
-      button.setAttribute("aria-pressed", String(selected));
-      button.textContent = selected ? "♥ 已收藏" : "♡ 收藏这首";
-      localStorage.setItem(key, String(selected));
+    // 8g. 互动区：点击提示词直接填入“写一句”
+    document.querySelectorAll(".prompt-words button").forEach((button) => {
+      button.addEventListener("click", () => {
+        const field = document.getElementById("my-line");
+        field.value = `${field.value}${button.dataset.prompt}`;
+        field.focus();
+        field.dispatchEvent(new Event("input", { bubbles: true })); // 触发字数刷新
+      });
     });
-  });
-
-  const setupCounter = (fieldId, countId, max) => {
-    const field = document.getElementById(fieldId);
-    const count = document.getElementById(countId);
-    if (!field || !count) return;
-    const update = () => { count.textContent = `${field.value.length} / ${max}`; };
-    field.addEventListener("input", update);
-    update();
-  };
-  setupCounter("mood", "mood-count", 80);
-  setupCounter("my-line", "line-count", 100);
-
-  document.querySelector(".mood-form")?.addEventListener("submit", (event) => {
-    event.preventDefault();
-    const field = document.getElementById("mood");
-    const feedback = document.querySelector(".mood-feedback");
-    if (!field.value.trim()) {
-      feedback.textContent = "写下一点心情，再让它随春水而去。";
-      field.focus();
-      return;
-    }
-    feedback.textContent = "收到了。愿这份心情，在词里找到回声。";
-    field.value = "";
-    document.getElementById("mood-count").textContent = "0 / 80";
-  });
-  document.querySelectorAll(".prompt-words button").forEach((button) => {
-    button.addEventListener("click", () => {
+    // 8h. 互动区“写一句”表单提交
+    document.querySelector(".poem-form")?.addEventListener("submit", (event) => {
+      event.preventDefault();
       const field = document.getElementById("my-line");
-      field.value = `${field.value}${button.dataset.prompt}`;
-      field.focus();
-      field.dispatchEvent(new Event("input", { bubbles: true }));
+      const feedback = document.querySelector(".poem-feedback");
+      if (!field.value.trim()) {
+        feedback.textContent = "先写下一句心情，再让涟漪带走它。";
+        field.focus();
+        return;
+      }
+      // 先取出所写的一句（清空前取词，供风动层逐字使用）
+      const writtenLine = field.value.trim();
+      animateWrittenLineAway(event.currentTarget, writtenLine); // 让这一句随风飘散
+      feedback.textContent = `“${writtenLine}” —— 已随风带入词境。`;
+      field.value = "";
+      document.getElementById("line-count").textContent = "0 / 100";
     });
-  });
-  document.querySelector(".poem-form")?.addEventListener("submit", (event) => {
-    event.preventDefault();
-    const field = document.getElementById("my-line");
-    const feedback = document.querySelector(".poem-feedback");
-    if (!field.value.trim()) {
-      feedback.textContent = "先写下一句心情，再让涟漪带走它。";
-      field.focus();
-      return;
-    }
-    const writtenLine = field.value.trim();
-    animateWrittenLineAway(event.currentTarget, writtenLine);
-    feedback.textContent = `“${writtenLine}” —— 已随风带入词境。`;
-    field.value = "";
-    document.getElementById("line-count").textContent = "0 / 100";
-  });
   }
-  initializePageContent();
+  initializePageContent(); // 首屏初始化
 })();
