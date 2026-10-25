@@ -102,11 +102,11 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}      /* 标题中强调字用�
 /* ---------- 5. 首页词人介绍 intro ---------- */
 .intro{display:grid;grid-template-columns:.45fr 1.05fr .8fr;gap:45px;padding-top:120px;padding-bottom:128px;align-items:start;background:linear-gradient(rgba(243,243,237,.68),rgba(243,243,237,.68)),url("intro-background.jpg") center/cover no-repeat}
 .intro-poet{min-width:0}
-.portrait-frame{position:relative;width:calc(100% + 18px);margin-top:36px;padding:7px;border:1px solid rgba(169,104,76,.48);background:linear-gradient(145deg,#f7f4eb,#e6e5db);box-shadow:0 10px 28px rgba(47,62,49,.12)} /* 肖像外框 */
+.portrait-frame{position:relative;width:100%;margin:36px 0 0;padding:7px;border:1px solid rgba(169,104,76,.48);background:linear-gradient(145deg,#f7f4eb,#e6e5db);box-shadow:0 10px 28px rgba(47,62,49,.12)} /* 肖像外框 */
 .portrait-frame:before,.portrait-frame:after{content:"";position:absolute;width:17px;height:17px;z-index:1;pointer-events:none}
 .portrait-frame:before{top:3px;left:3px;border-top:1px solid #ba8a68;border-left:1px solid #ba8a68}
 .portrait-frame:after{right:3px;bottom:3px;border-right:1px solid #ba8a68;border-bottom:1px solid #ba8a68} /* 四角描边装饰 */
-.poet-portrait{display:block;width:100%;aspect-ratio:1.42;object-fit:cover;object-position:center 24%;border:1px solid rgba(255,255,255,.8)}
+.poet-portrait{display:block;width:100%;aspect-ratio:1.24;object-fit:cover;object-position:left 24%;border:1px solid rgba(255,255,255,.8)}
 .section-kicker{display:flex;align-items:center;gap:12px;padding-top:11px;white-space:nowrap}
 .section-kicker span{color:#929a8f;font-size:9px}
 .intro-heading h2,.feature-head h2,.story-lead h2,.works-heading h2,.listen-title h2,.interactive h2,.next-step h2,.closing h2{font-size:clamp(30px,3.2vw,43px);line-height:1.6;letter-spacing:.06em;font-weight:500;margin:0 0 17px}
@@ -148,7 +148,7 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}      /* 标题中强调字用�
 .afterlife-copy h2{font-size:clamp(34px,4.3vw,56px);line-height:1.55;font-weight:500;letter-spacing:.08em;margin:0 0 13px;color:#29372c;text-shadow:0 1px 18px rgba(255,255,245,.72)}
 .afterlife-copy h2 em{font-style:normal;color:#755b3f} /* 标题中强调字用赭黄 */
 .afterlife-copy p{max-width:500px;margin:0;color:#4f594e;font-size:13px;line-height:2.1;text-shadow:0 1px 14px rgba(255,255,245,.85)}
-.afterlife-copy .button{flex-shrink:0;box-shadow:0 3px 18px rgba(255,255,245,.48)} /* 行动按钮：不伸缩 + 浅色投影 */
+.afterlife-copy .button{flex-shrink:0;box-shadow:0 3px 18px rgba(255,255,255,.48)} /* 行动按钮：不伸缩 + 浅色投影 */
 .closing{position:relative;isolation:isolate;padding-top:108px;padding-bottom:110px;display:grid;grid-template-columns:.35fr 1fr .85fr;gap:45px;align-items:center}  /* 建立定位上下文 + 隔离层叠，使 ::before 背景图收敛到本区块 */
 .closing:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(rgba(238,240,232,.14),rgba(238,240,232,.14)),url("closing-background.jpg") center 54%/cover no-repeat;opacity:.56} /* 结语整屏背景图 + 极淡纸色叠层（透明度 .7→.56 调淡），z-index:-1 沉到文字之下 */
 .closing-pine{color:#879483;font-size:13px;letter-spacing:.3em;writing-mode:vertical-rl;border-left:1px solid #b8c1b5;height:170px;padding:10px 0 0 16px} /* 竖排“松”字意境 */
@@ -182,20 +182,21 @@ textarea::placeholder{color:#9aa297}
 .subhero-mark small{grid-column:1 / -1;line-height:1.8;font-size:10px;color:#405748;font-weight:500} /* 生卒年标记 */
 
 /* ---------- 10. 生平时间线 story ---------- */
-.story{padding-top:94px;padding-bottom:95px;border-top:1px solid rgba(169,104,76,.34);background:linear-gradient(180deg,rgba(243,243,237,.62),rgba(243,243,237,.48) 24%,rgba(243,243,237,.54)),url("life-story-background.jpg") center 48%/cover no-repeat}  /* 生平区顶部加锈红分隔线 + 背景图(life-story) + 纸色渐变叠层(改 180° 自上而下、纸色更实) */
+.story{position:relative;padding-top:94px;padding-bottom:95px;border-top:1px solid rgba(169,104,76,.34);background:linear-gradient(180deg,rgba(243,243,237,.62),rgba(243,243,237,.48) 24%,rgba(243,243,237,.54)),url("life-story-background.jpg") center 48%/cover no-repeat}  /* 生平区顶部加锈红分隔线 + 背景图(life-story) + 纸色渐变叠层；position:relative 让花饰 ::before 相对本区定位 */
+.story:before{content:"❧　✧　❧";position:absolute;top:-17px;left:50%;transform:translateX(-50%);padding:0 20px;background:#f0f0e8;color:#9b7054;font-size:18px;line-height:32px;letter-spacing:.16em;text-shadow:0 1px 0 rgba(255,255,255,.7)}  /* 中式花饰分隔(❧✧❧)，悬浮于区块上沿中点 */
 .story>.section-kicker{margin-bottom:28px}
 .story-lead{display:grid;grid-template-columns:1fr 1fr;gap:10%;padding:0 0 55px 18%}
 .story-lead h2{font-size:37px;margin:0}
 .story-lead p{margin:4px 0 0}
 .timeline{position:relative;margin-left:20%;padding:10px 0 0 54px;border-left:1px solid #cbd2c8} /* 时间线主轴 */
 .timeline-item{position:relative;display:grid;grid-template-columns:1fr;max-width:690px;padding:0 0 39px}
-.timeline-year{position:absolute;right:calc(100% + 76px);top:0;font:12px var(--sans);color:var(--rust);letter-spacing:.1em}
+.timeline-year{position:absolute;right:calc(100% + 76px);top:0;font:14px var(--sans);color:var(--rust);letter-spacing:.1em}
 .timeline-dot{position:absolute;width:9px;height:9px;border-radius:50%;background:var(--rust);left:-59px;top:9px;box-shadow:0 0 0 5px var(--paper)} /* 轴上节点 */
 .timeline-card{padding:23px 28px;background:rgba(234,235,228,.88);backdrop-filter:blur(2px)}  /* 卡片改半透明 + 背景磨砂，叠在生平背景图上更通透 */
-.timeline-label,.work-meta{font:9px var(--sans);letter-spacing:.14em;color:var(--rust)}
-.timeline-card h3{font-size:19px;font-weight:500;letter-spacing:.07em;margin:8px 0}
-.timeline-card p{font-size:12px;color:#707b70;line-height:2.1;margin:0 0 10px}
-.timeline-quote{font-size:11px;color:#5f705f}
+.timeline-label,.work-meta{font:11px var(--sans);letter-spacing:.14em;color:var(--rust)}
+.timeline-card h3{font-size:22px;font-weight:500;letter-spacing:.07em;margin:9px 0}
+.timeline-card p{font-size:15px;color:#59675a;line-height:2.05;margin:0 0 12px}
+.timeline-quote{font-size:14px;color:#4b5e4d}
 .life-note{padding:56px 20px;background:#304b3d;text-align:center;color:#f1eee4;position:relative} /* 生平结语(深绿底) */
 .life-note blockquote{margin:0 0 16px;font-size:27px;letter-spacing:.15em;line-height:1.9}
 .life-note>span:last-child{font:10px var(--sans);letter-spacing:.1em;color:#c0c8b9}
@@ -322,7 +323,9 @@ textarea::placeholder{color:#9aa297}
 .annotation strong{color:#405544;font-weight:500}
 
 /* ---------- 13. 听词入梦 listen ---------- */
-.listen-hero{background:radial-gradient(ellipse at 78% 50%,rgba(215,207,184,.36),transparent 30%),linear-gradient(120deg,#ecefe7,#e1e8df)}
+.listen-hero{isolation:isolate;background:radial-gradient(ellipse at 78% 50%,rgba(215,207,184,.36),transparent 30%),linear-gradient(120deg,#ecefe7,#e1e8df)}  /* 建立隔离层叠上下文，使 ::before 叠层与背景视频沉到文字之下 */
+.listen-hero-video{position:absolute;inset:0;z-index:-2;width:100%;height:100%;object-fit:cover;object-position:center 50%}  /* 听词页背景视频(脚本注入 src)，沉到最底层 */
+.listen-hero:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(239,241,234,.78),rgba(224,232,222,.38));pointer-events:none}  /* 视频之上叠纸色，保证文字可读 */
 .sound-orbit{position:relative;z-index:2;width:210px;height:210px;margin-right:14%;border:1px solid rgba(111,129,110,.35);border-radius:50%;display:grid;place-items:center;color:var(--rust);font-size:46px} /* 声波同心圆 */
 .sound-orbit:before,.sound-orbit:after,.sound-orbit i,.sound-orbit b{content:"";position:absolute;inset:15px;border:1px solid rgba(111,129,110,.24);border-radius:50%}
 .sound-orbit:after{inset:-16px;border-style:dashed;opacity:.6}
@@ -471,8 +474,8 @@ body.home-page.book-opened>.site-header,body.home-page.book-opened>main,body.hom
   .hero{min-height:min(820px,calc(100svh - 86px))}
   .intro{min-height:calc(100svh - 86px);grid-template-columns:minmax(260px,.78fr) minmax(420px,1.25fr) minmax(280px,.9fr);gap:clamp(28px,3.2vw,48px);align-items:center;padding-top:clamp(58px,8vh,100px);padding-bottom:clamp(58px,8vh,100px)}
   .intro-poet{align-self:center}
-  .portrait-frame{width:calc(100% + 18px);margin-top:34px}
-  .poet-portrait{aspect-ratio:1.42}
+  .portrait-frame{width:100%;margin-top:34px}
+  .poet-portrait{aspect-ratio:1.24;object-position:left 24%}
   .intro-heading h2{font-size:clamp(38px,3.6vw,52px)}
   .intro-card{margin-top:0;min-height:280px;padding:clamp(28px,3.2vw,44px)}
 }
@@ -531,3 +534,7 @@ body.home-page.book-opened>.site-header,body.home-page.book-opened>main,body.hom
 .works{overflow-x:clip} /* 裁掉横向溢出，避免滚动条 */
 @media(max-width:1000px){.poem-gallery{padding-left:7vw;padding-right:7vw}}
 @media(max-width:700px){.poem-gallery{padding:8px 7vw 2px}.poem-gallery .poem-tabs{margin:0 -2px}}
+
+/* —— 听词页 / 生平时间线：手机端专属微调 —— */
+@media(max-width:700px){.poet-portrait{aspect-ratio:1.24;object-position:left 24%}}  /* 手机端肖像裁切比例与桌面保持一致 */
+@media(max-width:700px){.timeline-year{font-size:13px}.timeline-label{font-size:10px}.timeline-card h3{font-size:19px}.timeline-card p{font-size:14px}.timeline-quote{font-size:13px}}  /* 手机端时间线字号回缩到合适档位 */
