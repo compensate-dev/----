@@ -15,7 +15,6 @@
 <body class="home-page">
   <!-- 跳过导航：键盘用户按 Tab 时可直接跳入正文(#main-content) -->
   <a class="skip-link" href="#main-content">跳至主要内容</a>
-
   <!-- 开场封面：全屏「书封」层，role=dialog 语义化，读到封面标题为无障碍名称 -->
   <section class="book-opening" role="dialog" aria-modal="true" aria-labelledby="book-cover-heading">
     <div class="book-cover">
@@ -38,7 +37,6 @@
       <div class="book-cover-back" aria-hidden="true"></div>
     </div>
   </section>
-
   <!-- 书法飞落层：序列期间承载随机飞落的书法字与「字化飞墨」粒子画布；背景视频不作 loop，播完即进入墨迹插页 -->
   <div class="calligraphy-sequence" aria-hidden="true">
     <video class="calligraphy-background" src="calligraphy-background.mp4" muted playsinline preload="none" tabindex="-1"></video>
@@ -47,7 +45,6 @@
     <!-- 粒子阶段文案：视频淡出后延迟渐显的「由词入画」题注 -->
     <div class="calligraphy-particle-caption" aria-hidden="true"><span>由词入画</span><b>字化飞墨，凝为月下人</b></div>
   </div>
-
   <!-- 墨迹插页：书法飞落结束后的水墨过渡页，canvas 绘制墨色晕染，文案居中 -->
   <section class="ink-interlude" aria-hidden="true">
     <canvas class="ink-canvas"></canvas>
@@ -56,10 +53,6 @@
       <p>这里记录李煜的一生、他的词，以及那些穿越千年仍动人的悲欢。</p>
     </div>
   </section>
-
-  <!-- 视差入场段：墨迹插页之后的滚动驱动开场场景，默认 aria-hidden + inert，由 script.js 揭示
-       结构：arrival-scroller（可滚动容器）→ arrival-track（滚动行程）→ arrival-stage（固定舞台）
-       场景层：远山、场景切换层、月、松枝、墨韵光晕、水面、余烬、暗角、水墨晕染、离场碎裂；文案按滚动进度分三幕切换 -->
   <section class="arrival-interlude" aria-hidden="true" inert aria-labelledby="arrival-title">
     <!-- 滚动容器：用户在此区域内滚动推进入场进度，tabindex=-1 供脚本聚焦 -->
     <div class="arrival-scroller" role="region" aria-label="向下滚动，展开李煜词境" tabindex="-1">
@@ -132,13 +125,10 @@
           </nav>
           <!-- 侧边竖排英文注记，纯视觉 -->
           <span class="arrival-side-note" aria-hidden="true">SPRING RIVER · ENDLESS SORROW</span>
-          <!-- 碎裂层：离场转场时画面碎裂的碎片容器，由 script.js 生成 .shatter-shard -->
-          <div class="shatter-layer" aria-hidden="true"></div>
         </div>
       </div>
     </div>
   </section>
-
   <!-- 页头：品牌 + 主导航(当前页高亮「首页」) + 背景音乐开关/音量；开场未揭开时 inert 禁用交互 -->
   <header class="site-header" inert>
     <a class="brand" href="index.html"><span class="brand-seal">煜</span><span>一江春水<small>李煜词境 · 南唐旧梦</small></span></a>
@@ -148,7 +138,6 @@
     </nav>
     <div class="sound-controls"><button class="sound-toggle" type="button" aria-label="关闭背景音乐" aria-pressed="true"><span class="sound-icon">♫</span><span class="sound-status">音乐开启</span></button><label class="volume-control"><span class="visually-hidden">背景音乐音量</span><input class="volume-slider" type="range" min="0" max="1" step="0.01" value="0.32"></label></div>
   </header>
-
   <!-- 主体：id="main-content" 供顶部「跳至主要内容」链接定位；tabindex="-1" 使其可被程序聚焦；开场未揭开时 inert -->
   <main id="main-content" tabindex="-1" inert>
     <!-- 首屏 Hero：左侧文案(主标题 + 引言 + 按钮 + 名句) + 右侧月下古画图 + 底部滚动提示 -->
@@ -170,14 +159,12 @@
       </div>
       <div class="hero-bottom"><span>SCROLL TO WANDER</span><span class="scroll-line"></span><span>01 / 04</span></div>
     </section>
-
     <!-- 词人介绍：左侧李煜画像 + 中间文字 + 右侧《虞美人》名句卡 -->
     <section class="intro section-wrap">
       <div class="intro-poet"><div class="section-kicker">01 <span>THE POET</span></div><div class="portrait-frame"><img class="poet-portrait" src="li-yu-portrait.jpg" alt="李煜人物画像" loading="lazy" decoding="async"></div></div>
       <div class="intro-heading"><h2>他把无常，<br>写成了永恒。</h2><p>李煜，南唐最后一位君主，也是中国词史上极具感染力的抒情者。前期词写宫廷生活与男女情思，后期词则沉入故国之思、身世之痛；词风由绮丽转为深沉，开拓了词的表达境界。</p><a class="under-link" href="life.html">走近李煜 <span>↗</span></a></div>
       <div class="intro-card"><span class="card-index">A LIFE IN VERSE</span><p>“春花秋月何时了，<br>往事知多少。”</p><span class="card-caption">《虞美人》 · 绝唱</span><span class="card-orbit"></span></div>
     </section>
-
     <!-- 精选词作：四张词卡(配图 + 编号 + 题材 + 词名 + 句选)，点击进入词作笺赏页锚点 -->
     <section class="feature-section">
       <div class="section-wrap feature-head"><div><div class="section-kicker">02 <span>SELECTED CI</span></div><h2>循着词句，<em>读懂</em>李煜</h2></div><a class="under-link" href="ci.html">全部词作 <span>↗</span></a></div>
@@ -188,18 +175,16 @@
         <a class="poem-card card-four" href="ci.html#清平乐"><img class="poem-card-image" src="poem-qingpingle.jpg" alt="" aria-hidden="true" loading="lazy" decoding="async"><span class="poem-number">04 / 04</span><span class="poem-tag">相思之苦</span><h3>清平乐</h3><p>离恨恰如春草，<br>更行更远还生。</p><span class="poem-arrow">↗</span></a>
       </div>
     </section>
-
     <!-- 词外余韵：引导进入「词容万象」页 -->
     <section class="afterlife-section section-wrap"><div class="section-kicker">03 <span>BEYOND HIS TIME</span></div><div class="afterlife-copy"><div><h2>李煜已远去，<br><em>词中的他</em>仍在此刻。</h2><p>千年之后，人们仍在诗词、舞台与自己的阅读里重新看见李煜。走进不同的目光，看看同一个名字如何映出万千心境。</p></div><a class="button button-dark" href="wanxiang.html">走进词容万象 <span>↗</span></a></div></section>
-
     <!-- 结语：留心情表单 + 引导进入「听词入梦」页 -->
     <section class="closing section-wrap"><div class="closing-pine">松<br>影</div><div><div class="section-kicker">04 <span>MAKE A MOMENT</span></div><h2>此刻，你心中<br>也有一江春水吗？</h2><p>留下一句此刻的心情，让千年前的词与你相遇。</p><a class="button button-dark" href="listen.html">进入听词小院 <span>↗</span></a></div><form class="mood-form"><label for="mood">把心情写在这里</label><textarea id="mood" maxlength="80" placeholder="例如：今夜月色很好……"></textarea><div class="form-bottom"><span id="mood-count">0 / 80</span><button type="submit">投进春水　↗</button></div><p class="mood-feedback" aria-live="polite"></p></form></section>
   </main>
-
   <!-- 页脚：品牌 + 标语 + 跳转链接；开场未揭开时 inert -->
   <footer class="site-footer" inert><a class="brand" href="index.html"><span class="brand-seal">煜</span><span>一江春水<small>愿每个读词的人，都有一刻安宁。</small></span></a><span>词有尽时，春水长流。</span><a href="ci.html">再读一首 ↗</a></footer>
-
   <!-- 背景音乐：自动播放、循环；实际播放由 script.js 控制；preload="metadata" 只预取时长信息，不整段下载 -->
   <audio class="background-audio" src="background-music.mp3" autoplay loop preload="metadata" inert></audio>
+  <!-- 金竹飘落画布：全屏固定层，由 script.js 绘制缓缓飘落的竹叶；mix-blend-mode 与页面底色柔融，pointer-events:none 不拦截点击；减弱动效时由 CSS 隐藏 -->
+  <canvas class="bamboo-leaves" aria-hidden="true"></canvas>
 </body>
 </html>

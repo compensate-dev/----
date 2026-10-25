@@ -1,6 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap');
 /* Google Fonts：Noto Serif SC（正文衬线）+ Manrope（界面无衬线） */
-
 /* ===== 第 02 区 · 本地书法字体 @font-face ===== */
 @font-face{font-family:"HongLei Calligraphy";src:url("honglei-calligraphy.otf") format("opentype");font-style:normal;font-weight:400;font-display:swap}
 @font-face{font-family:"ZhongQi ZhiMang";src:url("zhongqi-zhimang-calligraphy.ttf") format("truetype");font-style:normal;font-weight:400;font-display:swap}
@@ -282,7 +281,7 @@ textarea::placeholder{color:#9aa297}
 .media-film-one{background-image:radial-gradient(ellipse at 72% 28%,rgba(244,230,202,.55),transparent 30%),linear-gradient(135deg,#c7c9b8,#e5e4d5 48%,#aeb9aa)}
 .media-film-two{background-image:radial-gradient(ellipse at 28% 76%,rgba(230,207,174,.55),transparent 32%),linear-gradient(135deg,#c3ccc2,#e8e7d9 50%,#b7bfae)}
 .media-game-one{background-image:radial-gradient(ellipse at 72% 68%,rgba(216,199,174,.53),transparent 30%),linear-gradient(135deg,#bdc7bd,#e2e4d8 50%,#aeb8b0)}
-.media-game-two{background-image:radial-gradient(ellipse at 30% 26%,rgba(237,219,183,.52),transparent 32%),linear-gradient(135deg,#c5c8b9,#e5e2d5 50%,#b4beb2)}
+.media-game-two{background-image:radial-gradient(ellipse at 30% 26%,rgba(237,219,183,.52),transparent 30%),linear-gradient(135deg,#c5c8b9,#e5e2d5 50%,#b4beb2)}
 .media-placeholder-type,.media-placeholder-number,.media-placeholder-note{position:absolute;z-index:1}
 .media-placeholder-type{top:25px;left:28px;padding:5px 9px;background:rgba(243,243,237,.77);font:9px var(--sans);letter-spacing:.12em}
 .media-placeholder-number{right:27px;top:18px;font:30px var(--serif);color:rgba(48,77,63,.28)}
@@ -446,9 +445,17 @@ textarea::placeholder{color:#9aa297}
 .back-to-top{position:fixed;right:24px;bottom:24px;z-index:25;width:44px;height:44px;border:1px solid rgba(48,77,63,.24);border-radius:50%;background:rgba(243,243,237,.9);color:var(--pine);font-size:22px;line-height:1;cursor:pointer;box-shadow:0 5px 18px rgba(36,54,46,.12);transition:transform .2s,background .2s,box-shadow .2s}
 /* 返回顶部按钮 */
 .back-to-top:hover{transform:translateY(-3px);background:#fff;box-shadow:0 8px 22px rgba(36,54,46,.18)}
-.reveal-on-scroll{opacity:0;transform:translateY(20px);transition:opacity .65s ease var(--reveal-delay,0ms),transform .65s cubic-bezier(.2,.65,.25,1) var(--reveal-delay,0ms)}
+.reveal-on-scroll{opacity:0;transform:translateY(22px);transition:opacity .7s cubic-bezier(.2,.65,.25,1) var(--reveal-delay,0ms),transform .7s cubic-bezier(.2,.65,.25,1) var(--reveal-delay,0ms)}
 /* 滚动渐显初始态 */
 .reveal-on-scroll.is-visible{opacity:1;transform:translateY(0)}
+/* 滚动视差：脚本按元素相对视口中心的偏移写入 --scroll-y，下列类据此产生不同速度的位差；-bg 用于背景层反向缓动 */
+.scroll-parallax{will-change:transform;transform:translate3d(0,var(--scroll-y,0px),0)}
+.scroll-parallax-slow{will-change:transform;transform:translate3d(0,calc(var(--scroll-y,0px) * .42),0)}
+.scroll-parallax-bg{will-change:transform;transform:translate3d(0,calc(var(--scroll-y,0px) * -.28),0) scale(1.06)}
+/* 金竹飘落画布：全屏固定层，承载 script.js 绘制的竹叶；opacity + multiply 混合与页面底色相融，pointer-events:none 不拦截交互 */
+.bamboo-leaves{position:fixed;inset:0;z-index:60;pointer-events:none;width:100%;height:100%;opacity:.62;mix-blend-mode:multiply}
+/* 移动端：金竹画布降低不透明度，避免遮挡正文 */
+@media(max-width:700px){.bamboo-leaves{opacity:.42}}
 /* ===== 第 31 区 · 水波涟漪与翻页过渡 ===== */
 .click-ripple{position:fixed;inset:0;z-index:999;overflow:hidden;pointer-events:none}
 /* 点击水波涟漪：内外两圈 + 径向渐变芯 */
@@ -687,15 +694,6 @@ body.home-page.book-opened>.site-header,body.home-page.book-opened>main,body.hom
 .arrival-skip-button{padding:0;border:0;background:none;color:rgba(242,235,220,.58);font-size:10px;letter-spacing:.1em;cursor:pointer}
 .arrival-skip-button:hover{color:#f3e4c5}
 .arrival-side-note{position:absolute;z-index:2;right:24px;top:50%;color:rgba(241,231,211,.42);font:8px var(--sans);letter-spacing:.23em;writing-mode:vertical-rl;transform:translateY(-50%)}
-/* 右侧竖排边注 */
-/* 碎裂层：离场转场时承载画面碎片，默认隐藏 */
-.shatter-layer{position:absolute;inset:0;z-index:9;overflow:hidden;pointer-events:none;visibility:hidden}
-/* 激活态：显示碎裂层 */
-.shatter-layer.is-active{visibility:visible}
-/* 单个碎片：绝对定位、微圆角、内阴影模拟纸厚 */
-.shatter-shard{position:absolute;top:0;left:0;background-repeat:no-repeat;border-radius:1.5px;opacity:0;will-change:transform,opacity;box-shadow:inset 0 0 0 1px rgba(16,26,23,.3),inset 0 0 28px rgba(8,15,13,.16)}
-/* 碎片高光：径向渐变模拟纸面反光（--sheen-x 由 JS 写入） */
-.shatter-shard:after{content:"";position:absolute;inset:0;background:radial-gradient(circle at var(--sheen-x,50%) 28%,rgba(250,240,214,.17),transparent 58%)}
 /* ----- 40b · 由脚本写入的 --arrival-* 变量驱动的推镜与分幕换境 ----- */
 .arrival-landscape{transform:translate3d(calc(var(--arrival-world-x,0px) + var(--arrival-pointer-x,0px)*-.35),calc(var(--arrival-landscape-y,0px) + var(--arrival-pointer-y,0px)*-.35),-100px) scale(var(--arrival-landscape-scale,1.18))}
 .arrival-world-change{position:absolute;inset:-8% -3%;z-index:-3;opacity:0;transform:translate3d(calc(var(--arrival-world-x,0px)*.7 + var(--arrival-pointer-x,0px)*-.6),calc(var(--arrival-landscape-y,0px)*.7 + var(--arrival-pointer-y,0px)*-.6),-35px) scale(var(--arrival-camera-scale,1));transition:opacity 1.1s ease,filter 1.1s ease;filter:saturate(.7)}
@@ -800,7 +798,6 @@ body.home-page.book-opened>.site-header,body.home-page.book-opened>main,body.hom
   .arrival-embers i{animation:none}
   .arrival-copy{transition:opacity .01ms,visibility .01ms}
   .arrival-ink-wash{display:none}
-  .shatter-layer{display:none}
   .arrival-glyph{transform:none;filter:none;will-change:auto}
 }
 /* ===== 第 42 区 · 书法飞落关键帧 ===== */
@@ -879,7 +876,6 @@ body.home-page.book-opened>.site-header,body.home-page.book-opened>main,body.hom
 @media(max-width:1000px){.poem-gallery{padding-left:7vw;padding-right:7vw}}
 @media(max-width:700px){.poem-gallery{padding:8px 7vw 2px}.poem-gallery .poem-tabs{margin:0 -2px}}
 @media(max-width:700px){.hero h1{font-size:52px}}
-
 /* ===== 第 47 区 · 标题 / 词句呼吸动效层 ===== */
 .hero h1,.subhero h1,.intro-heading h2,.feature-head h2,.story-lead h2,.works-heading h2,.listen-title h2,.interactive h2,.next-step h2,.closing h2,.memory-lead h2,.screen-world-heading h2{ text-wrap:balance}
 /* 标题自动平衡换行 */
@@ -1008,4 +1004,5 @@ button:not(.book-open-button):active,.button:active{translate:0 1px}
   .timeline-narrative .timeline-quote{font-size:12px}
   .timeline-narrative .timeline-item.is-active .timeline-card{transform:translateY(-2px)}
 }
-@media(prefers-reduced-motion:reduce){.timeline-scene:before,.timeline-scene-copy,.timeline-scene-progress span{transition:none;transform:none}.timeline-scene-copy.is-changing{opacity:1}}
+/* 生平时间线 · 减弱动效兜底：时间线场景取消位移与过渡；同时隐藏金竹画布、关闭滚动视差位移，避免无障碍模式下产生多余运动 */
+@media(prefers-reduced-motion:reduce){.timeline-scene:before,.timeline-scene-copy,.timeline-scene-progress span{transition:none;transform:none}.timeline-scene-copy.is-changing{opacity:1}.bamboo-leaves{display:none}.scroll-parallax,.scroll-parallax-bg{transform:none!important}}

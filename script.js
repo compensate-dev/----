@@ -6,7 +6,6 @@
 (() => {
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   // 读取系统“减弱动效”偏好；开启后跳过粒子/水墨/视差等重动画，仅保留必要过渡
-
   document.addEventListener("click", (event) => {
     /* —— 全局点击涟漪：在点击处生成一圈扩散水波（.click-ripple） —— */
     // 跳过表单控件与媒体，避免干扰输入/播放
@@ -26,7 +25,6 @@
     document.body.append(ripple);
     window.setTimeout(() => ripple.remove(), 1100);
   });
-
   /* —— 顶部导航：汉堡菜单开合 —— */
   const menuButton = document.querySelector(".menu-toggle");
   const nav = document.querySelector(".main-nav");
@@ -37,7 +35,6 @@
       menuButton.setAttribute("aria-label", open ? "关闭导航" : "打开导航");
     });
   }
-
   /* —— 背景音乐：自动播放策略 + sessionStorage 记忆 —— */
   const audio = document.querySelector(".background-audio");
   const soundButtons = document.querySelectorAll(".sound-toggle");
@@ -113,7 +110,6 @@
       if (audioEnabled && audio.paused && !event.target.closest("input, textarea, button, a")) playBackgroundMusic();
     }, { once: true });
   }
-
   /* ============================================================
    * 开场链路：翻书封面 → 书法飞落序列 → 水墨间奏 → 抵达视差
    * ============================================================ */
@@ -448,125 +444,22 @@
         });
       }).catch(() => false);
     };
-    /* 离场碎裂：把抵达舞台快照切成碎片向外飞散，揭开首页 */
-    const shatterArrivalScene = async (onCover) => {
-      const shatterLayer = arrivalInterlude?.querySelector(".shatter-layer");
-      if (!shatterLayer || !arrivalInterlude || !arrivalStage) return;
-      let snapshotUrl = "";
-      try {
-        const heroImage = await loadImageSource("home-hero.jpg");
-        const stageRect = arrivalStage.getBoundingClientRect();
-        const snapshotCanvas = document.createElement("canvas");
-        snapshotCanvas.width = Math.max(1, Math.round(stageRect.width));
-        snapshotCanvas.height = Math.max(1, Math.round(stageRect.height));
-        const snapshotContext = snapshotCanvas.getContext("2d");
-        const coverScale = Math.max(snapshotCanvas.width / heroImage.naturalWidth, snapshotCanvas.height / heroImage.naturalHeight);
-        const drawWidth = heroImage.naturalWidth * coverScale;
-        const drawHeight = heroImage.naturalHeight * coverScale;
-        const drawX = (snapshotCanvas.width - drawWidth) / 2;
-        const drawY = (snapshotCanvas.height - drawHeight) / 2;
-        snapshotContext.fillStyle = "#1d302b";
-        snapshotContext.fillRect(0, 0, snapshotCanvas.width, snapshotCanvas.height);
-        snapshotContext.filter = "saturate(.55) brightness(.7) hue-rotate(8deg)";
-        snapshotContext.drawImage(heroImage, drawX, drawY, drawWidth, drawHeight);
-        snapshotContext.filter = "none";
-        const landscapeGradient = snapshotContext.createLinearGradient(0, 0, snapshotCanvas.width, 0);
-        landscapeGradient.addColorStop(0, "rgba(14,26,24,.5)");
-        landscapeGradient.addColorStop(0.75, "rgba(14,26,24,0)");
-        landscapeGradient.addColorStop(1, "rgba(14,26,24,0)");
-        snapshotContext.fillStyle = landscapeGradient;
-        snapshotContext.fillRect(0, 0, snapshotCanvas.width, snapshotCanvas.height);
-        const verticalGradient = snapshotContext.createLinearGradient(0, 0, 0, snapshotCanvas.height);
-        verticalGradient.addColorStop(0, "rgba(15,28,26,.05)");
-        verticalGradient.addColorStop(0.55, "rgba(15,25,22,0)");
-        verticalGradient.addColorStop(1, "rgba(15,25,22,.36)");
-        snapshotContext.fillStyle = verticalGradient;
-        snapshotContext.fillRect(0, 0, snapshotCanvas.width, snapshotCanvas.height);
-        snapshotUrl = `url(${snapshotCanvas.toDataURL("image/png")})`;
-      } catch (error) {
-        snapshotUrl = "";
-      }
-      const stageRect = arrivalStage.getBoundingClientRect();
-      const columns = stageRect.width < 700 ? 6 : 9;
-      const rows = stageRect.width < 700 ? 8 : 6;
-      const shardWidth = stageRect.width / columns;
-      const shardHeight = stageRect.height / rows;
-      const shardCount = columns * rows;
-      const shuffledIndices = shuffle(Array.from({ length: shardCount }, (_, index) => index));
-      const exitDirection = Math.random() > 0.5 ? 1 : -1;
-      shatterLayer.innerHTML = "";
-      const shards = [];
-      for (let index = 0; index < shardCount; index += 1) {
-        const column = index % columns;
-        const row = Math.floor(index / columns);
-        const shard = document.createElement("i");
-        shard.className = "shatter-shard";
-        shard.style.width = `${shardWidth + 1.5}px`;
-        shard.style.height = `${shardHeight + 1.5}px`;
-        if (snapshotUrl) {
-          shard.style.backgroundImage = snapshotUrl;
-          shard.style.backgroundSize = `${stageRect.width}px ${stageRect.height}px`;
-          shard.style.backgroundPosition = `${-column * shardWidth}px ${-row * shardHeight}px`;
-        } else {
-          shard.style.background = `linear-gradient(${135 + Math.random() * 90}deg, rgba(33,52,45,.94), rgba(19,32,28,.96))`;
-        }
-        shard.style.setProperty("--sheen-x", `${Math.random() * 100}%`);
-        shatterLayer.append(shard);
-        shards.push({
-          element: shard,
-          x: column * shardWidth,
-          y: row * shardHeight,
-          rank: shuffledIndices.indexOf(index)
-        });
-      }
-      shatterLayer.classList.add("is-active");
-      const stageChildren = [...arrivalStage.children].filter((child) => child !== shatterLayer);
-      stageChildren.forEach((child) => {
-        child.style.transition = "opacity .45s ease";
-        child.style.opacity = "0";
-      });
-      const animations = shards.map((shard) => {
-        const delay = shard.rank * 9 + Math.random() * 60;
-        const deltaX = (Math.random() - 0.5) * stageRect.width * 0.62 + exitDirection * stageRect.width * (0.22 + Math.random() * 0.42);
-        const deltaY = stageRect.height * (0.55 + Math.random() * 0.85);
-        const rotation = (Math.random() - 0.5) * 260;
-        const animation = shard.element.animate([
-          {
-            transform: `translate3d(${shard.x}px, ${shard.y}px, 0) rotate(0deg) scale(1)`,
-            opacity: 1
-          },
-          {
-            transform: `translate3d(${shard.x + deltaX * 0.3}px, ${shard.y - 34 - Math.random() * 48}px, 0) rotate(${rotation * 0.35}deg) scale(1.02)`,
-            opacity: 1,
-            offset: 0.3
-          },
-          {
-            transform: `translate3d(${shard.x + deltaX}px, ${shard.y + deltaY}px, 0) rotate(${rotation}deg) scale(.9)`,
-            opacity: 0
-          }
-        ], {
-          duration: 950 + Math.random() * 380,
-          delay,
-          easing: "cubic-bezier(.45,.05,.35,1)",
-          fill: "forwards"
-        });
-        return animation.finished.catch(() => {});
-      });
-      let coverDone = false;
-      const runCover = () => {
-        if (coverDone) return;
-        coverDone = true;
-        onCover?.();
+    /* 离场收场：以水墨晕染(.arrival-ink-wash)柔和收束入场场景，替代早先的碎裂层；若水墨动画仍在进行则稍候再揭示主页 */
+    const exitArrivalScene = (onComplete) => {
+      const inkWash = arrivalStage?.querySelector(".arrival-ink-wash");
+      const reveal = () => {
+        if (!inkWash) { onComplete?.(); return; }
+        inkWash.classList.remove("is-opening");
+        inkWash.classList.add("is-active");
+        window.setTimeout(() => {
+          onComplete?.();
+          inkWash.classList.remove("is-active");
+          inkWash.classList.add("is-opening");
+          window.setTimeout(() => inkWash.classList.remove("is-opening", "is-active"), 860);
+        }, 640);
       };
-      window.setTimeout(runCover, 480);
-      await Promise.all(animations);
-      runCover();
-      shatterLayer.classList.remove("is-active");
-      shatterLayer.innerHTML = "";
-      stageChildren.forEach((child) => {
-        child.style.transition = "";
-        child.style.opacity = "";
-      });
+      if (inkWashRunning) window.setTimeout(reveal, 320);
+      else reveal();
     };
     /* 水墨间奏：canvas 上的墨点 + 墨痕粒子场 */
     const startInkAnimation = () => {
@@ -804,7 +697,7 @@
         return;
       }
       let finished = false;
-      const finish = (skipped = false) => {
+      const finish = (skipped = false, pointerX, pointerY) => {
         if (finished) return;
         if (arrivalEnterButton.disabled && document.activeElement === arrivalEnterButton && !skipped) return;
         finished = true;
@@ -820,17 +713,16 @@
           }, reducedMotion ? 0 : 600);
           return;
         }
-        shatterArrivalScene(() => {
+        exitArrivalScene(() => {
           revealHome();
-        }).then(() => {
-          arrivalInterlude.remove();
-          resolve();
-        }).catch(() => {
-          arrivalInterlude.remove();
-          resolve();
+          arrivalInterlude.classList.add("is-leaving");
+          window.setTimeout(() => {
+            arrivalInterlude.remove();
+            resolve();
+          }, 720);
         });
       };
-      const onEnter = () => finish(false);
+      const onEnter = (event) => finish(false, event.clientX, event.clientY);
       const onSkip = () => finish(true);
       arrivalScroller.scrollTop = 0;
       prepareArrivalCopy();
@@ -1005,7 +897,6 @@
       });
     }
   }
-
   /* ============================================================
    * 无刷新翻页（SPA）：fetch + 替换 main，配水波过渡
    * ============================================================ */
@@ -1123,7 +1014,6 @@
   window.addEventListener("popstate", () => {
     if (location.protocol !== "file:" && location.pathname.endsWith(".html")) navigateTo(new URL(location.href), false);
   });
-
   /* ============================================================
    * 生平时间线：滚动驱动的叙述进度条 + 场景联动
    * ============================================================ */
@@ -1194,9 +1084,10 @@
   };
   window.addEventListener("scroll", scheduleTimelineNarrativeUpdate, { passive: true });
   window.addEventListener("resize", scheduleTimelineNarrativeUpdate);
-
   let revealObserver;
   let scrollUiInitialized = false;
+  /* 滚动视差元素集合：由 initializeScrollInteractions 在初始化时填充，updateScrollUi 据此写入 --scroll-y */
+  let parallaxElements = [];
   /* 阅读进度条 + 返回顶部按钮（缺失时自动创建）+ 滚动渐显 */
   const initializeScrollInteractions = () => {
     let progress = document.querySelector(".reading-progress");
@@ -1224,6 +1115,14 @@
         const scrollable = document.documentElement.scrollHeight - window.innerHeight;
         progress.style.transform = `scaleX(${scrollable > 0 ? window.scrollY / scrollable : 0})`;
         topButton.hidden = window.scrollY < 420;
+        const viewportCenter = window.innerHeight * 0.5;
+        parallaxElements.forEach((el) => {
+          const rect = el.getBoundingClientRect();
+          const elementCenter = rect.top + rect.height * 0.5;
+          const delta = elementCenter - viewportCenter;
+          const speed = parseFloat(el.dataset.parallaxSpeed || "1");
+          el.style.setProperty("--scroll-y", `${(delta * speed * 0.12).toFixed(1)}px`);
+        });
         scrollTicking = false;
       };
       window.addEventListener("scroll", () => {
@@ -1236,7 +1135,6 @@
       scrollUiInitialized = true;
       updateScrollUi();
     }
-
     revealObserver?.disconnect();
     const revealTargets = document.querySelectorAll(".timeline-item, .poem-card, .recite-card, .media-card, .memory-line article, .work-entry, .intro-card");
     // 减弱动效或不支持 IntersectionObserver 时直接全部显示
@@ -1251,14 +1149,24 @@
           observer.unobserve(entry.target);
         }
       });
-    }, { threshold: 0.12 });
+    }, { threshold: [0.08, 0.2], rootMargin: "0px 0px -9% 0px" });
     revealTargets.forEach((element, index) => {
       element.classList.add("reveal-on-scroll");
-      element.style.setProperty("--reveal-delay", `${(index % 3) * 75}ms`);
+      element.style.setProperty("--reveal-delay", `${(index % 3) * 80}ms`);
       revealObserver.observe(element);
     });
+    // 滚动视差：给标题与装饰层按视口位置施加 --scroll-y
+    if (!reducedMotion) {
+      const parallaxSelector = ".hero h1, .hero .eyebrow, .section-wrap h2, .section-kicker, .closing h2, .floating-verse, .memory-lead h2";
+      parallaxElements = Array.from(document.querySelectorAll(parallaxSelector)).map((el, idx) => {
+        el.classList.add(idx % 2 === 0 ? "scroll-parallax" : "scroll-parallax-slow");
+        el.dataset.parallaxSpeed = idx % 2 === 0 ? "1" : "0.42";
+        return el;
+      });
+    } else {
+      parallaxElements = [];
+    }
   };
-
   /* ============================================================
    * 生平故事弹窗：四条生平（937→978）数据 + 原生 <dialog>
    * ============================================================ */
@@ -1308,7 +1216,6 @@
       poemNote: "《虞美人·春花秋月何时了》"
     }
   ];
-
   // 记录打开弹窗前的焦点元素，关闭后归还（可访问性）
   let timelineReturnFocus = null;
   // 绑定时间线卡片（role=button）→ 打开对应生平故事弹窗
@@ -1369,7 +1276,6 @@
       });
     });
   };
-
   /* ============================================================
    * 记忆/当代叙事弹窗：史实 · 词境 · 今人 三重叙述
    * ============================================================ */
@@ -1402,7 +1308,6 @@
       ]
     }
   ];
-
   // 同时支持 .memory-line 卡片与 .media-art 作品卡打开弹窗
   const initializeMemoryStories = () => {
     const dialog = document.querySelector(".memory-story-dialog");
@@ -1413,7 +1318,6 @@
     const content = dialog.querySelector(".memory-story-content");
     const image = dialog.querySelector(".memory-story-image");
     let returnFocus = null;
-
     if (document.documentElement.dataset.memoryDialogEscapeBound !== "true") {
       document.addEventListener("keydown", (event) => {
         if (event.key !== "Escape") return;
@@ -1424,7 +1328,6 @@
       });
       document.documentElement.dataset.memoryDialogEscapeBound = "true";
     }
-
     if (dialog.dataset.initialized !== "true") {
       closeButton.addEventListener("click", () => dialog.close());
       dialog.addEventListener("click", (event) => {
@@ -1435,7 +1338,6 @@
       });
       dialog.dataset.initialized = "true";
     }
-
     const showStory = (story, trigger, artwork = null) => {
       returnFocus = trigger;
       kicker.textContent = story.kicker;
@@ -1458,7 +1360,6 @@
       dialog.showModal();
       closeButton.focus();
     };
-
     document.querySelectorAll(".memory-line article[aria-haspopup='dialog']").forEach((card, index) => {
       const openStory = () => {
         const story = memoryStories[index];
@@ -1475,7 +1376,6 @@
         openStory();
       });
     });
-
     document.querySelectorAll(".media-art[aria-haspopup='dialog']").forEach((artwork) => {
       const openArtwork = () => {
         const image = artwork.querySelector("img");
@@ -1504,7 +1404,6 @@
       });
     });
   };
-
   /* 写词互动：把提交的一句词化作随风飘散的字（.wind-release）*/
   const animateWrittenLineAway = (form, text) => {
     if (reducedMotion) return;
@@ -1535,7 +1434,114 @@
     form.append(effect);
     window.setTimeout(() => effect.remove(), 1800);
   };
-
+  /* 金竹飘落：在 .bamboo-leaves 画布上绘制缓缓飘落的竹叶，含 DPR 适配、resize 重建、页面隐藏时暂停；减弱动效时不启动 */
+  const initializeBambooLeaves = () => {
+    const canvas = document.querySelector(".bamboo-leaves");
+    if (!canvas || reducedMotion || canvas.dataset.initialized === "true") return;
+    canvas.dataset.initialized = "true";
+    const context = canvas.getContext("2d");
+    if (!context) return;
+    let width = 0;
+    let height = 0;
+    let dpr = 1;
+    const resize = () => {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = Math.floor(width * dpr);
+      canvas.height = Math.floor(height * dpr);
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      context.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    resize();
+    const leafCount = window.innerWidth <= 700 ? 9 : 18;
+    const rand = (min, max) => min + Math.random() * (max - min);
+    const makeLeaf = (fromTop) => ({
+      x: rand(-40, width + 40),
+      y: fromTop ? rand(-120, -10) : rand(0, height),
+      baseX: 0,
+      vx: rand(-0.18, 0.18),
+      vy: rand(0.32, 0.85),
+      size: rand(16, 34),
+      rotation: rand(0, Math.PI * 2),
+      rotationSpeed: rand(-0.006, 0.006),
+      opacity: rand(0.42, 0.82),
+      phase: rand(0, Math.PI * 2),
+      swingSpeed: rand(0.004, 0.012),
+      swingAmp: rand(8, 26),
+      flip: rand(0, Math.PI * 2),
+      flipSpeed: rand(0.003, 0.011),
+      hueShift: Math.random()
+    });
+    let leaves = Array.from({ length: leafCount }, () => makeLeaf(true));
+    const drawLeaf = (leaf) => {
+      context.save();
+      context.translate(leaf.x, leaf.y);
+      context.rotate(leaf.rotation);
+      const flipScale = Math.abs(Math.cos(leaf.flip));
+      context.scale(flipScale * 0.9 + 0.1, 1);
+      const s = leaf.size;
+      // 金竹渐变：根深、尖亮
+      const gold = leaf.hueShift > 0.5 ? "#c7aa77" : "#b8955f";
+      const goldLight = leaf.hueShift > 0.5 ? "#e7cc8e" : "#d9b974";
+      const gradient = context.createLinearGradient(0, -s * 0.5, 0, s * 0.5);
+      gradient.addColorStop(0, goldLight);
+      gradient.addColorStop(0.5, gold);
+      gradient.addColorStop(1, "rgba(120,92,48,0.85)");
+      context.fillStyle = gradient;
+      context.globalAlpha = leaf.opacity;
+      // 竹叶形：两端尖的细长梭形
+      context.beginPath();
+      context.moveTo(0, -s * 0.5);
+      context.bezierCurveTo(s * 0.16, -s * 0.2, s * 0.16, s * 0.2, 0, s * 0.5);
+      context.bezierCurveTo(-s * 0.16, s * 0.2, -s * 0.16, -s * 0.2, 0, -s * 0.5);
+      context.closePath();
+      context.fill();
+      // 中脉
+      context.globalAlpha = leaf.opacity * 0.5;
+      context.strokeStyle = "rgba(90,66,28,0.7)";
+      context.lineWidth = Math.max(0.5, s * 0.04);
+      context.beginPath();
+      context.moveTo(0, -s * 0.46);
+      context.lineTo(0, s * 0.46);
+      context.stroke();
+      context.restore();
+    };
+    let running = true;
+    let last = performance.now();
+    const render = (now) => {
+      if (!running) return;
+      const dt = Math.min(48, now - last) / 16.67;
+      last = now;
+      context.clearRect(0, 0, width, height);
+      leaves.forEach((leaf) => {
+        leaf.phase += leaf.swingSpeed * dt;
+        leaf.flip += leaf.flipSpeed * dt;
+        leaf.x += (leaf.vx + Math.sin(leaf.phase) * leaf.swingAmp * 0.02) * dt;
+        leaf.y += leaf.vy * dt;
+        leaf.rotation += leaf.rotationSpeed * dt;
+        if (leaf.y > height + 60 || leaf.x < -80 || leaf.x > width + 80) {
+          Object.assign(leaf, makeLeaf(true));
+          leaf.y = rand(-100, -20);
+          leaf.x = rand(-20, width + 20);
+        }
+        drawLeaf(leaf);
+      });
+      window.requestAnimationFrame(render);
+    };
+    window.requestAnimationFrame(render);
+    window.addEventListener("resize", resize);
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        running = false;
+      } else if (!running) {
+        running = true;
+        last = performance.now();
+        window.requestAnimationFrame(render);
+      }
+    });
+  };
   /* 3D 倾斜：指针悬停时让卡片随指针轻微立体偏转 */
   const initializeDepthInteractions = () => {
     if (reducedMotion || window.innerWidth <= 700 || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
@@ -1564,13 +1570,13 @@
       surface.addEventListener("pointercancel", resetTilt);
     });
   };
-
   /* ============================================================
    * 页面内容初始化（每次翻页后重调）：渐显/弹窗/诵读/收藏/表单
    * ============================================================ */
   function initializePageContent() {
   initializeScrollInteractions();
   updateTimelineNarrative();
+  initializeBambooLeaves();
   initializeDepthInteractions();
   initializeTimelineStories();
   initializeMemoryStories();
@@ -1601,7 +1607,6 @@
       window.speechSynthesis.speak(utterance);
     });
   });
-
   // 收藏：以 localStorage 记忆每首词的收藏状态
   document.querySelectorAll(".favorite-button").forEach((button, index) => {
     const key = `liyu-favorite-${index}`;
@@ -1615,7 +1620,6 @@
       localStorage.setItem(key, String(selected));
     });
   });
-
   // 字数计数器：实时显示“已输入 / 上限”
   const setupCounter = (fieldId, countId, max) => {
     const field = document.getElementById(fieldId);
@@ -1627,7 +1631,6 @@
   };
   setupCounter("mood", "mood-count", 80);
   setupCounter("my-line", "line-count", 100);
-
   // 心情表单：提交后清空并给出温柔反馈
   document.querySelector(".mood-form")?.addEventListener("submit", (event) => {
     event.preventDefault();
