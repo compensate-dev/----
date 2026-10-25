@@ -147,7 +147,7 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}      /* 标题中强调字用�
 .afterlife-copy{display:flex;align-items:end;justify-content:space-between;gap:34px;max-width:900px;margin:48px 0 0 9%} /* 文案 + 按钮左右排布，左侧 9% 起排 */
 .afterlife-copy h2{font-size:clamp(34px,4.3vw,56px);line-height:1.55;font-weight:500;letter-spacing:.08em;margin:0 0 13px;color:#29372c;text-shadow:0 1px 18px rgba(255,255,245,.72)}
 .afterlife-copy h2 em{font-style:normal;color:#755b3f} /* 标题中强调字用赭黄 */
-.afterlife-copy p{max-width:500px;margin:0;color:#4f594e;font-size:13px;line-height:2.1;text-shadow:0 1px 14px rgba(255,255,255,.85)}
+.afterlife-copy p{max-width:500px;margin:0;color:#4f594e;font-size:13px;line-height:2.1;text-shadow:0 1px 14px rgba(255,255,245,.85)}
 .afterlife-copy .button{flex-shrink:0;box-shadow:0 3px 18px rgba(255,255,245,.48)} /* 行动按钮：不伸缩 + 浅色投影 */
 .closing{position:relative;isolation:isolate;padding-top:108px;padding-bottom:110px;display:grid;grid-template-columns:.35fr 1fr .85fr;gap:45px;align-items:center}  /* 建立定位上下文 + 隔离层叠，使 ::before 背景图收敛到本区块 */
 .closing:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(rgba(238,240,232,.14),rgba(238,240,232,.14)),url("closing-background.jpg") center 54%/cover no-repeat;opacity:.56} /* 结语整屏背景图 + 极淡纸色叠层（透明度 .7→.56 调淡），z-index:-1 沉到文字之下 */
@@ -368,7 +368,7 @@ textarea::placeholder{color:#9aa297}
 
 /* ---------- 14. 动效层(点击水波 / 翻页水波)与关键帧 ---------- */
 .click-ripple{position:fixed;inset:0;z-index:89;overflow:hidden;pointer-events:none} /* 点击水波层(替代原花瓣容器) */
-.click-ripple:before,.click-ripple:after{content:"";position:absolute;left:var(--ripple-x);top:var(--ripple-y);width:150vmax;height:150vmax;border-radius:50%;transform:translate(-50%,-50%) scale(.015);opacity:0;background:radial-gradient(circle,transparent 0 47%,rgba(242,244,233,.48) 47.2% 47.7%,rgba(48,77,63,.22) 48% 48.3%,transparent 48.6%);animation:page-ripple-wave .82s cubic-bezier(.16,.62,.3,1) forwards} /* 点击涟漪:双层水波从点击点扩散 */
+.click-ripple:before,.click-ripple:after{content:"";position:absolute;left:var(--ripple-x);top:var(--ripple-y);width:50px;height:50px;border-radius:50%;transform:translate(-50%,-50%) scale(.015);opacity:0;background:radial-gradient(circle,transparent 0 47%,rgba(242,244,233,.48) 47.2% 47.7%,rgba(48,77,63,.22) 48% 48.3%,transparent 48.6%);animation:page-ripple-wave .82s cubic-bezier(.16,.62,.3,1) forwards} /* 点击涟漪:双层水波从点击点扩散 */
 .click-ripple:after{background:radial-gradient(circle,transparent 0 59%,rgba(242,244,233,.34) 59.2% 59.6%,rgba(48,77,63,.15) 59.9% 60.2%,transparent 60.5%);animation-duration:.9s;animation-delay:.12s} /* 第二层水波(延迟扩散，双环涟漪) */
 .page-ripple{position:fixed;inset:0;z-index:90;overflow:hidden;pointer-events:none} /* 翻页水波层 */
 .page-ripple:before,.page-ripple:after{content:"";position:absolute;left:var(--ripple-x);top:var(--ripple-y);width:150vmax;height:150vmax;border-radius:50%;transform:translate(-50%,-50%) scale(.015);opacity:0;background:radial-gradient(circle,transparent 0 47%,rgba(242,244,233,.48) 47.2% 47.7%,rgba(48,77,63,.22) 48% 48.3%,transparent 48.6%)}
