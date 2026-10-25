@@ -407,18 +407,21 @@
           calligraphySequence.append(image);
         }
       };
-      // 书法飞落结束后：等背景视频播完 → 显现墨迹插页(4 秒) → 淡出插页 → 揭开首页
+      // 书法飞落结束后：等背景视频播完 → 淡出并移除序列层 → 显现墨迹插页(4 秒) → 淡出插页 → 揭开首页
       const showInterludeAfterCalligraphy = async () => {
         await displayCalligraphyPromise;                                   // 等投放结束
         await Promise.all(flights.map((image) => image.getAnimations()[0]?.finished.catch(() => undefined))); // 等每张书法字落底
         if (!inkInterlude) throw new Error("The ink interlude is missing.");
         await backgroundVideoEnded;                                        // 等背景视频播完
+        // 先让书法飞落层整体淡出并移除，插页作为独立的过渡画面出现
+        calligraphySequence.classList.add("is-revealing");
+        await new Promise((resolve) => window.setTimeout(resolve, 1200));
+        calligraphySequence.remove();
         const interludeDuration = 4000;      // 插页停留总时长
         const interludeFadeDuration = 600;   // 插页淡出预留时间
         const interludeStartedAt = performance.now();
         const stopInkAnimation = startInkAnimation(); // 启动墨迹画布动画
         inkInterlude.classList.add("is-visible");       // 显现插页
-        const homeReveal = revealHome();                 // 首页内容在插页底层展开
         await new Promise((resolve) => window.requestAnimationFrame(() => resolve()));
         const beforeFadeOut = interludeStartedAt + interludeDuration - interludeFadeDuration - performance.now();
         if (beforeFadeOut > 0) await new Promise((resolve) => window.setTimeout(resolve, beforeFadeOut));
@@ -427,7 +430,7 @@
         if (untilTransition > 0) await new Promise((resolve) => window.setTimeout(resolve, untilTransition));
         stopInkAnimation();   // 停止画布动画
         inkInterlude.remove(); // 移除插页层
-        await homeReveal;
+        await revealHome();    // 插页结束后才揭开首页
         document.querySelector(".hero-actions a")?.focus({ preventScroll: true }); // 焦点交回首屏按钮
       };
       const displayCalligraphyPromise = displayCalligraphy();
