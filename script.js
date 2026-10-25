@@ -109,6 +109,7 @@
     const arrivalScroller = arrivalInterlude?.querySelector(".arrival-scroller");
     const arrivalEnterButton = arrivalInterlude?.querySelector(".arrival-enter-button");
     const arrivalSkipButton = arrivalInterlude?.querySelector(".arrival-skip-button");
+    const arrivalChapterButtons = arrivalInterlude?.querySelectorAll("[data-arrival-scene]");
     const inkCanvas = inkInterlude?.querySelector(".ink-canvas");
     const inkContext = inkCanvas?.getContext("2d");
     const calligraphyAssets = [
@@ -316,6 +317,13 @@
       arrivalInterlude.style.setProperty("--arrival-pine-y", `${progress * 34}px`);
       arrivalInterlude.style.setProperty("--arrival-copy-y", `${-progress * 68}px`);
       arrivalInterlude.dataset.scene = String(sceneIndex + 1);
+      arrivalInterlude.style.setProperty("--arrival-camera-scale", String(1 + progress * 0.13));
+      arrivalInterlude.style.setProperty("--arrival-landscape-scale", String(1.18 + progress * 0.2));
+      arrivalInterlude.style.setProperty("--arrival-figure-scale", String(1.02 + progress * 0.15));
+      arrivalInterlude.style.setProperty("--arrival-world-x", `${-progress * 48}px`);
+      arrivalChapterButtons?.forEach((button, index) => {
+        button.setAttribute("aria-pressed", String(index === sceneIndex));
+      });
       arrivalInterlude.querySelectorAll(".arrival-copy").forEach((copy, index) => {
         const isCurrent = index === sceneIndex;
         copy.classList.toggle("is-current", isCurrent);
@@ -352,6 +360,17 @@
       arrivalScroller.addEventListener("scroll", updateArrivalProgress, { passive: true });
       arrivalEnterButton.addEventListener("click", finish);
       arrivalSkipButton.addEventListener("click", finish);
+      arrivalChapterButtons?.forEach((button) => {
+        button.addEventListener("click", () => {
+          const chapter = Number(button.dataset.arrivalScene);
+          const scrollRange = arrivalScroller.scrollHeight - arrivalScroller.clientHeight;
+          const chapterProgress = chapter === 2 ? 0.95 : (chapter + 0.5) / 3;
+          arrivalScroller.scrollTo({
+            top: scrollRange * chapterProgress,
+            behavior: reducedMotion ? "auto" : "smooth"
+          });
+        });
+      });
       updateArrivalProgress();
       window.requestAnimationFrame(() => arrivalScroller.focus({ preventScroll: true }));
     });
