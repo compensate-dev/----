@@ -112,6 +112,53 @@
     const arrivalChapterButtons = arrivalInterlude?.querySelectorAll("[data-arrival-scene]");
     const inkCanvas = inkInterlude?.querySelector(".ink-canvas");
     const inkContext = inkCanvas?.getContext("2d");
+    const prepareArrivalCopy = () => {
+      arrivalInterlude?.querySelectorAll(".arrival-copy h1, .arrival-copy h2, .arrival-copy p, .arrival-whisper").forEach((element) => {
+        if (element.dataset.glyphsPrepared === "true") return;
+        const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+        const textNodes = [];
+        while (walker.nextNode()) textNodes.push(walker.currentNode);
+        let glyphIndex = 0;
+        textNodes.forEach((textNode) => {
+          const fragment = document.createDocumentFragment();
+          for (const character of textNode.textContent) {
+            if (/\s/.test(character)) {
+              fragment.append(document.createTextNode(character));
+              continue;
+            }
+            const glyph = document.createElement("span");
+            glyph.className = "arrival-glyph";
+            glyph.textContent = character;
+            glyph.style.setProperty("--glyph-index", String(glyphIndex));
+            fragment.append(glyph);
+            glyphIndex += 1;
+          }
+          textNode.replaceWith(fragment);
+        });
+        element.style.setProperty("--glyph-count", String(glyphIndex));
+        element.dataset.glyphsPrepared = "true";
+      });
+    };
+    const updateArrivalGlyphs = (progress) => {
+      arrivalInterlude?.querySelectorAll(".arrival-copy").forEach((copy, index) => {
+        const sceneProgress = Math.min(1, Math.max(0, progress * 3 - index));
+        copy.style.setProperty("--scene-progress", String(sceneProgress));
+        const ranges = [[0, 0.38], [0.32, 0.78], [0.68, 1]];
+        copy.querySelectorAll(".arrival-copy h1, .arrival-copy h2, .arrival-copy p, .arrival-whisper").forEach((element, textIndex) => {
+          const [start, end] = ranges[textIndex] || [0, 1];
+          let localProgress = Math.min(1, Math.max(0, (sceneProgress - start) / (end - start)));
+          if (reducedMotion) localProgress = index === Math.floor(progress * 3) ? 1 : 0;
+          else if (index === 0 && textIndex < 2) localProgress = 1;
+          const glyphCount = Number(element.style.getPropertyValue("--glyph-count")) || 0;
+          element.querySelectorAll(".arrival-glyph").forEach((glyph, glyphIndex) => {
+            const reveal = Math.min(1, Math.max(0, localProgress * glyphCount - glyphIndex));
+            glyph.style.setProperty("--glyph-reveal", String(reveal));
+          });
+        });
+        const stroke = copy.querySelector(".arrival-ink-stroke path");
+        if (stroke) stroke.style.strokeDashoffset = String(1 - sceneProgress);
+      });
+    };
     const calligraphyAssets = [
       "calligraphy-flight-01.png",
       "calligraphy-flight-03.png",
@@ -324,6 +371,7 @@
       arrivalChapterButtons?.forEach((button, index) => {
         button.setAttribute("aria-pressed", String(index === sceneIndex));
       });
+      updateArrivalGlyphs(progress);
       arrivalInterlude.querySelectorAll(".arrival-copy").forEach((copy, index) => {
         const isCurrent = index === sceneIndex;
         copy.classList.toggle("is-current", isCurrent);
@@ -354,6 +402,7 @@
         }, 600);
       };
       arrivalScroller.scrollTop = 0;
+      prepareArrivalCopy();
       arrivalInterlude.removeAttribute("aria-hidden");
       arrivalInterlude.removeAttribute("inert");
       arrivalInterlude.classList.add("is-visible");
