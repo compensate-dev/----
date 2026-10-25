@@ -498,12 +498,14 @@ html.page-transitioning main{opacity:.08;transform:translateY(8px) scale(.995);f
 /* 翻开前：首页的页头/主体/页脚先隐藏并锁滚动(避免封面下透出内容) */
 body.home-page:not(.book-opened)>.site-header,body.home-page:not(.book-opened)>main,body.home-page:not(.book-opened)>.site-footer{visibility:hidden;opacity:0}
 body.home-page:not(.book-opened){overflow:hidden}
-/* 翻开后：首页内容自中间向两侧展开淡入(clip-path) */
-body.home-page.book-opened>.site-header,body.home-page.book-opened>main,body.home-page.book-opened>.site-footer{animation:home-content-open 1.5s cubic-bezier(.2,.75,.25,1) both;will-change:clip-path,opacity}
+/* 翻开后：首页内容自中间向两侧展开(clip-path) + 独立的长淡入(opacity) */
+body.home-page.book-opened>.site-header,body.home-page.book-opened>main,body.home-page.book-opened>.site-footer{animation:home-content-open 1.5s cubic-bezier(.2,.75,.25,1) both,home-content-fade 4s ease both;will-change:clip-path,opacity}
 /* 翻书关键帧：从 0° 向上翻到 180° */
 @keyframes book-page-turn-up{0%{transform:rotateX(0)}100%{transform:rotateX(180deg)}}
-/* 首页内容展开关键帧：由中心向两侧掀开并淡入 */
-@keyframes home-content-open{from{opacity:.35;clip-path:inset(0 50%)}to{opacity:1;clip-path:inset(0)}}
+/* 首页内容展开关键帧：由中心向两侧掀开（透明度交由 home-content-fade 单独控制） */
+@keyframes home-content-open{from{clip-path:inset(0 50%)}to{clip-path:inset(0)}}
+/* 首页内容淡入关键帧：4 秒缓慢浮现，与书法飞落收尾的节奏相合 */
+@keyframes home-content-fade{from{opacity:0}to{opacity:1}}
 
 /* —— 17a. 翻书落地页响应式 —— */
 @media(max-width:700px){
