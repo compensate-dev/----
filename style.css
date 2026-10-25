@@ -242,13 +242,27 @@ textarea::placeholder{color:#9aa297}
 .memory-lead h2{font-size:clamp(30px,3.1vw,42px);line-height:1.65;font-weight:500;letter-spacing:.06em;margin:0}
 .memory-lead p{font-size:13px;line-height:2.2;color:#68766b;margin:9px 0 0;max-width:470px}
 .memory-line{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin:54px 0 0 18%}
-.memory-line article{position:relative;min-height:225px;padding:25px 24px 23px;background:rgba(255,255,255,.39);border-top:1px solid #c5cfc3;box-shadow:0 8px 24px rgba(49,67,53,.045)}
+.memory-line article{position:relative;min-height:225px;padding:25px 24px 23px;background:rgba(255,255,255,.39);border-top:1px solid #c5cfc3;box-shadow:0 8px 24px rgba(49,67,53,.045);cursor:pointer;transition:transform .34s cubic-bezier(.2,.7,.25,1),box-shadow .34s ease,background .34s ease} /* 视角卡：可点击展开详情，故加手型光标与过渡 */
+.memory-line article:focus-visible{outline:2px solid var(--rust);outline-offset:4px} /* 键盘聚焦时描边提示 */
+.memory-open-hint{display:block;margin-top:13px;color:#80513e;font:12px "Liyu Xingkai UI",var(--serif);letter-spacing:.04em} /* 卡片底部“点击了解更多”提示 */
+.memory-open-hint span{display:inline-block;font:12px var(--sans);transition:transform .2s}
+.memory-line article:hover .memory-open-hint span{transform:translate(2px,-2px)} /* 悬停时箭头右上轻移 */
+@media(hover:hover) and (pointer:fine){.memory-line article:hover{z-index:2;transform:translateY(-5px) scale(1.035);background:rgba(255,255,255,.72);box-shadow:0 15px 30px rgba(49,67,53,.13)}} /* 仅在可悬停的精确指针设备上做抬升 */
 .memory-line article:before{content:"";position:absolute;width:7px;height:7px;border-radius:50%;top:-4px;left:23px;background:var(--rust);box-shadow:0 0 0 4px var(--paper)} /* 卡顶红点 */
 .memory-line article>span{font:9px var(--sans);letter-spacing:.13em;color:#9c654d}
 .memory-line h3{font-size:20px;font-weight:500;letter-spacing:.08em;margin:14px 0 9px}
 .memory-line p{font-size:12px;line-height:2.05;color:#6c776b;min-height:75px;margin:0 0 13px}
 .memory-line a{font:10px var(--sans);letter-spacing:.04em;color:var(--pine);border-bottom:1px solid #bec8ba;padding-bottom:4px}
 .memory-line a span{color:var(--rust);margin-left:7px}
+.memory-story-dialog{position:fixed;width:min(620px,calc(100vw - 36px));max-width:none;max-height:min(82vh,760px);overflow:auto;margin:auto;padding:clamp(28px,5vw,52px);border:1px solid rgba(134,151,131,.46);background:linear-gradient(145deg,rgba(249,248,240,.99),rgba(232,236,226,.99));color:var(--ink);box-shadow:0 24px 90px rgba(24,39,30,.32)} /* 视角卡详情弹窗：纸色渐变底 + 居中定宽 + 可滚动长文 */
+.memory-story-dialog::backdrop{background:rgba(24,39,31,.52);backdrop-filter:blur(4px)} /* 弹窗背板：深绿半透明 + 模糊 */
+.memory-story-close{position:sticky;float:right;top:0;display:grid;place-items:center;width:38px;height:38px;margin:-18px -18px 0 12px;border:1px solid #cbd2c8;border-radius:50%;background:rgba(249,248,240,.9);color:var(--pine);font-size:26px;line-height:1;cursor:pointer} /* 关闭按钮：吸顶圆钮 */
+.memory-story-kicker{display:block;margin:0 0 12px;color:#95624b;font:12px var(--sans);letter-spacing:.16em} /* 弹窗小标 */
+.memory-story-dialog h2{margin:0 0 23px;font-family:"HongLei Calligraphy",var(--serif);font-size:clamp(25px,4vw,34px);font-weight:400;line-height:1.5;letter-spacing:.06em} /* 弹窗标题用洪雷书法 */
+.memory-story-image{display:block;width:100%;max-height:min(55vh,520px);margin:0 0 24px;object-fit:contain;background:rgba(48,58,49,.06)} /* 弹窗内的大图(点击配图时显示) */
+.memory-story-image[hidden]{display:none} /* 无图时隐藏占位 */
+.memory-story-content p{margin:0 0 16px;color:#526055;font-size:15px;line-height:2.05} /* 弹窗正文 */
+.memory-story-note{margin:22px 0 0;padding-top:12px;border-top:1px solid rgba(134,151,131,.32);color:#8a9186;font-size:11px;line-height:1.8} /* 弹窗底部说明 */
 .screen-world{position:relative;isolation:isolate;padding-top:100px;padding-bottom:95px;background:#eef0e9}  /* 建立隔离层叠上下文 + 满铺纸色底，使 ::before 背景图沉到内容之下 */
 .screen-world:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(rgba(243,243,237,.54),rgba(243,243,237,.64)),url("screen-world-background.jpg") center 46%/cover no-repeat}  /* 影视游戏区背景图叠层 */
 .screen-world>.section-kicker{margin-bottom:28px}
@@ -275,9 +289,12 @@ textarea::placeholder{color:#9aa297}
 .media-caption h3{font-size:16px;font-weight:500;letter-spacing:.07em;margin:6px 0 4px}
 .media-caption p{font-size:11px;line-height:1.8;color:#788176;margin:0}
 .screen-world-footnote{margin:24px 0 0 18%;padding-left:13px;border-left:1px solid rgba(169,104,76,.55);font-size:10px;line-height:1.9;color:#7b8478}
-.media-art{position:relative;display:block;height:clamp(250px,28vw,360px);margin:0;overflow:hidden;border-bottom:1px solid rgba(134,151,131,.22)} /* 媒体图区(高度随屏自适应) */
+.media-art{position:relative;display:block;height:clamp(250px,28vw,360px);margin:0;overflow:hidden;border-bottom:1px solid rgba(134,151,131,.22);cursor:zoom-in} /* 媒体图区(高度随屏自适应，可点击看大图) */
 .media-art:after{content:"";position:absolute;inset:11px;border:1px solid rgba(255,255,255,.4);pointer-events:none} /* 图片内描边装饰框 */
-.media-art img{display:block;width:100%;height:100%;object-fit:contain} /* 整图显示不裁切 */
+.media-art:before{content:"点击查看大图";position:absolute;z-index:1;right:22px;bottom:22px;padding:6px 10px;background:rgba(28,39,32,.72);color:#fff;font:10px var(--sans);letter-spacing:.08em;opacity:0;transform:translateY(4px);transition:opacity .25s ease,transform .25s ease;pointer-events:none} /* 悬停/聚焦时浮现的"看大图"提示 */
+.media-art img{display:block;width:100%;height:100%;object-fit:contain;transition:transform .48s cubic-bezier(.2,.7,.25,1),filter .48s ease} /* 整图显示不裁切 */
+.media-art:focus-visible{outline:2px solid var(--rust);outline-offset:4px} /* 键盘聚焦描边 */
+@media(hover:hover) and (pointer:fine){.media-art:hover img{transform:scale(1.055);filter:saturate(1.06)}.media-art:hover:before,.media-art:focus-visible:before{opacity:1;transform:translateY(0)}} /* 精确指针设备上悬停轻微放大 */
 .media-art-archive{background:linear-gradient(135deg,#d8b780,#e9d1a0 55%,#d2ad75)}   /* 古本遗像底图 */
 .media-art-wangchuan{background:linear-gradient(135deg,#171b19,#393225 55%,#171c1c)}   /* 忘川风华录底图 */
 .media-art-yanyun{background:linear-gradient(135deg,#111e29,#354451 55%,#17232b)}      /* 燕云十六声底图 */
@@ -538,6 +555,10 @@ body.home-page.book-opened>.site-header,body.home-page.book-opened>main,body.hom
   .memory-line{grid-template-columns:1fr;margin:34px 0 0 8px;gap:12px}
   .memory-line article{min-height:0;padding:22px}
   .memory-line p{min-height:0}
+  .memory-story-dialog{width:calc(100vw - 24px);max-height:86vh;padding:27px 21px} /* 手机端：弹窗贴近屏边 */
+  .memory-story-close{margin:-12px -10px 0 10px}
+  .memory-story-content p{font-size:14px;line-height:1.95}
+  .memory-story-image{max-height:42vh;margin-bottom:18px} /* 手机端：限制大图高度，避免正文被挤出屏幕 */
   .screen-world{padding-top:68px;padding-bottom:70px}
   .screen-world-heading{display:block;padding-left:0;margin:0 0 25px}
   .screen-world-heading h2{font-size:29px}

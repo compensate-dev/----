@@ -484,7 +484,7 @@
     }
   ];
 
-  // 词容万象页·视角卡详情弹窗：点击卡片（或按 Enter / 空格）展开对应故事
+  // 词容万象页·详情弹窗：点击视角卡展开故事；点击配图则展开该图的大图与说明
   const initializeMemoryStories = () => {
     const dialog = document.querySelector(".memory-story-dialog");
     if (!dialog) return;
@@ -492,7 +492,20 @@
     const kicker = dialog.querySelector(".memory-story-kicker");
     const title = dialog.querySelector("#memory-story-title");
     const content = dialog.querySelector(".memory-story-content");
+    const image = dialog.querySelector(".memory-story-image"); // 弹窗内的大图(视角卡场景不显示)
     let returnFocus = null; // 记录打开弹窗的卡片，关闭后归还焦点
+
+    // Esc 键关闭：全局只绑一次(用 html 上的 data 标记，换页重绑也不会重复叠加)
+    if (document.documentElement.dataset.memoryDialogEscapeBound !== "true") {
+      document.addEventListener("keydown", (event) => {
+        if (event.key !== "Escape") return;
+        const openDialog = document.querySelector(".memory-story-dialog[open]");
+        if (!openDialog) return;
+        event.preventDefault();
+        openDialog.close();
+      });
+      document.documentElement.dataset.memoryDialogEscapeBound = "true";
+    }
 
     // 弹窗自身的关闭行为只绑定一次(用 data 标记，换页重绑也不会重复)
     if (dialog.dataset.initialized !== "true") {
@@ -501,11 +514,6 @@
       dialog.addEventListener("click", (event) => {
         if (event.target === dialog) dialog.close();
       });
-      // Esc 键关闭(阻止浏览器默认的关闭行为，统一走 close 流程以归还焦点)
-      dialog.addEventListener("cancel", (event) => {
-        event.preventDefault();
-        dialog.close();
-      });
       // 关闭后把焦点还给来时的卡片
       dialog.addEventListener("close", () => {
         if (returnFocus?.isConnected) returnFocus.focus({ preventScroll: true });
@@ -513,22 +521,36 @@
       dialog.dataset.initialized = "true";
     }
 
+    // 统一填充并展示弹窗：artwork 为空则只显示文字，否则同时显示大图
+    const showStory = (story, trigger, artwork = null) => {
+      returnFocus = trigger;
+      kicker.textContent = story.kicker; // 弹窗小标
+      title.textContent = story.title;   // 弹窗标题
+      content.replaceChildren();         // 清空旧内容，避免换页后残留
+      story.paragraphs.forEach((text) => {
+        const paragraph = document.createElement("p");
+        paragraph.textContent = text;
+        content.append(paragraph);
+      });
+      if (artwork) {
+        image.src = artwork.src;   // 大图地址
+        image.alt = artwork.alt;   // 大图替代文本
+        image.hidden = false;      // 显示大图
+      } else {
+        image.hidden = true;                    // 无图场景：隐藏
+        image.removeAttribute("src");          // 同时清掉地址，避免残留上一次的大图
+        image.alt = "";
+      }
+      dialog.showModal();          // 原生模态弹窗(自带焦点陷阱与 ::backdrop)
+      closeButton.focus();
+    };
+
     // 三张视角卡按索引对应一段故事
     document.querySelectorAll(".memory-line article[aria-haspopup='dialog']").forEach((card, index) => {
       const openStory = () => {
         const story = memoryStories[index];
         if (!story) return;
-        returnFocus = card;
-        kicker.textContent = story.kicker; // 弹窗小标
-        title.textContent = story.title;   // 弹窗标题
-        content.replaceChildren();         // 清空旧内容，避免换页后残留
-        story.paragraphs.forEach((text) => {
-          const paragraph = document.createElement("p");
-          paragraph.textContent = text;
-          content.append(paragraph);
-        });
-        dialog.showModal();                // 原生模态弹窗(自带焦点陷阱与 ::backdrop)
-        closeButton.focus();
+        showStory(story, card);
       };
       card.addEventListener("click", (event) => {
         // 卡片内的页面链接与按钮仍可直接跳转，不触发弹窗
@@ -539,6 +561,35 @@
         if (event.target !== card || (event.key !== "Enter" && event.key !== " ")) return;
         event.preventDefault();
         openStory();
+      });
+    });
+
+    // 四张配图：点击后展开该图大图，并把图注内容搬进弹窗正文
+    document.querySelectorAll(".media-art[aria-haspopup='dialog']").forEach((artwork) => {
+      const openArtwork = () => {
+        const artworkImage = artwork.querySelector("img");
+        const caption = artwork.closest(".media-card")?.querySelector(".media-caption");
+        const heading = caption?.querySelector("h3");
+        if (!artworkImage || !caption || !heading) return;
+        const paragraphs = [];
+        const subheading = caption.querySelector("h4")?.textContent.trim(); // 小标题(如「纸上君王，笔底春愁」)
+        if (subheading) paragraphs.push(subheading);
+        caption.querySelectorAll("p:not(.media-caption-note)").forEach((paragraph) => {
+          if (paragraph.textContent.trim()) paragraphs.push(paragraph.textContent.trim());
+        });
+        const note = caption.querySelector(".media-caption-note")?.textContent.trim(); // 免责/考辨说明
+        if (note) paragraphs.push(note);
+        showStory({
+          kicker: caption.querySelector("span")?.textContent.trim() || "李煜 · 当代叙事",
+          title: heading.textContent.trim(),
+          paragraphs
+        }, artwork, { src: artworkImage.currentSrc || artworkImage.src, alt: artworkImage.alt });
+      };
+      artwork.addEventListener("click", openArtwork);
+      artwork.addEventListener("keydown", (event) => {
+        if (event.target !== artwork || (event.key !== "Enter" && event.key !== " ")) return;
+        event.preventDefault();
+        openArtwork();
       });
     });
   };
