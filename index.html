@@ -55,7 +55,7 @@
 
   <!-- 视差入场段：墨迹插页之后的滚动驱动开场场景，默认 aria-hidden + inert，由 script.js 揭示
        结构：arrival-scroller（可滚动容器）→ arrival-track（滚动行程）→ arrival-stage（固定舞台）
-       场景层：远山、场景切换层、月、人物图、松枝、水面、余烬、暗角；文案按滚动进度分三幕切换 -->
+       场景层：远山、场景切换层、月、松枝、墨韵光晕、水面、余烬、暗角；文案按滚动进度分三幕切换 -->
   <section class="arrival-interlude" aria-hidden="true" inert aria-labelledby="arrival-title">
     <!-- 滚动容器：用户在此区域内滚动推进入场进度，tabindex=-1 供脚本聚焦 -->
     <div class="arrival-scroller" role="region" aria-label="向下滚动，展开李煜词境" tabindex="-1">
@@ -69,10 +69,10 @@
           <div class="arrival-world-change" aria-hidden="true"></div>
           <!-- 月亮层：随进度下沉 -->
           <div class="arrival-moon" aria-hidden="true"></div>
-          <!-- 墨韵光晕层：随 --arrival-bloom 渐显的柔光 -->
-          <div class="arrival-ink-bloom" aria-hidden="true"></div>
           <!-- 松枝层：前景剪影 -->
           <div class="arrival-pine" aria-hidden="true"></div>
+          <!-- 墨韵光晕层：随 --arrival-bloom 渐显的柔光 -->
+          <div class="arrival-ink-bloom" aria-hidden="true"></div>
           <!-- 水面层：三条波纹线，铺在舞台底部 -->
           <div class="arrival-water" aria-hidden="true"><i></i><i></i><i></i></div>
           <!-- 余烬层：十粒漂浮火星，点缀夜色 -->
