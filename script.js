@@ -5,6 +5,7 @@
  */
 (() => {
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
   // 读取系统“减弱动效”偏好；开启后跳过粒子/水墨/视差等重动画，仅保留必要过渡
   document.addEventListener("click", (event) => {
     /* —— 全局点击涟漪：在点击处生成一圈扩散水波（.click-ripple） —— */
@@ -25,6 +26,7 @@
     document.body.append(ripple);
     window.setTimeout(() => ripple.remove(), 1100);
   });
+
   /* —— 顶部导航：汉堡菜单开合 —— */
   const menuButton = document.querySelector(".menu-toggle");
   const nav = document.querySelector(".main-nav");
@@ -35,6 +37,7 @@
       menuButton.setAttribute("aria-label", open ? "关闭导航" : "打开导航");
     });
   }
+
   /* —— 背景音乐：自动播放策略 + sessionStorage 记忆 —— */
   const audio = document.querySelector(".background-audio");
   const soundButtons = document.querySelectorAll(".sound-toggle");
@@ -110,6 +113,7 @@
       if (audioEnabled && audio.paused && !event.target.closest("input, textarea, button, a")) playBackgroundMusic();
     }, { once: true });
   }
+
   /* ============================================================
    * 开场链路：翻书封面 → 书法飞落序列 → 水墨间奏 → 抵达视差
    * ============================================================ */
@@ -897,6 +901,7 @@
       });
     }
   }
+
   /* ============================================================
    * 无刷新翻页（SPA）：fetch + 替换 main，配水波过渡
    * ============================================================ */
@@ -1014,6 +1019,7 @@
   window.addEventListener("popstate", () => {
     if (location.protocol !== "file:" && location.pathname.endsWith(".html")) navigateTo(new URL(location.href), false);
   });
+
   /* ============================================================
    * 生平时间线：滚动驱动的叙述进度条 + 场景联动
    * ============================================================ */
@@ -1084,10 +1090,15 @@
   };
   window.addEventListener("scroll", scheduleTimelineNarrativeUpdate, { passive: true });
   window.addEventListener("resize", scheduleTimelineNarrativeUpdate);
+
   let revealObserver;
   let scrollUiInitialized = false;
   /* 滚动视差元素集合：由 initializeScrollInteractions 在初始化时填充，updateScrollUi 据此写入 --scroll-y */
   let parallaxElements = [];
+  /* 词作笺赏(poem-gallery)叙事状态：各词卡、顶部标签与交叉观察器，随滚动高亮当前词并联动标签 */
+  let ciEntries = [];
+  let ciTabs = [];
+  let ciObserver;
   /* 阅读进度条 + 返回顶部按钮（缺失时自动创建）+ 滚动渐显 */
   const initializeScrollInteractions = () => {
     let progress = document.querySelector(".reading-progress");
@@ -1123,6 +1134,12 @@
           const speed = parseFloat(el.dataset.parallaxSpeed || "1");
           el.style.setProperty("--scroll-y", `${(delta * speed * 0.12).toFixed(1)}px`);
         });
+        // 词作笺赏：按视口中心位置计算每首词的阅读进度，写入 --entry-progress 供 CSS 联动高亮
+        ciEntries.forEach((entry) => {
+          const rect = entry.getBoundingClientRect();
+          const entryProgress = Math.min(1, Math.max(0, (viewportCenter - rect.top) / rect.height));
+          entry.style.setProperty("--entry-progress", entryProgress.toFixed(3));
+        });
         scrollTicking = false;
       };
       window.addEventListener("scroll", () => {
@@ -1135,6 +1152,7 @@
       scrollUiInitialized = true;
       updateScrollUi();
     }
+
     revealObserver?.disconnect();
     const revealTargets = document.querySelectorAll(".timeline-item, .poem-card, .recite-card, .media-card, .memory-line article, .work-entry, .intro-card");
     // 减弱动效或不支持 IntersectionObserver 时直接全部显示
@@ -1155,18 +1173,62 @@
       element.style.setProperty("--reveal-delay", `${(index % 3) * 80}ms`);
       revealObserver.observe(element);
     });
+
     // 滚动视差：给标题与装饰层按视口位置施加 --scroll-y
     if (!reducedMotion) {
-      const parallaxSelector = ".hero h1, .hero .eyebrow, .section-wrap h2, .section-kicker, .closing h2, .floating-verse, .memory-lead h2";
-      parallaxElements = Array.from(document.querySelectorAll(parallaxSelector)).map((el, idx) => {
-        el.classList.add(idx % 2 === 0 ? "scroll-parallax" : "scroll-parallax-slow");
-        el.dataset.parallaxSpeed = idx % 2 === 0 ? "1" : "0.42";
+      const parallaxSelector = ".hero h1, .hero .eyebrow, .section-wrap h2, .section-kicker, .closing h2, .floating-verse, .memory-lead h2, .work-number, .work-side, .work-main h3";
+      parallaxElements = Array.from(document.querySelectorAll(parallaxSelector)).map((el) => {
+        let speed = "1";
+        if (el.classList.contains("work-side")) speed = "0.32";
+        else if (el.classList.contains("work-number")) speed = "0.55";
+        else if (el.matches(".work-main h3")) speed = "0.7";
+        el.classList.add(speed === "1" ? "scroll-parallax" : "scroll-parallax-slow");
+        el.dataset.parallaxSpeed = speed;
         return el;
       });
     } else {
       parallaxElements = [];
     }
+    // 初始化词作笺赏的滚动叙事（当前词高亮 + 标签联动）
+    initializeCiNarrative();
   };
+
+  /* 词作笺赏叙事：用交叉观察器高亮当前可见词卡，并让顶部标签与之联动；点击标签平滑滚动到对应词 */
+  const initializeCiNarrative = () => {
+    const gallery = document.querySelector(".poem-gallery");
+    if (!gallery) { ciEntries = []; ciTabs = []; ciObserver?.disconnect(); return; }
+    ciEntries = Array.from(gallery.querySelectorAll(".work-entry"));
+    ciTabs = Array.from(gallery.querySelectorAll(".poem-tabs a"));
+    const setActive = (activeEntry) => {
+      if (!activeEntry) return;
+      ciEntries.forEach((entry) => entry.classList.toggle("is-active", entry === activeEntry));
+      const id = activeEntry.id;
+      ciTabs.forEach((tab) => {
+        const match = tab.getAttribute("href") === `#${id}`;
+        tab.classList.toggle("is-active", match);
+      });
+    };
+    ciObserver?.disconnect();
+    ciObserver = new IntersectionObserver((entries) => {
+      const visible = entries
+        .filter((e) => e.isIntersecting)
+        .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+      if (visible[0]) setActive(visible[0].target);
+    }, { threshold: [0.35, 0.55, 0.75], rootMargin: "-18% 0px -30% 0px" });
+    ciEntries.forEach((entry) => ciObserver.observe(entry));
+    // tabs 点击平滑滚动
+    ciTabs.forEach((tab) => {
+      tab.addEventListener("click", (event) => {
+        const id = tab.getAttribute("href")?.slice(1);
+        const target = id ? document.getElementById(id) : null;
+        if (target) {
+          event.preventDefault();
+          target.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+        }
+      });
+    });
+  };
+
   /* ============================================================
    * 生平故事弹窗：四条生平（937→978）数据 + 原生 <dialog>
    * ============================================================ */
@@ -1216,6 +1278,7 @@
       poemNote: "《虞美人·春花秋月何时了》"
     }
   ];
+
   // 记录打开弹窗前的焦点元素，关闭后归还（可访问性）
   let timelineReturnFocus = null;
   // 绑定时间线卡片（role=button）→ 打开对应生平故事弹窗
@@ -1276,6 +1339,7 @@
       });
     });
   };
+
   /* ============================================================
    * 记忆/当代叙事弹窗：史实 · 词境 · 今人 三重叙述
    * ============================================================ */
@@ -1308,6 +1372,7 @@
       ]
     }
   ];
+
   // 同时支持 .memory-line 卡片与 .media-art 作品卡打开弹窗
   const initializeMemoryStories = () => {
     const dialog = document.querySelector(".memory-story-dialog");
@@ -1318,6 +1383,7 @@
     const content = dialog.querySelector(".memory-story-content");
     const image = dialog.querySelector(".memory-story-image");
     let returnFocus = null;
+
     if (document.documentElement.dataset.memoryDialogEscapeBound !== "true") {
       document.addEventListener("keydown", (event) => {
         if (event.key !== "Escape") return;
@@ -1328,6 +1394,7 @@
       });
       document.documentElement.dataset.memoryDialogEscapeBound = "true";
     }
+
     if (dialog.dataset.initialized !== "true") {
       closeButton.addEventListener("click", () => dialog.close());
       dialog.addEventListener("click", (event) => {
@@ -1338,6 +1405,7 @@
       });
       dialog.dataset.initialized = "true";
     }
+
     const showStory = (story, trigger, artwork = null) => {
       returnFocus = trigger;
       kicker.textContent = story.kicker;
@@ -1360,6 +1428,7 @@
       dialog.showModal();
       closeButton.focus();
     };
+
     document.querySelectorAll(".memory-line article[aria-haspopup='dialog']").forEach((card, index) => {
       const openStory = () => {
         const story = memoryStories[index];
@@ -1376,6 +1445,7 @@
         openStory();
       });
     });
+
     document.querySelectorAll(".media-art[aria-haspopup='dialog']").forEach((artwork) => {
       const openArtwork = () => {
         const image = artwork.querySelector("img");
@@ -1404,6 +1474,7 @@
       });
     });
   };
+
   /* 写词互动：把提交的一句词化作随风飘散的字（.wind-release）*/
   const animateWrittenLineAway = (form, text) => {
     if (reducedMotion) return;
@@ -1434,6 +1505,7 @@
     form.append(effect);
     window.setTimeout(() => effect.remove(), 1800);
   };
+
   /* 金竹飘落：在 .bamboo-leaves 画布上绘制缓缓飘落的竹叶，含 DPR 适配、resize 重建、页面隐藏时暂停；减弱动效时不启动 */
   const initializeBambooLeaves = () => {
     const canvas = document.querySelector(".bamboo-leaves");
@@ -1542,6 +1614,7 @@
       }
     });
   };
+
   /* 3D 倾斜：指针悬停时让卡片随指针轻微立体偏转 */
   const initializeDepthInteractions = () => {
     if (reducedMotion || window.innerWidth <= 700 || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
@@ -1570,6 +1643,7 @@
       surface.addEventListener("pointercancel", resetTilt);
     });
   };
+
   /* ============================================================
    * 页面内容初始化（每次翻页后重调）：渐显/弹窗/诵读/收藏/表单
    * ============================================================ */
@@ -1607,6 +1681,7 @@
       window.speechSynthesis.speak(utterance);
     });
   });
+
   // 收藏：以 localStorage 记忆每首词的收藏状态
   document.querySelectorAll(".favorite-button").forEach((button, index) => {
     const key = `liyu-favorite-${index}`;
@@ -1620,6 +1695,7 @@
       localStorage.setItem(key, String(selected));
     });
   });
+
   // 字数计数器：实时显示“已输入 / 上限”
   const setupCounter = (fieldId, countId, max) => {
     const field = document.getElementById(fieldId);
@@ -1631,6 +1707,7 @@
   };
   setupCounter("mood", "mood-count", 80);
   setupCounter("my-line", "line-count", 100);
+
   // 心情表单：提交后清空并给出温柔反馈
   document.querySelector(".mood-form")?.addEventListener("submit", (event) => {
     event.preventDefault();
