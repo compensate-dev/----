@@ -230,9 +230,9 @@ textarea::placeholder{color:#9aa297}
 
 /* ---------- 11. 词容万象 wanxiang(当代想象视角) ---------- */
 .wanxiang-hero{position:relative;isolation:isolate;min-height:540px;gap:7%;background:#dfe6dc}  /* 万象首屏容器：定位+隔离上下文，纯色淡绿底(视频作背景时由 ::before 叠纸色、video 沉底) */
-.wanxiang-hero:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(100deg,rgba(239,241,234,.76),rgba(224,232,222,.46));pointer-events:none}  /* 纸色叠层(盖在视频之上、文字之下)，保证可读 */
-.wanxiang-hero-video{position:absolute;inset:0;z-index:-2;width:100%;height:100%;object-fit:cover;object-position:center 50%}  /* 背景视频(脚本注入 src)，沉到最底层 */
-.wanxiang-hero:after{width:68%;height:90%;background:linear-gradient(145deg,transparent 25%,rgba(79,103,83,.13));opacity:.8}  /* 右侧山形剪影装饰 */
+.wanxiang-hero:before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(100deg,rgba(239,241,234,.62),rgba(224,232,222,.34));pointer-events:none}  /* 纸色叠层(盖在视频之上、文字之下)，保证可读；z-index:1 位于 video(0) 之上、subhero-copy(2) 之下 */
+.wanxiang-hero-video{position:absolute;inset:0;z-index:0;width:100%;height:100%;object-fit:cover;object-position:center 50%}  /* 背景视频(脚本注入 src)，置于容器底层的常规层级 0 */
+.wanxiang-hero:after{z-index:1;width:68%;height:90%;background:linear-gradient(145deg,transparent 25%,rgba(79,103,83,.13));opacity:.8;pointer-events:none}  /* 右侧山形剪影装饰 */
 .wanxiang-hero .subhero-copy{max-width:510px}
 .wanxiang-hero .eyebrow{margin-bottom:18px}
 .wanxiang-hero .subhero-copy>p:not(.eyebrow){max-width:460px;color:#405248;font-size:14px;line-height:2.2;letter-spacing:.04em}
