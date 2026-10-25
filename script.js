@@ -614,6 +614,53 @@
     if (location.protocol !== "file:" && location.pathname.endsWith(".html")) navigateTo(new URL(location.href), false);
   });
 
+  /* ---------- 5-1. 生平时间线叙事进度(滚动时高亮当前段落) ---------- */
+  // 滚动节流标记：避免同一帧内重复计算
+  let timelineScrollTicking = false;
+  // 计算时间线阅读进度：依据视口"阅读线"(屏幕 46% 处)与时间线的相对位置
+  const updateTimelineNarrative = () => {
+    const timeline = document.querySelector(".timeline");
+    if (!timeline) return; // 非生平页无此模块
+    const items = [...timeline.querySelectorAll(".timeline-item")];
+    if (!items.length) return;
+    // 进度条元素：不存在则动态创建并挂到时间线末尾
+    let progress = timeline.querySelector(".timeline-progress");
+    if (!progress) {
+      progress = document.createElement("span");
+      progress.className = "timeline-progress";
+      progress.setAttribute("aria-hidden", "true"); // 纯装饰，对读屏软件隐藏
+      timeline.append(progress);
+    }
+    const timelineBounds = timeline.getBoundingClientRect();
+    const readingLine = window.innerHeight * 0.46; // 阅读线取视口偏上位置
+    // 进度比例：时间线顶端进入阅读线之前为 0，末端之后为 1
+    const progressAmount = Math.min(1, Math.max(0, (readingLine - timelineBounds.top) / timelineBounds.height));
+    timeline.style.setProperty("--narrative-progress", String(progressAmount));
+    // 找出离阅读线最近的段落，标记为当前段落
+    let activeIndex = 0;
+    let nearestDistance = Infinity;
+    items.forEach((item, index) => {
+      const bounds = item.getBoundingClientRect();
+      const distance = Math.abs((bounds.top + bounds.bottom) / 2 - readingLine);
+      if (distance < nearestDistance) {
+        nearestDistance = distance;
+        activeIndex = index;
+      }
+    });
+    items.forEach((item, index) => item.classList.toggle("is-active", index === activeIndex));
+  };
+  // 滚动 / 缩放时以 requestAnimationFrame 节流更新
+  const scheduleTimelineNarrativeUpdate = () => {
+    if (timelineScrollTicking) return;
+    timelineScrollTicking = true;
+    window.requestAnimationFrame(() => {
+      updateTimelineNarrative();
+      timelineScrollTicking = false;
+    });
+  };
+  window.addEventListener("scroll", scheduleTimelineNarrativeUpdate, { passive: true });
+  window.addEventListener("resize", scheduleTimelineNarrativeUpdate);
+
   /* ---------- 6. 阅读进度条 / 返回顶部 / 滚动渐显 ---------- */
   // IntersectionObserver 实例(换页后需重新接管新的目标元素)
   let revealObserver;
@@ -976,10 +1023,47 @@
     window.setTimeout(() => effect.remove(), 1800); // 动画播完后清理节点
   };
 
+  /* ---------- 7-1. 立体悬停交互(卡片随指针轻微转动) ---------- */
+  const initializeDepthInteractions = () => {
+    // 减弱动效、移动端窄屏、触屏设备均不启用
+    if (reducedMotion || window.innerWidth <= 700 || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+    // 需要立体感的表面：词卡 / 时间线卡 / 记忆卡 / 媒体卡 / 介绍卡 / 首屏图 / 浮词圈 / 声波圈 / 诵读图
+    document.querySelectorAll(".poem-card, .timeline-card, .memory-line article, .media-card, .intro-card, .hero-art, .floating-verse, .sound-orbit, .recite-art").forEach((surface) => {
+      if (surface.dataset.depthInitialized === "true") return; // 换页后同一元素不重复绑定
+      surface.dataset.depthInitialized = "true";
+      surface.classList.add("depth-surface"); // 供 CSS 挂 3D 透视与过渡
+      // 复位：移出时撤销转动
+      const resetTilt = () => {
+        surface.classList.remove("is-depth-active");
+        surface.style.removeProperty("--depth-rotation");
+      };
+      // 指针移动：按指针相对卡片中心的偏移量算出转轴与角度
+      surface.addEventListener("pointermove", (event) => {
+        if (event.pointerType === "touch") return;
+        const bounds = surface.getBoundingClientRect();
+        const horizontal = ((event.clientX - bounds.left) / bounds.width - 0.5) * 2; // 水平方向归一化到 -1 ~ 1
+        const vertical = ((event.clientY - bounds.top) / bounds.height - 0.5) * 2;   // 垂直方向归一化到 -1 ~ 1
+        const tiltX = -vertical * 1.6; // 上下偏移 → 绕 X 轴
+        const tiltY = horizontal * 1.6; // 左右偏移 → 绕 Y 轴
+        const angle = Math.hypot(tiltX, tiltY); // 总转角
+        const axisX = angle ? tiltX / angle : 0; // 转轴 X 分量
+        const axisY = angle ? tiltY / angle : 1; // 转轴 Y 分量
+        surface.style.setProperty("--depth-rotation", `${axisX.toFixed(3)} ${axisY.toFixed(3)} 0 ${angle.toFixed(2)}deg`);
+        surface.classList.add("is-depth-active");
+      });
+      surface.addEventListener("pointerleave", resetTilt);
+      surface.addEventListener("pointercancel", resetTilt);
+    });
+  };
+
   /* ---------- 8. 页面内交互(每次换页后重新初始化) ---------- */
   function initializePageContent() {
     // 8a. 滚动进度条 / 返回顶部 / 渐显入场
     initializeScrollInteractions();
+    // 8a-1. 时间线叙事进度(当前段落高亮)
+    updateTimelineNarrative();
+    // 8a-2. 立体悬停绑定
+    initializeDepthInteractions();
     // 8b. 时间线故事弹窗绑定
     initializeTimelineStories();
     // 8b-2. 词容万象页·视角卡详情弹窗绑定

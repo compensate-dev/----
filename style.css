@@ -217,6 +217,17 @@ textarea::placeholder{color:#9aa297}
 .timeline-open-hint{display:flex;align-items:center;gap:6px;margin-top:14px;color:#80513e;font:12px "Liyu Xingkai UI",var(--serif);letter-spacing:.04em} /* 卡片底部“点击展开故事”提示 */
 .timeline-open-hint span{font:12px var(--sans);transition:transform .2s} /* 提示尾部的小箭头 */
 .timeline-card:hover .timeline-open-hint span{transform:translate(2px,-2px)} /* 悬停时箭头右上微移 */
+
+/* —— 10a. 时间线叙事进度(配合脚本按滚动位置高亮当前段落) —— */
+/* 进度条：脚本动态插入 .timeline-progress 元素，沿主轴随阅读进度生长 */
+.timeline-progress{position:absolute;left:-1px;top:0;width:2px;height:calc(var(--narrative-progress,0) * 100%);background:linear-gradient(180deg,var(--rust),var(--gold));transition:height .18s linear;pointer-events:none} /* 贴着主轴左侧的锈红→金渐变细线 */
+.timeline-item{transition:opacity .3s ease,transform .3s ease} /* 段落整体过渡，配合当前段落的明暗变化 */
+.timeline-item:not(.is-active){opacity:.52} /* 非当前段落略微淡出，让注意力聚焦于正在读的一段 */
+.timeline-item.is-active{opacity:1} /* 当前阅读段落保持全亮 */
+.timeline-item.is-active .timeline-dot{transform:scale(1.5);box-shadow:0 0 0 5px var(--paper),0 0 0 8px rgba(169,104,76,.22)} /* 当前段落节点放大并加一圈柔光 */
+.timeline-item.is-active .timeline-year{color:var(--rust)} /* 当前段落年份转为赭红强调 */
+.timeline-item .timeline-dot{transition:transform .3s ease,box-shadow .3s ease} /* 节点缩放与光晕的过渡 */
+@media(prefers-reduced-motion:reduce){.timeline-progress{transition:none}.timeline-item,.timeline-item .timeline-dot{transition:none;opacity:1}} /* 减弱动效：取消过渡且所有段落保持全亮 */
 .timeline-story-dialog{position:fixed;width:min(660px,calc(100vw - 36px));max-width:none;max-height:min(82vh,780px);overflow:auto;margin:auto;padding:clamp(28px,5vw,54px);border:1px solid rgba(134,151,131,.46);background:linear-gradient(145deg,rgba(249,248,240,.99),rgba(232,236,226,.99));color:var(--ink);box-shadow:0 24px 90px rgba(24,39,30,.32)} /* 时间线故事弹窗：纸色渐变底 + 居中定宽 + 可滚动长文 */
 .timeline-story-dialog::backdrop{background:rgba(24,39,31,.52);backdrop-filter:blur(4px)} /* 弹窗背板：深绿半透明 + 模糊 */
 .timeline-story-close{position:sticky;float:right;top:0;display:grid;place-items:center;width:38px;height:38px;margin:-18px -18px 0 12px;border:1px solid #cbd2c8;border-radius:50%;background:rgba(249,248,240,.9);color:var(--pine);font-size:26px;line-height:1;cursor:pointer} /* 右上角圆形关闭钮(吸顶，滚动长文时始终可达) */
