@@ -1728,8 +1728,8 @@
         const bounds = surface.getBoundingClientRect();
         const horizontal = ((event.clientX - bounds.left) / bounds.width - 0.5) * 2;
         const vertical = ((event.clientY - bounds.top) / bounds.height - 0.5) * 2;
-        const tiltX = -vertical * 1.6;
-        const tiltY = horizontal * 1.6;
+        const tiltX = -vertical * 2.4;
+        const tiltY = horizontal * 2.4;
         const angle = Math.hypot(tiltX, tiltY);
         const axisX = angle ? tiltX / angle : 0;
         const axisY = angle ? tiltY / angle : 1;
@@ -1742,6 +1742,35 @@
   };
 
   /* ============================================================
+   * 磁吸按钮：深色主按钮 / 封面翻开按钮随指针轻微吸附
+   * 触屏设备与「减弱动效」用户直接跳过；效果通过写入
+   * --mag-x / --mag-y 两个 CSS 变量驱动 translate，松手即归位
+   * ============================================================ */
+  const initializeMagneticButtons = () => {
+    if (reducedMotion || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+    document.querySelectorAll(".button-dark, .book-open-button").forEach((button) => {
+      if (button.dataset.magnetReady === "true") return;
+      button.dataset.magnetReady = "true";
+      // 指针离开/取消时移除变量，按钮回到原位
+      const reset = () => {
+        button.style.removeProperty("--mag-x");
+        button.style.removeProperty("--mag-y");
+      };
+      button.addEventListener("pointermove", (event) => {
+        if (event.pointerType === "touch") return;
+        // 把指针在按钮内的位置归一化到 [-1,1]，再按比例换算吸附位移
+        const bounds = button.getBoundingClientRect();
+        const dx = ((event.clientX - bounds.left) / bounds.width - 0.5) * 2;
+        const dy = ((event.clientY - bounds.top) / bounds.height - 0.5) * 2;
+        button.style.setProperty("--mag-x", `${(dx * 3.4).toFixed(1)}px`);
+        button.style.setProperty("--mag-y", `${(dy * 2.6).toFixed(1)}px`);
+      });
+      button.addEventListener("pointerleave", reset);
+      button.addEventListener("pointercancel", reset);
+    });
+  };
+
+  /* ============================================================
    * 页面内容初始化（每次翻页后重调）：渐显/弹窗/诵读/收藏/表单
    * ============================================================ */
   function initializePageContent() {
@@ -1749,6 +1778,7 @@
   updateTimelineNarrative();
   initializeBambooLeaves();
   initializeDepthInteractions();
+  initializeMagneticButtons();
   initializeTimelineStories();
   initializeMemoryStories();
   let speaking = false;
