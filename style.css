@@ -103,18 +103,14 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}
 .button{min-height:47px;padding:11px 20px;display:inline-flex;align-items:center;justify-content:center;gap:23px;font-family:var(--sans);font-size:11px;letter-spacing:.1em;transition:transform .3s cubic-bezier(.2,.7,.25,1),background .3s,box-shadow .35s ease,letter-spacing .35s ease,border-color .35s ease}
 /* 按钮基础样式 */
 .button:hover{transform:translateY(-2px)}
-/* 深色主按钮 · 水墨山水底图（ink-mountain.jpg 铺满裁切）+ 金褐细边 + 青墨文字与柔和投影 */
-.button-dark{position:relative;overflow:hidden;background:url("ink-mountain.jpg") center/cover no-repeat;border:1px solid rgba(199,170,119,.55);color:#24362e;letter-spacing:.12em;box-shadow:0 4px 18px rgba(20,32,27,.22),inset 0 1px 0 rgba(255,255,255,.4)}
-/* 深色主按钮 · 内衬细框（inset 4px，悬停时向内收细并转赭色） */
-.button-dark::before{content:"";position:absolute;inset:4px;border:1px solid rgba(36,54,46,.18);pointer-events:none;transition:inset .35s cubic-bezier(.2,.7,.25,1),border-color .35s ease}
-/* 深色主按钮 · 扫光高光条（斜切暖白渐变，悬停时自左向右划过） */
-.button-dark::after{content:"";position:absolute;top:-10%;bottom:-10%;left:-45%;width:34%;background:linear-gradient(105deg,transparent,rgba(255,246,224,.55) 50%,transparent);transform:skewX(-18deg) translateX(0);transition:transform .7s cubic-bezier(.2,.7,.25,1);pointer-events:none}
-/* 深色主按钮 · 悬停：金边加亮、字距拉开、双层金棕投影抬升 */
-.button-dark:hover{border-color:rgba(199,170,119,.9);letter-spacing:.15em;background-color:rgba(20,32,27,.05);box-shadow:0 12px 30px rgba(20,32,27,.26),0 4px 28px rgba(199,170,119,.32),inset 0 1px 0 rgba(255,255,255,.5)}
-/* 深色主按钮 · 悬停时内衬框收细并转为赭色 */
-.button-dark:hover::before{inset:3px;border-color:rgba(169,104,76,.35)}
-/* 深色主按钮 · 悬停时扫光条横向位移划出按钮 */
-.button-dark:hover::after{transform:skewX(-18deg) translateX(460%)}
+/* 深色主按钮 · 水墨山水底图（ink-mountain.jpg 铺满裁切）+ 淡金细边 + 3px 圆角 + 青墨文字与轻投影 */
+.button-dark{position:relative;overflow:hidden;background:url("ink-mountain.jpg") center/cover no-repeat;border:1px solid rgba(150,128,90,.32);border-radius:3px;color:#24362e;letter-spacing:.12em;box-shadow:0 4px 16px rgba(20,32,27,.16)}
+/* 深色主按钮 · 顶部高光渐变叠加（上亮下暗，压出纸面微光；悬停时整体加深） */
+.button-dark::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,252,242,.12),transparent 34%,rgba(20,32,27,.14) 100%);pointer-events:none;transition:opacity .35s ease}
+/* 深色主按钮 · 悬停：边框加深、字距拉开、双层投影轻微抬升 */
+.button-dark:hover{border-color:rgba(150,128,90,.55);letter-spacing:.15em;background-color:rgba(20,32,27,.04);box-shadow:0 10px 24px rgba(20,32,27,.2),0 2px 14px rgba(199,170,119,.16)}
+/* 深色主按钮 · 悬停时高光叠加整体加深 */
+.button-dark:hover::before{opacity:.72}
 /* 深色主按钮 · 按下：微缩回弹 */
 .button-dark:active{transform:translateY(0) scale(.985)}
 /* 深色主按钮 · 箭头字符：悬停时右上位移并转赭色 */
@@ -1105,18 +1101,14 @@ html{scroll-padding-top:75px}/* 站点页头：品牌 / 导航 / 声音开关 */
 .book-cover-corner-br{bottom:12px;right:12px;transform:rotate(135deg)}
 /* 书封 */
 .book-cover-seal{position:absolute;right:12%;top:14%;width:39px;height:39px;display:grid;place-items:center;border:1px solid rgba(169,104,76,.65);color:#9b6049;font-size:19px;transform:rotate(5deg)}
-/* 翻开按钮 · 水墨山水底图（ink-mountain.jpg）+ 金褐细边 + 青墨文字，扫光与内衬框同深色主按钮体系 */
-.book-open-button{position:absolute;z-index:2;left:50%;top:72%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:22px;padding:13px 24px;border:1px solid rgba(199,170,119,.6);background:url("ink-mountain.jpg") center/cover no-repeat;color:#24362e;font-size:11px;letter-spacing:.16em;cursor:pointer;overflow:hidden;transition:border-color .35s ease,transform .35s cubic-bezier(.2,.7,.25,1),box-shadow .35s ease;box-shadow:0 6px 20px rgba(36,54,46,.22)}
-/* 翻开按钮 · 内衬细框（悬停时收细并转赭色） */
-.book-open-button::before{content:"";position:absolute;inset:4px;border:1px solid rgba(36,54,46,.18);pointer-events:none;transition:inset .35s cubic-bezier(.2,.7,.25,1),border-color .35s ease}
-/* 翻开按钮 · 扫光高光条（悬停时自左向右划过） */
-.book-open-button::after{content:"";position:absolute;top:-10%;bottom:-10%;left:-45%;width:34%;background:linear-gradient(105deg,transparent,rgba(255,246,224,.55) 50%,transparent);transform:skewX(-18deg) translateX(0);transition:transform .7s cubic-bezier(.2,.7,.25,1);pointer-events:none}
-/* 翻开按钮 · 悬停：金边加亮 + 双层金棕投影抬升（保留居中定位的位移量） */
-.book-open-button:hover{transform:translate(-50%,-50%) translateY(-2px);border-color:rgba(199,170,119,.92);box-shadow:0 14px 34px rgba(36,54,46,.28),0 4px 30px rgba(199,170,119,.35)}
-/* 翻开按钮 · 悬停时内衬框收细并转为赭色 */
-.book-open-button:hover::before{inset:3px;border-color:rgba(169,104,76,.35)}
-/* 翻开按钮 · 悬停时扫光条横向位移划出按钮 */
-.book-open-button:hover::after{transform:skewX(-18deg) translateX(460%)}
+/* 翻开按钮 · 水墨山水底图（ink-mountain.jpg）+ 淡金细边 + 3px 圆角 + 青墨文字，高光叠加同深色主按钮体系 */
+.book-open-button{position:absolute;z-index:2;left:50%;top:72%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:22px;padding:13px 24px;border:1px solid rgba(150,128,90,.32);border-radius:3px;background:url("ink-mountain.jpg") center/cover no-repeat;color:#24362e;font-size:11px;letter-spacing:.16em;cursor:pointer;overflow:hidden;transition:border-color .35s ease,transform .35s cubic-bezier(.2,.7,.25,1),box-shadow .35s ease;box-shadow:0 6px 18px rgba(36,54,46,.16)}
+/* 翻开按钮 · 顶部高光渐变叠加（悬停时整体加深） */
+.book-open-button::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,252,242,.12),transparent 34%,rgba(20,32,27,.14) 100%);pointer-events:none;transition:opacity .35s ease}
+/* 翻开按钮 · 悬停：边框加深 + 双层投影轻微抬升（保留居中定位的位移量） */
+.book-open-button:hover{transform:translate(-50%,-50%) translateY(-2px);border-color:rgba(150,128,90,.55);box-shadow:0 12px 28px rgba(36,54,46,.2),0 2px 14px rgba(199,170,119,.16)}
+/* 翻开按钮 · 悬停时高光叠加整体加深 */
+.book-open-button:hover::before{opacity:.72}
 /* 翻开按钮 · 按下：微缩回弹（同样保留居中位移量） */
 .book-open-button:active{transform:translate(-50%,-50%) scale(.98)}
 /* 翻开按钮 · 箭头字符（赭色） */
