@@ -100,9 +100,9 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}
 /* 按钮基础样式 */
 .button:hover{transform:translateY(-2px)}
 /* 按钮基础样式 */
-.button-dark{background:var(--pine);color:#f7f5ef}
+.button-dark{background:linear-gradient(135deg,#1a2620 0%,#24362e 45%,#2d3d34 100%);color:#f7f5ef;box-shadow:0 4px 18px rgba(20,32,27,.32),inset 0 1px 0 rgba(255,255,255,.06)}
 /* 按钮基础样式 */
-.button-dark:hover{background:#20382d}
+.button-dark:hover{background:linear-gradient(135deg,#15201b 0%,#1f2e28 45%,#27372f 100%)}
 /* 按钮基础样式 */
 .button span{font-size:16px;color:#d2b990}
 /* 文字链接 */
@@ -1051,6 +1051,10 @@ html{scroll-padding-top:75px}/* 站点页头：品牌 / 导航 / 声音开关 */
 .book-cover-front,.book-cover-back{position:absolute;inset:0;backface-visibility:hidden}
 /* 书封 */
 .book-cover-front{display:grid;place-items:center;overflow:hidden;color:#304638;background:linear-gradient(135deg,rgba(243,243,237,.82),rgba(236,238,228,.77)),url("home-background.jpg") center 45%/cover no-repeat;border:1px solid rgba(169,104,76,.55);box-shadow:inset 0 0 70px rgba(255,255,255,.23),inset 0 -14px 28px rgba(73,72,52,.08)}
+/* 书封 · 折枝梅插画（左上角压印，正片叠底融入纸面） */
+.book-cover-plum{position:absolute;left:-4%;top:-4%;width:62%;z-index:0;pointer-events:none;mix-blend-mode:multiply;opacity:.9}
+/* 书封 · 折枝梅图片（撑满容器、保持原始比例） */
+.book-cover-plum img{display:block;width:100%;height:auto}
 /* 书封 */
 .book-cover-front:before{content:"";position:absolute;inset:18px;border:1px solid rgba(169,104,76,.46);background:linear-gradient(90deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) left top/22px 22px no-repeat,linear-gradient(180deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) left top/22px 22px no-repeat,linear-gradient(270deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) right top/22px 22px no-repeat,linear-gradient(180deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) right top/22px 22px no-repeat,linear-gradient(90deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) left bottom/22px 22px no-repeat,linear-gradient(0deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) left bottom/22px 22px no-repeat,linear-gradient(270deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) right bottom/22px 22px no-repeat,linear-gradient(0deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) right bottom/22px 22px no-repeat;pointer-events:none}
 /* 书封 */
@@ -1136,6 +1140,8 @@ to{opacity:1}/* 关键帧节点 */
 .book-open-button{top:70%;white-space:nowrap}
   /* 书封 */
 .book-cover-foot{bottom:15%;font-size:7px}
+  /* 书封 · 折枝梅在窄屏放大并微调位置，避免被裁切 */
+  .book-cover-plum{width:72%;left:-6%;top:-3%;opacity:.85}
 /* 基础元素样式 */
 }
 /* 响应式适配：(prefers-reduced-motion:reduce) */
