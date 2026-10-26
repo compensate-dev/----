@@ -27,7 +27,7 @@
 
   <!-- 主体：id="main-content" 供顶部「跳至主要内容」链接定位；tabindex="-1" 使其可被程序聚焦 -->
   <main id="main-content" tabindex="-1">
-    <!-- 首屏：背景视频(视频未就绪时以 poster 图占位) + 标题 + 大字水印(一词万象) -->
+    <!-- 首屏：背景视频(视频未就绪时以 poster 图占位) + 标题文案 + 竖排大字水印(一词万象) -->
     <section class="subhero wanxiang-hero">
       <video class="wanxiang-hero-video" autoplay muted loop playsinline preload="metadata" poster="screen-world-background.jpg" aria-hidden="true" tabindex="-1">
         <source src="wanxiang-hero.mp4" type="video/mp4">
@@ -56,7 +56,7 @@
       </div>
     </section>
 
-    <!-- 区块二：同一个李煜，在当代影视 / 游戏中的不同形象（2×2 媒体卡，真实配图） -->
+    <!-- 区块二：同一个李煜，在当代影视 / 游戏中的不同形象（2×2 媒体卡） -->
     <section class="screen-world section-wrap" id="screen-world">
       <div class="section-kicker">02 <span>ON SCREEN &amp; IN GAME</span></div>
       <!-- 左：区块标题；右：说明文字 -->
@@ -65,26 +65,27 @@
         <p>一幅后世旧绘，三种当代演绎。画像、游戏与影视各自描摹李煜，也映照出不同时代的人们如何想象这位南唐后主。</p>
       </div>
       <!-- 2×2 媒体卡网格：古本遗像 / 忘川 / 燕云 / 影视，每张为配图 + 图注
-           每张配图(.media-art)可点击/回车打开大图与介绍，由 script.js 弹窗展示 -->
+           每张配图(.media-art)可点击/回车打开大图与介绍，由 script.js 弹窗展示
+           .media-art-ink 为图片上的水墨压暗蒙层；.media-art-vertical-title 为竖排题名 -->
       <div class="media-grid">
-        <!-- 卡 01：古本遗像（史书之外的面容，无小标题） -->
+        <!-- 卡 01：古本遗像（史书之外的面容，代表古人视角） -->
         <article class="media-card media-card-archive">
-          <figure class="media-art media-art-archive" tabindex="0" role="button" aria-haspopup="dialog" aria-label="查看李煜古本遗像大图与介绍"><img src="liyu-portrait-archive.jpg" alt="后世追绘的南唐后主李煜古本肖像" loading="lazy" decoding="async"></figure>
+          <figure class="media-art media-art-archive" tabindex="0" role="button" aria-haspopup="dialog" aria-label="查看李煜古本遗像大图与介绍"><img src="liyu-portrait-archive.jpg" alt="后世追绘的南唐后主李煜古本肖像" loading="lazy" decoding="async"><span class="media-art-ink"></span><span class="media-art-vertical-title">古本遗像</span></figure>
           <div class="media-caption"><span>AN OLD PORTRAIT / 01</span><h3>古本遗像</h3><p>这是后世流传最广的李煜旧绘。没有青衣风流，没有月下孤影，只有古人肖像画里敦厚平实的君王样貌。</p><p>史书不曾记下他的眉眼；这幅画像，亦是后人隔着百年时光，对这位后主最初的想象。</p><small class="media-caption-note">此为宋代以后追绘像，并非李煜生前写真；它代表古人视角，而忘川、燕云、影视，则是今人的重构。</small></div>
         </article>
         <!-- 卡 02：忘川风华录（游戏 · 纸上君王） -->
         <article class="media-card media-card-wangchuan">
-          <figure class="media-art media-art-wangchuan" tabindex="0" role="button" aria-haspopup="dialog" aria-label="查看忘川风华录李煜演绎大图与介绍"><img src="liyu-wangchuan.jpg" alt="《忘川风华录》中身着明黄王袍、挥笔题梅的李煜角色演绎" loading="lazy" decoding="async"></figure>
+          <figure class="media-art media-art-wangchuan" tabindex="0" role="button" aria-haspopup="dialog" aria-label="查看忘川风华录李煜演绎大图与介绍"><img src="liyu-wangchuan.jpg" alt="《忘川风华录》中身着明黄王袍、挥笔题梅的李煜角色演绎" loading="lazy" decoding="async"><span class="media-art-ink"></span><span class="media-art-vertical-title">忘川风华</span></figure>
           <div class="media-caption"><span>GAME / 02 · 忘川风华录</span><h3>忘川风华录 · 李煜</h3><h4>纸上君王，笔底春愁</h4><p>明黄王袍尚留南唐余辉，挥笔题梅，似仍是那个尚有江山可恋的君主。</p><p>忘川以温柔的笔触，先还原他帝王的身份，再慢慢透出藏在风雅之下、预知命运的淡淡怅惘。</p><small class="media-caption-note">此为游戏艺术演绎，并非史料所载容貌；它抓住的，是世人想象里「风流多才的南唐后主」。</small></div>
         </article>
         <!-- 卡 03：燕云十六声（游戏 · 雨中孤客） -->
         <article class="media-card media-card-yanyun">
-          <figure class="media-art media-art-yanyun" tabindex="0" role="button" aria-haspopup="dialog" aria-label="查看燕云十六声李煜演绎大图与介绍"><img src="liyu-yanyun.jpg" alt="《燕云十六声》中李煜在冷雨中执伞的青衫形象演绎" loading="lazy" decoding="async"></figure>
+          <figure class="media-art media-art-yanyun" tabindex="0" role="button" aria-haspopup="dialog" aria-label="查看燕云十六声李煜演绎大图与介绍"><img src="liyu-yanyun.jpg" alt="《燕云十六声》中李煜在冷雨中执伞的青衫形象演绎" loading="lazy" decoding="async"><span class="media-art-ink"></span><span class="media-art-vertical-title">燕云十六声</span></figure>
           <div class="media-caption"><span>GAME / 03 · 燕云十六声</span><h3>燕云十六声 · 李煜</h3><h4>雨中孤客，词中囚徒</h4><p>褪去帝王冕服，一袭青衫、一伞冷雨。燕云十六声没有强调他的君王身份，而放大了命运漂泊感——他不再是南唐天子，更像一个被时代洪流裹挟、满身愁绪的失意之人。</p><p>这也呼应了亡国之后「梦里不知身是客」的词境。</p><small class="media-caption-note">这是极具现代感的解构：取其「愁」，而不拘泥于其「位」，是当代年轻人容易共情的李煜形象。</small></div>
         </article>
         <!-- 卡 04：影视形象（杯酒余生，人间长恨） -->
         <article class="media-card media-card-film">
-          <figure class="media-art media-art-film" tabindex="0" role="button" aria-haspopup="dialog" aria-label="查看影视形象李煜大图与介绍"><img src="liyu-film.jpg" alt="影视剧中成年李煜举杯饮酒、神情沉郁的形象" loading="lazy" decoding="async"></figure>
+          <figure class="media-art media-art-film" tabindex="0" role="button" aria-haspopup="dialog" aria-label="查看影视形象李煜大图与介绍"><img src="liyu-film.jpg" alt="影视剧中成年李煜举杯饮酒、神情沉郁的形象" loading="lazy" decoding="async"><span class="media-art-ink"></span><span class="media-art-vertical-title">光影流年</span></figure>
           <div class="media-caption"><span>SCREEN / 04 · 影视形象</span><h3>影视形象 · 李煜</h3><h4>杯酒余生，人间长恨</h4><p>胡须、沉郁的眉眼、仰头饮尽的姿态。影视更偏向成年之后、亡国被俘的后主：繁华落尽，锐气消磨，眼底只剩往事与无可奈何，把「天上人间」的落差，凝在一个举杯的瞬间。</p><small class="media-caption-note">影视叙事偏爱他的悲剧性；我们看见的，往往不是前期宴饮游乐的君主，而是那个「以血书词」的亡国词人。</small></div>
         </article>
       </div>
@@ -94,7 +95,7 @@
 
     <!-- 引文区：词与今人相遇 -->
     <section class="living-echo section-wrap">
-      <span class="echo-quote" aria-hidden="true">“</span>
+      <span class="echo-quote" aria-hidden="true">"</span>
       <p>春花秋月依旧，读词的人一代又一代。<br>李煜不再开口，他的词却仍与今天相遇。</p>
       <span>一江春水 · 词容万象</span>
     </section>
