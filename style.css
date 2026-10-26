@@ -1253,10 +1253,14 @@ body.arrival-lock{overflow:hidden}
 .arrival-interlude[data-scene="2"] .arrival-landscape{filter:saturate(.76) brightness(.82)}
 /* 抵达视差幕：按当前幕序调整各图层氛围（滤镜 / 透明度 / 位移） */
 .arrival-interlude[data-scene="3"] .arrival-landscape{filter:saturate(.55) brightness(.7) hue-rotate(8deg)}
+/* 第三幕场景背景层：arrival-scene3-bg.jpg 整幅铺底，默认隐藏并略放大，进第三幕时渐显 + 缓慢回缩 */
+.arrival-scene3-bg{position:absolute;inset:0;z-index:-3;background:url("arrival-scene3-bg.jpg") center/cover no-repeat;opacity:0;transform:scale(1.06);filter:brightness(.74) saturate(.9);transition:opacity 1.15s ease,transform 1.6s cubic-bezier(.2,.7,.25,1),filter 1.15s ease}
+/* 第三幕场景背景压暗渐变：自上而下加深 + 左侧横向压暗，保证前景文案可读 */
+.arrival-scene3-bg:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(18,30,27,.32),rgba(18,30,27,.1) 38%,rgba(18,30,27,.5) 100%),linear-gradient(90deg,rgba(18,30,27,.46),transparent 52%)}
+/* 第三幕场景背景激活态：进入 data-scene="3" 时渐显 */
+.arrival-interlude[data-scene="3"] .arrival-scene3-bg{opacity:1;transform:scale(1);filter:brightness(.8) saturate(.92)}
 /* 抵达明月 */
 .arrival-moon{position:absolute;z-index:-3;top:12%;right:23%;width:clamp(100px,15vw,210px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 38% 36%,rgba(250,241,216,.94),rgba(226,218,190,.52) 55%,rgba(226,218,190,0) 72%);filter:blur(.4px);opacity:.78;transform:translate3d(calc(var(--arrival-moon-y,0px)*0 + var(--arrival-pointer-soft-x,0px)*-1.4),calc(var(--arrival-moon-y,0px) + var(--arrival-pointer-soft-y,0px)*-1.2),40px);box-shadow:0 0 80px rgba(225,214,175,.16);transition:opacity .8s ease}
-/* 抵达视差幕：按当前幕序调整各图层氛围（滤镜 / 透明度 / 位移） */
-.arrival-interlude[data-scene="3"] .arrival-moon{opacity:.34}
 /* 抵达松林 */
 .arrival-pine{position:absolute;inset:auto 0 -3%;z-index:-1;height:37%;pointer-events:none;transform:translate3d(var(--arrival-pointer-deep-x,0px),var(--arrival-pine-y,0),0);filter:blur(3px);opacity:.68;mask-image:linear-gradient(180deg,transparent,#000 25%,#000);transition:opacity 1s ease}
 /* 抵达松林 */
@@ -1291,14 +1295,12 @@ body.arrival-lock{overflow:hidden}
 .arrival-hill-mid{position:absolute;left:-8%;right:-8%;bottom:5%;height:34%;z-index:-2;background:url("parallax-mid.png") repeat-x bottom/auto 100%;mix-blend-mode:multiply;transform:translate3d(var(--arrival-hill-mid-x,0px),0,0);will-change:transform}
 /* 抵达视差 · 江岸：PNG 横向平铺的堤岸剪影，横移量最大（--arrival-shore-x），承接山与水面；multiply 融入纸底 */
 .arrival-shore{position:absolute;left:-8%;right:-8%;bottom:-2%;height:24%;z-index:-1;background:url("parallax-shore.png") repeat-x bottom/auto 100%;mix-blend-mode:multiply;transform:translate3d(var(--arrival-shore-x,0px),0,0);will-change:transform}
-/* 抵达视差 · 孤舟：PNG 小舟，横移之外还随正弦上下漂浮（--arrival-boat-y）与轻微倾斜（--arrival-boat-tilt） */
-.arrival-boat{position:absolute;left:56%;bottom:12%;width:clamp(140px,15vw,220px);aspect-ratio:2064/921;z-index:0;background:url("parallax-boat.png") no-repeat center/contain;transform:translate3d(var(--arrival-boat-x,0px),var(--arrival-boat-y,0px),0) rotate(var(--arrival-boat-tilt,0deg));will-change:transform}
-/* 抵达视差 · 雁阵：SVG 飞雁，默认隐藏，随进度斜向掠过；第二幕渐显、第三幕淡化 */
+/* 抵达视差 · 孤舟：PNG 小舟（v2 图，1308/1008），multiply 融入纸底并整体半透明；横移之外还随正弦上下漂浮（--arrival-boat-y）与轻微倾斜（--arrival-boat-tilt） */
+.arrival-boat{position:absolute;left:56%;bottom:12%;width:clamp(140px,15vw,220px);aspect-ratio:1308/1008;z-index:0;background:url("parallax-boat-v2.png") no-repeat center/contain;mix-blend-mode:multiply;opacity:.85;transform:translate3d(var(--arrival-boat-x,0px),var(--arrival-boat-y,0px),0) rotate(var(--arrival-boat-tilt,0deg));will-change:transform}
+/* 抵达视差 · 雁阵：SVG 飞雁，默认隐藏，随进度斜向掠过；第二幕渐显（第三幕不再单独淡化） */
 .arrival-geese{position:absolute;left:14%;top:15%;width:clamp(220px,24vw,340px);aspect-ratio:420/170;z-index:0;background:url("svg-parallax-geese.svg") no-repeat center/contain;opacity:0;transition:opacity 1s ease;transform:translate3d(var(--arrival-geese-x,0px),var(--arrival-geese-y,0px),0);will-change:transform,opacity}
 /* 雁阵 · 第二幕显示态：淡淡掠过天际 */
 .arrival-interlude[data-scene="2"] .arrival-geese{opacity:.85}
-/* 雁阵 · 第三幕显示态：几乎隐去 */
-.arrival-interlude[data-scene="3"] .arrival-geese{opacity:.28}
 /* 抵达落花层：容器，脚本向其中注入若干花瓣 i */
 .arrival-petals{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}
 /* 抵达视差 · 芦苇：PNG 横向平铺剪影，横移方向与山峦相反（向右），贴水面最前景 */
