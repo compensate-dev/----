@@ -68,16 +68,22 @@
       <div class="arrival-stage">
           <!-- 远山层：随进度上移，制造纵深 -->
           <div class="arrival-landscape" aria-hidden="true"></div>
-          <!-- 远景山峦层：SVG 平铺剪影，横向纵向双轴慢速视差（最远景） -->
+          <!-- 远景山峦层：PNG 平铺剪影，横向纵向双轴慢速视差（最远景） -->
           <div class="arrival-hill-far" aria-hidden="true"></div>
-          <!-- 中景山峦层：SVG 平铺剪影，横移更快，与远山拉开层次 -->
+          <!-- 中景山峦层：PNG 平铺剪影，横移更快，与远山拉开层次 -->
           <div class="arrival-hill-mid" aria-hidden="true"></div>
-          <!-- 孤舟层：SVG 小舟，随进度横移并带上下漂浮与轻微倾斜 -->
+          <!-- 江岸层：PNG 平铺堤岸，横移量最大，承接山体与水面 -->
+          <div class="arrival-shore" aria-hidden="true"></div>
+          <!-- 孤舟层：PNG 小舟，随进度横移并带上下漂浮与轻微倾斜 -->
           <div class="arrival-boat" aria-hidden="true"></div>
           <!-- 雁阵层：SVG 飞雁，随进度斜向掠过，第二/三幕按场景切换透明度 -->
           <div class="arrival-geese" aria-hidden="true"></div>
           <!-- 落花层：容器本身为空，由 script.js 注入若干花瓣 i 缓缓飘落 -->
           <div class="arrival-petals" aria-hidden="true"></div>
+          <!-- 垂柳层（右）：PNG 柳枝自右上垂下，作前景框景 -->
+          <div class="arrival-willow" aria-hidden="true"></div>
+          <!-- 垂柳层（左）：同一张图水平翻转，与右侧柳枝左右呼应 -->
+          <div class="arrival-willow arrival-willow-2" aria-hidden="true"></div>
           <!-- 场景切换层：分幕转场时的过渡遮罩 -->
           <div class="arrival-world-change" aria-hidden="true"></div>
           <!-- 月亮层：随进度下沉 -->

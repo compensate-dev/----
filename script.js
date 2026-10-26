@@ -710,6 +710,10 @@
       arrivalInterlude.style.setProperty("--arrival-hill-far-y", `${(-progress * 34).toFixed(1)}px`);
       // 中景山峦：横移更快（190px），与远山拉开层次
       arrivalInterlude.style.setProperty("--arrival-hill-mid-x", `${(-progress * 190).toFixed(1)}px`);
+      // 江岸：横移量再加大（280px），承接山与水面，形成第三层纵深
+      arrivalInterlude.style.setProperty("--arrival-shore-x", `${(-progress * 280).toFixed(1)}px`);
+      // 垂柳：前景框景，横移最快（330px），左右两条柳枝共用同一变量
+      arrivalInterlude.style.setProperty("--arrival-willow-x", `${(-progress * 330).toFixed(1)}px`);
       // 孤舟：横移（150px）叠加正弦漂浮（±10px 横向、±7px 纵向），并按余弦轻微倾斜（±2.4°）
       arrivalInterlude.style.setProperty("--arrival-boat-x", `${(-progress * 150 + Math.sin(progress * Math.PI * 2) * 10).toFixed(1)}px`);
       arrivalInterlude.style.setProperty("--arrival-boat-y", `${(Math.sin(progress * Math.PI * 3) * 7).toFixed(1)}px`);

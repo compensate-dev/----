@@ -1277,12 +1277,14 @@ body.arrival-lock{overflow:hidden}
 .arrival-interlude[data-scene="2"] .arrival-mist{opacity:.82}
 /* 抵达视差幕：按当前幕序调整各图层氛围（滤镜 / 透明度 / 位移） */
 .arrival-interlude[data-scene="3"] .arrival-mist{opacity:.9}
-/* 抵达视差 · 远景山峦：SVG 横向平铺剪影，随 --arrival-hill-far-x/y 双轴慢速位移（最远层） */
-.arrival-hill-far{position:absolute;left:-8%;right:-8%;bottom:9%;height:34%;z-index:-3;background:url("svg-parallax-far.svg") repeat-x bottom/auto 100%;transform:translate3d(var(--arrival-hill-far-x,0px),var(--arrival-hill-far-y,0px),0);will-change:transform}
-/* 抵达视差 · 中景山峦：SVG 横向平铺剪影，横移速度更快，与远山拉开视差纵深 */
-.arrival-hill-mid{position:absolute;left:-8%;right:-8%;bottom:3%;height:31%;z-index:-2;background:url("svg-parallax-mid.svg") repeat-x bottom/auto 100%;transform:translate3d(var(--arrival-hill-mid-x,0px),0,0);will-change:transform}
-/* 抵达视差 · 孤舟：SVG 小舟，横移之外还随正弦上下漂浮（--arrival-boat-y）与轻微倾斜（--arrival-boat-tilt） */
-.arrival-boat{position:absolute;left:56%;bottom:11%;width:clamp(120px,13vw,190px);aspect-ratio:200/130;z-index:-1;background:url("svg-parallax-boat.svg") no-repeat center/contain;transform:translate3d(var(--arrival-boat-x,0px),var(--arrival-boat-y,0px),0) rotate(var(--arrival-boat-tilt,0deg));will-change:transform}
+/* 抵达视差 · 远景山峦：PNG 横向平铺剪影，随 --arrival-hill-far-x/y 双轴慢速位移（最远层） */
+.arrival-hill-far{position:absolute;left:-8%;right:-8%;bottom:10%;height:32%;z-index:-3;background:url("parallax-far.png") repeat-x bottom/auto 100%;transform:translate3d(var(--arrival-hill-far-x,0px),var(--arrival-hill-far-y,0px),0);will-change:transform}
+/* 抵达视差 · 中景山峦：PNG 横向平铺剪影，横移速度更快，与远山拉开视差纵深 */
+.arrival-hill-mid{position:absolute;left:-8%;right:-8%;bottom:5%;height:34%;z-index:-2;background:url("parallax-mid.png") repeat-x bottom/auto 100%;transform:translate3d(var(--arrival-hill-mid-x,0px),0,0);will-change:transform}
+/* 抵达视差 · 江岸：PNG 横向平铺的堤岸剪影，横移量最大（--arrival-shore-x），承接山与水面 */
+.arrival-shore{position:absolute;left:-8%;right:-8%;bottom:-2%;height:24%;z-index:-1;background:url("parallax-shore.png") repeat-x bottom/auto 100%;transform:translate3d(var(--arrival-shore-x,0px),0,0);will-change:transform}
+/* 抵达视差 · 孤舟：PNG 小舟，横移之外还随正弦上下漂浮（--arrival-boat-y）与轻微倾斜（--arrival-boat-tilt） */
+.arrival-boat{position:absolute;left:56%;bottom:12%;width:clamp(140px,15vw,220px);aspect-ratio:2064/921;z-index:0;background:url("parallax-boat.png") no-repeat center/contain;transform:translate3d(var(--arrival-boat-x,0px),var(--arrival-boat-y,0px),0) rotate(var(--arrival-boat-tilt,0deg));will-change:transform}
 /* 抵达视差 · 雁阵：SVG 飞雁，默认隐藏，随进度斜向掠过；第二幕渐显、第三幕淡化 */
 .arrival-geese{position:absolute;left:14%;top:15%;width:clamp(220px,24vw,340px);aspect-ratio:420/170;z-index:0;background:url("svg-parallax-geese.svg") no-repeat center/contain;opacity:0;transition:opacity 1s ease;transform:translate3d(var(--arrival-geese-x,0px),var(--arrival-geese-y,0px),0);will-change:transform,opacity}
 /* 雁阵 · 第二幕显示态：淡淡掠过天际 */
@@ -1291,8 +1293,12 @@ body.arrival-lock{overflow:hidden}
 .arrival-interlude[data-scene="3"] .arrival-geese{opacity:.28}
 /* 抵达落花层：容器，脚本向其中注入若干花瓣 i */
 .arrival-petals{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}
-/* 抵达视差 · 芦苇：SVG 横向平铺剪影，横移方向与山峦相反（向右），贴水面最前景 */
-.arrival-reed{position:absolute;left:-8%;right:-8%;bottom:-2%;height:24%;z-index:2;pointer-events:none;background:url("svg-parallax-reed.svg") repeat-x bottom/auto 100%;transform:translate3d(var(--arrival-reed-x,0px),0,0);will-change:transform;opacity:.94}
+/* 抵达视差 · 芦苇：PNG 横向平铺剪影，横移方向与山峦相反（向右），贴水面最前景 */
+.arrival-reed{position:absolute;left:-10%;right:-10%;bottom:-3%;height:30%;z-index:2;pointer-events:none;background:url("parallax-reed.png") repeat-x bottom/auto 100%;transform:translate3d(var(--arrival-reed-x,0px),0,0);will-change:transform;opacity:.96}
+/* 抵达视差 · 垂柳（右侧）：PNG 柳枝自画面右上垂下，随 --arrival-willow-x 横向缓移，作前景框景 */
+.arrival-willow{position:absolute;right:-4%;top:-3%;width:clamp(220px,28vw,430px);aspect-ratio:2847/1493;z-index:2;pointer-events:none;background:url("parallax-willow.png") no-repeat center/contain;transform:translate3d(var(--arrival-willow-x,0px),0,0);will-change:transform}
+/* 抵达视差 · 垂柳（左侧镜像）：复用同图，靠 scaleX(-1) 水平翻转，与右侧柳枝左右呼应 */
+.arrival-willow-2{right:auto;left:-6%;top:-4%;transform:translate3d(var(--arrival-willow-x,0px),0,0) scaleX(-1)}
 /* 落花花瓣：金色渐变小叶形，由脚本写入 --petal-* 变量，循环飘落 */
 .arrival-petals i{position:absolute;top:-4%;left:var(--petal-x);width:var(--petal-size);height:var(--petal-size);background:linear-gradient(135deg,#e7cc8e,#c7aa77 55%,#a9684c);border-radius:100% 4% 100% 4%;box-shadow:0 0 6px rgba(199,170,119,.35);opacity:0;animation:arrival-petal-fall var(--petal-duration) linear var(--petal-delay) infinite}
 /* 落花关键帧：从顶部淡入、中途旋转、随横向漂移落到画面底部之外 */
@@ -1564,8 +1570,8 @@ body.arrival-lock{overflow:hidden}
 @media(prefers-reduced-motion:reduce){
   /* 抵达视差幕：随页面滚动推进的入场章节 */
 .arrival-interlude{transition:none}
-  /* 抵达舞台（含新增的山峦 / 孤舟 / 雁阵 / 芦苇各视差层，一律停用位移） */
-.arrival-landscape,.arrival-world-change,.arrival-moon,.arrival-figure,.arrival-pine,.arrival-water,.arrival-copy,.arrival-copy.is-current,.arrival-mist,.arrival-stage,.arrival-hill-far,.arrival-hill-mid,.arrival-boat,.arrival-reed,.arrival-geese{transform:none;will-change:auto}
+  /* 抵达舞台（含新增的山峦 / 江岸 / 孤舟 / 雁阵 / 芦苇 / 垂柳各视差层，一律停用位移） */
+.arrival-landscape,.arrival-world-change,.arrival-moon,.arrival-figure,.arrival-pine,.arrival-water,.arrival-copy,.arrival-copy.is-current,.arrival-mist,.arrival-stage,.arrival-hill-far,.arrival-hill-mid,.arrival-shore,.arrival-boat,.arrival-reed,.arrival-geese,.arrival-willow,.arrival-willow-2{transform:none;will-change:auto}
   /* 抵达落花：停用飘落动画，改以静态半透明呈现 */
 .arrival-petals i{animation:none;opacity:.32;transform:none}
   /* 抵达滚动提示 */
