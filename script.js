@@ -1250,6 +1250,8 @@
     scene.dataset.chapter = String(activeIndex + 1);
     const activeItem = items[activeIndex];
     const year = activeItem.querySelector(".timeline-year")?.textContent.trim();
+    // 按当前章节年份切换对应场景背景图：给匹配 data-year 的层加 is-active，其余移除（实现旧图渐隐、新图渐显）
+    scene.querySelectorAll(".timeline-scene-bg").forEach((bg) => bg.classList.toggle("is-active", bg.dataset.year === year));
     const label = activeItem.querySelector(".timeline-label")?.textContent.trim();
     const title = activeItem.querySelector(".timeline-card h3")?.textContent.trim();
     const quote = activeItem.querySelector(".timeline-quote")?.textContent.trim();
