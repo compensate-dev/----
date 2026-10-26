@@ -16,7 +16,7 @@
 /* 全局盒模型重置 */
 *{box-sizing:border-box}
 /* 根元素：平滑滚动与滚动定位 */
-html{scroll-behavior:smooth;scroll-padding-top:100px}
+html{scroll-behavior:smooth;scroll-padding-top:100px;scroll-snap-type:y proximity}
 /* 页面主体基础样式 */
 body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--serif);font-size:15px;line-height:1.85}
 /* 基础元素样式 */
@@ -625,34 +625,40 @@ textarea::placeholder{color:#9aa297}
 /* 词作标签导航 */
 .poem-tabs a.is-active:before{content:"";position:absolute;left:-14px;top:50%;transform:translateY(-50%);width:6px;height:6px;background:var(--gold);box-shadow:0 0 8px rgba(199,170,119,.7)}
 /* 单首词作条目 */
-.work-entry{display:grid;grid-template-columns:12% 1fr 20%;gap:28px;padding:48px 0 52px;border-bottom:1px solid var(--line);scroll-margin-top:100px;position:relative;transform-style:preserve-3d}
+.work-entry{display:grid;grid-template-columns:12% 1fr 20%;gap:28px;padding:52px 0 56px;border-bottom:1px solid rgba(199,170,119,.18);scroll-margin-top:100px;position:relative;transform-style:preserve-3d;scroll-snap-align:center;transition:box-shadow .6s ease}
+/* 词作条目激活态（进入视口时高亮 + 柔光晕） */
+.work-entry.is-active{box-shadow:0 0 70px -34px rgba(199,170,119,.45)}
 /* 单首词作条目 */
 .work-entry:before{content:"";position:absolute;left:-2%;top:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--gold),var(--rust));transform:scaleY(var(--entry-progress,0));transform-origin:top;opacity:.4;box-shadow:0 0 14px rgba(199,170,119,.4)}
 /* 单首词作条目 */
 .work-entry:after{content:attr(data-index);position:absolute;left:clamp(20px,4vw,60px);top:50%;transform:translateY(-50%) scale(var(--entry-progress,.2));font:clamp(110px,16vw,220px)/1 var(--serif);color:rgba(199,170,119,.08);pointer-events:none;z-index:0;transition:transform .4s ease,color .4s ease;letter-spacing:.04em}
-/* 单首词作条目 */
+/* 词作条目激活态（进入视口时高亮 + 柔光晕） */
 .work-entry.is-active:after{color:rgba(169,104,76,.12)}
+/* 词牌大水印（由脚本注入，随条目进度浮现） */
+.work-watermark{position:absolute;right:3%;top:50%;transform:translateY(-50%) translateX(calc((1 - var(--entry-progress,0)) * 70px)) rotate(calc((1 - var(--entry-progress,0)) * 5deg));font-family:"ZhongQi ZhiMang","Liyu Xingkai",var(--serif);font-size:clamp(130px,20vw,300px);color:rgba(199,170,119,calc(.04 + var(--entry-progress,0) * .07));pointer-events:none;z-index:0;white-space:nowrap;font-weight:400;line-height:1;transition:color .6s ease}
+/* 词作条目激活态（进入视口时高亮 + 柔光晕） */
+.work-entry.is-active .work-watermark{color:rgba(169,104,76,calc(.05 + var(--entry-progress,0) * .09))}
 /* 词作序号 */
-.work-number{font:29px var(--sans);font-weight:400;color:#bdc5b9;transition:color .6s ease,transform .6s cubic-bezier(.2,.7,.25,1);will-change:transform;display:inline-block;position:relative;z-index:1;transform:perspective(500px) rotateY(calc((1 - var(--entry-progress,0)) * -35deg));transform-origin:left center}
-/* 单首词作条目 */
-.work-entry.is-active .work-number{color:var(--rust);text-shadow:0 2px 14px rgba(169,104,76,.25)}
+.work-number{font:29px var(--sans);font-weight:400;color:#bdc5b9;transition:color .6s ease,text-shadow .6s ease;will-change:transform;display:inline-block;position:relative;z-index:1;transform:perspective(700px) rotateY(calc((1 - var(--entry-progress,0)) * -48deg)) translateY(calc(var(--scroll-y,0px) * .12));transform-origin:left center}
+/* 词作条目激活态（进入视口时高亮 + 柔光晕） */
+.work-entry.is-active .work-number{color:var(--rust);text-shadow:0 2px 16px rgba(169,104,76,.3)}
 /* 词作元信息 */
 .work-meta{display:flex;gap:9px;align-items:center;font-size:14px;color:#685b49;opacity:var(--entry-progress,.3);transition:opacity .5s ease}
 /* 词作主体 */
 .work-main{position:relative;z-index:1}
 /* 词作主体 */
-.work-main h3{font-size:28px;font-weight:400;letter-spacing:.1em;margin:8px 0 20px;color:#293b30;transition:color .5s ease,letter-spacing .5s ease;will-change:transform;transform:translate3d(calc(var(--scroll-y,0px) * -.2),0,0)}
-/* 单首词作条目 */
-.work-entry.is-active .work-main h3{color:#1d2a21;letter-spacing:.14em}
+.work-main h3{font-size:28px;font-weight:400;letter-spacing:.1em;margin:8px 0 20px;color:#293b30;transition:color .5s ease,letter-spacing .5s ease;will-change:transform;transform:translate3d(calc(var(--scroll-y,0px) * -.25),calc(var(--scroll-y,0px) * .08),0)}
+/* 词作条目激活态（进入视口时高亮 + 柔光晕） */
+.work-entry.is-active .work-main h3{color:#1d2a21;letter-spacing:.15em}
 /* 词作主体 */
 .work-main h3 small{font-size:15px;color:#5e685a;letter-spacing:.07em;margin-left:12px;font-weight:400}
 /* 词作正文 */
-.poem-text{font-size:18px;line-height:2.25;letter-spacing:.07em;color:#293d31;display:flex;flex-direction:column;gap:2px}
+.poem-text{font-size:18px;line-height:2.3;letter-spacing:.08em;color:#293d31;display:flex;flex-direction:column;gap:2px}
 /* 词作逐行浮现（滚动驱动显隐） */
-.poem-line{display:block;opacity:var(--line-reveal,0);transform:translateY(calc((1 - var(--line-reveal,0)) * 18px)) translateX(calc((1 - var(--line-reveal,0)) * -10px));filter:blur(calc((1 - var(--line-reveal,0)) * 3px));transition:opacity .35s ease,transform .35s ease,filter .35s ease;will-change:transform,opacity}
+.poem-line{display:block;clip-path:inset(0 calc((1 - var(--line-reveal,0)) * 100%) 0 0);opacity:calc(.35 + var(--line-reveal,0) * .65);transform:translateX(calc((1 - var(--line-reveal,0)) * -12px));filter:blur(calc((1 - var(--line-reveal,0)) * 2.5px));transition:clip-path .45s cubic-bezier(.2,.7,.25,1),opacity .45s ease,transform .45s ease,filter .45s ease;will-change:clip-path,opacity,transform}
 /* 词间空行 */
-.poem-line-gap{height:14px}
-/* 单首词作条目 */
+.poem-line-gap{height:16px}
+/* 词作条目激活态（进入视口时高亮 + 柔光晕） */
 .work-entry.is-active .poem-line{color:#1c2c22}
 /* 按钮基础样式 */
 .work-actions,.recite-buttons{display:flex;align-items:center;gap:21px;flex-wrap:wrap;margin-top:21px;opacity:var(--entry-progress,.2);transition:opacity .5s ease}
@@ -665,8 +671,8 @@ textarea::placeholder{color:#9aa297}
 /* 按钮基础样式 */
 .work-actions .text-link,.recite-buttons .text-link{font-family:"Liyu Xingkai",var(--serif);font-size:14px;color:#304d3f}
 /* 词作笺注侧栏 */
-.work-side{margin-top:53px;border-left:1px solid #cbd3c8;padding-left:17px;height:max-content;transition:border-color .5s ease,transform .5s ease,box-shadow .5s ease;will-change:transform;position:sticky;top:140px;align-self:start;opacity:var(--entry-progress,.2)}
-/* 单首词作条目 */
+.work-side{margin-top:53px;border-left:1px solid #cbd3c8;padding-left:17px;height:max-content;transition:border-color .5s ease,box-shadow .5s ease;will-change:transform;position:sticky;top:140px;align-self:start;opacity:var(--entry-progress,.2);transform:translateX(calc(var(--scroll-y,0px) * -.08)) scale(calc(.96 + var(--entry-progress,0) * .04))}
+/* 词作条目激活态（进入视口时高亮 + 柔光晕） */
 .work-entry.is-active .work-side{border-left-color:var(--gold);box-shadow:-10px 0 30px -18px rgba(199,170,119,.5)}
 /* 词作笺注侧栏 */
 .work-side span{font-family:"Liyu Xingkai",var(--serif);font-size:14px;color:#8d523c;letter-spacing:.12em}
@@ -1178,9 +1184,9 @@ to{opacity:1}/* 基础元素样式 */
 /* 水墨间奏 */
 .ink-interlude-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;padding:40px;text-align:center;pointer-events:none}
 /* 水墨间奏 */
-.ink-interlude-content h2{margin:0;font-family:var(--serif);font-size:clamp(28px,4vw,48px);font-weight:500;letter-spacing:.12em;opacity:.92;text-shadow:0 0 40px rgba(0,0,0,.6)}
+.ink-interlude-content h2{margin:0;font-family:"ZhongQi ZhiMang","Liyu Xingkai UI",var(--serif);font-size:clamp(28px,4vw,48px);font-weight:400;letter-spacing:.14em;opacity:.94;text-shadow:0 0 40px rgba(0,0,0,.6)}
 /* 水墨间奏 */
-.ink-interlude-content p{max-width:640px;margin:16px 0 0;font-size:clamp(14px,1.6vw,18px);line-height:1.8;opacity:.7}
+.ink-interlude-content p{max-width:640px;margin:16px 0 0;font-family:"ZhongQi ZhiMang","Liyu Xingkai",var(--serif);font-size:clamp(14px,1.6vw,18px);line-height:1.9;letter-spacing:.08em;opacity:.72}
 /* 抵达视差幕 */
 .arrival-interlude{position:fixed;inset:0;z-index:1003;overflow:hidden;background:#17231f;color:#f4f0e6;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .6s ease,visibility .6s}
 /* 抵达视差幕 */
@@ -1876,12 +1882,15 @@ to{opacity:1;transform:translateY(0);letter-spacing:.08em}/* 基础元素样式 
 /* 基础元素样式 */
 }
 /* 响应式适配：(prefers-reduced-motion:reduce) */
-@media(prefers-reduced-motion:reduce){/* 生平叙事·场景文案（随章节切换） */
+@media(prefers-reduced-motion:reduce){/* 根元素：平滑滚动与滚动定位 */
+html{scroll-snap-type:none}/* 生平叙事·场景文案（随章节切换） */
 .timeline-scene:before,.timeline-scene-copy,.timeline-scene-progress span{transition:none;transform:none}/* 生平叙事·场景文案（随章节切换） */
 .timeline-scene-copy.is-changing{opacity:1}/* 金竹飘落画布 */
 .bamboo-leaves{display:none}/* 滚动视差（慢速层，位移系数 0.42） */
 .scroll-parallax,.scroll-parallax-bg,.scroll-parallax-slow{transform:none!important}/* 词作逐行浮现（滚动驱动显隐） */
-.poem-line{opacity:1!important;transform:none!important;filter:none!important}/* 词作序号 */
-.work-number{transform:none!important}/* 词作画廊背景层（随滚动做轻微视差） */
+.poem-line{clip-path:none!important;opacity:1!important;transform:none!important;filter:none!important}/* 词作序号 */
+.work-number{transform:none!important}/* 词牌大水印（由脚本注入，随条目进度浮现） */
+.work-watermark{display:none}/* 词作笺注侧栏 */
+.work-side{transform:none!important}/* 词作画廊背景层（随滚动做轻微视差） */
 .poem-gallery:before{transform:none}/* 基础元素样式 */
 }
