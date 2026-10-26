@@ -141,17 +141,6 @@
             <span class="arrival-whisper">读到这里，便与他相逢。</span>
             <svg class="arrival-ink-stroke" viewBox="0 0 220 18" aria-hidden="true"><path pathLength="1" d="M2 12 C42 4 73 16 112 9 S178 4 218 8"/></svg>
           </div>
-          <!-- 操作区：进度标签 + 进度条 + 「继续」/「跳过」按钮 -->
-          <div class="arrival-actions">
-            <!-- 进度标签：内层 span 为英文说明，b 为「当前幕 / 总幕数」 -->
-            <span class="arrival-progress-label"><span>A JOURNEY THROUGH LI YU'S VERSES</span><b>01 / 03</b></span>
-            <!-- 进度条：填充宽度由脚本写入的 --arrival-progress-width 驱动 -->
-            <div class="arrival-progress-track" aria-hidden="true"><span></span></div>
-            <!-- 继续按钮：默认 disabled，脚本首次更新进度时解禁，点击平滑滚到首页首屏 -->
-            <button class="arrival-enter-button" type="button" disabled>继续，进入词境 <span aria-hidden="true">↓</span></button>
-            <!-- 跳过按钮：任意时刻均可直接进入首页 -->
-            <button class="arrival-skip-button" type="button">跳过入场</button>
-          </div>
           <!-- 章节导航：三枚按钮对应三幕，aria-pressed 标记当前幕，点击按幕位换算目标滚动位置 -->
           <nav class="arrival-chapter-rail" aria-label="入场章节">
             <button type="button" data-arrival-scene="0" aria-label="第一幕：春水初现" aria-pressed="true"><span>01</span></button>
@@ -162,6 +151,17 @@
           <span class="arrival-side-note" aria-hidden="true">SPRING RIVER · ENDLESS SORROW</span>
         </div>
       </div>
+    </div>
+    <!-- 操作区：进度标签 + 进度条 + 「继续」/「跳过」按钮。已移出 stage/track，作为 section 的直接子级固定在右上角（top:104px），不随行程滚动 -->
+    <div class="arrival-actions">
+      <!-- 进度标签：内层 span 为英文说明，b 为「当前幕 / 总幕数」 -->
+      <span class="arrival-progress-label"><span>A JOURNEY THROUGH LI YU'S VERSES</span><b>01 / 03</b></span>
+      <!-- 进度条：填充宽度由脚本写入的 --arrival-progress-width 驱动 -->
+      <div class="arrival-progress-track" aria-hidden="true"><span></span></div>
+      <!-- 继续按钮：默认 disabled，脚本首次更新进度时解禁，点击平滑滚到首页首屏 -->
+      <button class="arrival-enter-button" type="button" disabled>继续，进入词境 <span aria-hidden="true">↓</span></button>
+      <!-- 跳过按钮：任意时刻均可直接进入首页 -->
+      <button class="arrival-skip-button" type="button">跳过入场</button>
     </div>
   </section>
   <!-- 页头：品牌 + 主导航(当前页高亮「首页」) + 背景音乐开关/音量；开场未揭开时 inert 禁用交互 -->

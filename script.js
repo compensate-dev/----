@@ -150,16 +150,16 @@
     // 移动端减少数量：窄屏 16 粒，桌面 30 粒
     const moteCount = window.innerWidth < 700 ? 16 : 30;
     for (let i = 0; i < moteCount; i++) {
-      // 每粒墨点：x / y 用 0-1 归一化坐标，便于随画布尺寸缩放
+      // 每粒墨点：x 用 0-1 归一化坐标；y 从 1~2.4 起步（屏幕下方），画布内随尺寸缩放
       motes.push({
         x: Math.random(),
-        y: Math.random(),
+        y: 1 + Math.random() * 1.4,
         speed: 0.07 + Math.random() * 0.08,
         drift: (Math.random() < 0.5 ? -1 : 1) * (0.035 + Math.random() * 0.075),
         swirl: 0.35 + Math.random() * 0.85,
         phase: Math.random() * Math.PI * 2,
-        // size 为墨珠半径，约 12% 概率放大到 2.4 倍，做出大小错落
-        size: (2 + Math.random() * 3.2) * (Math.random() < 0.12 ? 2.4 : 1),
+        // size 为墨珠半径（整体比上版更细小），约 12% 概率放大到 1.9 倍，做出大小错落
+        size: (1.2 + Math.random() * 1.9) * (Math.random() < 0.12 ? 1.9 : 1),
         // trail 存最近若干帧的坐标，用来画拖尾
         trail: []
       });

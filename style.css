@@ -1399,8 +1399,8 @@ body.arrival-lock{overflow:hidden}
 .arrival-scroll-cue i{position:relative;width:17px;height:27px;border:1px solid rgba(230,211,177,.64);border-radius:10px}
 /* 抵达滚动提示 */
 .arrival-scroll-cue i:after{content:"";position:absolute;top:5px;left:7px;width:1px;height:5px;background:#e6d3b1;animation:arrival-scroll-hint 1.6s ease-in-out infinite}
-/* 抵达操作区 */
-.arrival-actions{position:absolute;z-index:3;right:clamp(7%,calc((100vw - 1250px)/2),14%);bottom:8%;width:min(330px,30vw);display:flex;flex-direction:column;align-items:flex-start;gap:12px}
+/* 抵达操作区：固定在右上角（top:104px），已移出 stage/track、不随行程滚动；窄屏媒体查询里恢复底部定位 */
+.arrival-actions{position:absolute;z-index:3;right:clamp(22px,calc((100vw - 1250px)/2 + 22px),54px);top:104px;bottom:auto;width:min(238px,22vw);display:flex;flex-direction:column;align-items:stretch;gap:9px}
 /* 抵达进度标签 */
 .arrival-progress-label{display:flex;width:100%;justify-content:space-between;gap:12px;color:rgba(239,231,214,.62);font:8px var(--sans);letter-spacing:.13em}
 /* 抵达进度标签 */
@@ -1410,13 +1410,13 @@ body.arrival-lock{overflow:hidden}
 /* 抵达进度条 */
 .arrival-progress-track span{display:block;width:var(--arrival-progress-width,0%);height:100%;background:#e3c596;transition:width .12s linear}
 /* 按钮基础样式 */
-.arrival-enter-button{display:flex;align-items:center;justify-content:space-between;gap:30px;width:100%;padding:13px 16px;border:1px solid rgba(233,214,180,.65);background:rgba(28,47,40,.48);color:#f6efdf;font-size:12px;letter-spacing:.12em;cursor:pointer;transition:background .25s ease,color .25s ease,opacity .25s ease,transform .25s ease}
+.arrival-enter-button{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;padding:10px 13px;border:1px solid rgba(233,214,180,.65);background:rgba(28,47,40,.48);color:#f6efdf;font-size:11px;letter-spacing:.12em;cursor:pointer;transition:background .25s ease,color .25s ease,opacity .25s ease,transform .25s ease}
 /* 按钮基础样式 */
 .arrival-enter-button:hover:not(:disabled){background:#e6d2ae;color:#293a31;transform:translateY(-2px)}
 /* 按钮基础样式 */
 .arrival-enter-button:disabled{opacity:.45;cursor:not-allowed}
 /* 按钮基础样式 */
-.arrival-enter-button span{font:17px var(--sans);transition:transform .25s}
+.arrival-enter-button span{font:14px var(--sans);transition:transform .25s}
 /* 按钮基础样式 */
 .arrival-enter-button:hover:not(:disabled) span{transform:translateY(3px)}
 /* 按钮基础样式 */
@@ -1561,7 +1561,7 @@ body.arrival-lock{overflow:hidden}
   /* 抵达滚动提示 */
 .arrival-scroll-cue{margin-top:13px;font-size:7px}
   /* 抵达操作区 */
-.arrival-actions{right:8%;bottom:5%;width:84%;gap:10px}
+.arrival-actions{top:auto;right:8%;bottom:5%;width:84%;gap:10px}
   /* 抵达进度标签 */
 .arrival-progress-label{font-size:7px}
   /* 按钮基础样式 */
