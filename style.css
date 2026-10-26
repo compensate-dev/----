@@ -1248,17 +1248,42 @@ body.arrival-lock{overflow:hidden}
 /* 抵达舞台 */
 .arrival-stage{position:sticky;top:0;isolation:isolate;height:100svh;min-height:540px;overflow:hidden;background:#1d302b;perspective:1100px;transform-style:preserve-3d}
 /* 抵达远山背景 */
-.arrival-landscape{position:absolute;inset:-8% -3%;z-index:-4;background:linear-gradient(90deg,rgba(17,30,27,.68),rgba(24,39,34,.2) 57%,rgba(22,33,31,.04)),linear-gradient(0deg,rgba(16,27,25,.38),transparent 47%),url("home-hero.jpg") center 48%/cover;transform:translate3d(calc(var(--arrival-world-x,0px) + var(--arrival-pointer-x,0px)*-.35),calc(var(--arrival-landscape-y,0px) + var(--arrival-pointer-y,0px)*-.35),-100px) scale(var(--arrival-landscape-scale,1.04));will-change:transform;transition:filter 1s ease}
+.arrival-landscape{position:absolute;inset:-8% -3%;z-index:-4;background:linear-gradient(90deg,rgba(17,30,27,.68),rgba(24,39,34,.2) 57%,rgba(22,33,31,.04)),linear-gradient(0deg,rgba(16,27,25,.38),transparent 47%),url("home-hero.jpg") center 48%/cover;transform:translate3d(calc(var(--arrival-world-x,0px) + var(--arrival-pointer-x,0px)*-.35),calc(var(--arrival-landscape-y,0px) + var(--arrival-pointer-y,0px)*-.35),-100px) scale(var(--arrival-landscape-scale,1.04));will-change:transform;transition:filter 1s ease,opacity 1.15s ease}
 /* 抵达视差幕：按当前幕序调整各图层氛围（滤镜 / 透明度 / 位移） */
-.arrival-interlude[data-scene="2"] .arrival-landscape{filter:saturate(.76) brightness(.82)}
+.arrival-interlude[data-scene="2"] .arrival-landscape{filter:saturate(.76) brightness(.82);opacity:0}
+/* 第二幕场景背景层：arrival-scene2-bg.jpg 整幅铺底，默认隐藏并略放大，进第二幕时渐显 + 缓慢回缩（写法与第三幕同款） */
+.arrival-scene2-bg{position:absolute;inset:0;z-index:0;background:url("arrival-scene2-bg.jpg") center/cover no-repeat;opacity:0;transform:translate3d(0,0,0) scale(1.06);filter:brightness(.74) saturate(.9);transition:opacity 1.15s ease,transform 1.6s cubic-bezier(.2,.7,.25,1),filter 1.15s ease}
+/* 第二幕场景背景压暗渐变：自上而下加深 + 左侧横向压暗，保证前景文案可读 */
+.arrival-scene2-bg:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(18,30,27,.32),rgba(18,30,27,.1) 38%,rgba(18,30,27,.5) 100%),linear-gradient(90deg,rgba(18,30,27,.46),transparent 52%)}
+/* 第二幕场景背景激活态：进入 data-scene="2" 时渐显 */
+.arrival-interlude[data-scene="2"] .arrival-scene2-bg{opacity:1;transform:translate3d(0,0,0) scale(1);filter:brightness(.8) saturate(.92)}
+/* 第二幕图层提层级：场景背景接管底图后，把山峦/明月/松林/孤舟/雁阵/水面整体抬到 z-index:1，压在背景之上 */
+.arrival-interlude[data-scene="2"] .arrival-hill-far,
+.arrival-interlude[data-scene="2"] .arrival-hill-mid,
+.arrival-interlude[data-scene="2"] .arrival-shore,
+.arrival-interlude[data-scene="2"] .arrival-moon,
+.arrival-interlude[data-scene="2"] .arrival-pine,
+.arrival-interlude[data-scene="2"] .arrival-boat,
+.arrival-interlude[data-scene="2"] .arrival-geese,
+.arrival-interlude[data-scene="2"] .arrival-water{z-index:1}
 /* 抵达视差幕：按当前幕序调整各图层氛围（滤镜 / 透明度 / 位移） */
-.arrival-interlude[data-scene="3"] .arrival-landscape{filter:saturate(.55) brightness(.7) hue-rotate(8deg)}
-/* 第三幕场景背景层：arrival-scene3-bg.jpg 整幅铺底，默认隐藏并略放大，进第三幕时渐显 + 缓慢回缩 */
-.arrival-scene3-bg{position:absolute;inset:0;z-index:-3;background:url("arrival-scene3-bg.jpg") center/cover no-repeat;opacity:0;transform:scale(1.06);filter:brightness(.74) saturate(.9);transition:opacity 1.15s ease,transform 1.6s cubic-bezier(.2,.7,.25,1),filter 1.15s ease}
+.arrival-interlude[data-scene="3"] .arrival-landscape{filter:saturate(.55) brightness(.7) hue-rotate(8deg);opacity:0}
+/* 第三幕场景背景层：arrival-scene3-bg.jpg 整幅铺底（z-index:0 与第二幕同层），默认隐藏并略放大，进第三幕时渐显 + 缓慢回缩 */
+.arrival-scene3-bg{position:absolute;inset:0;z-index:0;background:url("arrival-scene3-bg.jpg") center/cover no-repeat;opacity:0;transform:translate3d(0,0,0) scale(1.06);filter:brightness(.74) saturate(.9);transition:opacity 1.15s ease,transform 1.6s cubic-bezier(.2,.7,.25,1),filter 1.15s ease}
 /* 第三幕场景背景压暗渐变：自上而下加深 + 左侧横向压暗，保证前景文案可读 */
 .arrival-scene3-bg:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(18,30,27,.32),rgba(18,30,27,.1) 38%,rgba(18,30,27,.5) 100%),linear-gradient(90deg,rgba(18,30,27,.46),transparent 52%)}
 /* 第三幕场景背景激活态：进入 data-scene="3" 时渐显 */
-.arrival-interlude[data-scene="3"] .arrival-scene3-bg{opacity:1;transform:scale(1);filter:brightness(.8) saturate(.92)}
+/* 第三幕场景背景激活态：进入 data-scene="3" 时渐显 */
+.arrival-interlude[data-scene="3"] .arrival-scene3-bg{opacity:1;transform:translate3d(0,0,0) scale(1);filter:brightness(.8) saturate(.92)}
+/* 第三幕图层提层级：与第二幕同款，把山峦/明月/松林/孤舟/雁阵/水面整体抬到 z-index:1，压在场景背景之上 */
+.arrival-interlude[data-scene="3"] .arrival-hill-far,
+.arrival-interlude[data-scene="3"] .arrival-hill-mid,
+.arrival-interlude[data-scene="3"] .arrival-shore,
+.arrival-interlude[data-scene="3"] .arrival-moon,
+.arrival-interlude[data-scene="3"] .arrival-pine,
+.arrival-interlude[data-scene="3"] .arrival-boat,
+.arrival-interlude[data-scene="3"] .arrival-geese,
+.arrival-interlude[data-scene="3"] .arrival-water{z-index:1}
 /* 抵达明月 */
 .arrival-moon{position:absolute;z-index:-3;top:12%;right:23%;width:clamp(100px,15vw,210px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 38% 36%,rgba(250,241,216,.94),rgba(226,218,190,.52) 55%,rgba(226,218,190,0) 72%);filter:blur(.4px);opacity:.78;transform:translate3d(calc(var(--arrival-moon-y,0px)*0 + var(--arrival-pointer-soft-x,0px)*-1.4),calc(var(--arrival-moon-y,0px) + var(--arrival-pointer-soft-y,0px)*-1.2),40px);box-shadow:0 0 80px rgba(225,214,175,.16);transition:opacity .8s ease}
 /* 抵达松林 */
@@ -1281,8 +1306,8 @@ body.arrival-lock{overflow:hidden}
 .arrival-interlude[data-scene="3"] .arrival-water{opacity:.28}
 /* 抵达墨晕 */
 .arrival-ink-bloom{position:absolute;inset:-20%;z-index:-2;pointer-events:none;opacity:var(--arrival-bloom,0);background:radial-gradient(ellipse at 67% 64%,rgba(225,209,172,.18),rgba(88,111,94,.1) 22%,transparent 52%);filter:blur(30px);transform:translate3d(var(--arrival-pointer-x,0px),var(--arrival-pointer-y,0px),-18px) scale(1.08);transition:opacity .35s ease}
-/* 抵达雾气层：随进度漂移，柔化远山与水面的衔接（本版整体减淡，让纸底与雾带负责层次） */
-.arrival-mist{position:absolute;inset:-15%;z-index:0;pointer-events:none;opacity:.42;filter:blur(26px);background:linear-gradient(180deg,transparent 28%,rgba(22,34,30,.28) 55%,rgba(18,30,27,.5) 100%),radial-gradient(ellipse at 18% 72%,rgba(214,201,170,.22),transparent 48%),radial-gradient(ellipse at 78% 64%,rgba(214,201,170,.16),transparent 52%),radial-gradient(ellipse at 48% 88%,rgba(40,58,50,.5),transparent 60%);transform:translate3d(var(--arrival-mist-x,0px),var(--arrival-mist-y,0px),-10px) scale(1.12);transition:opacity 1s ease}
+/* 抵达雾气层：随进度漂移，柔化远山与水面的衔接；z-index:2 压在场景背景与视差图层之上（第二三幕整幅化后提层级） */
+.arrival-mist{position:absolute;inset:-15%;z-index:2;pointer-events:none;opacity:.42;filter:blur(26px);background:linear-gradient(180deg,transparent 28%,rgba(22,34,30,.28) 55%,rgba(18,30,27,.5) 100%),radial-gradient(ellipse at 18% 72%,rgba(214,201,170,.22),transparent 48%),radial-gradient(ellipse at 78% 64%,rgba(214,201,170,.16),transparent 52%),radial-gradient(ellipse at 48% 88%,rgba(40,58,50,.5),transparent 60%);transform:translate3d(var(--arrival-mist-x,0px),var(--arrival-mist-y,0px),-10px) scale(1.12);transition:opacity 1s ease}
 /* 雾气层 · 第二幕：略提浓 */
 .arrival-interlude[data-scene="2"] .arrival-mist{opacity:.55}
 /* 雾气层 · 第三幕：再提一档 */
