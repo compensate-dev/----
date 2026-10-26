@@ -213,41 +213,26 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}
 .poem-card-image{position:absolute;top:0;left:0;width:100%;height:128px;object-fit:cover;transition:transform .55s cubic-bezier(.2,.75,.25,1)}
 /* 单张词作卡片 */
 .poem-card:focus-visible .poem-card-image{transform:scale(1.04)}
-/* 响应式适配：(hover:hover) */
-@media(hover:hover){/* 单张词作卡片 */
-.poem-card:hover{transform:translateY(-7px) scale(1.045);box-shadow:0 18px 34px rgba(43,61,48,.2);z-index:2}/* 单张词作卡片 */
-.poem-card:hover .poem-card-image{transform:scale(1.04)}/* 单张词作卡片 */
-}
-/* 单张词作卡片 */
-.card-one .poem-card-image{object-position:35% center}/* 单张词作卡片 */
-.card-two .poem-card-image{object-position:82% center}/* 单张词作卡片 */
-.card-three .poem-card-image{object-position:18% center}/* 单张词作卡片 */
-.card-four .poem-card-image{object-position:83% center}
-/* 卡片配色变体二 */
-.card-two{background:#89917a}/* 卡片配色变体三 */
-.card-three{background:#546b70}/* 卡片配色变体四 */
-.card-four{background:#9b806d}
+/* 响应式适配：悬停设备 — 词作卡片悬停抬升 + 配图同步放大（单行收拢） */
+@media(hover:hover){.poem-card:hover{transform:translateY(-7px) scale(1.045);box-shadow:0 18px 34px rgba(43,61,48,.2);z-index:2}.poem-card:hover .poem-card-image{transform:scale(1.04)}}
+/* 单张词作卡片 · 四张卡片配图取景位置 */
+.card-one .poem-card-image{object-position:35% center}.card-two .poem-card-image{object-position:82% center}.card-three .poem-card-image{object-position:18% center}.card-four .poem-card-image{object-position:83% center}
+/* 卡片配色变体二～四 */
+.card-two{background:#89917a}.card-three{background:#546b70}.card-four{background:#9b806d}
 /* 卡片序号 */
 .poem-number,.poem-tag{position:relative;z-index:1;font:9px var(--sans);letter-spacing:.12em}
-/* 卡片序号 */
-.poem-number{opacity:.72}/* 卡片标签 */
-.poem-tag{float:right;border:1px solid rgba(255,255,255,.4);padding:3px 7px}
+/* 卡片序号与标签 */
+.poem-number{opacity:.72}.poem-tag{float:right;border:1px solid rgba(255,255,255,.4);padding:3px 7px}
 /* 单张词作卡片 */
 .poem-card h3{position:relative;z-index:1;margin:126px 0 7px;font-size:24px;font-weight:500;letter-spacing:.12em}
 /* 单张词作卡片 */
 .poem-card p{position:relative;z-index:1;font-size:12px;line-height:2;letter-spacing:.05em;color:rgba(255,255,255,.82)}
 /* 卡片箭头 */
 .poem-arrow{position:absolute;bottom:18px;right:20px;z-index:1;font-size:18px;color:#e7d7ba}
-/* 响应式适配：(prefers-reduced-motion:reduce) */
-@media(prefers-reduced-motion:reduce){/* 单张词作卡片 */
-.poem-card,.poem-card-image{transition:none;will-change:auto}/* 单张词作卡片 */
-.poem-card:hover,.poem-card:focus-visible,.poem-card:hover .poem-card-image,.poem-card:focus-visible .poem-card-image{transform:none}/* 基础元素样式 */
-}
-/* 响应式适配：(prefers-reduced-motion:reduce) */
-@media(prefers-reduced-motion:reduce){/* 根元素：平滑滚动与滚动定位 */
-html{scroll-behavior:auto}/* 词人故事页头背景视频 */
-.life-hero-video,.listen-hero-video,.wanxiang-hero-video{display:none}/* 身后之名区 */
-}
+/* 减弱动效：停用词作卡片过渡与悬停位移 */
+@media(prefers-reduced-motion:reduce){.poem-card,.poem-card-image{transition:none;will-change:auto}.poem-card:hover,.poem-card:focus-visible,.poem-card:hover .poem-card-image,.poem-card:focus-visible .poem-card-image{transform:none}}
+/* 减弱动效：关闭平滑滚动并隐藏三个子页头图视频 */
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.life-hero-video,.listen-hero-video,.wanxiang-hero-video{display:none}}
 /* 身后之名区 */
 .afterlife-section{position:relative;isolation:isolate;min-height:370px;padding-top:62px;padding-bottom:70px;display:flex;flex-direction:column;justify-content:center;overflow:hidden;background:#f3f3ed}
 /* 身后之名区 */
@@ -438,10 +423,8 @@ textarea::placeholder{color:#9aa297}
 .memory-open-hint span{display:inline-block;font:12px var(--sans);transition:transform .2s}
 /* 记忆卡片行 */
 .memory-line article:hover .memory-open-hint span{transform:translate(2px,-2px)}
-/* 响应式适配：(hover:hover) and (pointer:fine) */
-@media(hover:hover) and (pointer:fine){/* 记忆卡片行 */
-.memory-line article:hover{z-index:2;transform:translateY(-5px) scale(1.035);background:rgba(255,255,255,.72);box-shadow:0 15px 30px rgba(49,67,53,.13)}/* 记忆卡片行 */
-}
+/* 响应式适配：精确指针设备 — 记忆卡片悬停抬升 */
+@media(hover:hover) and (pointer:fine){.memory-line article:hover{z-index:2;transform:translateY(-5px) scale(1.035);background:rgba(255,255,255,.72);box-shadow:0 15px 30px rgba(49,67,53,.13)}}
 /* 记忆卡片行 */
 .memory-line article:before{content:"";position:absolute;width:7px;height:7px;border-radius:50%;top:-4px;left:23px;background:var(--rust);box-shadow:0 0 0 4px var(--paper)}
 /* 记忆卡片行 */
@@ -500,11 +483,8 @@ textarea::placeholder{color:#9aa297}
 .media-card-yanyun::after{content:"叁"}
 /* 媒介卡片 */
 .media-card-film::after{content:"肆"}
-/* 响应式适配：(hover:hover) and (pointer:fine) */
-@media(hover:hover) and (pointer:fine){/* 媒介卡片 */
-.media-card:hover{transform:translateY(-7px);border-color:rgba(199,170,119,.85);box-shadow:0 22px 48px rgba(49,67,53,.14)}/* 媒介卡片 */
-.media-card:hover::before{opacity:1}/* 媒介占位卡 */
-}
+/* 响应式适配：精确指针设备 — 媒介卡片悬停抬升 + 金边亮起 */
+@media(hover:hover) and (pointer:fine){.media-card:hover{transform:translateY(-7px);border-color:rgba(199,170,119,.85);box-shadow:0 22px 48px rgba(49,67,53,.14)}.media-card:hover::before{opacity:1}}
 /* 媒介占位卡 */
 .media-placeholder{position:relative;display:grid;place-items:center;aspect-ratio:1.72;min-height:180px;overflow:hidden;background-color:#e3e7dd;color:#69786a}
 /* 媒介占位卡 */
@@ -565,11 +545,8 @@ textarea::placeholder{color:#9aa297}
 .media-art-vertical-title{position:absolute;left:18px;top:18px;z-index:3;writing-mode:vertical-rl;font-family:"Liyu Xingkai",var(--serif);font-size:15px;letter-spacing:.32em;color:rgba(246,236,214,.94);text-shadow:0 1px 8px rgba(0,0,0,.55)}
 /* 媒介大图（点击查看） */
 .media-art:focus-visible{outline:2px solid var(--rust);outline-offset:4px}
-/* 响应式适配：(hover:hover) and (pointer:fine) */
-@media(hover:hover) and (pointer:fine){/* 媒介大图（点击查看） */
-.media-art:hover img{transform:scale(1.06);filter:saturate(1.08)}/* 媒介大图（点击查看） */
-.media-art:hover:before,.media-art:focus-visible:before{opacity:1;transform:translateY(0)}/* 古本遗像配图底色 */
-}
+/* 响应式适配：精确指针设备 — 媒介大图悬停放大 + 遮罩亮起 */
+@media(hover:hover) and (pointer:fine){.media-art:hover img{transform:scale(1.06);filter:saturate(1.08)}.media-art:hover:before,.media-art:focus-visible:before{opacity:1;transform:translateY(0)}}
 /* 古本遗像配图底色 */
 .media-art-archive{background:linear-gradient(135deg,#d8b780,#e9d1a0 55%,#d2ad75)}
 /* 忘川风华录配图底色 */
@@ -718,9 +695,8 @@ textarea::placeholder{color:#9aa297}
 .sound-orbit:before,.sound-orbit:after,.sound-orbit i,.sound-orbit b{content:"";position:absolute;inset:15px;border:1px solid rgba(111,129,110,.24);border-radius:50%}
 /* 声音环绕装饰 */
 .sound-orbit:after{inset:-16px;border-style:dashed;opacity:.6}
-/* 声音环绕装饰 */
-.sound-orbit i{inset:32px}/* 声音环绕装饰 */
-.sound-orbit b{inset:49px;background:rgba(194,203,188,.2)}
+/* 声音环绕装饰 · 内两圈圆环 */
+.sound-orbit i{inset:32px}.sound-orbit b{inset:49px;background:rgba(194,203,188,.2)}
 /* 声音环绕装饰 */
 .sound-orbit small{position:absolute;bottom:-44px;font:8px var(--sans);letter-spacing:.2em;color:#818b7f}
 /* 听词内容区 */
@@ -800,17 +776,9 @@ textarea::placeholder{color:#9aa297}
 /* 风痕轨迹 */
 .wind-current:nth-child(3){width:76%;height:44%;border-color:rgba(116,139,119,.34)}
 /* 动画关键帧：wind-carry-away */
-@keyframes wind-carry-away{/* 关键帧节点 */
-0%{opacity:0;transform:translate(0,8px) rotate(0) scale(.94)}/* 关键帧节点 */
-12%{opacity:1}/* 关键帧节点 */
-100%{opacity:0;transform:translate(var(--wind-x),var(--wind-y)) rotate(var(--wind-turn)) scale(.18);filter:blur(2px)}/* 关键帧节点 */
-}
+@keyframes wind-carry-away{0%{opacity:0;transform:translate(0,8px) rotate(0) scale(.94)}12%{opacity:1}100%{opacity:0;transform:translate(var(--wind-x),var(--wind-y)) rotate(var(--wind-turn)) scale(.18);filter:blur(2px)}}
 /* 动画关键帧：wind-sweep */
-@keyframes wind-sweep{/* 关键帧节点 */
-0%{opacity:0;transform:translate(-50%,-50%) rotate(var(--wind-angle)) scaleX(.18)}/* 关键帧节点 */
-18%{opacity:.75}/* 关键帧节点 */
-100%{opacity:0;transform:translate(calc(-50% + 34px),calc(-50% - 20px)) rotate(calc(var(--wind-angle) - 18deg)) scaleX(1.15)}/* 关键帧节点 */
-}
+@keyframes wind-sweep{0%{opacity:0;transform:translate(-50%,-50%) rotate(var(--wind-angle)) scaleX(.18)}18%{opacity:.75}100%{opacity:0;transform:translate(calc(-50% + 34px),calc(-50% - 20px)) rotate(calc(var(--wind-angle) - 18deg)) scaleX(1.15)}}
 /* 音频播放面板 */
 .audio-panel{position:fixed;right:25px;top:100px;width:min(340px,calc(100vw - 32px));z-index:40;padding:25px;background:#f7f6ef;box-shadow:0 15px 55px rgba(31,50,38,.2);border:1px solid #dce0d7}
 /* 音频播放面板 */
@@ -848,9 +816,7 @@ textarea::placeholder{color:#9aa297}
 /* 金竹飘落画布 */
 .bamboo-leaves{position:fixed;inset:0;z-index:1010;pointer-events:none;width:100%;height:100%;opacity:.52;mix-blend-mode:normal}
 /* 响应式适配：(max-width:700px) */
-@media(max-width:700px){/* 金竹飘落画布 */
-.bamboo-leaves{opacity:.38}/* 点击涟漪 */
-}
+@media(max-width:700px){.bamboo-leaves{opacity:.38}}
 /* 点击涟漪 */
 .click-ripple{position:fixed;inset:0;z-index:999;overflow:hidden;pointer-events:none}
 /* 点击涟漪 */
@@ -872,166 +838,19 @@ main{transition:opacity .24s ease,transform .24s ease,filter .24s ease}
 /* 根元素：平滑滚动与滚动定位 */
 html.page-transitioning main{opacity:.08;transform:translateY(8px) scale(.995);filter:blur(3px)}
 /* 动画关键帧：page-ripple-wave */
-@keyframes page-ripple-wave{/* 关键帧节点 */
-0%{transform:translate(-50%,-50%) scale(.015);opacity:0}/* 关键帧节点 */
-12%{opacity:1}/* 关键帧节点 */
-100%{transform:translate(-50%,-50%) scale(1.35);opacity:0}/* 关键帧节点 */
-}
+@keyframes page-ripple-wave{0%{transform:translate(-50%,-50%) scale(.015);opacity:0}12%{opacity:1}100%{transform:translate(-50%,-50%) scale(1.35);opacity:0}}
 /* 动画关键帧：click-ripple-wave */
-@keyframes click-ripple-wave{/* 关键帧节点 */
-0%{transform:translate(-50%,-50%) scale(.12);opacity:0}/* 关键帧节点 */
-16%{opacity:.9}/* 关键帧节点 */
-100%{transform:translate(-50%,-50%) scale(1);opacity:0}/* 关键帧节点 */
-}
-/* 响应式适配：(max-width:1000px) */
-@media(max-width:1000px){/* 站点页头：品牌 / 导航 / 声音开关 */
-.site-header{padding:0 4%}/* 主导航菜单 */
-.main-nav{gap:22px}/* 首页主视觉 hero */
-.hero{padding-left:7%;padding-right:7%}/* 首页主视觉配图框（月下人像） */
-.hero-art{right:4%;width:50vw;height:50vw}/* 内容区左右留白容器 */
-.section-wrap{padding-left:7%;padding-right:7%}/* 词人介绍区 */
-.intro{grid-template-columns:.3fr 1fr .8fr;gap:26px}/* 词作精选区 */
-.feature-section{padding-left:7%;padding-right:7%}/* 单张词作卡片 */
-.poem-card{padding:19px 15px}/* 收尾区 */
-.closing{grid-template-columns:.2fr 1fr .9fr;gap:25px}/* 子页主视觉 */
-.subhero{padding-left:7%;padding-right:7%}/* 生平叙事区 */
-.works,.listen-content,.story{padding-left:7%;padding-right:7%}/* 单首词作条目 */
-.work-entry{grid-template-columns:8% 1fr 18%;gap:18px}/* 基础元素样式 */
-}
-/* 响应式适配：(max-width:700px) */
-@media(max-width:700px){/* 根元素：平滑滚动与滚动定位 */
-html{scroll-padding-top:75px}/* 站点页头：品牌 / 导航 / 声音开关 */
-.site-header{height:70px;padding:0 5%}/* 品牌标识（名称 + 印章） */
-.brand{font-size:13px}/* 品牌印章 */
-.brand-seal{width:34px;height:34px}/* 移动端菜单开关 */
-.menu-toggle{display:block;margin-left:auto;order:3}/* 声音开关按钮 */
-.sound-toggle{order:2;padding:7px 10px}/* 声音开关按钮 */
-.sound-toggle span:last-child{display:none}/* 主导航菜单 */
-.main-nav{display:none;position:absolute;left:0;right:0;top:69px;height:auto;padding:11px 5% 19px;background:rgba(243,243,237,.98);border-bottom:1px solid var(--line);gap:0;flex-direction:column;align-items:stretch}/* 主导航菜单 */
-.main-nav.open{display:flex}/* 主导航菜单 */
-.main-nav a{height:auto;padding:12px 5px}/* 主导航菜单 */
-.main-nav a.active:after{left:auto;right:4px;bottom:18px}/* 首页主视觉 hero */
-.hero{min-height:810px;min-height:calc(100svh - 70px);padding:72px 7% 50px;align-items:flex-start}/* 首页主视觉文案区 */
-.hero-copy{width:100%;max-width:none}/* 首页主标题（钟齐志莽楷书） */
-.hero h1{font-size:48px}/* 首页引文 */
-.hero-intro{max-width:330px;font-size:12px}/* 首页主视觉配图框（月下人像） */
-.hero-art{top:auto;bottom:22px;right:0;transform:none;width:91vw;height:390px;border-radius:48% 48% 4px 4px}/* 配图说明标签 */
-.art-label{top:11%;left:17%;font-size:9px}/* 配图题词（竖排） */
-.art-poem{right:7%;bottom:16%;font-size:12px}/* 配图印章 */
-.art-stamp{bottom:8%;left:8%;width:48px;height:38px;font-size:8px}/* 首页题词 */
-.hero-verse{margin-top:30px;font-size:10px}/* 首页底部滚动提示 */
-.hero-bottom{bottom:13px;left:7%;right:7%;font-size:8px}/* 首页底部滚动提示 */
-.hero-bottom .scroll-line{width:45px}/* 词人介绍区 */
-.intro{grid-template-columns:1fr;gap:16px;padding-top:72px;padding-bottom:78px}/* 介绍区词人列 */
-.intro-poet{display:grid;grid-template-columns:1fr;justify-items:start}/* 词人肖像框 */
-.portrait-frame{width:min(100%,360px);margin-top:20px}/* 词人肖像 img */
-.poet-portrait{aspect-ratio:1.42;object-position:center 24%}/* 介绍区标题与正文 */
-.intro-heading{padding-left:0}/* 介绍区标题与正文 */
-.intro-heading h2,.feature-head h2,.story-lead h2,.works-heading h2,.listen-title h2,.interactive h2,.next-step h2,.closing h2{font-size:29px}/* 介绍卡片 */
-.intro-card{margin:5px 0 0;min-height:210px}/* 词作精选区 */
-.feature-section{padding:66px 6% 73px}/* 精选区标题行 */
-.feature-head{align-items:start;gap:15px}/* 下划线文字链接 */
-.feature-head .under-link{margin-top:30px;white-space:nowrap;font-size:10px}/* 词作卡片网格 */
-.poem-grid{grid-template-columns:repeat(2,1fr);gap:9px}/* 单张词作卡片 */
-.poem-card{min-height:230px;padding:17px 14px}/* 单张词作卡片 */
-.poem-card h3{font-size:21px;margin-top:35px}/* 单张词作卡片 */
-.poem-card p{font-size:11px}/* 收尾区 */
-.closing{grid-template-columns:36px 1fr;padding-top:70px;padding-bottom:70px;gap:16px}/* 收尾区松枝装饰 */
-.closing-pine{height:145px}/* 收尾区 */
-.closing .mood-form{grid-column:1/-1}/* 站点页脚 */
-.site-footer{padding:24px 5%;flex-wrap:wrap}/* 站点页脚 */
-.site-footer>span{display:none}/* 页头 / 页脚品牌字（李煜行楷 UI） */
-.site-footer .brand small{font-size:11px}/* 页头 / 页脚品牌字（李煜行楷 UI） */
-.site-header .brand{font-size:17px}/* 页头 / 页脚品牌字（李煜行楷 UI） */
-.site-header .brand small{font-size:11px}/* 子页主视觉 */
-.subhero{min-height:390px;padding:55px 7%;align-items:flex-start}/* 子页主标题 */
-.subhero h1{font-size:43px}/* 子页主视觉文案 */
-.subhero-copy>p:not(.eyebrow){font-size:12px;max-width:290px}/* 子页主视觉标记 */
-.subhero-mark,.floating-verse,.sound-orbit{position:absolute;right:7%;bottom:24px;transform:scale(.72);transform-origin:bottom right;margin:0}/* 子页主视觉标记 */
-.subhero-mark{right:15%;bottom:52px}/* 生平叙事区 */
-.story,.works,.listen-content{padding:65px 7%}/* 区块小标题 */
-.story>.section-kicker,.works>.section-kicker,.listen-content>.section-kicker{margin-bottom:20px}/* 生平叙事导语 */
-.story-lead{grid-template-columns:1fr;gap:14px;padding:0 0 35px 0}/* 生平叙事导语 */
-.story-lead h2{font-size:30px}/* 生平时间线 */
-.timeline{margin-left:12px;padding-left:28px}/* 时间线条目 */
-.timeline-item{padding-bottom:24px}/* 时间线年份 */
-.timeline-year{position:static;display:block;margin-bottom:8px}/* 时间线节点圆点 */
-.timeline-dot{left:-33px;top:6px}/* 时间线卡片 */
-.timeline-card{padding:18px 17px}/* 时间线卡片 */
-.timeline-card h3{font-size:17px}/* 时间线卡片 */
-.timeline-card p{font-size:11px}/* 生平故事弹窗 */
-.timeline-story-dialog{width:calc(100vw - 24px);max-height:86vh;padding:27px 21px}/* 弹窗关闭按钮 */
-.timeline-story-close{margin:-12px -10px 0 10px}/* 弹窗正文 */
-.timeline-story-content p{font-size:14px;line-height:1.95}/* 弹窗正文 */
-.timeline-story-content blockquote{font-size:18px}/* 生平结语区 */
-.life-note blockquote{font-size:22px}/* 下一步引导区 */
-.next-step{padding-top:62px;padding-bottom:62px;gap:15px}/* 下一步引导区 */
-.next-step h2{font-size:25px}/* 按钮基础样式 */
-.next-step .button{padding:10px 13px;gap:10px;white-space:nowrap;font-size:9px}/* 词作区标题行 */
-.works-heading,.listen-title{display:block;margin:0 0 22px}/* 词作区标题行 */
-.works-heading h2,.listen-title h2{font-size:30px;margin-bottom:10px}/* 词作区标题行 */
-.works-heading p,.listen-title p{font-size:11px}/* 词作标签导航 */
-.poem-tabs{margin:0 -2px;gap:16px;overflow-x:auto;white-space:nowrap}/* 单首词作条目 */
-.work-entry{grid-template-columns:34px 1fr;gap:10px;padding:27px 0}/* 词作序号 */
-.work-number{font-size:20px}/* 词作主体 */
-.work-main h3{font-size:22px}/* 词作主体 */
-.work-main h3 small{display:block;margin:1px 0 0;font-size:10px}/* 词作正文 */
-.poem-text{font-size:13px;line-height:2.1}/* 词作笺注侧栏 */
-.work-side{display:none}/* 词作操作（诵读 / 收藏） */
-.work-actions{gap:14px}/* 文字链接 */
-.work-actions .text-link{font-size:9px}/* 诵读列表 */
-.recite-list{margin:0}/* 诵读卡片 */
-.recite-card{grid-template-columns:105px 1fr;gap:16px;padding:15px 0}/* 诵读配图 */
-.recite-art{min-height:145px}/* 诵读配图 */
-.recite-art>b{font-size:20px}/* 诵读信息 */
-.recite-info{padding:3px 0}/* 诵读信息 */
-.recite-info h3{font-size:15px}/* 诵读信息 */
-.recite-info p{font-size:10px}/* 按钮基础样式 */
-.recite-buttons{gap:11px;margin-top:12px}/* 按钮基础样式 */
-.recite-buttons button,.recite-buttons .text-link{font-size:9px}/* 互动写词区 */
-.interactive{padding:64px 7%}/* 互动写词区 */
-.interactive-grid{grid-template-columns:1fr;gap:17px;margin:0}/* 互动写词区 */
-.interactive h2{font-size:29px}/* 音频播放面板 */
-.audio-panel{right:12px;top:80px}/* 漂浮词章装饰 */
-.floating-verse{transform:scale(.58);right:4%;bottom:8px}/* 声音环绕装饰 */
-.sound-orbit{transform:scale(.58);right:5%;bottom:23px}/* 子页主视觉 */
-.subhero:after{width:77%}/* 基础元素样式 */
-}
+@keyframes click-ripple-wave{0%{transform:translate(-50%,-50%) scale(.12);opacity:0}16%{opacity:.9}100%{transform:translate(-50%,-50%) scale(1);opacity:0}}
+/* 响应式适配：(max-width:1000px)｜平板窄屏布局收敛：页头 / 首屏 / 栅格与词作卡内边距 */
+@media(max-width:1000px){.site-header{padding:0 4%}.main-nav{gap:22px}.hero{padding-left:7%;padding-right:7%}.hero-art{right:4%;width:50vw;height:50vw}.section-wrap{padding-left:7%;padding-right:7%}.intro{grid-template-columns:.3fr 1fr .8fr;gap:26px}.feature-section{padding-left:7%;padding-right:7%}.poem-card{padding:19px 15px}.closing{grid-template-columns:.2fr 1fr .9fr;gap:25px}.subhero{padding-left:7%;padding-right:7%}.works,.listen-content,.story{padding-left:7%;padding-right:7%}.work-entry{grid-template-columns:8% 1fr 18%;gap:18px}}
+/* 响应式适配：(max-width:700px)｜手机端全局布局收敛（页头 / 首屏 / 时间线 / 词作页 / 听词页） */
+@media(max-width:700px){html{scroll-padding-top:75px}.site-header{height:70px;padding:0 5%}.brand{font-size:13px}.brand-seal{width:34px;height:34px}.menu-toggle{display:block;margin-left:auto;order:3}.sound-toggle{order:2;padding:7px 10px}.sound-toggle span:last-child{display:none}.main-nav{display:none;position:absolute;left:0;right:0;top:69px;height:auto;padding:11px 5% 19px;background:rgba(243,243,237,.98);border-bottom:1px solid var(--line);gap:0;flex-direction:column;align-items:stretch}.main-nav.open{display:flex}.main-nav a{height:auto;padding:12px 5px}.main-nav a.active:after{left:auto;right:4px;bottom:18px}.hero{min-height:810px;min-height:calc(100svh - 70px);padding:72px 7% 50px;align-items:flex-start}.hero-copy{width:100%;max-width:none}.hero h1{font-size:48px}.hero-intro{max-width:330px;font-size:12px}.hero-art{top:auto;bottom:22px;right:0;transform:none;width:91vw;height:390px;border-radius:48% 48% 4px 4px}.art-label{top:11%;left:17%;font-size:9px}.art-poem{right:7%;bottom:16%;font-size:12px}.art-stamp{bottom:8%;left:8%;width:48px;height:38px;font-size:8px}.hero-verse{margin-top:30px;font-size:10px}.hero-bottom{bottom:13px;left:7%;right:7%;font-size:8px}.hero-bottom .scroll-line{width:45px}.intro{grid-template-columns:1fr;gap:16px;padding-top:72px;padding-bottom:78px}.intro-poet{display:grid;grid-template-columns:1fr;justify-items:start}.portrait-frame{width:min(100%,360px);margin-top:20px}.poet-portrait{aspect-ratio:1.42;object-position:center 24%}.intro-heading{padding-left:0}.intro-heading h2,.feature-head h2,.story-lead h2,.works-heading h2,.listen-title h2,.interactive h2,.next-step h2,.closing h2{font-size:29px}.intro-card{margin:5px 0 0;min-height:210px}.feature-section{padding:66px 6% 73px}.feature-head{align-items:start;gap:15px}.feature-head .under-link{margin-top:30px;white-space:nowrap;font-size:10px}.poem-grid{grid-template-columns:repeat(2,1fr);gap:9px}.poem-card{min-height:230px;padding:17px 14px}.poem-card h3{font-size:21px;margin-top:35px}.poem-card p{font-size:11px}.closing{grid-template-columns:36px 1fr;padding-top:70px;padding-bottom:70px;gap:16px}.closing-pine{height:145px}.closing .mood-form{grid-column:1/-1}.site-footer{padding:24px 5%;flex-wrap:wrap}.site-footer>span{display:none}.site-footer .brand small{font-size:11px}.site-header .brand{font-size:17px}.site-header .brand small{font-size:11px}.subhero{min-height:390px;padding:55px 7%;align-items:flex-start}.subhero h1{font-size:43px}.subhero-copy>p:not(.eyebrow){font-size:12px;max-width:290px}.subhero-mark,.floating-verse,.sound-orbit{position:absolute;right:7%;bottom:24px;transform:scale(.72);transform-origin:bottom right;margin:0}.subhero-mark{right:15%;bottom:52px}.story,.works,.listen-content{padding:65px 7%}.story>.section-kicker,.works>.section-kicker,.listen-content>.section-kicker{margin-bottom:20px}.story-lead{grid-template-columns:1fr;gap:14px;padding:0 0 35px 0}.story-lead h2{font-size:30px}.timeline{margin-left:12px;padding-left:28px}.timeline-item{padding-bottom:24px}.timeline-year{position:static;display:block;margin-bottom:8px}.timeline-dot{left:-33px;top:6px}.timeline-card{padding:18px 17px}.timeline-card h3{font-size:17px}.timeline-card p{font-size:11px}.timeline-story-dialog{width:calc(100vw - 24px);max-height:86vh;padding:27px 21px}.timeline-story-close{margin:-12px -10px 0 10px}.timeline-story-content p{font-size:14px;line-height:1.95}.timeline-story-content blockquote{font-size:18px}.life-note blockquote{font-size:22px}.next-step{padding-top:62px;padding-bottom:62px;gap:15px}.next-step h2{font-size:25px}.next-step .button{padding:10px 13px;gap:10px;white-space:nowrap;font-size:9px}.works-heading,.listen-title{display:block;margin:0 0 22px}.works-heading h2,.listen-title h2{font-size:30px;margin-bottom:10px}.works-heading p,.listen-title p{font-size:11px}.poem-tabs{margin:0 -2px;gap:16px;overflow-x:auto;white-space:nowrap}.work-entry{grid-template-columns:34px 1fr;gap:10px;padding:27px 0}.work-number{font-size:20px}.work-main h3{font-size:22px}.work-main h3 small{display:block;margin:1px 0 0;font-size:10px}.poem-text{font-size:13px;line-height:2.1}.work-side{display:none}.work-actions{gap:14px}.work-actions .text-link{font-size:9px}.recite-list{margin:0}.recite-card{grid-template-columns:105px 1fr;gap:16px;padding:15px 0}.recite-art{min-height:145px}.recite-art>b{font-size:20px}.recite-info{padding:3px 0}.recite-info h3{font-size:15px}.recite-info p{font-size:10px}.recite-buttons{gap:11px;margin-top:12px}.recite-buttons button,.recite-buttons .text-link{font-size:9px}.interactive{padding:64px 7%}.interactive-grid{grid-template-columns:1fr;gap:17px;margin:0}.interactive h2{font-size:29px}.audio-panel{right:12px;top:80px}.floating-verse{transform:scale(.58);right:4%;bottom:8px}.sound-orbit{transform:scale(.58);right:5%;bottom:23px}.subhero:after{width:77%}}
 /* 响应式适配：(prefers-reduced-motion:reduce) */
-@media(prefers-reduced-motion:reduce){/* 全局盒模型重置 */
-*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}/* 基础元素样式 */
-}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 /* 响应式适配：(max-width:700px) */
-@media(max-width:700px){/* 单张词作卡片 */
-.poem-card{min-height:275px}/* 单张词作卡片 */
-.poem-card-image{height:105px}/* 单张词作卡片 */
-.poem-card:after{height:106px}/* 单张词作卡片 */
-.poem-card h3{margin-top:101px}/* 首页引文 */
-.hero-intro{font-size:14px}/* 首页题词 */
-.hero-verse{font-size:12px;margin-top:30px}/* 介绍区标题与正文 */
-.intro-heading p{font-size:14px}/* 身后之名区 */
-.afterlife-section{min-height:410px;padding-top:55px;padding-bottom:58px;background-position:58% center}/* 身后之名文案 */
-.afterlife-copy{display:block;margin:52px 0 0}/* 身后之名文案 */
-.afterlife-copy h2{font-size:33px}/* 身后之名文案 */
-.afterlife-copy p{font-size:12px}/* 按钮基础样式 */
-.afterlife-copy .button{margin-top:23px}/* 收尾区 */
-.closing:before{background-position:62% center}/* 基础元素样式 */
-}
+@media(max-width:700px){.poem-card{min-height:275px}.poem-card-image{height:105px}.poem-card:after{height:106px}.poem-card h3{margin-top:101px}.hero-intro{font-size:14px}.hero-verse{font-size:12px;margin-top:30px}.intro-heading p{font-size:14px}.afterlife-section{min-height:410px;padding-top:55px;padding-bottom:58px;background-position:58% center}.afterlife-copy{display:block;margin:52px 0 0}.afterlife-copy h2{font-size:33px}.afterlife-copy p{font-size:12px}.afterlife-copy .button{margin-top:23px}.closing:before{background-position:62% center}}
 /* 响应式适配：(max-width:700px) */
-@media(max-width:700px){/* 词作标签导航 */
-.poem-tabs a{font-size:15px}/* 单首词作条目 */
-.work-entry{grid-template-columns:30px minmax(0,1fr);gap:9px}/* 词作元信息 */
-.work-meta{font-size:12px;flex-wrap:wrap;gap:5px}/* 词作主体 */
-.work-main h3{font-size:25px}/* 词作主体 */
-.work-main h3 small{font-size:14px}/* 词作正文 */
-.poem-text{font-size:16px;line-height:2.15}/* 词作画廊（含标签导航） */
-.poem-gallery .work-side{display:block;grid-column:2;margin:0;padding-left:11px}/* 词作笺注侧栏 */
-.work-side span{font-size:13px}/* 词作笺注侧栏 */
-.work-side p{font-size:13px}/* 词作笺注详情 */
-.annotation summary{font-size:13px}/* 词作笺注详情 */
-.annotation p{font-size:13px}/* 按钮基础样式 */
-.poem-gallery .work-actions button,.poem-gallery .work-actions .text-link{font-size:13px}/* 声音控制区（开关 + 音量） */
-}
+@media(max-width:700px){.poem-tabs a{font-size:15px}.work-entry{grid-template-columns:30px minmax(0,1fr);gap:9px}.work-meta{font-size:12px;flex-wrap:wrap;gap:5px}.work-main h3{font-size:25px}.work-main h3 small{font-size:14px}.poem-text{font-size:16px;line-height:2.15}.poem-gallery .work-side{display:block;grid-column:2;margin:0;padding-left:11px}.work-side span{font-size:13px}.work-side p{font-size:13px}.annotation summary{font-size:13px}.annotation p{font-size:13px}.poem-gallery .work-actions button,.poem-gallery .work-actions .text-link{font-size:13px}}
 /* 声音控制区（开关 + 音量） */
 .sound-controls{display:flex;align-items:center;gap:10px;flex-shrink:0}
 /* 声音开关按钮 */
@@ -1049,12 +868,7 @@ html{scroll-padding-top:75px}/* 站点页头：品牌 / 导航 / 声音开关 */
 /* 背景音乐音频元素 */
 .background-audio{display:none}
 /* 响应式适配：(max-width:700px) */
-@media(max-width:700px){/* 声音控制区（开关 + 音量） */
-.sound-controls{gap:6px}/* 声音开关按钮 */
-.sound-toggle{padding:7px 9px}/* 声音开关按钮 */
-.sound-toggle .sound-status{display:inline;font-size:9px}/* 组件样式：volume-slider */
-.volume-slider{width:48px}/* 翻书开场动画 */
-}
+@media(max-width:700px){.sound-controls{gap:6px}.sound-toggle{padding:7px 9px}.sound-toggle .sound-status{display:inline;font-size:9px}.volume-slider{width:48px}}
 /* 翻书开场动画 */
 .book-opening{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;perspective:1800px;overflow:hidden;background:radial-gradient(ellipse at 50% 45%,#faf9f2 0%,#e8ebe2 66%,#dce3d9 100%)}
 /* 翻书开场动画 */
@@ -1126,20 +940,11 @@ body.home-page:not(.book-opened){overflow:hidden}
 /* 站点页头：品牌 / 导航 / 声音开关 */
 body.home-page.book-opened>.site-header,body.home-page.book-opened>main,body.home-page.book-opened>.site-footer{animation:home-content-open 1.5s cubic-bezier(.2,.75,.25,1) both,home-content-fade 4s ease both;will-change:clip-path,opacity}
 /* 动画关键帧：book-page-turn-up */
-@keyframes book-page-turn-up{/* 关键帧节点 */
-0%{transform:rotateX(0)}/* 关键帧节点 */
-100%{transform:rotateX(180deg)}/* 关键帧节点 */
-}
+@keyframes book-page-turn-up{0%{transform:rotateX(0)}100%{transform:rotateX(180deg)}}
 /* 动画关键帧：home-content-open */
-@keyframes home-content-open{/* 关键帧节点 */
-from{clip-path:inset(0 50%)}/* 关键帧节点 */
-to{clip-path:inset(0)}/* 关键帧节点 */
-}
+@keyframes home-content-open{from{clip-path:inset(0 50%)}to{clip-path:inset(0)}}
 /* 动画关键帧：home-content-fade */
-@keyframes home-content-fade{/* 关键帧节点 */
-from{opacity:0}/* 关键帧节点 */
-to{opacity:1}/* 关键帧节点 */
-}
+@keyframes home-content-fade{from{opacity:0}to{opacity:1}}
 /* 响应式适配：(max-width:700px) */
 @media(max-width:700px){
   /* 翻书开场动画 */
@@ -1167,10 +972,7 @@ to{opacity:1}/* 关键帧节点 */
 /* 基础元素样式 */
 }
 /* 响应式适配：(prefers-reduced-motion:reduce) */
-@media(prefers-reduced-motion:reduce){/* 翻书开场动画 */
-.book-opening.is-opening .book-cover{animation-duration:.01ms}/* 翻书开场动画 */
-.book-opening.is-leaving{transition-duration:.01ms}/* 书法飞落序列 */
-}
+@media(prefers-reduced-motion:reduce){.book-opening.is-opening .book-cover{animation-duration:.01ms}.book-opening.is-leaving{transition-duration:.01ms}}
 /* 书法飞落序列 */
 .calligraphy-sequence{position:fixed;inset:0;z-index:1001;overflow:hidden;visibility:hidden;opacity:0;pointer-events:none;background:#e8eee4;transition:opacity .4s ease}
 /* 书法飞落序列 */
@@ -1251,41 +1053,36 @@ body.arrival-lock{overflow:hidden}
 .arrival-landscape{position:absolute;inset:-8% -3%;z-index:-4;background:linear-gradient(90deg,rgba(17,30,27,.68),rgba(24,39,34,.2) 57%,rgba(22,33,31,.04)),linear-gradient(0deg,rgba(16,27,25,.38),transparent 47%),url("home-hero.jpg") center 48%/cover;transform:translate3d(calc(var(--arrival-world-x,0px) + var(--arrival-pointer-x,0px)*-.35),calc(var(--arrival-landscape-y,0px) + var(--arrival-pointer-y,0px)*-.35),-100px) scale(var(--arrival-landscape-scale,1.04));will-change:transform;transition:filter 1s ease,opacity 1.15s ease}
 /* 抵达视差幕：按当前幕序调整各图层氛围（滤镜 / 透明度 / 位移） */
 .arrival-interlude[data-scene="2"] .arrival-landscape{filter:saturate(.76) brightness(.82);opacity:0}
-/* 第二幕场景背景层：arrival-scene2-bg.jpg 整幅铺底，默认隐藏并略放大，进第二幕时渐显 + 缓慢回缩（写法与第三幕同款） */
-.arrival-scene2-bg{position:absolute;inset:0;z-index:0;background:url("arrival-scene2-bg.jpg") center/cover no-repeat;opacity:0;transform:translate3d(0,0,0) scale(1.06);filter:brightness(.74) saturate(.9);transition:opacity 1.15s ease,transform 1.6s cubic-bezier(.2,.7,.25,1),filter 1.15s ease}
+/* 第二幕场景背景层：arrival-scene2-bg.jpg 整幅铺底，默认隐藏并随指针反向轻移（视差）+ 略放大，进第二幕时渐显 + 缓慢回缩（写法与第三幕同款） */
+.arrival-scene2-bg{position:absolute;inset:0;z-index:0;background:url("arrival-scene2-bg.jpg") center/cover no-repeat;opacity:0;transform:translate3d(calc(var(--arrival-pointer-x,0px)*-.45),calc(var(--arrival-pointer-y,0px)*-.45),0) scale(1.12);filter:brightness(.74) saturate(.9);transition:opacity 1.15s ease,transform 1.6s cubic-bezier(.2,.7,.25,1),filter 1.15s ease}
 /* 第二幕场景背景压暗渐变：自上而下加深 + 左侧横向压暗，保证前景文案可读 */
 .arrival-scene2-bg:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(18,30,27,.32),rgba(18,30,27,.1) 38%,rgba(18,30,27,.5) 100%),linear-gradient(90deg,rgba(18,30,27,.46),transparent 52%)}
 /* 第二幕场景背景激活态：进入 data-scene="2" 时渐显 */
-.arrival-interlude[data-scene="2"] .arrival-scene2-bg{opacity:1;transform:translate3d(0,0,0) scale(1);filter:brightness(.8) saturate(.92)}
-/* 第二幕图层提层级：场景背景接管底图后，把山峦/明月/松林/孤舟/雁阵/水面整体抬到 z-index:1，压在背景之上 */
+.arrival-interlude[data-scene="2"] .arrival-scene2-bg{opacity:1;transform:translate3d(calc(var(--arrival-pointer-x,0px)*-.45),calc(var(--arrival-pointer-y,0px)*-.45),0) scale(1.06);filter:brightness(.8) saturate(.92)}
+/* 第二幕图层提层级：场景背景接管底图后，把山峦/松林/孤舟/雁阵/水面整体抬到 z-index:1，压在背景之上 */
 .arrival-interlude[data-scene="2"] .arrival-hill-far,
 .arrival-interlude[data-scene="2"] .arrival-hill-mid,
 .arrival-interlude[data-scene="2"] .arrival-shore,
-.arrival-interlude[data-scene="2"] .arrival-moon,
 .arrival-interlude[data-scene="2"] .arrival-pine,
 .arrival-interlude[data-scene="2"] .arrival-boat,
 .arrival-interlude[data-scene="2"] .arrival-geese,
 .arrival-interlude[data-scene="2"] .arrival-water{z-index:1}
 /* 抵达视差幕：按当前幕序调整各图层氛围（滤镜 / 透明度 / 位移） */
 .arrival-interlude[data-scene="3"] .arrival-landscape{filter:saturate(.55) brightness(.7) hue-rotate(8deg);opacity:0}
-/* 第三幕场景背景层：arrival-scene3-bg.jpg 整幅铺底（z-index:0 与第二幕同层），默认隐藏并略放大，进第三幕时渐显 + 缓慢回缩 */
-.arrival-scene3-bg{position:absolute;inset:0;z-index:0;background:url("arrival-scene3-bg.jpg") center/cover no-repeat;opacity:0;transform:translate3d(0,0,0) scale(1.06);filter:brightness(.74) saturate(.9);transition:opacity 1.15s ease,transform 1.6s cubic-bezier(.2,.7,.25,1),filter 1.15s ease}
+/* 第三幕场景背景层：arrival-scene3-bg.jpg 整幅铺底（z-index:0 与第二幕同层），默认隐藏并随指针反向轻移（视差）+ 略放大，进第三幕时渐显 + 缓慢回缩 */
+.arrival-scene3-bg{position:absolute;inset:0;z-index:0;background:url("arrival-scene3-bg.jpg") center/cover no-repeat;opacity:0;transform:translate3d(calc(var(--arrival-pointer-x,0px)*-.4),calc(var(--arrival-pointer-y,0px)*-.4),0) scale(1.12);filter:brightness(.74) saturate(.9);transition:opacity 1.15s ease,transform 1.6s cubic-bezier(.2,.7,.25,1),filter 1.15s ease}
 /* 第三幕场景背景压暗渐变：自上而下加深 + 左侧横向压暗，保证前景文案可读 */
 .arrival-scene3-bg:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(18,30,27,.32),rgba(18,30,27,.1) 38%,rgba(18,30,27,.5) 100%),linear-gradient(90deg,rgba(18,30,27,.46),transparent 52%)}
 /* 第三幕场景背景激活态：进入 data-scene="3" 时渐显 */
-/* 第三幕场景背景激活态：进入 data-scene="3" 时渐显 */
-.arrival-interlude[data-scene="3"] .arrival-scene3-bg{opacity:1;transform:translate3d(0,0,0) scale(1);filter:brightness(.8) saturate(.92)}
-/* 第三幕图层提层级：与第二幕同款，把山峦/明月/松林/孤舟/雁阵/水面整体抬到 z-index:1，压在场景背景之上 */
+.arrival-interlude[data-scene="3"] .arrival-scene3-bg{opacity:1;transform:translate3d(calc(var(--arrival-pointer-x,0px)*-.4),calc(var(--arrival-pointer-y,0px)*-.4),0) scale(1.06);filter:brightness(.8) saturate(.92)}
+/* 第三幕图层提层级：与第二幕同款，把山峦/松林/孤舟/雁阵/水面整体抬到 z-index:1，压在场景背景之上 */
 .arrival-interlude[data-scene="3"] .arrival-hill-far,
 .arrival-interlude[data-scene="3"] .arrival-hill-mid,
 .arrival-interlude[data-scene="3"] .arrival-shore,
-.arrival-interlude[data-scene="3"] .arrival-moon,
 .arrival-interlude[data-scene="3"] .arrival-pine,
 .arrival-interlude[data-scene="3"] .arrival-boat,
 .arrival-interlude[data-scene="3"] .arrival-geese,
 .arrival-interlude[data-scene="3"] .arrival-water{z-index:1}
-/* 抵达明月 */
-.arrival-moon{position:absolute;z-index:-3;top:12%;right:23%;width:clamp(100px,15vw,210px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 38% 36%,rgba(250,241,216,.94),rgba(226,218,190,.52) 55%,rgba(226,218,190,0) 72%);filter:blur(.4px);opacity:.78;transform:translate3d(calc(var(--arrival-moon-y,0px)*0 + var(--arrival-pointer-soft-x,0px)*-1.4),calc(var(--arrival-moon-y,0px) + var(--arrival-pointer-soft-y,0px)*-1.2),40px);box-shadow:0 0 80px rgba(225,214,175,.16);transition:opacity .8s ease}
 /* 抵达松林 */
 .arrival-pine{position:absolute;inset:auto 0 -3%;z-index:-1;height:37%;pointer-events:none;transform:translate3d(var(--arrival-pointer-deep-x,0px),var(--arrival-pine-y,0),0);filter:blur(3px);opacity:.68;mask-image:linear-gradient(180deg,transparent,#000 25%,#000);transition:opacity 1s ease}
 /* 抵达松林 */
@@ -1343,13 +1140,7 @@ body.arrival-lock{overflow:hidden}
 /* 抵达浮尘：单粒光点，按 --mote-* 变量缓缓上升 */
 .arrival-motes i{position:absolute;left:var(--mote-x);bottom:-5%;width:var(--mote-size);height:var(--mote-size);border-radius:50%;background:radial-gradient(circle,rgba(247,224,178,.95),rgba(228,193,130,.45) 45%,transparent 72%);box-shadow:0 0 8px rgba(240,210,150,.45);opacity:0;animation:arrival-mote-rise var(--mote-duration) linear var(--mote-delay) infinite}
 /* 动画关键帧：arrival-mote-rise */
-@keyframes arrival-mote-rise{/* 关键帧节点 */
-0%{opacity:0;transform:translate3d(0,0,0) scale(.5)}/* 关键帧节点 */
-8%{opacity:var(--mote-opacity)}/* 关键帧节点 */
-50%{transform:translate3d(calc(var(--mote-drift)*1px),-50vh,0) scale(1)}/* 关键帧节点 */
-92%{opacity:var(--mote-opacity)}/* 关键帧节点 */
-100%{opacity:0;transform:translate3d(calc(var(--mote-drift)*2px),-110vh,0) scale(.6)}/* 关键帧节点 */
-}
+@keyframes arrival-mote-rise{0%{opacity:0;transform:translate3d(0,0,0) scale(.5)}8%{opacity:var(--mote-opacity)}50%{transform:translate3d(calc(var(--mote-drift)*1px),-50vh,0) scale(1)}92%{opacity:var(--mote-opacity)}100%{opacity:0;transform:translate3d(calc(var(--mote-drift)*2px),-110vh,0) scale(.6)}}
 /* 抵达舞台 */
 .arrival-stage{will-change:transform;transform:scale3d(var(--arrival-dolly,1),var(--arrival-dolly,1),1)}
 /* 抵达文案 */
@@ -1401,17 +1192,9 @@ body.arrival-lock{overflow:hidden}
 /* 抵达水墨收场 */
 .arrival-ink-wash.is-opening:after{animation:arrival-ink-recede .8s cubic-bezier(.2,.6,.22,1) forwards}
 /* 动画关键帧：arrival-ink-drop */
-@keyframes arrival-ink-drop{/* 关键帧节点 */
-0%{transform:translate(-50%,-50%) scale(0);opacity:.4}/* 关键帧节点 */
-38%{opacity:1}/* 关键帧节点 */
-100%{transform:translate(-50%,-50%) scale(1.65);opacity:1}/* 关键帧节点 */
-}
+@keyframes arrival-ink-drop{0%{transform:translate(-50%,-50%) scale(0);opacity:.4}38%{opacity:1}100%{transform:translate(-50%,-50%) scale(1.65);opacity:1}}
 /* 动画关键帧：arrival-ink-recede */
-@keyframes arrival-ink-recede{/* 关键帧节点 */
-0%{transform:translate(-50%,-50%) scale(1.65);opacity:1}/* 关键帧节点 */
-62%{opacity:.55}/* 关键帧节点 */
-100%{transform:translate(-50%,-50%) scale(2.6);opacity:0}/* 关键帧节点 */
-}
+@keyframes arrival-ink-recede{0%{transform:translate(-50%,-50%) scale(1.65);opacity:1}62%{opacity:.55}100%{transform:translate(-50%,-50%) scale(2.6);opacity:0}}
 /* 抵达墨痕笔触 */
 .arrival-ink-stroke{display:block;width:min(220px,40%);height:18px;margin-top:4px;overflow:visible}
 /* 抵达墨痕笔触 */
@@ -1537,22 +1320,11 @@ body.arrival-lock{overflow:hidden}
 /* 抵达舞台 */
 .arrival-stage:after{content:"";position:absolute;inset:0;z-index:4;pointer-events:none;opacity:.13;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.92' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.24'/%3E%3C/svg%3E");mix-blend-mode:soft-light}
 /* 动画关键帧：arrival-ember-drift */
-@keyframes arrival-ember-drift{/* 关键帧节点 */
-0%,100%{opacity:0;transform:translate3d(-8px,-10px,0) rotate(-25deg) scale(.65)}/* 关键帧节点 */
-18%,68%{opacity:.52}/* 关键帧节点 */
-88%{opacity:.15}/* 关键帧节点 */
-50%{transform:translate3d(28px,18vh,0) rotate(155deg) scale(1)}/* 关键帧节点 */
-}
+@keyframes arrival-ember-drift{0%,100%{opacity:0;transform:translate3d(-8px,-10px,0) rotate(-25deg) scale(.65)}18%,68%{opacity:.52}88%{opacity:.15}50%{transform:translate3d(28px,18vh,0) rotate(155deg) scale(1)}}
 /* 动画关键帧：arrival-water-drift */
-@keyframes arrival-water-drift{/* 关键帧节点 */
-0%,100%{opacity:.22;scale:.94 1}/* 关键帧节点 */
-50%{opacity:.65;scale:1.05 1.18}/* 关键帧节点 */
-}
+@keyframes arrival-water-drift{0%,100%{opacity:.22;scale:.94 1}50%{opacity:.65;scale:1.05 1.18}}
 /* 动画关键帧：arrival-scroll-hint */
-@keyframes arrival-scroll-hint{/* 关键帧节点 */
-0%,100%{transform:translateY(0);opacity:.45}/* 关键帧节点 */
-50%{transform:translateY(6px);opacity:1}/* 关键帧节点 */
-}
+@keyframes arrival-scroll-hint{0%,100%{transform:translateY(0);opacity:.45}50%{transform:translateY(6px);opacity:1}}
 /* 响应式适配：(max-width:700px) */
 @media(max-width:700px){
   /* 抵达滚动轨道 */
@@ -1561,8 +1333,6 @@ body.arrival-lock{overflow:hidden}
 .arrival-stage{min-height:560px}
   /* 抵达远山背景 */
 .arrival-landscape{background-position:58% center}
-  /* 抵达明月 */
-.arrival-moon{top:12%;right:14%;width:120px}
   /* 抵达松林 */
 .arrival-pine{height:36%}
   /* 抵达文案 */
@@ -1610,7 +1380,7 @@ body.arrival-lock{overflow:hidden}
   /* 抵达视差幕：随页面滚动推进的入场章节 */
 .arrival-interlude{transition:none}
   /* 抵达舞台（含纸底 / 山峦 / 江岸 / 孤舟 / 雁阵 / 芦苇 / 垂柳各层，一律停用位移） */
-.arrival-landscape,.arrival-world-change,.arrival-moon,.arrival-figure,.arrival-pine,.arrival-water,.arrival-copy,.arrival-copy.is-current,.arrival-mist,.arrival-stage,.arrival-paper,.arrival-hill-far,.arrival-hill-mid,.arrival-shore,.arrival-boat,.arrival-reed,.arrival-geese,.arrival-willow,.arrival-willow-2{transform:none;will-change:auto}
+.arrival-landscape,.arrival-world-change,.arrival-figure,.arrival-pine,.arrival-water,.arrival-copy,.arrival-copy.is-current,.arrival-mist,.arrival-stage,.arrival-paper,.arrival-hill-far,.arrival-hill-mid,.arrival-shore,.arrival-boat,.arrival-reed,.arrival-geese,.arrival-willow,.arrival-willow-2{transform:none;will-change:auto}
   /* 抵达落花：停用飘落动画，改以静态半透明呈现 */
 .arrival-petals i{animation:none;opacity:.32;transform:none}
   /* 抵达滚动提示 */
@@ -1632,35 +1402,13 @@ body.arrival-lock{overflow:hidden}
 /* 书法飞落字 */
 .calligraphy-flight-final{animation-name:calligraphy-fall-final}
 /* 动画关键帧：calligraphy-fall */
-@keyframes calligraphy-fall{/* 关键帧节点 */
-0%{opacity:.34;transform:translate3d(-50%,calc(-100% + 52px),0)}/* 关键帧节点 */
-18%{opacity:.94}/* 关键帧节点 */
-76%{opacity:.94}/* 关键帧节点 */
-100%{opacity:0;transform:translate3d(-50%,calc(100vh - 52px),0)}/* 关键帧节点 */
-}
+@keyframes calligraphy-fall{0%{opacity:.34;transform:translate3d(-50%,calc(-100% + 52px),0)}18%{opacity:.94}76%{opacity:.94}100%{opacity:0;transform:translate3d(-50%,calc(100vh - 52px),0)}}
 /* 动画关键帧：calligraphy-fall-final */
-@keyframes calligraphy-fall-final{/* 关键帧节点 */
-0%{opacity:.34;transform:translate3d(-50%,calc(-100% + 52px),0)}/* 关键帧节点 */
-18%,100%{opacity:.94;transform:translate3d(-50%,calc(100vh - 52px),0)}/* 基础元素样式 */
-}
+@keyframes calligraphy-fall-final{0%{opacity:.34;transform:translate3d(-50%,calc(-100% + 52px),0)}18%,100%{opacity:.94;transform:translate3d(-50%,calc(100vh - 52px),0)}}
 /* 响应式适配：(max-width:700px) */
-@media(max-width:700px){/* 书法飞落字 */
-.calligraphy-flight{max-width:48vw;max-height:62vh}/* 粒子阶段文案 */
-.calligraphy-particle-caption{bottom:12%}/* 基础元素样式 */
-}
+@media(max-width:700px){.calligraphy-flight{max-width:48vw;max-height:62vh}.calligraphy-particle-caption{bottom:12%}}
 /* 响应式适配：(prefers-reduced-motion:reduce) */
-@media(prefers-reduced-motion:reduce){/* 书法飞落序列 */
-.calligraphy-sequence{display:none!important}/* 书法飞落字 */
-.calligraphy-flight{animation:none!important}/* 水墨间奏 */
-.ink-interlude{transition:none}/* 字化飞墨粒子画布 */
-.calligraphy-particle-canvas,.calligraphy-particle-caption{display:none}
-/* 雾霭层在减弱动效下停止漂移动画 */
-.calligraphy-mist{animation:none}
-/* 雨丝层在减弱动效下停止下落，并降到固定 .3 的淡淡一层，保留氛围但不持续运动 */
-.calligraphy-rain{animation:none;opacity:.3}
-/* 墨点层在减弱动效下直接隐藏 */
-.calligraphy-inkmotes{display:none}
-}
+@media(prefers-reduced-motion:reduce){.calligraphy-sequence{display:none!important}.calligraphy-flight{animation:none!important}.ink-interlude{transition:none}.calligraphy-particle-canvas,.calligraphy-particle-caption{display:none}.calligraphy-mist{animation:none}.calligraphy-rain{animation:none;opacity:.3}.calligraphy-inkmotes{display:none}}
 /* 响应式适配：(min-width:1100px) and (min-height:700px) */
 @media(min-width:1100px) and (min-height:700px){
   /* 首页主视觉 hero */
@@ -1680,13 +1428,7 @@ body.arrival-lock{overflow:hidden}
 /* 基础元素样式 */
 }
 /* 响应式适配：(prefers-reduced-motion:reduce) */
-@media(prefers-reduced-motion:reduce){/* 点击涟漪 */
-.click-ripple,.page-ripple{display:none}/* 滚动揭示动画 */
-.reveal-on-scroll{opacity:1;transform:none;transition:none}/* 页面主体（翻页过渡） */
-main{transition:none}/* 根元素：平滑滚动与滚动定位 */
-html.page-transitioning main{opacity:1;transform:none;filter:none}/* 站点页头：品牌 / 导航 / 声音开关 */
-body.home-page.book-opened>.site-header,body.home-page.book-opened>main,body.home-page.book-opened>.site-footer{animation:none;opacity:1;clip-path:none;will-change:auto}/* 基础元素样式 */
-}
+@media(prefers-reduced-motion:reduce){.click-ripple,.page-ripple{display:none}.reveal-on-scroll{opacity:1;transform:none;transition:none}main{transition:none}html.page-transitioning main{opacity:1;transform:none;filter:none}body.home-page.book-opened>.site-header,body.home-page.book-opened>main,body.home-page.book-opened>.site-footer{animation:none;opacity:1;clip-path:none;will-change:auto}}
 /* 响应式适配：(max-width:900px) */
 @media(max-width:900px){
   /* 词容万象页头 */
@@ -1776,24 +1518,11 @@ body.home-page.book-opened>.site-header,body.home-page.book-opened>main,body.hom
 /* 词作画廊（含标签导航） */
 .poem-gallery{position:relative;isolation:isolate;width:100vw;margin-left:calc(50% - 50vw);padding:8px 10vw 4px;overflow:hidden}
 /* 响应式适配：(max-width:700px) */
-@media(max-width:700px){/* 首页引文 */
-.hero-intro{font-size:15px}/* 首页题词 */
-.hero-verse{font-size:14px;margin-top:28px}/* 介绍区标题与正文 */
-.intro-heading p{font-size:15px}/* 收尾区 */
-.closing p{font-size:14px}/* 基础元素样式 */
-}
+@media(max-width:700px){.hero-intro{font-size:15px}.hero-verse{font-size:14px;margin-top:28px}.intro-heading p{font-size:15px}.closing p{font-size:14px}}
 /* 响应式适配：(max-width:700px) */
-@media(max-width:700px){/* 词人肖像 img */
-.poet-portrait{aspect-ratio:1.24;object-position:left 24%}/* 基础元素样式 */
-}
+@media(max-width:700px){.poet-portrait{aspect-ratio:1.24;object-position:left 24%}}
 /* 响应式适配：(max-width:700px) */
-@media(max-width:700px){/* 时间线年份 */
-.timeline-year{font-size:18px;margin-bottom:8px}/* 时间线标签 */
-.timeline-label{font-size:10px}/* 时间线卡片 */
-.timeline-card h3{font-size:19px}/* 时间线卡片 */
-.timeline-card p{font-size:14px}/* 时间线引文 */
-.timeline-quote{font-size:13px}/* 词作画廊背景层（随滚动做轻微视差） */
-}
+@media(max-width:700px){.timeline-year{font-size:18px;margin-bottom:8px}.timeline-label{font-size:10px}.timeline-card h3{font-size:19px}.timeline-card p{font-size:14px}.timeline-quote{font-size:13px}}
 /* 词作画廊背景层（随滚动做轻微视差） */
 .poem-gallery:before{content:"";position:absolute;z-index:-1;inset:0;background:linear-gradient(rgba(243,243,237,.62),rgba(243,243,237,.62)),url("poem-background.jpg") center 42%/cover no-repeat}
 /* 词作画廊（含标签导航） */
@@ -1801,20 +1530,11 @@ body.home-page.book-opened>.site-header,body.home-page.book-opened>main,body.hom
 /* 词作区 */
 .works{overflow-x:clip}
 /* 响应式适配：(max-width:1000px) */
-@media(max-width:1000px){/* 词作画廊（含标签导航） */
-.poem-gallery{padding-left:7vw;padding-right:7vw}/* 基础元素样式 */
-}
+@media(max-width:1000px){.poem-gallery{padding-left:7vw;padding-right:7vw}}
 /* 响应式适配：(max-width:700px) */
-@media(max-width:700px){/* 词作画廊（含标签导航） */
-.poem-gallery{padding:8px 5vw 2px}/* 词作标签导航 */
-.poem-tabs{margin-left:0;gap:18px}/* 词作标签导航 */
-.poem-tabs a{font-size:14px;letter-spacing:.08em}/* 词作标签导航 */
-.poem-tabs a.is-active:before{left:-10px;width:5px;height:5px}/* 基础元素样式 */
-}
+@media(max-width:700px){.poem-gallery{padding:8px 5vw 2px}.poem-tabs{margin-left:0;gap:18px}.poem-tabs a{font-size:14px;letter-spacing:.08em}.poem-tabs a.is-active:before{left:-10px;width:5px;height:5px}}
 /* 响应式适配：(max-width:700px) */
-@media(max-width:700px){/* 首页主标题（钟齐志莽楷书） */
-.hero h1{font-size:52px}/* 首页主标题（钟齐志莽楷书） */
-}
+@media(max-width:700px){.hero h1{font-size:52px}}
 
 /* 首页主标题（钟齐志莽楷书） */
 .hero h1,.subhero h1,.intro-heading h2,.feature-head h2,.story-lead h2,.works-heading h2,.listen-title h2,.interactive h2,.next-step h2,.closing h2,.memory-lead h2,.screen-world-heading h2{ text-wrap:balance}
@@ -1833,25 +1553,13 @@ body.home-page.book-opened>.site-header,body.home-page.book-opened>main,body.hom
 /* 按钮基础样式 */
 button:not(.book-open-button):active,.button:active{translate:0 1px}
 /* 动画关键帧：verse-title-arrive */
-@keyframes verse-title-arrive{/* 关键帧节点 */
-from{opacity:0;transform:translateY(12px);letter-spacing:.16em}/* 关键帧节点 */
-to{opacity:1;transform:translateY(0);letter-spacing:.08em}/* 关键帧节点 */
-}
+@keyframes verse-title-arrive{from{opacity:0;transform:translateY(12px);letter-spacing:.16em}to{opacity:1;transform:translateY(0);letter-spacing:.08em}}
 /* 动画关键帧：ink-word-breathe */
-@keyframes ink-word-breathe{/* 关键帧节点 */
-0%,100%{filter:drop-shadow(0 0 0 rgba(199,170,119,0));opacity:.94}/* 关键帧节点 */
-50%{filter:drop-shadow(0 0 8px rgba(199,170,119,.3));opacity:1}/* 关键帧节点 */
-}
+@keyframes ink-word-breathe{0%,100%{filter:drop-shadow(0 0 0 rgba(199,170,119,0));opacity:.94}50%{filter:drop-shadow(0 0 8px rgba(199,170,119,.3));opacity:1}}
 /* 动画关键帧：verse-line-breathe */
-@keyframes verse-line-breathe{/* 关键帧节点 */
-0%,100%{text-shadow:0 1px 0 rgba(243,243,237,.78)}/* 关键帧节点 */
-50%{text-shadow:0 1px 12px rgba(169,104,76,.16)}/* 关键帧节点 */
-}
+@keyframes verse-line-breathe{0%,100%{text-shadow:0 1px 0 rgba(243,243,237,.78)}50%{text-shadow:0 1px 12px rgba(169,104,76,.16)}}
 /* 动画关键帧：orbit-breathe */
-@keyframes orbit-breathe{/* 关键帧节点 */
-0%,100%{scale:1}/* 关键帧节点 */
-50%{scale:1.025}/* 关键帧节点 */
-}
+@keyframes orbit-breathe{0%,100%{scale:1}50%{scale:1.025}}
 /* 响应式适配：(hover:hover) and (pointer:fine) */
 @media(hover:hover) and (pointer:fine){
   /* 深度视差表面 */
@@ -1889,9 +1597,7 @@ to{opacity:1;transform:translateY(0);letter-spacing:.08em}/* 关键帧节点 */
 /* 时间线年份 */
 .timeline-item.is-active .timeline-year{color:var(--rust);transform:translateX(-3px)}
 /* 响应式适配：(prefers-reduced-motion:reduce) */
-@media(prefers-reduced-motion:reduce){/* 时间线年份 */
-.timeline-progress,.timeline-dot,.timeline-year{transition:none}/* 生平叙事·双栏布局（场景 + 时间线） */
-}
+@media(prefers-reduced-motion:reduce){.timeline-progress,.timeline-dot,.timeline-year{transition:none}}
 /* 生平叙事·双栏布局（场景 + 时间线） */
 .timeline-narrative{display:grid;grid-template-columns:minmax(300px,.88fr) minmax(0,1.12fr);gap:clamp(36px,6vw,88px);align-items:start}
 /* 生平叙事·左侧场景（sticky 视差） */
@@ -2028,18 +1734,7 @@ to{opacity:1;transform:translateY(0);letter-spacing:.08em}/* 关键帧节点 */
 /* 基础元素样式 */
 }
 /* 响应式适配：(prefers-reduced-motion:reduce) */
-@media(prefers-reduced-motion:reduce){/* 根元素：平滑滚动与滚动定位 */
-html{scroll-snap-type:none}/* 生平叙事·场景文案（随章节切换） */
-.timeline-scene:before,.timeline-scene-copy,.timeline-scene-progress span{transition:none;transform:none}/* 生平叙事·场景文案（随章节切换） */
-.timeline-scene-copy.is-changing{opacity:1}/* 金竹飘落画布 */
-.bamboo-leaves{display:none}/* 滚动视差（慢速层，位移系数 0.42） */
-.scroll-parallax,.scroll-parallax-bg,.scroll-parallax-slow{transform:none!important}/* 词作逐行浮现（滚动驱动显隐） */
-.poem-line{clip-path:none!important;opacity:1!important;transform:none!important;filter:none!important}/* 词作序号 */
-.work-number{transform:none!important}/* 词牌大水印（由脚本注入，随条目进度浮现） */
-.work-watermark{display:none}/* 词作笺注侧栏 */
-.work-side{transform:none!important}/* 词作画廊背景层（随滚动做轻微视差） */
-.poem-gallery:before{transform:none}/* 基础元素样式 */
-}
+@media(prefers-reduced-motion:reduce){html{scroll-snap-type:none}.timeline-scene:before,.timeline-scene-copy,.timeline-scene-progress span{transition:none;transform:none}.timeline-scene-copy.is-changing{opacity:1}.bamboo-leaves{display:none}.scroll-parallax,.scroll-parallax-bg,.scroll-parallax-slow{transform:none!important}.poem-line{clip-path:none!important;opacity:1!important;transform:none!important;filter:none!important}.work-number{transform:none!important}.work-watermark{display:none}.work-side{transform:none!important}.poem-gallery:before{transform:none}}
 /* ============================================================
    全站微交互 · 呼吸感文字 · 动态排版 · 轻伪3D
    ============================================================ */
