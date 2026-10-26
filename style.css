@@ -1283,8 +1283,6 @@ body.arrival-lock{overflow:hidden}
 .arrival-hill-far{position:absolute;left:-8%;right:-8%;bottom:10%;height:32%;z-index:-3;background:url("parallax-far.png") repeat-x bottom/auto 100%;mix-blend-mode:multiply;transform:translate3d(var(--arrival-hill-far-x,0px),var(--arrival-hill-far-y,0px),0);will-change:transform}
 /* 抵达视差 · 中景山峦：PNG 横向平铺剪影，横移速度更快，与远山拉开视差纵深；同样 multiply 融入纸底 */
 .arrival-hill-mid{position:absolute;left:-8%;right:-8%;bottom:5%;height:34%;z-index:-2;background:url("parallax-mid.png") repeat-x bottom/auto 100%;mix-blend-mode:multiply;transform:translate3d(var(--arrival-hill-mid-x,0px),0,0);will-change:transform}
-/* 抵达视差 · 山腰雾带：PNG 横向平铺的云雾，screen 混合做提亮，随 --arrival-mistband-x 缓移 */
-.arrival-mistband{position:absolute;left:-12%;right:-12%;top:36%;height:24%;z-index:-1;pointer-events:none;background:url("parallax-mistband.png") repeat-x center/auto 100%;mix-blend-mode:screen;transform:translate3d(var(--arrival-mistband-x,0px),0,0);will-change:transform;opacity:.9}
 /* 抵达视差 · 江岸：PNG 横向平铺的堤岸剪影，横移量最大（--arrival-shore-x），承接山与水面；multiply 融入纸底 */
 .arrival-shore{position:absolute;left:-8%;right:-8%;bottom:-2%;height:24%;z-index:-1;background:url("parallax-shore.png") repeat-x bottom/auto 100%;mix-blend-mode:multiply;transform:translate3d(var(--arrival-shore-x,0px),0,0);will-change:transform}
 /* 抵达视差 · 孤舟：PNG 小舟，横移之外还随正弦上下漂浮（--arrival-boat-y）与轻微倾斜（--arrival-boat-tilt） */
@@ -1337,6 +1335,10 @@ body.arrival-lock{overflow:hidden}
 .arrival-copy h1{margin:23px 0 20px;font-family:"ZhongQi ZhiMang","HongLei Calligraphy",var(--serif);font-size:clamp(48px,7vw,94px);font-weight:400;line-height:1.42;letter-spacing:.075em;color:#f7f2e7;text-shadow:0 8px 36px rgba(9,18,16,.3);text-wrap:balance}
 /* 抵达文案 */
 .arrival-copy h1 em{color:#dec39a;font-style:normal}
+/* 第一幕主标题分行：两个 span 各占一行，取代原先的 <br> 断行 */
+#arrival-title .arrival-tl{display:block}
+/* 第一幕主标题第二行：右缩进，形成错落的阶梯式落款 */
+#arrival-title .arrival-tl-2{padding-left:clamp(44px,9vw,150px)}
 /* 抵达文案 */
 .arrival-copy-verse h2{margin:23px 0 20px;font-family:"ZhongQi ZhiMang","HongLei Calligraphy",var(--serif);font-size:clamp(43px,6vw,78px);font-weight:400;line-height:1.55;letter-spacing:.06em;color:#f7f2e7;text-shadow:0 8px 36px rgba(9,18,16,.3);text-wrap:balance}
 /* 抵达文案 */
@@ -1574,8 +1576,8 @@ body.arrival-lock{overflow:hidden}
 @media(prefers-reduced-motion:reduce){
   /* 抵达视差幕：随页面滚动推进的入场章节 */
 .arrival-interlude{transition:none}
-  /* 抵达舞台（含纸底 / 山峦 / 雾带 / 江岸 / 孤舟 / 雁阵 / 芦苇 / 垂柳各层，一律停用位移） */
-.arrival-landscape,.arrival-world-change,.arrival-moon,.arrival-figure,.arrival-pine,.arrival-water,.arrival-copy,.arrival-copy.is-current,.arrival-mist,.arrival-stage,.arrival-paper,.arrival-hill-far,.arrival-hill-mid,.arrival-mistband,.arrival-shore,.arrival-boat,.arrival-reed,.arrival-geese,.arrival-willow,.arrival-willow-2{transform:none;will-change:auto}
+  /* 抵达舞台（含纸底 / 山峦 / 江岸 / 孤舟 / 雁阵 / 芦苇 / 垂柳各层，一律停用位移） */
+.arrival-landscape,.arrival-world-change,.arrival-moon,.arrival-figure,.arrival-pine,.arrival-water,.arrival-copy,.arrival-copy.is-current,.arrival-mist,.arrival-stage,.arrival-paper,.arrival-hill-far,.arrival-hill-mid,.arrival-shore,.arrival-boat,.arrival-reed,.arrival-geese,.arrival-willow,.arrival-willow-2{transform:none;will-change:auto}
   /* 抵达落花：停用飘落动画，改以静态半透明呈现 */
 .arrival-petals i{animation:none;opacity:.32;transform:none}
   /* 抵达滚动提示 */
