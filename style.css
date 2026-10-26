@@ -1271,18 +1271,22 @@ body.arrival-lock{overflow:hidden}
 .arrival-interlude[data-scene="3"] .arrival-water{opacity:.28}
 /* 抵达墨晕 */
 .arrival-ink-bloom{position:absolute;inset:-20%;z-index:-2;pointer-events:none;opacity:var(--arrival-bloom,0);background:radial-gradient(ellipse at 67% 64%,rgba(225,209,172,.18),rgba(88,111,94,.1) 22%,transparent 52%);filter:blur(30px);transform:translate3d(var(--arrival-pointer-x,0px),var(--arrival-pointer-y,0px),-18px) scale(1.08);transition:opacity .35s ease}
-/* 抵达雾气层：随进度漂移，柔化远山与水面的衔接 */
-.arrival-mist{position:absolute;inset:-15%;z-index:0;pointer-events:none;opacity:.7;filter:blur(26px);background:linear-gradient(180deg,transparent 28%,rgba(22,34,30,.42) 55%,rgba(18,30,27,.7) 100%),radial-gradient(ellipse at 18% 72%,rgba(214,201,170,.22),transparent 48%),radial-gradient(ellipse at 78% 64%,rgba(214,201,170,.16),transparent 52%),radial-gradient(ellipse at 48% 88%,rgba(40,58,50,.5),transparent 60%);transform:translate3d(var(--arrival-mist-x,0px),var(--arrival-mist-y,0px),-10px) scale(1.12);transition:opacity 1s ease}
-/* 抵达视差幕：按当前幕序调整各图层氛围（滤镜 / 透明度 / 位移） */
-.arrival-interlude[data-scene="2"] .arrival-mist{opacity:.82}
-/* 抵达视差幕：按当前幕序调整各图层氛围（滤镜 / 透明度 / 位移） */
-.arrival-interlude[data-scene="3"] .arrival-mist{opacity:.9}
-/* 抵达视差 · 远景山峦：PNG 横向平铺剪影，随 --arrival-hill-far-x/y 双轴慢速位移（最远层） */
-.arrival-hill-far{position:absolute;left:-8%;right:-8%;bottom:10%;height:32%;z-index:-3;background:url("parallax-far.png") repeat-x bottom/auto 100%;transform:translate3d(var(--arrival-hill-far-x,0px),var(--arrival-hill-far-y,0px),0);will-change:transform}
-/* 抵达视差 · 中景山峦：PNG 横向平铺剪影，横移速度更快，与远山拉开视差纵深 */
-.arrival-hill-mid{position:absolute;left:-8%;right:-8%;bottom:5%;height:34%;z-index:-2;background:url("parallax-mid.png") repeat-x bottom/auto 100%;transform:translate3d(var(--arrival-hill-mid-x,0px),0,0);will-change:transform}
-/* 抵达视差 · 江岸：PNG 横向平铺的堤岸剪影，横移量最大（--arrival-shore-x），承接山与水面 */
-.arrival-shore{position:absolute;left:-8%;right:-8%;bottom:-2%;height:24%;z-index:-1;background:url("parallax-shore.png") repeat-x bottom/auto 100%;transform:translate3d(var(--arrival-shore-x,0px),0,0);will-change:transform}
+/* 抵达雾气层：随进度漂移，柔化远山与水面的衔接（本版整体减淡，让纸底与雾带负责层次） */
+.arrival-mist{position:absolute;inset:-15%;z-index:0;pointer-events:none;opacity:.42;filter:blur(26px);background:linear-gradient(180deg,transparent 28%,rgba(22,34,30,.28) 55%,rgba(18,30,27,.5) 100%),radial-gradient(ellipse at 18% 72%,rgba(214,201,170,.22),transparent 48%),radial-gradient(ellipse at 78% 64%,rgba(214,201,170,.16),transparent 52%),radial-gradient(ellipse at 48% 88%,rgba(40,58,50,.5),transparent 60%);transform:translate3d(var(--arrival-mist-x,0px),var(--arrival-mist-y,0px),-10px) scale(1.12);transition:opacity 1s ease}
+/* 雾气层 · 第二幕：略提浓 */
+.arrival-interlude[data-scene="2"] .arrival-mist{opacity:.55}
+/* 雾气层 · 第三幕：再提一档 */
+.arrival-interlude[data-scene="3"] .arrival-mist{opacity:.62}
+/* 抵达纸底层：贴底 66% 高的米黄纸色渐变，作为山水各层的统一底色（最深处，z-index:-4） */
+.arrival-paper{position:absolute;left:0;right:0;bottom:0;height:66%;z-index:-4;pointer-events:none;background:linear-gradient(180deg,rgba(229,222,202,0) 0%,rgba(229,222,202,.82) 24%,#e9e3d3 52%,#efe9d9 100%)}
+/* 抵达视差 · 远景山峦：PNG 横向平铺剪影，随 --arrival-hill-far-x/y 双轴慢速位移（最远层）；multiply 叠色压进纸面 */
+.arrival-hill-far{position:absolute;left:-8%;right:-8%;bottom:10%;height:32%;z-index:-3;background:url("parallax-far.png") repeat-x bottom/auto 100%;mix-blend-mode:multiply;transform:translate3d(var(--arrival-hill-far-x,0px),var(--arrival-hill-far-y,0px),0);will-change:transform}
+/* 抵达视差 · 中景山峦：PNG 横向平铺剪影，横移速度更快，与远山拉开视差纵深；同样 multiply 融入纸底 */
+.arrival-hill-mid{position:absolute;left:-8%;right:-8%;bottom:5%;height:34%;z-index:-2;background:url("parallax-mid.png") repeat-x bottom/auto 100%;mix-blend-mode:multiply;transform:translate3d(var(--arrival-hill-mid-x,0px),0,0);will-change:transform}
+/* 抵达视差 · 山腰雾带：PNG 横向平铺的云雾，screen 混合做提亮，随 --arrival-mistband-x 缓移 */
+.arrival-mistband{position:absolute;left:-12%;right:-12%;top:36%;height:24%;z-index:-1;pointer-events:none;background:url("parallax-mistband.png") repeat-x center/auto 100%;mix-blend-mode:screen;transform:translate3d(var(--arrival-mistband-x,0px),0,0);will-change:transform;opacity:.9}
+/* 抵达视差 · 江岸：PNG 横向平铺的堤岸剪影，横移量最大（--arrival-shore-x），承接山与水面；multiply 融入纸底 */
+.arrival-shore{position:absolute;left:-8%;right:-8%;bottom:-2%;height:24%;z-index:-1;background:url("parallax-shore.png") repeat-x bottom/auto 100%;mix-blend-mode:multiply;transform:translate3d(var(--arrival-shore-x,0px),0,0);will-change:transform}
 /* 抵达视差 · 孤舟：PNG 小舟，横移之外还随正弦上下漂浮（--arrival-boat-y）与轻微倾斜（--arrival-boat-tilt） */
 .arrival-boat{position:absolute;left:56%;bottom:12%;width:clamp(140px,15vw,220px);aspect-ratio:2064/921;z-index:0;background:url("parallax-boat.png") no-repeat center/contain;transform:translate3d(var(--arrival-boat-x,0px),var(--arrival-boat-y,0px),0) rotate(var(--arrival-boat-tilt,0deg));will-change:transform}
 /* 抵达视差 · 雁阵：SVG 飞雁，默认隐藏，随进度斜向掠过；第二幕渐显、第三幕淡化 */
@@ -1570,8 +1574,8 @@ body.arrival-lock{overflow:hidden}
 @media(prefers-reduced-motion:reduce){
   /* 抵达视差幕：随页面滚动推进的入场章节 */
 .arrival-interlude{transition:none}
-  /* 抵达舞台（含新增的山峦 / 江岸 / 孤舟 / 雁阵 / 芦苇 / 垂柳各视差层，一律停用位移） */
-.arrival-landscape,.arrival-world-change,.arrival-moon,.arrival-figure,.arrival-pine,.arrival-water,.arrival-copy,.arrival-copy.is-current,.arrival-mist,.arrival-stage,.arrival-hill-far,.arrival-hill-mid,.arrival-shore,.arrival-boat,.arrival-reed,.arrival-geese,.arrival-willow,.arrival-willow-2{transform:none;will-change:auto}
+  /* 抵达舞台（含纸底 / 山峦 / 雾带 / 江岸 / 孤舟 / 雁阵 / 芦苇 / 垂柳各层，一律停用位移） */
+.arrival-landscape,.arrival-world-change,.arrival-moon,.arrival-figure,.arrival-pine,.arrival-water,.arrival-copy,.arrival-copy.is-current,.arrival-mist,.arrival-stage,.arrival-paper,.arrival-hill-far,.arrival-hill-mid,.arrival-mistband,.arrival-shore,.arrival-boat,.arrival-reed,.arrival-geese,.arrival-willow,.arrival-willow-2{transform:none;will-change:auto}
   /* 抵达落花：停用飘落动画，改以静态半透明呈现 */
 .arrival-petals i{animation:none;opacity:.32;transform:none}
   /* 抵达滚动提示 */
