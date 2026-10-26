@@ -44,6 +44,10 @@
     <video class="calligraphy-background" src="calligraphy-background.mp4" muted playsinline preload="none" tabindex="-1"></video>
     <!-- 雾霭层：书法飞落期间缓缓漂移的柔雾，柔化视频边缘并烘托纸墨氛围（纯装饰） -->
     <div class="calligraphy-mist" aria-hidden="true"></div>
+    <!-- 雨丝层（近）：CSS 渐变排出的细密斜雨，匀速下落，压在雾霭之上 -->
+    <div class="calligraphy-rain" aria-hidden="true"></div>
+    <!-- 雨丝层（远）：同一套雨丝加 rain-far，间距更疏、更淡、落得更慢，叠出远近两重雨幕 -->
+    <div class="calligraphy-rain rain-far" aria-hidden="true"></div>
     <!-- 粒子画布：飞落收尾阶段的粒子动画（字化飞墨），由 script.js 绘制，进入粒子阶段后渐显 -->
     <canvas class="calligraphy-particle-canvas"></canvas>
     <!-- 粒子阶段文案：视频淡出后延迟渐显的「由词入画」题注 -->
