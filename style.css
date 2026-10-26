@@ -1237,8 +1237,6 @@ body.arrival-lock{overflow:hidden}
 .arrival-scroller{position:absolute;inset:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}
 /* 内层滚动容器 · WebKit 下同样隐藏滚动条 */
 .arrival-scroller::-webkit-scrollbar{display:none}
-/* 抵达视差幕 · 显示态（旧规则保留，与上一条叠加生效） */
-.arrival-interlude.is-visible{opacity:1;visibility:visible}
 /* 抵达滚动轨道 */
 .arrival-track{height:390svh;min-height:2340px}
 /* 抵达舞台 */
