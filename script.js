@@ -163,6 +163,32 @@
         element.dataset.glyphsPrepared = "true";
       });
     };
+    // 浮尘：向 .arrival-motes 注入若干光点，位置/大小/时长/延迟/横向漂移/透明度全部随机
+    // 具体运动交给 CSS 的 arrival-mote-rise 动画，脚本只负责「撒点」
+    const spawnArrivalMotes = () => {
+      const motesLayer = arrivalInterlude?.querySelector(".arrival-motes");
+      // 没有容器或用户要求减弱动效时直接不撒
+      if (!motesLayer || reducedMotion) return;
+      // 移动端减半，避免小屏上光点过密
+      const count = window.matchMedia("(max-width:700px)").matches ? 26 : 52;
+      // 用片段批量插入，只触发一次重排
+      const frag = document.createDocumentFragment();
+      for (let i = 0; i < count; i += 1) {
+        const mote = document.createElement("i");
+        const size = 2 + Math.random() * 5;
+        // --mote-x：横向落点（百分比）；--mote-size：光点直径
+        mote.style.setProperty("--mote-x", `${Math.random() * 100}%`);
+        mote.style.setProperty("--mote-size", `${size}px`);
+        // --mote-duration：上升一轮耗时；--mote-delay 取负值，让首帧就已错落分布
+        mote.style.setProperty("--mote-duration", `${9 + Math.random() * 14}s`);
+        mote.style.setProperty("--mote-delay", `${-Math.random() * 20}s`);
+        // --mote-drift：横向漂移量；--mote-opacity：该粒的峰值透明度
+        mote.style.setProperty("--mote-drift", `${(Math.random() - 0.5) * 120}`);
+        mote.style.setProperty("--mote-opacity", `${(0.35 + Math.random() * 0.5).toFixed(2)}`);
+        frag.append(mote);
+      }
+      motesLayer.append(frag);
+    };
     // 依据滚动进度计算每幕文案的逐字显现比例
     const updateArrivalGlyphs = (progress) => {
       arrivalInterlude?.querySelectorAll(".arrival-copy").forEach((copy, index) => {
@@ -673,6 +699,11 @@
       arrivalInterlude.style.setProperty("--arrival-world-x", `${-progress * 48}px`);
       arrivalInterlude.style.setProperty("--arrival-bloom", String(Math.sin(progress * Math.PI)));
       arrivalInterlude.style.setProperty("--arrival-river-y", `${progress * 110}px`);
+      // 雾气横移取正弦（1.4 个周期，来回起伏而非单向直线），纵向下压；两者共同撑开纵深
+      arrivalInterlude.style.setProperty("--arrival-mist-x", `${Math.sin(progress * Math.PI * 1.4) * 38}px`);
+      arrivalInterlude.style.setProperty("--arrival-mist-y", `${progress * 56}px`);
+      // 推镜：舞台整体由 1 缓慢放大到 1.07，模拟镜头向前
+      arrivalInterlude.style.setProperty("--arrival-dolly", String(1 + progress * 0.07));
       arrivalChapterButtons?.forEach((button, index) => {
         button.setAttribute("aria-pressed", String(index === sceneIndex));
       });
@@ -728,6 +759,8 @@
       const onEnter = () => scrollToHero();
       const onSkip = () => scrollToHero();
       prepareArrivalCopy();
+      // 撒一层浮尘光点（只做一次，后续靠 CSS 动画循环）
+      spawnArrivalMotes();
       arrivalInterlude.removeAttribute("aria-hidden");
       arrivalInterlude.removeAttribute("inert");
       arrivalInterlude.classList.add("is-visible");
