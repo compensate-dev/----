@@ -42,6 +42,8 @@
   <!-- 书法飞落层：序列期间承载随机飞落的书法字与「字化飞墨」粒子画布；背景视频不作 loop，播完即进入墨迹插页 -->
   <div class="calligraphy-sequence" aria-hidden="true">
     <video class="calligraphy-background" src="calligraphy-background.mp4" muted playsinline preload="none" tabindex="-1"></video>
+    <!-- 雾霭层：书法飞落期间缓缓漂移的柔雾，柔化视频边缘并烘托纸墨氛围（纯装饰） -->
+    <div class="calligraphy-mist" aria-hidden="true"></div>
     <!-- 粒子画布：飞落收尾阶段的粒子动画（字化飞墨），由 script.js 绘制，进入粒子阶段后渐显 -->
     <canvas class="calligraphy-particle-canvas"></canvas>
     <!-- 粒子阶段文案：视频淡出后延迟渐显的「由词入画」题注 -->
@@ -55,10 +57,12 @@
       <p>这里记录李煜的一生、他的词，以及那些穿越千年仍动人的悲欢。</p>
     </div>
   </section>
-  <!-- 抵达幕：三幕叙事 + 视差山水。整段按页面高度撑开行程，进度由「页面滚动」推进（不再有内层节流容器），
-       配套 style.css 的 .arrival-interlude(position:relative) + .arrival-stage(sticky) + 390svh 轨道 -->
+  <!-- 抵达幕：三幕叙事 + 视差山水。整段为全屏固定层（position:fixed），内部自带滚动容器负责行程进度；
+       滚到底后继续下滚即触发水墨收场并进入首页，配套 style.css 的 .arrival-interlude(fixed) + .arrival-scroller + 390svh 轨道 -->
   <section class="arrival-interlude" aria-hidden="true" inert aria-labelledby="arrival-title">
-    <!-- 行程轨道：高度即可滚动行程，脚本用 offsetHeight - innerHeight 与 track 顶边位置换算进度 -->
+    <!-- 内层滚动容器：真正承接滚动的层（隐藏滚动条），脚本监听其 scroll 事件推进进度 -->
+    <div class="arrival-scroller">
+    <!-- 行程轨道：高度即可滚动行程，脚本用 offsetHeight - scroller.clientHeight 换算进度 -->
     <div class="arrival-track">
       <!-- 舞台：sticky 固定在视口内承托所有视差图层，各层随 --arrival-* 变量位移 -->
       <div class="arrival-stage">
@@ -133,6 +137,7 @@
           <span class="arrival-side-note" aria-hidden="true">SPRING RIVER · ENDLESS SORROW</span>
         </div>
       </div>
+    </div>
   </section>
   <!-- 页头：品牌 + 主导航(当前页高亮「首页」) + 背景音乐开关/音量；开场未揭开时 inert 禁用交互 -->
   <header class="site-header" inert>

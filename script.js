@@ -126,8 +126,10 @@
     const calligraphyBackground = calligraphySequence.querySelector(".calligraphy-background");
     const inkInterlude = document.querySelector(".ink-interlude");
     const arrivalInterlude = document.querySelector(".arrival-interlude");
-    // 行程轨道：抵达幕改由「页面滚动」驱动后，以 .arrival-track 的高度与顶边位置换算进度（不再有内层滚动容器）
+    // 行程轨道：滚动内容总高约 390svh，用其高度与容器可视高度换算进度
     const arrivalTrack = arrivalInterlude?.querySelector(".arrival-track");
+    // 内层滚动容器：抵达幕回到「固定层 + 内部滚动」模型，行程在 .arrival-scroller 内推进
+    const arrivalScroller = arrivalInterlude?.querySelector(".arrival-scroller");
     const arrivalEnterButton = arrivalInterlude?.querySelector(".arrival-enter-button");
     const arrivalSkipButton = arrivalInterlude?.querySelector(".arrival-skip-button");
     const arrivalChapterButtons = arrivalInterlude?.querySelectorAll("[data-arrival-scene]");
@@ -675,16 +677,17 @@
         window.setTimeout(settle, 1900);
       });
     };
-    // 根据页面滚动位置计算抵达幕整体进度与各图层位移
+    // 根据抵达幕内层滚动容器的滚动位置计算整体进度与各图层位移
     const updateArrivalProgress = () => {
       if (!arrivalInterlude || !arrivalTrack) return;
       // 可视高度：轨道被撑到约 390svh，多出来的部分才是真正的行程
       const viewportH = window.innerHeight;
-      // 行程总长 = 轨道高度 - 一屏高度
-      const scrollRange = arrivalTrack.offsetHeight - viewportH;
-      // 轨道顶边相对视口的位移取反，即「已经滚过的行程」
-      const trackTop = arrivalTrack.getBoundingClientRect().top;
-      const scrolled = -trackTop;
+      // 兼容取内层滚动容器；缺失时回退为页面滚动模型
+      const scroller = arrivalScroller || null;
+      // 行程总长 = 轨道高度 - 可视高度（有内层容器用容器高，否则用一屏高）
+      const scrollRange = arrivalTrack.offsetHeight - (scroller ? scroller.clientHeight : viewportH);
+      // 已滚过的行程：内层容器直接读 scrollTop，页面滚动则用轨道顶边位移
+      const scrolled = scroller ? scroller.scrollTop : 0;
       const progress = scrollRange > 0 ? Math.min(1, Math.max(0, scrolled / scrollRange)) : 1;
       const sceneIndex = Math.min(2, Math.floor(progress * 3));
       arrivalInterlude.style.setProperty("--arrival-progress", String(progress));
@@ -716,7 +719,7 @@
       });
       const progressCount = arrivalInterlude.querySelector(".arrival-progress-label b");
       if (progressCount) progressCount.textContent = `${String(sceneIndex + 1).padStart(2, "0")} / 03`;
-      // 页面滚动模型下不再用「进度到 90% 才解禁」设卡：进入按钮始终可点，进度不足时点它也会直接滚到首屏
+      // 进入按钮不做「进度到 90% 才解禁」的设卡：始终可点，点击即走收场流程进入首页
       if (arrivalEnterButton) arrivalEnterButton.disabled = false;
       if (arrivalSceneIndex !== -1 && sceneIndex !== arrivalSceneIndex && !reducedMotion && !inkWashRunning) playArrivalInkWash();
       arrivalSceneIndex = sceneIndex;
@@ -733,12 +736,16 @@
       arrivalInterlude.style.setProperty("--arrival-pointer-soft-x", `${(x * 12).toFixed(1)}px`);
       arrivalInterlude.style.setProperty("--arrival-pointer-soft-y", `${(y * 9).toFixed(1)}px`);
     };
-    /* 展示抵达幕：解除 inert 后接管「页面滚动」推进进度，并绑定指针视差 / 章节跳幕 / 进入 / 跳过 */
+    /* 展示抵达幕：全屏固定层 + 内层滚动容器模型。滚动在容器内推进进度，
+       滚到底后继续下滚（wheel 判底）即触发水墨收场并进入首页 */
     const showArrivalInterlude = () => new Promise((resolve, reject) => {
-      if (!arrivalInterlude || !arrivalTrack || !arrivalEnterButton || !arrivalSkipButton) {
+      // 固定层模型下内层容器是必需的，缺失即视为结构不完整
+      if (!arrivalInterlude || !arrivalTrack || !arrivalScroller || !arrivalEnterButton || !arrivalSkipButton) {
         reject(new Error("The parallax arrival interlude is incomplete."));
         return;
       }
+      // 收场标记：保证 finish 只执行一次（滚到底 / 点按钮都可能触发）
+      let finished = false;
       // 滚动合并到一帧处理（rAF 节流）：滚动事件很密，避免每个像素都重算图层与逐字显现
       let rafPending = false;
       const onScroll = () => {
@@ -749,39 +756,55 @@
           updateArrivalProgress();
         });
       };
-      // 「继续 / 跳过」共用出口：平滑滚到首页首屏，抵达幕随之自然退场（不再删除节点）
-      const scrollToHero = () => {
-        const hero = document.querySelector(".hero") || document.querySelector("main > section");
-        if (hero) hero.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
-        // 兜底：找不到首屏时，滚过一整个轨道高度即可越过抵达幕
-        else window.scrollTo({ top: arrivalTrack.offsetHeight, behavior: reducedMotion ? "auto" : "smooth" });
+      // 统一出口：先播水墨收场，再淡出抵达幕、揭开首页并回到顶端
+      const finish = () => {
+        if (finished) return;
+        finished = true;
+        removeListeners();
+        exitArrivalScene(() => {
+          arrivalInterlude.classList.add("is-leaving");
+          revealHome();
+          window.scrollTo({ top: 0, behavior: "auto" });
+          document.querySelector(".hero-actions a")?.focus({ preventScroll: true });
+          resolve();
+        });
       };
-      const onEnter = () => scrollToHero();
-      const onSkip = () => scrollToHero();
+      // 滚轮判底：行程已滚满还继续下滚时，拦截本次滚动并直接收场
+      const onWheel = (event) => {
+        if (finished || event.deltaY <= 0) return;
+        const scrollRange = arrivalTrack.offsetHeight - arrivalScroller.clientHeight;
+        if (arrivalScroller.scrollTop >= scrollRange - 2) {
+          event.preventDefault();
+          finish();
+        }
+      };
+      // 解绑全部监听并解除页面滚动锁
+      const removeListeners = () => {
+        arrivalScroller.removeEventListener("scroll", onScroll);
+        window.removeEventListener("wheel", onWheel);
+        document.body.classList.remove("arrival-lock");
+      };
       prepareArrivalCopy();
       // 撒一层浮尘光点（只做一次，后续靠 CSS 动画循环）
       spawnArrivalMotes();
       arrivalInterlude.removeAttribute("aria-hidden");
       arrivalInterlude.removeAttribute("inert");
       arrivalInterlude.classList.add("is-visible");
-      // 抵达幕一出现就揭开被 inert 冻住的页头与正文：只有页面能滚动，进度才会推进
-      revealHome();
-      // 回到文档顶端，保证从第一幕、进度 0 开始读
-      window.scrollTo({ top: 0, behavior: "auto" });
-      window.addEventListener("scroll", onScroll, { passive: true });
+      // 锁住页面本身滚动：行程只在内层容器里推进
+      document.body.classList.add("arrival-lock");
+      arrivalScroller.addEventListener("scroll", onScroll, { passive: true });
+      // wheel 用非 passive，才能在判底时 preventDefault 拦下这次滚动
+      window.addEventListener("wheel", onWheel, { passive: false });
       window.addEventListener("pointermove", updateArrivalPointer, { passive: true });
-      arrivalEnterButton.addEventListener("click", onEnter);
-      arrivalSkipButton.addEventListener("click", onSkip);
+      arrivalEnterButton.addEventListener("click", finish);
+      arrivalSkipButton.addEventListener("click", finish);
       arrivalChapterButtons?.forEach((button) => {
         button.addEventListener("click", () => {
           const chapter = Number(button.dataset.arrivalScene);
-          const viewportH = window.innerHeight;
-          const scrollRange = arrivalTrack.offsetHeight - viewportH;
-          // 末幕取 0.95 而非 1：贴到边界时进度可能差一点点，避免反而停在第二幕
-          const chapterProgress = chapter === 2 ? 0.95 : (chapter + 0.5) / 3;
-          // 目标位置 = 轨道在文档中的顶边 + 该幕对应的行程比例（改为整页滚动，不再是内层 scrollTo）
-          const targetTop = arrivalTrack.offsetTop + scrollRange * chapterProgress;
-          window.scrollTo({ top: targetTop, behavior: reducedMotion ? "auto" : "smooth" });
+          const scrollRange = arrivalTrack.offsetHeight - arrivalScroller.clientHeight;
+          // 末幕直接取 1：内层容器 scrollTo 贴边不会再差半格
+          const chapterProgress = chapter === 2 ? 1 : (chapter + 0.5) / 3;
+          arrivalScroller.scrollTo({ top: scrollRange * chapterProgress, behavior: reducedMotion ? "auto" : "smooth" });
         });
       });
       // 先按当前滚动位置算一次，避免首帧无进度导致文案不亮
@@ -869,9 +892,8 @@
         if (untilTransition > 0) await new Promise((resolve) => window.setTimeout(resolve, untilTransition));
         stopInkAnimation();
         inkInterlude.remove();
+        // 进入首页的动作（revealHome / 聚焦）已移入抵达幕的 finish() 收场回调
         await showArrivalInterlude();
-        await revealHome();
-        document.querySelector(".hero-actions a")?.focus({ preventScroll: true });
       };
       const displayCalligraphyPromise = displayCalligraphy();
       await showInterludeAfterCalligraphy();
