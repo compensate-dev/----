@@ -705,6 +705,20 @@
       // 雾气横移取正弦（1.4 个周期，来回起伏而非单向直线），纵向下压；两者共同撑开纵深
       arrivalInterlude.style.setProperty("--arrival-mist-x", `${Math.sin(progress * Math.PI * 1.4) * 38}px`);
       arrivalInterlude.style.setProperty("--arrival-mist-y", `${progress * 56}px`);
+      // 远景山峦：横向慢移（90px）+ 纵向缓升（34px），最远层视差
+      arrivalInterlude.style.setProperty("--arrival-hill-far-x", `${(-progress * 90).toFixed(1)}px`);
+      arrivalInterlude.style.setProperty("--arrival-hill-far-y", `${(-progress * 34).toFixed(1)}px`);
+      // 中景山峦：横移更快（190px），与远山拉开层次
+      arrivalInterlude.style.setProperty("--arrival-hill-mid-x", `${(-progress * 190).toFixed(1)}px`);
+      // 孤舟：横移（150px）叠加正弦漂浮（±10px 横向、±7px 纵向），并按余弦轻微倾斜（±2.4°）
+      arrivalInterlude.style.setProperty("--arrival-boat-x", `${(-progress * 150 + Math.sin(progress * Math.PI * 2) * 10).toFixed(1)}px`);
+      arrivalInterlude.style.setProperty("--arrival-boat-y", `${(Math.sin(progress * Math.PI * 3) * 7).toFixed(1)}px`);
+      arrivalInterlude.style.setProperty("--arrival-boat-tilt", `${(Math.cos(progress * Math.PI * 2.4) * 2.4).toFixed(2)}deg`);
+      // 芦苇：向右横移（230px），与向左的山峦形成反向视差
+      arrivalInterlude.style.setProperty("--arrival-reed-x", `${(progress * 230).toFixed(1)}px`);
+      // 雁阵：随进度斜向掠过（横 420px、纵 120px）
+      arrivalInterlude.style.setProperty("--arrival-geese-x", `${(-progress * 420).toFixed(1)}px`);
+      arrivalInterlude.style.setProperty("--arrival-geese-y", `${(-progress * 120).toFixed(1)}px`);
       // 推镜：舞台整体由 1 缓慢放大到 1.07，模拟镜头向前
       arrivalInterlude.style.setProperty("--arrival-dolly", String(1 + progress * 0.07));
       arrivalChapterButtons?.forEach((button, index) => {
@@ -723,6 +737,23 @@
       if (arrivalEnterButton) arrivalEnterButton.disabled = false;
       if (arrivalSceneIndex !== -1 && sceneIndex !== arrivalSceneIndex && !reducedMotion && !inkWashRunning) playArrivalInkWash();
       arrivalSceneIndex = sceneIndex;
+    };
+    // 撒一层落花：向 .arrival-petals 注入若干花瓣 <i>（窄屏 10 粒 / 桌面 18 粒），
+    // 已有花瓣则跳过；各粒随机写 --petal-x/size/duration/delay/drift/opacity，飘落节奏全由 CSS 动画驱动
+    const spawnArrivalPetals = () => {
+      const holder = arrivalInterlude?.querySelector(".arrival-petals");
+      if (!holder || holder.childElementCount) return;
+      const count = window.innerWidth < 700 ? 10 : 18;
+      for (let index = 0; index < count; index += 1) {
+        const petal = document.createElement("i");
+        petal.style.setProperty("--petal-x", `${(Math.random() * 100).toFixed(1)}%`);
+        petal.style.setProperty("--petal-size", `${(7 + Math.random() * 9).toFixed(1)}px`);
+        petal.style.setProperty("--petal-duration", `${(9 + Math.random() * 8).toFixed(1)}s`);
+        petal.style.setProperty("--petal-delay", `${(-Math.random() * 14).toFixed(1)}s`);
+        petal.style.setProperty("--petal-drift", `${(-140 + Math.random() * 280).toFixed(0)}`);
+        petal.style.setProperty("--petal-opacity", (0.4 + Math.random() * 0.4).toFixed(2));
+        holder.appendChild(petal);
+      }
     };
     // 指针视差：把鼠标位置映射为 soft / deep / 基础 三档位移变量
     const updateArrivalPointer = (event) => {
@@ -787,6 +818,8 @@
       prepareArrivalCopy();
       // 撒一层浮尘光点（只做一次，后续靠 CSS 动画循环）
       spawnArrivalMotes();
+      // 再撒一层落花花瓣（同样只做一次）
+      spawnArrivalPetals();
       arrivalInterlude.removeAttribute("aria-hidden");
       arrivalInterlude.removeAttribute("inert");
       arrivalInterlude.classList.add("is-visible");
