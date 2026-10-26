@@ -120,6 +120,103 @@
   const bookOpening = document.querySelector(".book-opening");
   const bookOpenButton = document.querySelector(".book-open-button");
   const calligraphySequence = document.querySelector(".calligraphy-sequence");
+  // 书法幕墨点：用 canvas 逐帧绘制上浮的墨珠（带拖尾与左右旋绕），替代原先由 CSS 变量驱动的 <i> 列表
+  (() => {
+    // 墨点容器：HTML 里只留一个空壳 div，画布在运行时插入，避免手写 30 个节点
+    const host = document.querySelector(".calligraphy-inkmotes");
+    // 容器不存在或已绑定过（防重复初始化）就直接退出
+    if (!host || host.dataset.motesBound) return;
+    host.dataset.motesBound = "1";
+    const canvas = document.createElement("canvas");
+    host.appendChild(canvas);
+    const context = canvas.getContext("2d");
+    // 拿不到 2D 上下文（极旧浏览器）则放弃绘制
+    if (!context) return;
+    // 设备像素比上限压到 2，兼顾高分屏清晰度与绘制开销
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    let width = 0;
+    let height = 0;
+    // 尺寸同步：CSS 尺寸决定逻辑坐标，画布像素按 dpr 放大后再整体缩放坐标系
+    const resize = () => {
+      width = host.clientWidth;
+      height = host.clientHeight;
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
+      context.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    resize();
+    window.addEventListener("resize", resize);
+    const motes = [];
+    // 移动端减少数量：窄屏 16 粒，桌面 30 粒
+    const moteCount = window.innerWidth < 700 ? 16 : 30;
+    for (let i = 0; i < moteCount; i++) {
+      // 每粒墨点：x / y 用 0-1 归一化坐标，便于随画布尺寸缩放
+      motes.push({
+        x: Math.random(),
+        y: Math.random(),
+        speed: 0.07 + Math.random() * 0.08,
+        drift: (Math.random() < 0.5 ? -1 : 1) * (0.035 + Math.random() * 0.075),
+        swirl: 0.35 + Math.random() * 0.85,
+        phase: Math.random() * Math.PI * 2,
+        // size 为墨珠半径，约 12% 概率放大到 2.4 倍，做出大小错落
+        size: (2 + Math.random() * 3.2) * (Math.random() < 0.12 ? 2.4 : 1),
+        // trail 存最近若干帧的坐标，用来画拖尾
+        trail: []
+      });
+    }
+    let last = performance.now();
+    let frameIndex = 0;
+    // 逐帧循环：先排下一帧，再推进当前帧，保证长时间运行不中断
+    const stepInkMotes = (now) => {
+      requestAnimationFrame(stepInkMotes);
+      // dt 截断到 0.05s，避免切回标签页时因超大时间差导致墨点瞬移
+      const dt = Math.min((now - last) / 1000, 0.05);
+      last = now;
+      frameIndex += 1;
+      // 只有书法幕处于激活态才绘制，其余时间空转省性能
+      if (!calligraphySequence.classList.contains("is-active")) return;
+      context.clearRect(0, 0, width, height);
+      motes.forEach((mote) => {
+        // 上浮：y 递减；越过顶部后回到画面底部并重新随机横向位置
+        mote.y -= mote.speed * dt;
+        mote.phase += mote.swirl * dt;
+        if (mote.y < -0.06) {
+          mote.y = 1.06;
+          mote.x = Math.random();
+          mote.trail.length = 0;
+        }
+        // 横向位置 = 基准 x + 正弦摆动，形成左右旋绕的飘移感
+        const px = (mote.x + Math.sin(mote.phase) * mote.drift) * width;
+        const py = mote.y * height;
+        // 隔帧采样一次轨迹，最多保留 44 个点
+        if (frameIndex % 2 === 0) {
+          mote.trail.push([px, py]);
+          if (mote.trail.length > 44) mote.trail.shift();
+        }
+        context.lineCap = "round";
+        // 拖尾：从旧到新逐段连线，越靠近墨珠越粗越浓（k 的平方衰减）
+        for (let t = 1; t < mote.trail.length; t++) {
+          const k = t / mote.trail.length;
+          context.beginPath();
+          context.moveTo(mote.trail[t - 1][0], mote.trail[t - 1][1]);
+          context.lineTo(mote.trail[t][0], mote.trail[t][1]);
+          context.strokeStyle = `rgba(16,28,22,${(0.5 * k * k).toFixed(3)})`;
+          context.lineWidth = Math.max(mote.size * 0.9 * k, 0.4);
+          context.stroke();
+        }
+        // 墨珠本体：径向渐变（左上高光 → 中心浓墨 → 边缘渐透），模拟纸上的墨点
+        const gradient = context.createRadialGradient(px - mote.size * 0.2, py - mote.size * 0.25, mote.size * 0.15, px, py, mote.size);
+        gradient.addColorStop(0, "rgba(50,66,56,.95)");
+        gradient.addColorStop(0.62, "rgba(12,20,16,.94)");
+        gradient.addColorStop(1, "rgba(12,20,16,.3)");
+        context.beginPath();
+        context.fillStyle = gradient;
+        context.arc(px, py, mote.size, 0, Math.PI * 2);
+        context.fill();
+      });
+    };
+    requestAnimationFrame(stepInkMotes);
+  })();
   if (bookOpening && bookOpenButton && calligraphySequence) {
     const introStorageKey = "liyu-home-intro-completed-v2";
     // 是否已看过开场动画的本地标记，避免每次刷新重播
