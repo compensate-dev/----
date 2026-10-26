@@ -707,6 +707,8 @@
         finished = true;
         arrivalScroller.removeEventListener("scroll", updateArrivalProgress);
         arrivalScroller.removeEventListener("pointermove", updateArrivalPointer);
+        // 解绑滚轮监听，避免结束后仍触发“滚到底即离场”的判定
+        arrivalScroller.removeEventListener("wheel", onArrivalWheel, { passive: false });
         arrivalEnterButton.removeEventListener("click", onEnter);
         arrivalSkipButton.removeEventListener("click", onSkip);
         if (skipped || reducedMotion) {
@@ -728,6 +730,22 @@
       };
       const onEnter = (event) => finish(false, event.clientX, event.clientY);
       const onSkip = () => finish(true);
+      /* —— 滚轮到访：文案滚到最末一屏后继续下滚，即视为读完，直接结束入场 —— */
+      const onArrivalWheel = (event) => {
+        // 已结束就直接返回，防止重复触发离场动画
+        if (finished) return;
+        // 剩余可滚动距离 = 内容总高 - 可视高度
+        const scrollRange = arrivalScroller.scrollHeight - arrivalScroller.clientHeight;
+        // 判底：内容不足一屏（scrollRange<=0）也算到底；留 2px 容差，避免小数误差卡在临界点
+        // 让“滚到底后继续下滚”与点击按钮等效，契合用户继续下滑的直觉
+        const atBottom = scrollRange <= 0 || arrivalScroller.scrollTop >= scrollRange - 2;
+        // 到底后仍向下滚（deltaY>0）→ 先阻止页面连带滚动，再结束入场
+        if (atBottom && event.deltaY > 0) {
+          // 必须 preventDefault，否则滚轮会继续带动主页跳动
+          event.preventDefault();
+          finish(false);
+        }
+      };
       arrivalScroller.scrollTop = 0;
       prepareArrivalCopy();
       arrivalInterlude.removeAttribute("aria-hidden");
@@ -735,6 +753,8 @@
       arrivalInterlude.classList.add("is-visible");
       arrivalScroller.addEventListener("scroll", updateArrivalProgress, { passive: true });
       arrivalScroller.addEventListener("pointermove", updateArrivalPointer, { passive: true });
+      // 绑定滚轮判底（passive:false 才能调用 preventDefault）；在第 3 幕读完后继续下滚即进入主页
+      arrivalScroller.addEventListener("wheel", onArrivalWheel, { passive: false });
       arrivalEnterButton.addEventListener("click", onEnter);
       arrivalSkipButton.addEventListener("click", onSkip);
       arrivalChapterButtons?.forEach((button) => {
@@ -1139,7 +1159,32 @@
           const rect = entry.getBoundingClientRect();
           const entryProgress = Math.min(1, Math.max(0, (viewportCenter - rect.top) / rect.height));
           entry.style.setProperty("--entry-progress", entryProgress.toFixed(3));
+          // 词句逐行浮现：把每首词的正文各句按阅读进度依次点亮（--line-reveal 0→1）
+          const lines = entry.querySelectorAll(".poem-line");
+          // 句数即分母，决定每句分到的进度区间长度
+          const total = lines.length;
+          // 若无分行（纯文本结构）则跳过，保持原样
+          if (total > 0) {
+            lines.forEach((line, i) => {
+              // 当前句的显现比例：进度越靠后，越靠后的句子依次浮现；
+              // 1.6 为相邻句之间的错开量，使整首词呈波浪式浮现而非同时亮起
+              const reveal = Math.min(1, Math.max(0, (entryProgress * (total + 1.6) - i) / 1.6));
+              // 写入 CSS 变量，交由 style.css 的 .poem-line 消费（透明度 / 位移）
+              line.style.setProperty("--line-reveal", reveal.toFixed(3));
+            });
+          }
         });
+        // 词作长廊整体视差：随长廊相对视口的位置做低速位移（--gallery-parallax）
+        const gallery = document.querySelector(".poem-gallery");
+        if (gallery) {
+          // 长廊外框：用于计算它相对视口中心的推进比例
+          const gRect = gallery.getBoundingClientRect();
+          // 推进比例可小于 0 或大于 1（尚未进入 / 已越过），越界部分交由 CSS 自行吸收
+          // 该值只在 updateScrollUi 内使用，不写回全局状态
+          const gProgress = (viewportCenter - gRect.top) / gRect.height;
+          // 最多 60px 的缓慢位移，让长廊与逐行显现形成轻微纵深差
+          gallery.style.setProperty("--gallery-parallax", `${(gProgress * 60).toFixed(1)}px`);
+        }
         scrollTicking = false;
       };
       window.addEventListener("scroll", () => {
@@ -1199,6 +1244,42 @@
     if (!gallery) { ciEntries = []; ciTabs = []; ciObserver?.disconnect(); return; }
     ciEntries = Array.from(gallery.querySelectorAll(".work-entry"));
     ciTabs = Array.from(gallery.querySelectorAll(".poem-tabs a"));
+    // 标记词作叙事已就绪，CSS 可据此启用分层、水印等增强样式
+    gallery.dataset.ciReady = "true";
+    // 给条目编号水印，并把词作正文按句拆成独立行，便于逐行浮现；注入词牌大水印
+    ciEntries.forEach((entry, idx) => {
+      // 01 / 02 / 03… 序号，供 CSS 的装饰性编号使用
+      entry.dataset.index = String(idx + 1).padStart(2, "0");
+      // 词作正文容器；页面结构不同则跳过拆句
+      const poemText = entry.querySelector(".poem-text");
+      // 已拆过就不再处理，避免翻页回访时二次包裹
+      if (poemText && !poemText.dataset.linesReady) {
+        // 取原 innerHTML，以 <br> 为界切分到“句”级
+        const raw = poemText.innerHTML;
+        // trim + 过滤空片段（连续 <br> 或首尾换行会产生空串）
+        const segments = raw.split(/<br\s*\/?>/i).map((s) => s.trim()).filter((s) => s.length > 0);
+        // 每句包一层 .poem-line 并按序编号，供逐行显现使用
+        poemText.innerHTML = segments.map((seg, i) => {
+          if (seg === "") return `<span class="poem-line-gap"></span>`;
+          return `<span class="poem-line" data-line="${i}">${seg}</span>`;
+        }).join("");
+        // 记录已拆句，防止重复进入时再次包裹
+        poemText.dataset.linesReady = "true";
+      }
+      // 首次进入时注入词牌大水印（.work-watermark），作背景大字装饰
+      if (!entry.querySelector(".work-watermark")) {
+        // 取标题节点，作为水印文案来源
+        const h3 = entry.querySelector(".work-main h3");
+        // 优先取 <h3> 首个文本节点（即词牌名），否则退回元素 id
+        const title = (h3 ? h3.childNodes[0]?.textContent?.trim() : entry.id) || entry.id;
+        // 用 span 而非伪元素，便于复用同一份词牌文本
+        const wm = document.createElement("span");
+        wm.className = "work-watermark";
+        wm.textContent = title;
+        // 追加到词卡末尾，由 CSS 绝对定位到背景层
+        entry.appendChild(wm);
+      }
+    });
     const setActive = (activeEntry) => {
       if (!activeEntry) return;
       ciEntries.forEach((entry) => entry.classList.toggle("is-active", entry === activeEntry));
@@ -1209,14 +1290,14 @@
       });
     };
     ciObserver?.disconnect();
+    // 当前词判定：词卡有 30% / 50% / 70% 进入“视口中段”即视为正在阅读；rootMargin 上下各收缩，避免边缘词抢占
     ciObserver = new IntersectionObserver((entries) => {
       const visible = entries
         .filter((e) => e.isIntersecting)
         .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
       if (visible[0]) setActive(visible[0].target);
-    }, { threshold: [0.35, 0.55, 0.75], rootMargin: "-18% 0px -30% 0px" });
+    }, { threshold: [0.3, 0.5, 0.7], rootMargin: "-16% 0px -32% 0px" });
     ciEntries.forEach((entry) => ciObserver.observe(entry));
-    // tabs 点击平滑滚动
     ciTabs.forEach((tab) => {
       tab.addEventListener("click", (event) => {
         const id = tab.getAttribute("href")?.slice(1);
