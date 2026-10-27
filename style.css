@@ -215,6 +215,10 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}
 .feature-head h2{margin:15px 0 0}
 /* 词作卡片网格 */
 .poem-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}
+/* 词作卡片视差外层：由 script.js 运行时把每张卡包进 .poem-card-layer，滚动视差只作用于外层，避免与卡片自身 hover/入场的 transform 冲突 */
+.poem-card-layer{display:flex;min-width:0}
+/* 词作卡片视差外层 · 内部卡片撑满外层宽度 */
+.poem-card-layer>.poem-card{width:100%}
 /* 单张词作卡片 */
 .poem-card{position:relative;min-height:310px;padding:23px 20px;background:#536b59;color:#f5f2e9;overflow:hidden;transform-origin:center;transition:transform .42s cubic-bezier(.2,.75,.25,1),box-shadow .42s ease;will-change:transform}
 /* 单张词作卡片 */
@@ -827,6 +831,8 @@ textarea::placeholder{color:#9aa297}
 .scroll-parallax-slow{will-change:transform;transform:translate3d(0,calc(var(--scroll-y,0px) * .42),0)}
 /* 滚动视差（背景层，反向位移并放大） */
 .scroll-parallax-bg{will-change:transform;transform:translate3d(0,calc(var(--scroll-y,0px) * -.28),0) scale(1.06)}
+/* 滚动视差（life 页首屏视频：反向位移并放大底片，随滚动缓缓下沉） */
+.hero-video-parallax{will-change:transform;transform:translate3d(0,calc(var(--scroll-y,0px) * -.32),0) scale(1.12)}
 /* 金竹飘落画布 */
 .bamboo-leaves{position:fixed;inset:0;z-index:1010;pointer-events:none;width:100%;height:100%;opacity:.52;mix-blend-mode:normal}
 /* 响应式适配：(max-width:700px) */
@@ -1647,7 +1653,7 @@ button:not(.book-open-button):active,.button:active{translate:0 1px}
 /* 生平叙事·双栏布局（场景 + 时间线） */
 .timeline-narrative{display:grid;grid-template-columns:minmax(300px,.88fr) minmax(0,1.12fr);gap:clamp(36px,6vw,88px);align-items:start}
 /* 生平叙事·左侧场景（sticky 视差） */
-.timeline-scene{position:sticky;top:112px;isolation:isolate;min-height:min(690px,calc(100svh - 145px));overflow:hidden;display:flex;align-items:flex-end;color:#f5f1e6;background:#24362e;box-shadow:0 24px 65px rgba(36,54,46,.2);transform:translateZ(0)}
+.timeline-scene{position:sticky;top:112px;isolation:isolate;min-height:min(690px,calc(100svh - 145px));overflow:hidden;display:flex;align-items:flex-end;color:#f5f1e6;background:#24362e;box-shadow:0 24px 65px rgba(36,54,46,.2)}
 /* 场景背景图（按章节切换滤镜） */
 .timeline-scene:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(24,38,31,.08) 4%,rgba(24,38,31,.25) 38%,rgba(24,38,31,.94) 100%),url("timeline-bg.jpg") center/cover;filter:saturate(.74);transform:scale(1.02);transition:filter .7s ease,transform 1.2s cubic-bezier(.2,.7,.25,1)}
 /* 场景背景大字「煜」 */
@@ -1735,6 +1741,8 @@ button:not(.book-open-button):active,.button:active{translate:0 1px}
 @media(max-width:700px){
   /* 生平叙事·双栏布局（场景 + 时间线） */
 .timeline-narrative{display:block}
+  /* 窄屏取消场景框/时间线的滚动视差位移，避免与纵向堆叠布局相互干扰 */
+  .timeline-scene.scroll-parallax,.timeline-narrative .timeline.scroll-parallax{transform:none;will-change:auto}
   /* 生平叙事·左侧场景（sticky 视差） */
 .timeline-scene{top:77px;z-index:5;min-height:0;height:235px;margin:0 -3px 24px;align-items:flex-end;box-shadow:0 13px 32px rgba(36,54,46,.2)}
   /* 场景背景大字「煜」 */

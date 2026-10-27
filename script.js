@@ -145,6 +145,36 @@
     introAudio.addEventListener("ended", () => playBackgroundMusic());
   }
 
+  // 首页 hero 云雾滚动视差：左云奔左下、右云奔右下，滚入第二部分时消散
+  (() => {
+    // 只在首页存在 .hero 时生效，子页直接跳过
+    const hero = document.querySelector(".hero");
+    if (!hero) return;
+    // ticking 节流标记：滚动事件高频触发，合并到每帧只算一次
+    let ticking = false;
+    // 依据 hero 相对视口的位置计算云气消散进度，写入 --hero-cloud-p
+    const updateHeroClouds = () => {
+      ticking = false;
+      const rect = hero.getBoundingClientRect();
+      // hero 顶部贴住视口顶时 p=0，hero 完全滚出（底部到顶）时 p=1
+      const raw = rect.height > 0 ? -rect.top / rect.height : 0;
+      // 夹取到 0～1，防止弹性回滚时溢出
+      const p = Math.min(1, Math.max(0, raw));
+      const eased = p * p * (3 - 2 * p); // smoothstep，后段加速消散
+      hero.style.setProperty("--hero-cloud-p", eased.toFixed(4));
+    };
+    // 用 requestAnimationFrame 合并同帧内的多次滚动触发
+    const requestUpdate = () => {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(updateHeroClouds);
+    };
+    window.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("resize", requestUpdate);
+    // 初始化时先算一次，保证刷新后停在页面中部时云气状态正确
+    updateHeroClouds();
+  })();
+
   /* ============================================================
    * 开场链路：翻书封面 → 书法飞落序列 → 水墨间奏 → 抵达视差
    * ============================================================ */
@@ -1424,6 +1454,16 @@
     }
 
     revealObserver?.disconnect();
+    // 首页词卡：在 reveal 绑定前包裹独立视差层，避免与卡片入场/hover 的 transform 冲突
+    document.querySelectorAll(".poem-grid > .poem-card").forEach((card) => {
+      // 已包过层的（重复初始化）直接跳过
+      if (card.parentElement?.classList.contains("poem-card-layer")) return;
+      // 新建 .poem-card-layer 包住卡片，滚动视差只作用于外层
+      const layer = document.createElement("div");
+      layer.className = "poem-card-layer";
+      card.parentNode.insertBefore(layer, card);
+      layer.appendChild(card);
+    });
     const revealTargets = document.querySelectorAll(".timeline-item, .poem-card, .recite-card, .media-card, .memory-line article, .work-entry, .intro-card");
     // 减弱动效或不支持 IntersectionObserver 时直接全部显示
     if (reducedMotion || !("IntersectionObserver" in window)) {
@@ -1446,15 +1486,30 @@
 
     // 滚动视差：给标题与装饰层按视口位置施加 --scroll-y
     if (!reducedMotion) {
-      const parallaxSelector = ".hero h1, .hero .eyebrow, .section-wrap h2, .section-kicker, .closing h2, .floating-verse, .memory-lead h2, .work-number, .work-side, .work-main h3";
+      const parallaxSelector = ".hero h1, .hero .eyebrow, .section-wrap h2, .section-kicker, .closing h2, .floating-verse, .memory-lead h2, .work-number, .work-side, .work-main h3, .life-hero-video, .timeline-narrative .timeline, .timeline-scene";
       parallaxElements = Array.from(document.querySelectorAll(parallaxSelector)).map((el) => {
         let speed = "1";
-        if (el.classList.contains("work-side")) speed = "0.32";
-        else if (el.classList.contains("work-number")) speed = "0.55";
-        else if (el.matches(".work-main h3")) speed = "0.7";
-        el.classList.add(speed === "1" ? "scroll-parallax" : "scroll-parallax-slow");
+        // 默认归入标准视差档；各特殊元素按各自速度/类名分流
+        let cls = "scroll-parallax";
+        if (el.classList.contains("work-side")) { speed = "0.32"; cls = "scroll-parallax-slow"; }
+        else if (el.classList.contains("work-number")) { speed = "0.55"; cls = "scroll-parallax-slow"; }
+        else if (el.matches(".work-main h3")) { speed = "0.7"; cls = "scroll-parallax-slow"; }
+        // life 页首屏视频：走专属的 hero-video-parallax 档（含放大底片）
+        else if (el.classList.contains("life-hero-video")) { cls = "hero-video-parallax"; }
+        // life 页时间线场景框：反向视差（-0.5，比滚动慢半拍制造纵深）
+        else if (el.classList.contains("timeline-scene")) { speed = "-0.5"; }
+        // life 页时间线列表：轻速正向视差
+        else if (el.classList.contains("timeline")) { speed = "0.8"; }
+        el.classList.add(cls);
         el.dataset.parallaxSpeed = speed;
         return el;
+      });
+      // 首页四张词卡：各异系数，滚动时如词笺错落浮起
+      const cardSpeeds = ["0.35", "0.95", "0.15", "0.7"];
+      document.querySelectorAll(".poem-card-layer").forEach((layer, index) => {
+        layer.classList.add("scroll-parallax");
+        layer.dataset.parallaxSpeed = cardSpeeds[index % cardSpeeds.length];
+        parallaxElements.push(layer);
       });
     } else {
       parallaxElements = [];
