@@ -10,10 +10,12 @@
 
   <!-- 主体：四阕词 + 笺注；id="main-content" 供顶部「跳至主要内容」链接定位，tabindex="-1" 使其可被程序聚焦 -->
   <main id="main-content" tabindex="-1">
-    <!-- 首屏：标题 + 圆形「愁」字浮词圈 -->
+    <!-- 钉合舞台：包住首屏与其后的词作区块——首屏 sticky 吸顶，词作区块上浮覆盖（见 style.css .subhero-stage） -->
+    <div class="subhero-stage">
+    <!-- 首屏：标题 + 圆形「愁」字浮词圈；吸顶期间 --hero-p 由脚本写入，驱动底纹慢推与标题褪色 -->
     <section class="subhero ci-hero"><div class="subhero-copy"><p class="eyebrow">SELECTED CI · 03</p><h1>词短情长，<br><em>余味</em>悠远。</h1><p>四阕词，四种心绪。点选词牌，读词、读背景，也读见李煜的一生。</p><a class="button button-dark" href="#虞美人">从《虞美人》开始 <span>↓</span></a></div><div class="floating-verse"><span>春水向东</span><b>愁</b><small>LI YU · CI</small></div></section>
 
-    <!-- 词作列表：区块标题 + 词牌标签 + 词作画廊(四首词条目)，标签独立于画廊之外以便吸顶 -->
+    <!-- 词作列表：区块标题 + 词牌标签 + 词作画廊(四首词条目)，标签独立于画廊之外以便吸顶；此块即钉合舞台的覆盖面板 -->
     <section class="works section-wrap"><div class="section-kicker">01 <span>FOUR POEMS</span></div><div class="works-heading"><h2>一阕一境，<br>读到词心深处。</h2><p>选择一首词，打开对应的笺注。<br>也可以点「为我诵读」，听浏览器将词句轻轻读出。</p></div>
 
       <!-- 词牌快速跳转标签：点击锚点滚动到对应词作；位于画廊外层，不随画廊背景一起滚动 -->
@@ -35,6 +37,7 @@
       <article class="work-entry" id="清平乐"><div class="work-number">04</div><div class="work-main"><div class="work-meta"><span>相思之苦</span><span>·</span><span>《清平乐》</span></div><h3>清平乐<small>别来春半</small></h3><div class="poem-text">别来春半，触目柔肠断。<br>砌下落梅如雪乱，拂了一身还满。<br><br>雁来音信无凭，路遥归梦难成。<br>离恨恰如春草，更行更远还生。</div><div class="work-actions"><button class="read-aloud" data-poem="别来春半，触目柔肠断。砌下落梅如雪乱，拂了一身还满。雁来音信无凭，路遥归梦难成。离恨恰如春草，更行更远还生。">为我诵读　▶</button><button class="favorite-button" aria-pressed="false">♡ 收藏这首</button><a class="text-link" href="listen.html#朗读">看诵读视频 ↗</a></div><details class="annotation"><summary>写作背景与笺注 <span>＋</span></summary><div><p><strong>写作背景：</strong>此词以春日怀人为题，落梅、远雁、归梦层层推进。全词用细腻的景物写离别后的思念。</p><p><strong>词句笺注：</strong>「离恨恰如春草，更行更远还生」以春草喻离恨，越走越远，愁绪反而滋生不绝，是李煜词中流传极广的名句。</p></div></details></div><div class="work-side"><span>读词时</span><p>试想春草一路蔓延，「更行更远还生」便不只是景色。</p></div></article>
       </div>
     </section>
+    </div>
 
     <!-- 下一页引导：词容万象 -->
     <section class="next-step section-wrap"><div><span class="section-kicker">NEXT <span>AFTERLIFE IN WORDS</span></span><h2>词中的李煜，<br>仍在今人的目光里。</h2></div><a class="button button-dark" href="wanxiang.html">词容万象 <span>↗</span></a></section>

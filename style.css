@@ -171,20 +171,22 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}
 .art-stamp{position:absolute;z-index:4;bottom:9%;left:9%;width:48px;height:38px;border:1px solid rgba(238,195,168,.8);color:#ffdbbf;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;font-size:8px;line-height:1.35;writing-mode:horizontal-tb;letter-spacing:.14em;background:rgba(32,49,56,.38);text-shadow:0 1px 5px rgba(13,30,40,.8)}
 /* 首页底部滚动提示 */
 .hero-bottom{position:absolute;bottom:24px;left:10%;right:10%;display:flex;align-items:center;gap:13px;font:9px var(--sans);letter-spacing:.18em;color:#788278}
-/* 首屏云气（通用）：左右两团雾云，压在文案之下；透明度随滚动进度 --hero-cloud-p（0→1）由 .92 淡到 0，滚动时一并向上位移 */
-.hero-cloud{position:absolute;bottom:-4%;width:min(48vw,720px);z-index:0;pointer-events:none;mix-blend-mode:multiply;opacity:calc(.92 - var(--hero-cloud-p,0) * .92);will-change:transform,opacity;transition:opacity .2s linear}
+/* 云气舞台（通用）：首屏与云气的定位参照系；--hero-h 由脚本写入首屏高度，云气据此贴在首屏下缘之外 */
+.cloud-stage{position:relative}
+/* 首屏云气（通用）：左右两团雾云，脱离首屏裁剪、以半速慢移越过边界；--cloud-ty/--cloud-tx 为脚本写入的位移量，--cloud-fade（0→1）同时控制淡出、模糊与散开 */
+.hero-cloud{position:absolute;top:calc(var(--hero-h,min(720px,calc(100vh - 86px))) * 1.04);width:min(48vw,720px);z-index:0;pointer-events:none;mix-blend-mode:multiply;opacity:calc(.92 * (1 - var(--cloud-fade,0)));filter:blur(calc(var(--cloud-fade,0) * 8px));will-change:transform,opacity,filter}
 /* 首屏云气图片：撑满容器、保持原始比例 */
 .hero-cloud img{display:block;width:100%;height:auto}
-/* 首屏云气（左）：贴左下缘，随进度向左下外侧飘出并微逆时针旋转，像被风带走 */
-.hero-cloud-left{left:-7%;transform:translate3d(calc(var(--hero-cloud-p,0) * -9vw),calc(var(--hero-cloud-p,0) * 10vh),0) rotate(calc(var(--hero-cloud-p,0) * -1.2deg))}
-/* 首屏云气（右）：贴右下缘，位移与旋转方向与左侧镜像，形成对称散开 */
-.hero-cloud-right{right:-7%;transform:translate3d(calc(var(--hero-cloud-p,0) * 9vw),calc(var(--hero-cloud-p,0) * 10vh),0) rotate(calc(var(--hero-cloud-p,0) * 1.2deg))}
+/* 首屏云气（左）：先上移自身高度贴到首屏下缘，再叠脚本位移；行进中向左外飘，消散时逆时针微转并略放大 */
+.hero-cloud-left{left:-7%;transform:translate3d(calc(var(--cloud-tx,0px) * -1),calc(-100% + var(--cloud-ty,0px)),0) rotate(calc(var(--cloud-fade,0) * -1.5deg)) scale(calc(1 + var(--cloud-fade,0) * .1))}
+/* 首屏云气（右）：位移与旋转方向与左侧镜像，形成对称散开 */
+.hero-cloud-right{right:-7%;transform:translate3d(var(--cloud-tx,0px),calc(-100% + var(--cloud-ty,0px)),0) rotate(calc(var(--cloud-fade,0) * 1.5deg)) scale(calc(1 + var(--cloud-fade,0) * .1))}
 /* 右侧云气图片：水平镜像，避免左右两团看起来是同一张图的复制 */
 .hero-cloud-right img{transform:scaleX(-1)}
-/* 窄屏：云气放大到 86vw、起点更低、整体更淡，并向外多让一点，防止挡住文案 */
-@media(max-width:700px){.hero-cloud{width:86vw;bottom:-2%;opacity:calc(.7 - var(--hero-cloud-p,0) * .7)}.hero-cloud-left{left:-20%}.hero-cloud-right{right:-20%}.hl-a{--hl-size:52px;left:4%;top:11%}.hl-b{--hl-size:40px;left:44%;top:2%}.hl-c{display:none}}
-/* 减弱动效：取消云气的位移与旋转，只保留透明度变化，并移除 will-change 降低合成开销；配图三层与灯笼同时停掉指针位移、浮动动画 */
-@media(prefers-reduced-motion:reduce){.hero-cloud-left,.hero-cloud-right{transform:none}.hero-cloud{will-change:auto}.hero-base,.hero-figure-layer,.hero-lantern-field{transform:none;will-change:auto}.hero-figure,.hero-lantern{animation:none;will-change:auto}}
+/* 窄屏：云气放大到 86vw、贴得更紧、整体更淡，并向外多让一点，防止挡住文案 */
+@media(max-width:700px){.hero-cloud{width:86vw;top:calc(var(--hero-h,min(720px,calc(100vh - 86px))) * 1.02);opacity:calc(.7 * (1 - var(--cloud-fade,0)))}.hero-cloud-left{left:-20%}.hero-cloud-right{right:-20%}.hl-a{--hl-size:52px;left:4%;top:11%}.hl-b{--hl-size:40px;left:44%;top:2%}.hl-c{display:none}}
+/* 减弱动效：云气只保留「上移自身高度」的静态定位（不慢移、不消散），去掉模糊与 will-change；配图三层与灯笼同时停掉指针位移、浮动动画 */
+@media(prefers-reduced-motion:reduce){.hero-cloud-left,.hero-cloud-right{transform:translateY(-100%)}.hero-cloud{filter:none;will-change:auto}.hero-base,.hero-figure-layer,.hero-lantern-field{transform:none;will-change:auto}.hero-figure,.hero-lantern{animation:none;will-change:auto}}
 /* 滚动提示线 */
 .scroll-line{width:80px;height:1px;background:#bdc7ba}
 /* 首页底部滚动提示 */
@@ -194,7 +196,9 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}
 /* 词人介绍区 */
 .intro{display:grid;grid-template-columns:.45fr 1.05fr .8fr;gap:45px;padding-top:120px;padding-bottom:128px;align-items:start;background:linear-gradient(rgba(243,243,237,.68),rgba(243,243,237,.68)),url("intro-background.jpg") center calc(50% + var(--scroll-y,0px))/cover no-repeat}
 /* 介绍区词人列 */
-.intro-poet{min-width:0}
+.intro-poet{min-width:0;position:relative;z-index:1}
+/* 介绍区标题列：提层级，压在区块背景漂移层之上 */
+.intro-heading{position:relative;z-index:1}
 /* 词人肖像框 */
 .portrait-frame{position:relative;width:100%;margin:36px 0 0;padding:7px;border:1px solid rgba(169,104,76,.48);background:linear-gradient(145deg,#f7f4eb,#e6e5db);box-shadow:0 10px 28px rgba(47,62,49,.12)}
 /* 词人肖像框 */
@@ -214,7 +218,7 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}
 /* 介绍区标题与正文 */
 .intro-heading p,.story-lead p,.listen-title p,.interactive p{max-width:470px;color:#6d786d;font-size:17px;line-height:2.05;letter-spacing:.04em;margin-bottom:22px}
 /* 介绍卡片 */
-.intro-card{position:relative;margin-top:37px;min-height:255px;padding:31px 30px;background:linear-gradient(135deg,rgba(249,249,242,.96),rgba(239,241,232,.96));border:1px solid #42554a;border-radius:21px;box-shadow:0 8px 24px rgba(47,62,49,.08);overflow:hidden}
+.intro-card{position:relative;z-index:1;margin-top:37px;min-height:255px;padding:31px 30px;background:linear-gradient(135deg,rgba(249,249,242,.96),rgba(239,241,232,.96));border:1px solid #42554a;border-radius:21px;box-shadow:0 8px 24px rgba(47,62,49,.08);overflow:hidden}
 /* 介绍卡片 */
 .intro-card:before{content:"";position:absolute;inset:5px;border:1px solid rgba(48,77,63,.72);border-radius:16px;pointer-events:none}
 /* 卡片序号 */
@@ -1497,6 +1501,8 @@ body.arrival-lock{overflow:hidden}
 @media(min-width:1100px) and (min-height:700px){
   /* 首页主视觉 hero */
 .hero{min-height:min(820px,calc(100svh - 86px))}
+  /* 首屏云气：宽屏下首屏更高，云气贴下缘的位置需同步抬到新的首屏高度之外 */
+  .hero-cloud{top:calc(var(--hero-h,min(820px,calc(100svh - 86px))) * 1.04)}
   /* 词人介绍区 */
 .intro{min-height:calc(100svh - 86px);grid-template-columns:minmax(260px,.78fr) minmax(420px,1.25fr) minmax(280px,.9fr);gap:clamp(28px,3.2vw,48px);align-items:center;padding-top:clamp(58px,8vh,100px);padding-bottom:clamp(58px,8vh,100px)}
   /* 介绍区词人列 */
@@ -1858,3 +1864,40 @@ button:not(.book-open-button):active,.button:active{translate:0 1px}
 .depth-surface.is-depth-active{scale:1.012}
 /* 轻伪3D · 激活态：面板内容沿 Z 轴前移 9px，与底面拉开层次 */
 .depth-surface.is-depth-active>*{translate:0 0 9px}
+
+/* —— 内页首屏「故事画」式滚动钉合：首屏吸顶、视频慢推、标题褪色残留，下一区块上浮覆盖 —— */
+/* 钉合舞台：内页首屏与其后首个内容区块的共同容器，作为 sticky 的定位参照 */
+.subhero-stage{position:relative}
+/* 首屏：吸顶（sticky）占满一屏，--hero-p（0→1）由脚本按「下一区块上浮进度」写入 */
+.subhero-stage>.subhero{position:sticky;top:0;z-index:1;min-height:0;height:100vh;height:100svh;--hero-p:0}
+/* 覆盖面板：位于首屏之上（z-index 2），滚动时整块从下往上盖住钉住的首屏 */
+.subhero-stage>.story,.subhero-stage>.works,.subhero-stage>.listen-content,.subhero-stage>.memory-section{position:relative;z-index:2}
+/* 覆盖面板至少满屏，保证整块上浮时能完全遮住钉住的首屏（reduced-motion 下不加，避免空荡留白） */
+@media(prefers-reduced-motion:no-preference){.subhero-stage>.story,.subhero-stage>.works,.subhero-stage>.listen-content,.subhero-stage>.memory-section{min-height:100vh;min-height:100svh}}
+/* 覆盖面板底色：补纸色，避免上浮时透出首屏；词作页/万象页首屏本身是纯色，需整块遮挡 */
+.subhero-stage>.works,.subhero-stage>.memory-section{background:var(--paper)}
+/* 视频与底图：随覆盖推进缓慢上移并轻轻推近，预留放大余量不露边 */
+.subhero-stage .life-hero-video,.subhero-stage .listen-hero-video,.subhero-stage .wanxiang-hero-video{will-change:transform;transform:translate3d(0,calc(var(--hero-p,0) * -46px),0) scale(calc(1.14 + var(--hero-p,0) * .05))}
+/* 词作页首屏的底纹层（:before）：同步慢推，幅度略小，与视频页保持一致的纵深节奏 */
+.subhero-stage .ci-hero:before{inset:-7%;will-change:transform;transform:translate3d(0,calc(var(--hero-p,0) * -34px),0) scale(1.05)}
+/* 大标题：褪色成半透明幽灵字，轻微上滞并虚化（入场动画改用 backwards，结束后把控制权交还滚动变量） */
+.subhero-stage .subhero h1{animation-name:verse-title-arrive;animation-duration:.85s;animation-timing-function:cubic-bezier(.2,.72,.25,1);animation-fill-mode:backwards;will-change:opacity,transform,filter;opacity:calc(1 - var(--hero-p,0) * .86);transform:translate3d(0,calc(var(--hero-p,0) * 30px),0) scale(calc(1 - var(--hero-p,0) * .03));filter:blur(calc(var(--hero-p,0) * 1.8px))}
+/* 眉题、说明、按钮：比标题更早淡出并轻微上浮 */
+.subhero-stage .eyebrow,.subhero-stage .subhero-copy>p:not(.eyebrow),.subhero-stage .subhero-copy .button{opacity:calc(max(0,1 - var(--hero-p,0) * 1.9));transform:translate3d(0,calc(var(--hero-p,0) * 20px),0)}
+/* 右侧装饰环/竖印同步淡出；用独立 translate 属性，保留其原有 transform 缩放（含移动端 .58/.72） */
+.subhero-stage .sound-orbit,.subhero-stage .wanxiang-mark{opacity:calc(max(0,1 - var(--hero-p,0) * 1.9));translate:0 calc(var(--hero-p,0) * 20px)}
+/* floating-verse 自身带 opacity 呼吸动画，opacity 会被动画覆盖，故用 filter 做淡出 */
+.subhero-stage .floating-verse{will-change:filter;filter:opacity(calc(max(0,1 - var(--hero-p,0) * 1.9)));translate:0 calc(var(--hero-p,0) * 20px)}
+/* 窄屏：吸顶首屏改用居中排布，上下留出页头与安全距离 */
+@media(max-width:700px){.subhero-stage>.subhero{align-items:center;padding:84px 7% 44px}}
+/* 降级：关闭吸顶与全部滚动形变，首屏恢复紧凑静态高度 */
+@media(prefers-reduced-motion:reduce){
+.subhero-stage>.subhero{position:static;height:auto;min-height:435px}
+.subhero-stage>.wanxiang-hero{min-height:540px}
+.subhero-stage .subhero h1{animation:none;opacity:1;transform:none;filter:none;will-change:auto}
+.subhero-stage .eyebrow,.subhero-stage .subhero-copy>p:not(.eyebrow),.subhero-stage .subhero-copy .button,.subhero-stage .sound-orbit,.subhero-stage .wanxiang-mark,.subhero-stage .floating-verse{opacity:1;transform:none;translate:0 0;filter:none;will-change:auto}
+.subhero-stage .life-hero-video,.subhero-stage .listen-hero-video,.subhero-stage .wanxiang-hero-video{transform:none;will-change:auto}
+.subhero-stage .ci-hero:before{inset:0;transform:none}
+}
+/* 窄屏 + 减弱动效：首屏回到顶部对齐的紧凑排布 */
+@media(max-width:700px) and (prefers-reduced-motion:reduce){.subhero-stage>.subhero{min-height:390px;padding:55px 7%;align-items:flex-start}}

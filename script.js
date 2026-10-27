@@ -145,34 +145,92 @@
     introAudio.addEventListener("ended", () => playBackgroundMusic());
   }
 
-  // 首页 hero 云雾滚动视差：左云奔左下、右云奔右下，滚入第二部分时消散
+  // 首页 hero 云雾：脱离首屏裁剪，以半速慢移越过边界，飘入第二部分（他把无常，写成了永恒）后消散
   (() => {
-    // 只在首页存在 .hero 时生效，子页直接跳过
+    // .cloud-stage 是首屏与云气的共同定位参照系；缺任一节点则整套跳过
+    const stage = document.querySelector(".cloud-stage");
     const hero = document.querySelector(".hero");
-    if (!hero) return;
+    const intro = document.querySelector(".intro");
+    if (!stage || !hero) return;
+    // 减弱动效偏好：云雾改为静态贴底，随文档正常滚走
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     // ticking 节流标记：滚动事件高频触发，合并到每帧只算一次
     let ticking = false;
-    // 依据 hero 相对视口的位置计算云气消散进度，写入 --hero-cloud-p
-    const updateHeroClouds = () => {
+    // 量取首屏实际高度写入 --hero-h，供 CSS 把云气定位到首屏下缘之外（不依赖硬编码高度）
+    const measure = () => {
+      stage.style.setProperty("--hero-h", `${hero.offsetHeight}px`);
+    };
+    const updateClouds = () => {
       ticking = false;
-      const rect = hero.getBoundingClientRect();
-      // hero 顶部贴住视口顶时 p=0，hero 完全滚出（底部到顶）时 p=1
-      const raw = rect.height > 0 ? -rect.top / rect.height : 0;
-      // 夹取到 0～1，防止弹性回滚时溢出
-      const p = Math.min(1, Math.max(0, raw));
-      const eased = p * p * (3 - 2 * p); // smoothstep，后段加速消散
-      hero.style.setProperty("--hero-cloud-p", eased.toFixed(4));
+      const heroH = hero.offsetHeight;
+      const introH = intro ? intro.offsetHeight : 0;
+      // 已滚动距离：把「首屏高度 + 介绍区高度」作为上限，避免滚过整段后仍在累加
+      const scroll = Math.min(heroH + introH, Math.max(0, -hero.getBoundingClientRect().top));
+      if (reduce) {
+        // 降级：云雾静止在首屏底部，随页面文档正常滚走，不做慢移与消散
+        stage.style.setProperty("--cloud-ty", "0px");
+        stage.style.setProperty("--cloud-tx", "0px");
+        stage.style.setProperty("--cloud-fade", "0");
+        return;
+      }
+      // 纵向：只以页面一半的速度上升，视觉上云雾滞留并飘入第二部分
+      const ty = scroll * 0.5;
+      // 消散区间：首屏滚过 62% 开始变淡，进入 intro 后散尽（窄屏区间更长）
+      const fadeStart = heroH * 0.62;
+      const fadeEnd = heroH + introH * (window.innerWidth <= 700 ? 0.55 : 0.42);
+      // 夹取到 0～1，防止弹性回滚或短页面时溢出
+      const fadeRaw = Math.min(1, Math.max(0, (scroll - fadeStart) / Math.max(1, fadeEnd - fadeStart)));
+      const fade = fadeRaw * fadeRaw * (3 - 2 * fadeRaw); // smoothstep，后段加速消散
+      // 行进中持续向两侧外飘，消散时再散开一些
+      const travel = Math.min(1, scroll / heroH);
+      const tx = travel * 34 + fade * 30;
+      stage.style.setProperty("--cloud-ty", `${ty.toFixed(1)}px`);
+      stage.style.setProperty("--cloud-tx", `${tx.toFixed(1)}px`);
+      stage.style.setProperty("--cloud-fade", fade.toFixed(3));
     };
     // 用 requestAnimationFrame 合并同帧内的多次滚动触发
     const requestUpdate = () => {
       if (ticking) return;
       ticking = true;
-      window.requestAnimationFrame(updateHeroClouds);
+      window.requestAnimationFrame(updateClouds);
+    };
+    window.addEventListener("scroll", requestUpdate, { passive: true });
+    // 尺寸变化会改变首屏高度，需先重新量取再重算
+    window.addEventListener("resize", () => { measure(); requestUpdate(); });
+    // 初始化时先量一次、算一次，保证刷新后停在页面中部时云气状态正确
+    measure();
+    updateClouds();
+  })();
+
+  // 内页首屏「故事画」式钉合：首屏吸顶期间，下一区块从视口底上浮到顶的过程记为 0→1，
+  // 写入 --hero-p 驱动视频慢推与标题褪色；reduced-motion 下不启用（CSS 自动恢复静态）
+  (() => {
+    const stages = Array.from(document.querySelectorAll(".subhero-stage"));
+    if (!stages.length) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let ticking = false;
+    const updateStages = () => {
+      ticking = false;
+      const vh = window.innerHeight || 1;
+      stages.forEach((stage) => {
+        const hero = stage.querySelector(".subhero");
+        // 紧跟首屏之后的那个区块即「覆盖面板」
+        const cover = hero?.nextElementSibling;
+        if (!hero || !cover) return;
+        // 覆盖面板顶部从视口底（p=0）升到视口顶（p=1）
+        const top = cover.getBoundingClientRect().top;
+        const p = Math.min(1, Math.max(0, 1 - top / vh));
+        hero.style.setProperty("--hero-p", p.toFixed(4));
+      });
+    };
+    const requestUpdate = () => {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(updateStages);
     };
     window.addEventListener("scroll", requestUpdate, { passive: true });
     window.addEventListener("resize", requestUpdate);
-    // 初始化时先算一次，保证刷新后停在页面中部时云气状态正确
-    updateHeroClouds();
+    updateStages();
   })();
 
   /* ============================================================
@@ -1486,7 +1544,7 @@
 
     // 滚动视差：给标题与装饰层按视口位置施加 --scroll-y
     if (!reducedMotion) {
-      const parallaxSelector = ".hero h1, .hero .eyebrow, .hero-art, .section-wrap h2, .section-kicker, .closing h2, .floating-verse, .memory-lead h2, .work-number, .work-side, .work-main h3, .life-hero-video, .listen-hero-video, .wanxiang-hero-video, .bg-parallax, .timeline-narrative .timeline, .timeline-scene, .intro, .story, .afterlife-section, .closing, .listen-content, .listen-interactive, .screen-world, .media-art img, .poet-portrait, .note-ornament, .echo-quote, .closing-pine, .recite-art";
+      const parallaxSelector = ".hero h1, .hero .eyebrow, .hero-art, .section-wrap h2, .section-kicker, .closing h2, .memory-lead h2, .work-number, .work-side, .work-main h3, .bg-parallax, .timeline-narrative .timeline, .timeline-scene, .intro, .story, .afterlife-section, .closing, .listen-content, .listen-interactive, .screen-world, .media-art img, .poet-portrait, .note-ornament, .echo-quote, .closing-pine, .recite-art";
       parallaxElements = Array.from(document.querySelectorAll(parallaxSelector)).map((el) => {
         let speed = "1";
         // 默认归入标准视差档；各特殊元素按各自速度/类名分流
@@ -1494,10 +1552,6 @@
         if (el.classList.contains("work-side")) { speed = "0.32"; cls = "scroll-parallax-slow"; }
         else if (el.classList.contains("work-number")) { speed = "0.55"; cls = "scroll-parallax-slow"; }
         else if (el.matches(".work-main h3")) { speed = "0.7"; cls = "scroll-parallax-slow"; }
-        // life 页首屏视频：走专属的 hero-video-parallax 档（含放大底片）
-        else if (el.classList.contains("life-hero-video")) { cls = "hero-video-parallax"; }
-        // listen / wanxiang 页首屏视频：无额外缩放，仅按标准速度位移
-        else if (el.classList.contains("listen-hero-video") || el.classList.contains("wanxiang-hero-video")) { speed = "1"; cls = "hero-video-parallax"; }
         // 独立背景视差层：慢速漂移
         else if (el.classList.contains("bg-parallax")) { speed = "0.35"; cls = "scroll-parallax-bg"; }
         // 整块区块（含其 ::before 背景层）：统一 0.35 的轻微背景漂移

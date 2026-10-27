@@ -1,8 +1,6 @@
 <!doctype html>
-<!-- 一江春水 · 李煜词境 — 词容万象页 / wanxiang.html -->
 <html lang="zh-CN">
 <head>
-  <!-- 文档头部：字符集、移动端视口、主题色、SEO 描述、分页标题，以及共用的样式表与交互脚本 -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#e8eee4">
@@ -12,10 +10,7 @@
   <script src="script.js" defer></script>
 </head>
 <body>
-  <!-- 跳过导航：键盘用户按 Tab 时可直接跳入正文(#main-content) -->
   <a class="skip-link" href="#main-content">跳至主要内容</a>
-
-  <!-- 页头：品牌标识 + 主导航(当前页高亮「词容万象」) + 背景音乐开关/音量 -->
   <header class="site-header">
     <a class="brand" href="index.html"><span class="brand-seal">煜</span><span>一江春水<small>李煜词境 · 南唐旧梦</small></span></a>
     <button class="menu-toggle" aria-label="打开导航" aria-expanded="false">☰</button>
@@ -24,10 +19,10 @@
     </nav>
     <div class="sound-controls"><button class="sound-toggle" type="button" aria-label="关闭背景音乐" aria-pressed="true"><span class="sound-icon">♫</span><span class="sound-status">音乐开启</span></button><label class="volume-control"><span class="visually-hidden">背景音乐音量</span><input class="volume-slider" type="range" min="0" max="1" step="0.01" value="0.32"></label></div>
   </header>
-
-  <!-- 主体：id="main-content" 供顶部「跳至主要内容」链接定位；tabindex="-1" 使其可被程序聚焦 -->
   <main id="main-content" tabindex="-1">
-    <!-- 首屏：背景视频(视频未就绪时以 poster 图占位) + 标题文案 + 竖排大字水印(一词万象) -->
+    <!-- 钉合舞台：包住首屏与其后的视角区块——首屏 sticky 吸顶，视角区块上浮覆盖（见 style.css .subhero-stage） -->
+    <div class="subhero-stage">
+    <!-- 首屏：背景视频(视频未就绪时以 poster 图占位) + 标题文案 + 竖排大字水印(一词万象)；吸顶期间 --hero-p 由脚本写入 -->
     <section class="subhero wanxiang-hero">
       <video class="wanxiang-hero-video" autoplay muted loop playsinline preload="metadata" poster="screen-world-background.jpg" aria-hidden="true" tabindex="-1">
         <source src="wanxiang-hero.mp4" type="video/mp4">
@@ -41,7 +36,7 @@
       <span class="wanxiang-mark" aria-hidden="true">一词<br>万象</span>
     </section>
 
-    <!-- 区块一：他的一生有尽，词的回声未尽（三种视角卡片） -->
+    <!-- 区块一：他的一生有尽，词的回声未尽（三种视角卡片）；此块即钉合舞台的覆盖面板 -->
     <section class="memory-section section-wrap" id="many-views">
       <div class="section-kicker">01 <span>AFTER THE LAST VERSE</span></div>
       <div class="memory-lead">
@@ -55,18 +50,16 @@
         <article tabindex="0" role="button" aria-haspopup="dialog" aria-label="展开后世如何阅读和演绎李煜的故事"><span>今人心中的他</span><h3>被重新看见</h3><p>每一次阅读、诵读与再创作，都会生成新的理解。想象各不相同，却都从那些仍能抵达人的词句出发。</p><a href="listen.html">听一阕词如何回响 <span>↗</span></a><span class="memory-open-hint">点击了解更多 <span aria-hidden="true">↗</span></span></article>
       </div>
     </section>
+    </div>
 
     <!-- 区块二：同一个李煜，在当代影视 / 游戏中的不同形象（2×2 媒体卡） -->
     <section class="screen-world section-wrap" id="screen-world">
       <div class="section-kicker">02 <span>ON SCREEN &amp; IN GAME</span></div>
-      <!-- 左：区块标题；右：说明文字 -->
       <div class="screen-world-heading">
         <div><h2>当李煜走进<br><em>当代叙事</em>。</h2></div>
         <p>一幅后世旧绘，三种当代演绎。画像、游戏与影视各自描摹李煜，也映照出不同时代的人们如何想象这位南唐后主。</p>
       </div>
-      <!-- 2×2 媒体卡网格：古本遗像 / 忘川 / 燕云 / 影视，每张为配图 + 图注
-           每张配图(.media-art)可点击/回车打开大图与介绍，由 script.js 弹窗展示
-           .media-art-ink 为图片上的水墨压暗蒙层；.media-art-vertical-title 为竖排题名 -->
+      <!-- 2×2 媒体卡网格：古本遗像 / 忘川 / 燕云 / 影视，每张为配图 + 图注 -->
       <div class="media-grid">
         <!-- 卡 01：古本遗像（史书之外的面容，代表古人视角） -->
         <article class="media-card media-card-archive">
@@ -95,7 +88,7 @@
 
     <!-- 引文区：词与今人相遇 -->
     <section class="living-echo section-wrap">
-      <span class="echo-quote" aria-hidden="true">"</span>
+      <span class="echo-quote" aria-hidden="true">“</span>
       <p>春花秋月依旧，读词的人一代又一代。<br>李煜不再开口，他的词却仍与今天相遇。</p>
       <span>一江春水 · 词容万象</span>
     </section>
@@ -108,10 +101,8 @@
     <!-- 视角卡详情弹窗：由 script.js 按卡片索引填入对应故事（原生 dialog 模态） -->
     <dialog class="memory-story-dialog" aria-labelledby="memory-story-title"><button class="memory-story-close" type="button" aria-label="关闭详情">×</button><span class="memory-story-kicker"></span><h2 id="memory-story-title"></h2><img class="memory-story-image" alt="" hidden><div class="memory-story-content"></div><p class="memory-story-note">按 Esc 或点击右上角关闭详情。史实与后世艺术演绎请分别阅读。</p></dialog>
   </main>
-
   <!-- 页脚：品牌 + 标语 + 跳转链接 -->
   <footer class="site-footer"><a class="brand" href="index.html"><span class="brand-seal">煜</span><span>一江春水<small>愿每个读词的人，都有一刻安宁。</small></span></a><span>词有尽时，春水长流。</span><a href="ci.html">再读一首 ↗</a></footer>
-
   <!-- 背景音乐：自动播放、循环；实际播放由 script.js 控制(含音量/进度记忆)；preload="metadata" 只预取时长信息，不整段下载 -->
   <audio class="background-audio" src="background-music.mp3" autoplay loop preload="metadata"></audio>
 </body>
