@@ -322,19 +322,9 @@ textarea::placeholder{color:#9aa297}
 /* 表单反馈文字 */
 .mood-feedback,.poem-feedback{font-size:11px;color:var(--rust);margin:10px 0 0;min-height:1.5em}
 /* 站点页脚 */
-.site-footer{position:relative;isolation:isolate;min-height:112px;background:transparent;padding:25px 6.6%;display:flex;align-items:center;justify-content:space-between;gap:20px;border-top:1px solid #d9ddd4;overflow:hidden}
+.site-footer{position:relative;isolation:isolate;min-height:112px;background:transparent;padding:25px 6.6%;display:flex;align-items:center;justify-content:space-between;gap:20px;border-top:1px solid #d9ddd4}
 /* 站点页脚 */
-.site-footer:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(rgba(243,243,237,.2),rgba(243,243,237,.2)),url("footer-river-background.jpg") center 53%/cover no-repeat;animation:footer-pan 90s ease-in-out infinite alternate}
-/* 页脚河景横移：90 秒一轮、往复交替，背景位置在 32% 与 68% 之间缓缓漂移，像江水流动 */
-@keyframes footer-pan{0%{background-position:32% 53%}100%{background-position:68% 53%}}
-/* 页脚水波层：一条可横向无缝滚动的浪纹带，宽度随内容自适应，用 28s 匀速左移形成流动水面 */
-.footer-wave{position:absolute;left:0;bottom:-16px;height:96px;z-index:-1;pointer-events:none;width:max-content;display:flex;animation:footer-wave-flow 28s linear infinite}
-/* 页脚水波图片：重复的浪纹图并排排列，不高不扁保持原比例，正片叠底柔融进背景 */
-.footer-wave img{flex:none;height:100%;width:auto;mix-blend-mode:multiply;opacity:.52}
-/* 水波平移：整体左移自身宽度的 50%，与重复图拼接后首尾衔接、循环无断点 */
-@keyframes footer-wave-flow{to{transform:translateX(-50%)}}
-/* 减弱动效：停掉页脚河景横移与水波滚动 */
-@media(prefers-reduced-motion:reduce){.footer-wave{animation:none}.site-footer:before{animation:none}}
+.site-footer:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(rgba(243,243,237,.2),rgba(243,243,237,.2)),url("footer-river-background.jpg") center 53%/cover no-repeat}
 /* 站点页脚 */
 .site-footer>span{font-family:"Liyu Xingkai UI",var(--serif);font-size:15px;color:#59675b;letter-spacing:.06em}
 /* 站点页脚 */

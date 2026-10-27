@@ -167,7 +167,7 @@
       <span class="arrival-progress-label"><span>A JOURNEY THROUGH LI YU'S VERSES</span><b>01 / 03</b></span>
       <!-- 进度条：填充宽度由脚本写入的 --arrival-progress-width 驱动 -->
       <div class="arrival-progress-track" aria-hidden="true"><span></span></div>
-      <!-- 继续按钮：默认 disabled，脚本首次更新进度时解禁；第一二幕点击平滑滚入下一幕，第三幕才真正进入首页 -->
+      <!-- 继续按钮：默认 disabled，脚本首次更新进度时解禁，点击平滑滚到首页首屏 -->
       <button class="arrival-enter-button" type="button" disabled>继续，进入词境 <span aria-hidden="true">↓</span></button>
       <!-- 跳过按钮：任意时刻均可直接进入首页 -->
       <button class="arrival-skip-button" type="button">跳过入场</button>
@@ -184,7 +184,7 @@
   </header>
   <!-- 主体：id="main-content" 供顶部「跳至主要内容」链接定位；tabindex="-1" 使其可被程序聚焦；开场未揭开时 inert -->
   <main id="main-content" tabindex="-1" inert>
-    <!-- 首屏 Hero：左侧文案(主标题 + 引言 + 按钮 + 名句) + 右侧月下古画图 + 底部滚动提示 + 左右两团云气 -->
+    <!-- 首屏 Hero：左侧文案(主标题 + 引言 + 按钮 + 名句) + 右侧月下古画图 + 底部滚动提示 -->
     <section class="hero">
       <div class="hero-copy">
         <p class="eyebrow"><span></span> 南唐 · 李煜 · 词中帝王</p>
@@ -196,11 +196,23 @@
       </div>
       <!-- 主视觉图：月下执伞的青衣古人；左上题注、右下竖排诗句、右下角印章 -->
       <div class="hero-art">
-        <img class="hero-image" src="home-hero.jpg" alt="月下水上，一位执伞的青衣古人" fetchpriority="high" decoding="async">
+        <!-- 配图场景层：底图（无人版）与人物立绘分两层叠放，随指针各自反向/同向微移，形成景深 -->
+        <span class="hero-scene">
+          <!-- 底图层：月下水上的空景，去掉人物后作为最远一层 -->
+          <img class="hero-base" src="home-hero-clean-v2.jpg" alt="" fetchpriority="high" decoding="async">
+          <!-- 人物层：执伞青衣古人，位置由脚本按底图实际渲染尺寸换算后写入，故 HTML 里不写内联坐标 -->
+          <span class="hero-figure-layer"><img class="hero-figure" src="hero-figure.png" alt="月下水上，一位执伞的青衣古人" fetchpriority="high" decoding="async"></span>
+        </span>
         <span class="image-shade" aria-hidden="true"></span>
         <div class="art-label">月下故园<br><small>南唐 · 937—978</small></div>
         <div class="art-poem">小楼昨夜又东风<br><span>故国不堪回首月明中</span></div>
         <span class="art-stamp"><span>南唐</span><span>词境</span></span>
+      </div>
+      <!-- 灯笼前景层：三只灯笼独立漂浮并随指针位移最大，是画面最靠前的一层（纯装饰） -->
+      <div class="hero-lantern-field" aria-hidden="true">
+        <img class="hero-lantern hl-a" src="hero-lantern-5.png" alt="" loading="lazy" decoding="async">
+        <img class="hero-lantern hl-b" src="hero-lantern-6.png" alt="" loading="lazy" decoding="async">
+        <img class="hero-lantern hl-c" src="hero-lantern-7.png" alt="" loading="lazy" decoding="async">
       </div>
       <div class="hero-bottom"><span>SCROLL TO WANDER</span><span class="scroll-line"></span><span>01 / 04</span></div>
       <!-- 首屏云气（左）：贴左下缘的雾云，随滚动进度向左下外侧飘散并淡出（纯装饰） -->
@@ -235,7 +247,7 @@
   </main>
   <!-- 页脚：品牌 + 标语 + 跳转链接；开场未揭开时 inert -->
   <footer class="site-footer" inert><a class="brand" href="index.html"><span class="brand-seal">煜</span><span>一江春水<small>愿每个读词的人，都有一刻安宁。</small></span></a><span>词有尽时，春水长流。</span><a href="ci.html">再读一首 ↗</a></footer>
-  <!-- 背景音乐：循环；自动起播时机改由 script.js 控制（引子待播时先压住），preload="metadata" 只预取时长信息，不整段下载 -->
+  <!-- 背景音乐：循环；自动起播时机改由 script.js 控制（引子待播时先压住），inert 也随 autoplay 一并移除；preload="metadata" 只预取时长信息，不整段下载 -->
   <audio class="background-audio" src="background-music.mp3" loop preload="metadata"></audio>
   <!-- 开场引子音频：翻开书封时播放的引子（intro-audio.aac），preload="auto" 预加载，播完由 script.js 接力背景音乐 -->
   <audio class="intro-audio" src="intro-audio.aac" preload="auto" aria-hidden="true"></audio>
