@@ -1052,6 +1052,21 @@ body.arrival-lock{overflow:hidden}
 /* 抵达远山背景 */
 .arrival-landscape{position:absolute;inset:-8% -3%;z-index:-4;background:linear-gradient(90deg,rgba(17,30,27,.68),rgba(24,39,34,.2) 57%,rgba(22,33,31,.04)),linear-gradient(0deg,rgba(16,27,25,.38),transparent 47%),url("home-hero.jpg") center 48%/cover;transform:translate3d(calc(var(--arrival-world-x,0px) + var(--arrival-pointer-x,0px)*-.35),calc(var(--arrival-landscape-y,0px) + var(--arrival-pointer-y,0px)*-.35),-100px) scale(var(--arrival-landscape-scale,1.04));will-change:transform;transition:filter 1s ease,opacity 1.15s ease}
 /* 抵达视差幕：按当前幕序调整各图层氛围（滤镜 / 透明度 / 位移） */
+/* 第一幕整幅化：进第一幕时远山渐变层让位（与第二/三幕同款让位写法） */
+.arrival-interlude[data-scene="1"] .arrival-landscape{opacity:0}
+/* 第一幕场景背景层：arrival-scene1-bg.jpg 整幅铺底，默认隐藏并随指针反向轻移（视差）+ 略放大，进第一幕时渐显 + 缓慢回缩（写法与第二/三幕同款） */
+.arrival-scene1-bg{position:absolute;inset:0;z-index:0;background:url("arrival-scene1-bg.jpg") center/cover no-repeat;opacity:0;transform:translate3d(calc(var(--arrival-pointer-x,0px)*-.5),calc(var(--arrival-pointer-y,0px)*-.5),0) scale(1.12);filter:brightness(.72) saturate(.92);transition:opacity 1.15s ease,transform 1.6s cubic-bezier(.2,.7,.25,1),filter 1.15s ease}
+/* 第一幕场景背景压暗渐变：上下 + 左右双向，保证前景文字可读 */
+.arrival-scene1-bg:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(18,30,27,.32),rgba(18,30,27,.08) 38%,rgba(18,30,27,.52) 100%),linear-gradient(90deg,rgba(18,30,27,.48),transparent 54%)}
+/* 第一幕场景背景激活态：进入 data-scene="1" 时渐显 + 缓慢回缩 */
+.arrival-interlude[data-scene="1"] .arrival-scene1-bg{opacity:1;transform:translate3d(calc(var(--arrival-pointer-x,0px)*-.5),calc(var(--arrival-pointer-y,0px)*-.5),0) scale(1.06);filter:brightness(.8) saturate(.95)}
+/* 第一幕图层提层级组：把山峦/孤舟/雁阵/水面整体抬到 z-index:1，压在场景背景之上 */
+.arrival-interlude[data-scene="1"] .arrival-hill-far,
+.arrival-interlude[data-scene="1"] .arrival-hill-mid,
+.arrival-interlude[data-scene="1"] .arrival-shore,
+.arrival-interlude[data-scene="1"] .arrival-boat,
+.arrival-interlude[data-scene="1"] .arrival-geese,
+.arrival-interlude[data-scene="1"] .arrival-water{z-index:1}
 .arrival-interlude[data-scene="2"] .arrival-landscape{filter:saturate(.76) brightness(.82);opacity:0}
 /* 第二幕场景背景层：arrival-scene2-bg.jpg 整幅铺底，默认隐藏并随指针反向轻移（视差）+ 略放大，进第二幕时渐显 + 缓慢回缩（写法与第三幕同款） */
 .arrival-scene2-bg{position:absolute;inset:0;z-index:0;background:url("arrival-scene2-bg.jpg") center/cover no-repeat;opacity:0;transform:translate3d(calc(var(--arrival-pointer-x,0px)*-.45),calc(var(--arrival-pointer-y,0px)*-.45),0) scale(1.12);filter:brightness(.74) saturate(.9);transition:opacity 1.15s ease,transform 1.6s cubic-bezier(.2,.7,.25,1),filter 1.15s ease}
@@ -1069,8 +1084,8 @@ body.arrival-lock{overflow:hidden}
 .arrival-interlude[data-scene="2"] .arrival-water{z-index:1}
 /* 抵达视差幕：按当前幕序调整各图层氛围（滤镜 / 透明度 / 位移） */
 .arrival-interlude[data-scene="3"] .arrival-landscape{filter:saturate(.55) brightness(.7) hue-rotate(8deg);opacity:0}
-/* 第三幕场景背景层：arrival-scene3-bg.jpg 整幅铺底（z-index:0 与第二幕同层），默认隐藏并随指针反向轻移（视差）+ 略放大，进第三幕时渐显 + 缓慢回缩 */
-.arrival-scene3-bg{position:absolute;inset:0;z-index:0;background:url("arrival-scene3-bg.jpg") center/cover no-repeat;opacity:0;transform:translate3d(calc(var(--arrival-pointer-x,0px)*-.4),calc(var(--arrival-pointer-y,0px)*-.4),0) scale(1.12);filter:brightness(.74) saturate(.9);transition:opacity 1.15s ease,transform 1.6s cubic-bezier(.2,.7,.25,1),filter 1.15s ease}
+/* 第三幕场景背景层：arrival-scene3-bg-2.jpg 整幅铺底（z-index:0 与第二幕同层），默认隐藏并随指针反向轻移（视差）+ 略放大，进第三幕时渐显 + 缓慢回缩 */
+.arrival-scene3-bg{position:absolute;inset:0;z-index:0;background:url("arrival-scene3-bg-2.jpg") center/cover no-repeat;opacity:0;transform:translate3d(calc(var(--arrival-pointer-x,0px)*-.4),calc(var(--arrival-pointer-y,0px)*-.4),0) scale(1.12);filter:brightness(.74) saturate(.9);transition:opacity 1.15s ease,transform 1.6s cubic-bezier(.2,.7,.25,1),filter 1.15s ease}
 /* 第三幕场景背景压暗渐变：自上而下加深 + 左侧横向压暗，保证前景文案可读 */
 .arrival-scene3-bg:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(18,30,27,.32),rgba(18,30,27,.1) 38%,rgba(18,30,27,.5) 100%),linear-gradient(90deg,rgba(18,30,27,.46),transparent 52%)}
 /* 第三幕场景背景激活态：进入 data-scene="3" 时渐显 */
