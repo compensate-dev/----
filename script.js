@@ -941,6 +941,24 @@
           finish();
         }
       };
+      // 「继续」按钮：按当前幕位分两步走 —— 未到末幕就平滑滚入下一幕，已在第三幕才真正收场
+      const enterOrAdvance = () => {
+        if (finished) return;
+        // 行程可滚动距离：内层容器高度减去可视高度（与滚动监听同一套换算式）
+        const scrollRange = arrivalTrack.offsetHeight - arrivalScroller.clientHeight;
+        // 当前进度 0～1：行程为空时按满进度处理
+        const progress = scrollRange > 0 ? arrivalScroller.scrollTop / scrollRange : 1;
+        // 进度切成三幕：0 / 1 / 2（上限夹到 2，防止浮点误差越界）
+        const currentScene = Math.min(2, Math.floor(progress * 3));
+        // 已在末幕：无需再滚，直接走统一出口收场
+        if (currentScene >= 2) {
+          finish();
+          return;
+        }
+        // 第一、二幕：平滑滚入下一幕（越过场景分界点）
+        const target = (scrollRange * (currentScene + 1)) / 3 + 6;
+        arrivalScroller.scrollTo({ top: target, behavior: "smooth" });
+      };
       // 解绑全部监听并解除页面滚动锁
       const removeListeners = () => {
         arrivalScroller.removeEventListener("scroll", onScroll);
@@ -961,7 +979,7 @@
       // wheel 用非 passive，才能在判底时 preventDefault 拦下这次滚动
       window.addEventListener("wheel", onWheel, { passive: false });
       window.addEventListener("pointermove", updateArrivalPointer, { passive: true });
-      arrivalEnterButton.addEventListener("click", finish);
+      arrivalEnterButton.addEventListener("click", enterOrAdvance);
       arrivalSkipButton.addEventListener("click", finish);
       arrivalChapterButtons?.forEach((button) => {
         button.addEventListener("click", () => {

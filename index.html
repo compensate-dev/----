@@ -17,6 +17,10 @@
   <a class="skip-link" href="#main-content">跳至主要内容</a>
   <!-- 开场封面：全屏「书封」层，role=dialog 语义化，读到封面标题为无障碍名称 -->
   <section class="book-opening" role="dialog" aria-modal="true" aria-labelledby="book-cover-heading">
+    <!-- 封面右侧花枝：立于封面右侧的梅枝小鸟图，正片叠底并轻微摇曳，纯装饰 -->
+    <div class="book-side-plum" aria-hidden="true"><img src="book-plum-bird.png" alt=""></div>
+    <!-- 封面上左花枝：铺在封面左下侧并镜像的梅枝图，同样正片叠底 + 极缓摆动 -->
+    <div class="book-side-branch" aria-hidden="true"><img src="book-plum-branch.png" alt=""></div>
     <div class="book-cover">
       <!-- 封面正面：题字、印章、四角装饰与「翻开词境」按钮 -->
       <div class="book-cover-front">
@@ -65,7 +69,7 @@
   </section>
   <!-- 抵达幕：三幕叙事 + 视差山水。整段为全屏固定层（position:fixed），内部自带滚动容器负责行程进度；
        滚到底后继续下滚即触发水墨收场并进入首页，配套 style.css 的 .arrival-interlude(fixed) + .arrival-scroller + 390svh 轨道 -->
-  <section class="arrival-interlude" aria-hidden="true" inert aria-labelledby="arrival-title">
+  <section class="arrival-interlude" data-scene="1" aria-hidden="true" inert aria-labelledby="arrival-title">
     <!-- 内层滚动容器：真正承接滚动的层（隐藏滚动条），脚本监听其 scroll 事件推进进度 -->
     <div class="arrival-scroller">
     <!-- 行程轨道：高度即可滚动行程，脚本用 offsetHeight - scroller.clientHeight 换算进度 -->
@@ -74,9 +78,11 @@
       <div class="arrival-stage">
           <!-- 远山层：随进度上移，制造纵深 -->
           <div class="arrival-landscape" aria-hidden="true"></div>
+          <!-- 第一幕场景背景层：arrival-scene1-bg.jpg 整幅铺底，进第一幕时渐显接管底图（与第二/三幕 scene2/3-bg 同款写法） -->
+          <div class="arrival-scene1-bg" aria-hidden="true"></div>
           <!-- 第二幕场景背景层：arrival-scene2-bg.jpg 整幅铺底，进第二幕时渐显接管底图（与第三幕 scene3-bg 同款写法） -->
           <div class="arrival-scene2-bg" aria-hidden="true"></div>
-          <!-- 第三幕场景背景层：arrival-scene3-bg.jpg 整幅铺底，进第三幕时渐显接管底图（CSS 于 00:28 版已先行引入，此处补齐对应节点） -->
+          <!-- 第三幕场景背景层：arrival-scene3-bg-2.jpg 整幅铺底，进第三幕时渐显接管底图（CSS 于 00:28 版已先行引入，此处补齐对应节点） -->
           <div class="arrival-scene3-bg" aria-hidden="true"></div>
           <!-- 纸底层：由透明渐入米黄纸色的底衬，垫在山峦之后统一整幕色调 -->
           <div class="arrival-paper" aria-hidden="true"></div>
@@ -138,7 +144,8 @@
           <!-- 第三幕：收束幕，arrival-copy-last 用于末幕特殊定位 -->
           <div class="arrival-copy arrival-copy-verse arrival-copy-last" data-scene="2" aria-hidden="true">
             <span class="arrival-kicker">第三阕 · 故国已远 · 词心长流</span>
-            <h2>问君能有几多愁？<br><em>恰似一江春水向东流。</em></h2>
+            <!-- 末句：nobreak 包住「向东流。」，避免换行时把这四字拆散 -->
+            <h2>问君能有几多愁？<br><em>恰似一江春水<span class="nobreak">向东流。</span></em></h2>
             <p>后来，那些无法归去的路，都化作笔下的江水。它向东流去，也替他把这场离别，缓缓说给千年以后的人听。</p>
             <span class="arrival-whisper">读到这里，便与他相逢。</span>
             <svg class="arrival-ink-stroke" viewBox="0 0 220 18" aria-hidden="true"><path pathLength="1" d="M2 12 C42 4 73 16 112 9 S178 4 218 8"/></svg>

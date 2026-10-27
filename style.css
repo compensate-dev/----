@@ -876,7 +876,7 @@ html.page-transitioning main{opacity:.08;transform:translateY(8px) scale(.995);f
 /* 翻书开场动画 */
 .book-opening:before{inset:15px;border:1px solid rgba(169,104,76,.3);background:linear-gradient(90deg,#a9684c 0 2px,transparent 2px 100%) left top/30px 30px no-repeat,linear-gradient(180deg,#a9684c 0 2px,transparent 2px 100%) left top/30px 30px no-repeat,linear-gradient(270deg,#a9684c 0 2px,transparent 2px 100%) right top/30px 30px no-repeat,linear-gradient(180deg,#a9684c 0 2px,transparent 2px 100%) right top/30px 30px no-repeat,linear-gradient(90deg,#a9684c 0 2px,transparent 2px 100%) left bottom/30px 30px no-repeat,linear-gradient(0deg,#a9684c 0 2px,transparent 2px 100%) left bottom/30px 30px no-repeat,linear-gradient(270deg,#a9684c 0 2px,transparent 2px 100%) right bottom/30px 30px no-repeat,linear-gradient(0deg,#a9684c 0 2px,transparent 2px 100%) right bottom/30px 30px no-repeat}
 /* 书封 */
-.book-cover{position:relative;width:min(76vw,790px);height:min(78vh,740px);min-height:520px;transform-origin:center top;transform-style:preserve-3d;filter:drop-shadow(0 24px 40px rgba(42,55,43,.2))}
+.book-cover{position:relative;z-index:1;width:min(76vw,790px);height:min(78vh,740px);min-height:520px;transform-origin:center top;transform-style:preserve-3d;filter:drop-shadow(0 24px 40px rgba(42,55,43,.2))}
 /* 书封 */
 .book-cover-front,.book-cover-back{position:absolute;inset:0;backface-visibility:hidden}
 /* 书封 */
@@ -885,6 +885,18 @@ html.page-transitioning main{opacity:.08;transform:translateY(8px) scale(.995);f
 .book-cover-plum{position:absolute;left:-4%;top:-4%;width:62%;z-index:0;pointer-events:none;mix-blend-mode:multiply;opacity:.9}
 /* 书封 · 折枝梅图片（撑满容器、保持原始比例） */
 .book-cover-plum img{display:block;width:100%;height:auto}
+/* 书封外 · 右侧花枝：竖立于封面右缘之外的梅枝小鸟图，正片叠底、半透明，随页面缓缓摇曳（纯装饰） */
+.book-side-plum{position:absolute;top:50%;right:clamp(1%,4vw,7%);height:76%;transform:translateY(-50%);z-index:0;pointer-events:none;mix-blend-mode:multiply;opacity:.92;animation:side-plum-sway 9s ease-in-out infinite}
+/* 书封外 · 右侧花枝图片：只定高、宽度自适应，保持原图比例 */
+.book-side-plum img{display:block;height:100%;width:auto}
+/* 右侧花枝摇曳：绕自身中心做 ±0.5° 的极缓摆动，带 0.8% 的纵向微浮 */
+@keyframes side-plum-sway{0%,100%{transform:translateY(-50%) rotate(.4deg)}50%{transform:translateY(-50.8%) rotate(-.5deg)}}
+/* 书封外 · 左下方花枝：铺在封面左下侧、超出边缘的梅枝，正片叠底，绕枝根摆动（纯装饰） */
+.book-side-branch{position:absolute;bottom:-1.5%;left:clamp(-1%,1.2vw,3%);width:min(49vw,720px);z-index:0;pointer-events:none;mix-blend-mode:multiply;opacity:.9;animation:side-branch-sway 10.5s ease-in-out infinite;transform-origin:18% 100%}
+/* 书封外 · 左下方花枝图片：撑满容器，并水平镜像让枝势朝向封面内侧 */
+.book-side-branch img{display:block;width:100%;height:auto;transform:scaleX(-1)}
+/* 左下方花枝摇曳：以 18% 100%（枝根处）为轴心做 ±0.5° 微摆，与右侧花枝错开节奏 */
+@keyframes side-branch-sway{0%,100%{transform:rotate(-.4deg)}50%{transform:rotate(.5deg)}}
 /* 书封 */
 .book-cover-front:before{content:"";position:absolute;inset:18px;border:1px solid rgba(169,104,76,.46);background:linear-gradient(90deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) left top/22px 22px no-repeat,linear-gradient(180deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) left top/22px 22px no-repeat,linear-gradient(270deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) right top/22px 22px no-repeat,linear-gradient(180deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) right top/22px 22px no-repeat,linear-gradient(90deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) left bottom/22px 22px no-repeat,linear-gradient(0deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) left bottom/22px 22px no-repeat,linear-gradient(270deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) right bottom/22px 22px no-repeat,linear-gradient(0deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) right bottom/22px 22px no-repeat;pointer-events:none}
 /* 书封 */
@@ -969,6 +981,9 @@ body.home-page.book-opened>.site-header,body.home-page.book-opened>main,body.hom
 .book-cover-foot{bottom:15%;font-size:7px}
   /* 书封 · 折枝梅在窄屏放大并微调位置，避免被裁切 */
   .book-cover-plum{width:72%;left:-6%;top:-3%;opacity:.85}
+  /* 书封外花枝：窄屏空间紧张，左右两枝一并隐藏，避免挤压封面主体 */
+  .book-side-plum{display:none}
+  .book-side-branch{display:none}
 /* 基础元素样式 */
 }
 /* 响应式适配：(prefers-reduced-motion:reduce) */
@@ -1181,7 +1196,9 @@ body.arrival-lock{overflow:hidden}
 /* 抵达文案 */
 .arrival-copy-verse h2{margin:23px 0 20px;font-family:"ZhongQi ZhiMang","HongLei Calligraphy",var(--serif);font-size:clamp(43px,6vw,78px);font-weight:400;line-height:1.55;letter-spacing:.06em;color:#f7f2e7;text-shadow:0 8px 36px rgba(9,18,16,.3);text-wrap:balance}
 /* 抵达文案 */
-.arrival-copy-verse h2 em{color:#dec39a;font-style:normal}
+.arrival-copy-verse h2 em{color:#dec39a;font-style:normal;letter-spacing:.03em}
+/* 末句「向东流。」整体不断行：包在 .nobreak 里锁定为不可换行的整块，避免只掉一个字到下一行 */
+.arrival-copy-verse h2 .nobreak{white-space:nowrap}
 /* 抵达文案 */
 .arrival-copy p{max-width:500px;margin:0;color:rgba(247,242,231,.82);font-family:"Xuandong Kaishu",var(--serif);font-size:clamp(15px,1.6vw,19px);line-height:2;letter-spacing:.08em;text-shadow:0 2px 16px rgba(0,0,0,.24)}
 /* 抵达单字（逐字浮现） */
