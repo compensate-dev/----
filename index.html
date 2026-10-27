@@ -224,8 +224,10 @@
   </main>
   <!-- 页脚：品牌 + 标语 + 跳转链接；开场未揭开时 inert -->
   <footer class="site-footer" inert><a class="brand" href="index.html"><span class="brand-seal">煜</span><span>一江春水<small>愿每个读词的人，都有一刻安宁。</small></span></a><span>词有尽时，春水长流。</span><a href="ci.html">再读一首 ↗</a></footer>
-  <!-- 背景音乐：自动播放、循环；实际播放由 script.js 控制；preload="metadata" 只预取时长信息，不整段下载 -->
-  <audio class="background-audio" src="background-music.mp3" autoplay loop preload="metadata" inert></audio>
+  <!-- 背景音乐：循环；自动起播时机改由 script.js 控制（引子待播时先压住），inert 也随 autoplay 一并移除；preload="metadata" 只预取时长信息，不整段下载 -->
+  <audio class="background-audio" src="background-music.mp3" loop preload="metadata"></audio>
+  <!-- 开场引子音频：翻开书封时播放的引子（intro-audio.aac），preload="auto" 预加载，播完由 script.js 接力背景音乐 -->
+  <audio class="intro-audio" src="intro-audio.aac" preload="auto" aria-hidden="true"></audio>
   <!-- 金竹飘落画布：全屏固定层，由 script.js 绘制缓缓飘落的竹叶；mix-blend-mode 与页面底色柔融，pointer-events:none 不拦截点击；减弱动效时由 CSS 隐藏 -->
   <canvas class="bamboo-leaves" aria-hidden="true"></canvas>
 </body>

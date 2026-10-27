@@ -40,10 +40,14 @@
 
   /* —— 背景音乐：自动播放策略 + sessionStorage 记忆 —— */
   const audio = document.querySelector(".background-audio");
+  // 开场引子音频：翻开书封时播放的引子（intro-audio.aac），播完自动接力背景音乐
+  const introAudio = document.querySelector(".intro-audio");
   const soundButtons = document.querySelectorAll(".sound-toggle");
   const volumeSlider = document.querySelector(".volume-slider");
   let audioEnabled = sessionStorage.getItem("liyu-audio-enabled") !== "false";
   // 默认开启；若用户曾关闭则记为 false
+  // 封面入场尚未完成时，背景音乐不自动播放，等待音频一（intro-audio）结束后接续
+  const coverIntroPending = Boolean(document.querySelector(".book-opening")) && sessionStorage.getItem("liyu-home-intro-completed-v2") !== "true";
   const updateSoundControls = (playing, message) => {
     soundButtons.forEach((button) => {
       button.setAttribute("aria-pressed", String(playing));
@@ -62,8 +66,9 @@
     });
   };
   if (audio) {
-    audio.autoplay = audioEnabled;
-    if (!audioEnabled) audio.pause();
+    // 引子待播期间不自动开背景音乐（HTML 的 autoplay/inert 已移除，改由这里控制起播时机）
+    audio.autoplay = audioEnabled && !coverIntroPending;
+    if (!audioEnabled || coverIntroPending) audio.pause();
     const savedVolume = sessionStorage.getItem("liyu-audio-volume");
     if (volumeSlider && savedVolume !== null) volumeSlider.value = savedVolume;
     audio.volume = Number(volumeSlider?.value || 0.32);
@@ -104,14 +109,40 @@
         }
       });
     });
-    // 首次交互（点击）时若音乐被暂停则尝试续播
+    // 首次交互（点击）时若音乐被暂停则尝试续播（书封内的点击除外，避免打断引子音频）
     document.addEventListener("pointerdown", (event) => {
-      if (audioEnabled && audio.paused && !event.target.closest(".sound-toggle")) playBackgroundMusic();
+      if (audioEnabled && audio.paused && !event.target.closest(".sound-toggle") && !event.target.closest(".book-opening")) playBackgroundMusic();
     }, { once: true });
     document.addEventListener("keydown", (event) => {
       // 键盘首次交互也尝试续播（排除输入/按钮/链接）
       if (audioEnabled && audio.paused && !event.target.closest("input, textarea, button, a")) playBackgroundMusic();
     }, { once: true });
+  }
+
+  /* —— 开场引子音频：翻开书封时播放，播完无缝接力背景音乐 —— */
+  // 音频一：封面点击后立即播放，播放结束后自动接续原有背景音乐
+  const startIntroAudio = () => {
+    // 无引子音频元素时（其他子页），直接进入背景音乐
+    if (!introAudio) {
+      playBackgroundMusic();
+      return;
+    }
+    // 引子音量在背景音乐音量基础上略放大（上限 1），保证开场听感清晰
+    introAudio.volume = Math.min(1, (audio ? audio.volume : Number(volumeSlider?.value || 0.32)) * 1.4);
+    try {
+      const playPromise = introAudio.play();
+      // 被浏览器拦截时降级为直接播放背景音乐
+      if (playPromise && typeof playPromise.catch === "function") {
+        playPromise.catch(() => playBackgroundMusic());
+      }
+    } catch (error) {
+      playBackgroundMusic();
+    }
+  };
+  // 引子播完自动接上背景音乐；dataset.introBound 防重复绑定
+  if (introAudio && !introAudio.dataset.introBound) {
+    introAudio.dataset.introBound = "1";
+    introAudio.addEventListener("ended", () => playBackgroundMusic());
   }
 
   /* ============================================================
@@ -1013,7 +1044,7 @@
         await new Promise((resolve) => window.setTimeout(resolve, 400));
         calligraphySequence.remove();
         await displayCalligraphyPromise;
-        const interludeDuration = 4000;
+        const interludeDuration = 7000; // 墨迹插页展示时长（ms）：拉长到 7 秒，给水墨晕染更多停留
         const interludeFadeDuration = 600;
         const interludeStartedAt = performance.now();
         const stopInkAnimation = startInkAnimation();
@@ -1065,6 +1096,8 @@
       // 点击“翻开词境”后启动开场动画
       bookOpenButton.addEventListener("click", () => {
         bookOpenButton.disabled = true;
+        // 翻开书封即启动引子音频，铺满开场动画的前半程
+        startIntroAudio();
         if (reducedMotion) {
           revealHome();
           return;
