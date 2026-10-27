@@ -1486,7 +1486,7 @@
 
     // 滚动视差：给标题与装饰层按视口位置施加 --scroll-y
     if (!reducedMotion) {
-      const parallaxSelector = ".hero h1, .hero .eyebrow, .section-wrap h2, .section-kicker, .closing h2, .floating-verse, .memory-lead h2, .work-number, .work-side, .work-main h3, .life-hero-video, .timeline-narrative .timeline, .timeline-scene";
+      const parallaxSelector = ".hero h1, .hero .eyebrow, .hero-art, .section-wrap h2, .section-kicker, .closing h2, .floating-verse, .memory-lead h2, .work-number, .work-side, .work-main h3, .life-hero-video, .listen-hero-video, .wanxiang-hero-video, .bg-parallax, .timeline-narrative .timeline, .timeline-scene, .intro, .story, .afterlife-section, .closing, .listen-content, .listen-interactive, .screen-world, .media-art img, .poet-portrait, .note-ornament, .echo-quote, .closing-pine, .recite-art";
       parallaxElements = Array.from(document.querySelectorAll(parallaxSelector)).map((el) => {
         let speed = "1";
         // 默认归入标准视差档；各特殊元素按各自速度/类名分流
@@ -1496,6 +1496,20 @@
         else if (el.matches(".work-main h3")) { speed = "0.7"; cls = "scroll-parallax-slow"; }
         // life 页首屏视频：走专属的 hero-video-parallax 档（含放大底片）
         else if (el.classList.contains("life-hero-video")) { cls = "hero-video-parallax"; }
+        // listen / wanxiang 页首屏视频：无额外缩放，仅按标准速度位移
+        else if (el.classList.contains("listen-hero-video") || el.classList.contains("wanxiang-hero-video")) { speed = "1"; cls = "hero-video-parallax"; }
+        // 独立背景视差层：慢速漂移
+        else if (el.classList.contains("bg-parallax")) { speed = "0.35"; cls = "scroll-parallax-bg"; }
+        // 整块区块（含其 ::before 背景层）：统一 0.35 的轻微背景漂移
+        else if (el.matches(".intro, .story, .afterlife-section, .closing, .listen-content, .listen-interactive, .screen-world, .recite-art")) { speed = "0.35"; cls = "bg-drift"; }
+        // 区块内的配图：半速下沉，与文字拉开层次
+        else if (el.matches(".media-art img, .poet-portrait")) { speed = "0.5"; cls = "img-parallax"; }
+        // 细碎装饰：轻缓半速，避免抢主体视线
+        else if (el.matches(".note-ornament, .echo-quote")) { speed = "0.4"; cls = "scroll-parallax-slow"; }
+        // 结尾松枝：中速位移，营造风过枝摇
+        else if (el.classList.contains("closing-pine")) { speed = "0.6"; cls = "scroll-parallax"; }
+        // 首页主视觉配图框：换成专属 hero-art-scroll 档（在居中位移上叠加滚动量）
+        else if (el.classList.contains("hero-art")) { speed = "0.55"; cls = "hero-art-scroll"; }
         // life 页时间线场景框：反向视差（-0.5，比滚动慢半拍制造纵深）
         else if (el.classList.contains("timeline-scene")) { speed = "-0.5"; }
         // life 页时间线列表：轻速正向视差
@@ -1511,11 +1525,90 @@
         layer.dataset.parallaxSpeed = cardSpeeds[index % cardSpeeds.length];
         parallaxElements.push(layer);
       });
+      // 万象记忆卡：三张卡片错落系数，滚动时如卡片依次浮起
+      const memorySpeeds = ["0.4", "0.85", "0.2"];
+      document.querySelectorAll(".memory-line article").forEach((article, index) => {
+        article.classList.add("scroll-parallax");
+        article.dataset.parallaxSpeed = memorySpeeds[index % memorySpeeds.length];
+        parallaxElements.push(article);
+      });
     } else {
       parallaxElements = [];
     }
     // 初始化词作笺赏的滚动叙事（当前词高亮 + 标签联动）
     initializeCiNarrative();
+  };
+
+  /* 首页 hero：指针驱动多层视差（底景最慢、人物中速、灯笼前景最快） */
+  const initializeHeroPointerParallax = () => {
+    const hero = document.querySelector(".hero");
+    if (!hero) return;
+    // 立绘层按底图 object-fit:cover 的实际渲染矩形复位（源图 768 方图中的位置 130,46 545x660）
+    const base = hero.querySelector(".hero-base");
+    const figureLayer = hero.querySelector(".hero-figure-layer");
+    if (base && figureLayer) {
+      let layoutPending = false;
+      // 按底图 cover 后的缩放比，把人物在白底图里的原始矩形换算成屏幕像素并写回
+      const placeFigure = () => {
+        layoutPending = false;
+        const frame = figureLayer.parentElement.getBoundingClientRect();
+        const natW = base.naturalWidth || 768;
+        const natH = base.naturalHeight || 768;
+        const scale = Math.max(frame.width / natW, frame.height / natH);
+        const renderedW = natW * scale;
+        const renderedH = natH * scale;
+        // cover 居中留白偏移：底图超出容器的部分左右/上下均分
+        const x0 = (frame.width - renderedW) / 2;
+        const y0 = (frame.height - renderedH) / 2;
+        figureLayer.style.left = `${(x0 + 130 * scale).toFixed(1)}px`;
+        figureLayer.style.top = `${(y0 + 46 * scale).toFixed(1)}px`;
+        figureLayer.style.width = `${(545 * scale).toFixed(1)}px`;
+        figureLayer.style.height = `${(660 * scale).toFixed(1)}px`;
+      };
+      // 同一帧内只排一次布局计算，避免连续 resize 造成抖动
+      const schedulePlace = () => {
+        if (!layoutPending) {
+          layoutPending = true;
+          window.requestAnimationFrame(placeFigure);
+        }
+      };
+      // 底图已缓存则立即定位，否则等 load 后再算一次真实尺寸
+      if (base.complete) schedulePlace();
+      else base.addEventListener("load", schedulePlace, { once: true });
+      window.addEventListener("resize", schedulePlace);
+    }
+    // 减弱动效偏好或触屏（指针不精确）时，不再绑定位移，静止即最优
+    if (reducedMotion || window.matchMedia("(pointer:coarse)").matches) return;
+    let rafPending = false;
+    let targetX = 0;
+    let targetY = 0;
+    // 把 -1~1 的指针位置写入 CSS 变量，各层用 calc() 自行换算位移量
+    const apply = () => {
+      rafPending = false;
+      hero.style.setProperty("--hero-px", targetX.toFixed(3));
+      hero.style.setProperty("--hero-py", targetY.toFixed(3));
+    };
+    // 指针移动频繁，合并到每帧只写一次，减少样式重算
+    const schedule = () => {
+      if (!rafPending) {
+        rafPending = true;
+        window.requestAnimationFrame(apply);
+      }
+    };
+    hero.addEventListener("pointermove", (event) => {
+      // 触摸/触控笔不参与指针视差，避免与滚动冲突
+      if (event.pointerType === "touch" || event.pointerType === "pen") return;
+      const rect = hero.getBoundingClientRect();
+      targetX = Math.min(1, Math.max(-1, ((event.clientX - rect.left) / rect.width) * 2 - 1));
+      targetY = Math.min(1, Math.max(-1, ((event.clientY - rect.top) / rect.height) * 2 - 1));
+      schedule();
+    });
+    // 指针离开首屏：各层回到原位
+    hero.addEventListener("pointerleave", () => {
+      targetX = 0;
+      targetY = 0;
+      schedule();
+    });
   };
 
   /* 词作笺赏叙事：用交叉观察器高亮当前可见词卡，并让顶部标签与之联动；点击标签平滑滚动到对应词 */
@@ -2039,6 +2132,8 @@
    * ============================================================ */
   function initializePageContent() {
   initializeScrollInteractions();
+  // 首屏指针视差（底景 / 人物 / 灯笼三层随鼠标微动）
+  initializeHeroPointerParallax();
   updateTimelineNarrative();
   initializeBambooLeaves();
   initializeDepthInteractions();

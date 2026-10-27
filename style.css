@@ -64,7 +64,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
 /* 移动端菜单开关 */
 .menu-toggle{display:none;background:none;border:0;font-size:22px}
 /* 首页主视觉 hero */
-.hero{min-height:min(720px,calc(100vh - 86px));position:relative;overflow:hidden;padding:90px 10% 78px;display:flex;align-items:center;background:radial-gradient(ellipse at 83% 45%,rgba(210,218,203,.82),transparent 43%),linear-gradient(110deg,#f1f2ec 0%,#e8ece4 65%,#e0e7dc 100%)}
+.hero{--hero-px:0;--hero-py:0;min-height:min(720px,calc(100vh - 86px));position:relative;overflow:hidden;padding:90px 10% 78px;display:flex;align-items:center;background:radial-gradient(ellipse at 83% 45%,rgba(210,218,203,.82),transparent 43%),linear-gradient(110deg,#f1f2ec 0%,#e8ece4 65%,#e0e7dc 100%)}
 /* 首页主视觉 hero */
 .hero:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(243,243,237,.58),rgba(243,243,237,.24)),url("home-background.jpg") center 45%/cover no-repeat;opacity:.72;pointer-events:none}
 /* 首页主视觉文案区 */
@@ -131,8 +131,30 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}
 .verse-rule{height:1px;width:35px;background:var(--rust)}
 /* 首页主视觉配图框（月下人像） */
 .hero-art{position:absolute;width:min(44vw,570px);height:min(48vw,570px);right:10%;top:48%;transform:translateY(-49%);overflow:hidden;background:#273a48;border:1px solid rgba(199,170,119,.72);border-radius:48% 48% 5px 5px;box-shadow:0 0 0 5px rgba(243,243,237,.68),0 0 0 6px rgba(169,104,76,.38),0 28px 65px rgba(35,54,46,.18)}
-/* 配图 img */
-.hero-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 48%}
+/* 配图随滚动轻缓下沉：在原有 -49% 居中位移上叠加 --scroll-y 的 .16 倍 */
+.hero-art-scroll{will-change:transform;transform:translateY(calc(-49% + var(--scroll-y,0px) * .16))}
+/* 配图内部场景层：裁掉底图与人物层的溢出，圆角沿用外框 */
+.hero-scene{position:absolute;inset:0;border-radius:inherit;overflow:hidden}
+/* 配图底层（无人版本）：略放大铺满，随指针反向微移（--hero-px/--hero-py 由脚本写入），与人物拉开景深 */
+.hero-base{position:absolute;inset:-5%;width:110%;height:110%;object-fit:cover;will-change:transform;transform:translate3d(calc(var(--hero-px) * -9px),calc(var(--hero-py) * -6px),0)}
+/* 人物层：位置/尺寸由脚本按底图 cover 的实际渲染矩形换算后写入，随指针同向微移，浮在底图之上 */
+.hero-figure-layer{position:absolute;left:16.9%;top:6%;width:71%;height:86%;will-change:transform;transform:translate3d(calc(var(--hero-px) * 15px),calc(var(--hero-py) * 11px),0)}
+/* 人物图：保持比例不裁切，略微降亮提彩，并做 9s 周期的轻微呼吸浮动 */
+.hero-figure{display:block;width:100%;height:100%;object-fit:contain;filter:brightness(.95) saturate(1.06) contrast(1.04);animation:hero-figure-bob 9s ease-in-out infinite;will-change:transform}
+/* 人物浮动：上下 5px、≤0.35° 的极缓起伏，避免抢戏 */
+@keyframes hero-figure-bob{0%,100%{transform:translate3d(0,0,0) rotate(0deg)}50%{transform:translate3d(0,-5px,0) rotate(-.35deg)}}
+/* 灯笼前景层：浮在人物与底图之上，随指针位移最大（26px / 18px），形成最强景深 */
+.hero-lantern-field{position:absolute;inset:0;z-index:1;pointer-events:none;will-change:transform;transform:translate3d(calc(var(--hero-px,0) * 26px),calc(var(--hero-py,0) * 18px),0)}
+/* 单只灯笼：尺寸与漂浮周期由自身 --hl-size / --hl-dur 控制，并带暖色落影 */
+.hero-lantern{position:absolute;width:var(--hl-size,56px);height:auto;opacity:.88;filter:drop-shadow(0 8px 16px rgba(176,84,30,.3));animation:hero-lantern-drift var(--hl-dur,14s) ease-in-out infinite;will-change:transform}
+/* 灯笼位置 · 左上：最大一只，最慢地飘 */
+.hl-a{left:2%;top:9%;--hl-size:62px;--hl-dur:13s;animation-delay:-4s}
+/* 灯笼位置 · 中上：中等尺寸，周期最长 */
+.hl-b{left:33%;top:4%;--hl-size:48px;--hl-dur:17s;animation-delay:-9s}
+/* 灯笼位置 · 右上：最小一只，飘得最快，作远景点缀 */
+.hl-c{right:4%;top:8%;--hl-size:34px;--hl-dur:11s;animation-delay:-2s}
+/* 灯笼漂浮：右移 7px、上浮 12px，并左右轻摆 ±1.3° */
+@keyframes hero-lantern-drift{0%,100%{transform:translate3d(0,0,0) rotate(-1.2deg)}50%{transform:translate3d(7px,-12px,0) rotate(1.4deg)}}
 /* 配图遮罩 */
 .image-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,33,46,.25),transparent 26%,transparent 68%,rgba(18,38,49,.35));pointer-events:none}
 /* 首页主视觉配图框（月下人像） */
@@ -160,9 +182,9 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}
 /* 右侧云气图片：水平镜像，避免左右两团看起来是同一张图的复制 */
 .hero-cloud-right img{transform:scaleX(-1)}
 /* 窄屏：云气放大到 86vw、起点更低、整体更淡，并向外多让一点，防止挡住文案 */
-@media(max-width:700px){.hero-cloud{width:86vw;bottom:-2%;opacity:calc(.7 - var(--hero-cloud-p,0) * .7)}.hero-cloud-left{left:-20%}.hero-cloud-right{right:-20%}}
-/* 减弱动效：取消云气的位移与旋转，只保留透明度变化，并移除 will-change 降低合成开销 */
-@media(prefers-reduced-motion:reduce){.hero-cloud-left,.hero-cloud-right{transform:none}.hero-cloud{will-change:auto}}
+@media(max-width:700px){.hero-cloud{width:86vw;bottom:-2%;opacity:calc(.7 - var(--hero-cloud-p,0) * .7)}.hero-cloud-left{left:-20%}.hero-cloud-right{right:-20%}.hl-a{--hl-size:52px;left:4%;top:11%}.hl-b{--hl-size:40px;left:44%;top:2%}.hl-c{display:none}}
+/* 减弱动效：取消云气的位移与旋转，只保留透明度变化，并移除 will-change 降低合成开销；配图三层与灯笼同时停掉指针位移、浮动动画 */
+@media(prefers-reduced-motion:reduce){.hero-cloud-left,.hero-cloud-right{transform:none}.hero-cloud{will-change:auto}.hero-base,.hero-figure-layer,.hero-lantern-field{transform:none;will-change:auto}.hero-figure,.hero-lantern{animation:none;will-change:auto}}
 /* 滚动提示线 */
 .scroll-line{width:80px;height:1px;background:#bdc7ba}
 /* 首页底部滚动提示 */
@@ -170,7 +192,7 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}
 /* 内容区左右留白容器 */
 .section-wrap{padding-left:10%;padding-right:10%}
 /* 词人介绍区 */
-.intro{display:grid;grid-template-columns:.45fr 1.05fr .8fr;gap:45px;padding-top:120px;padding-bottom:128px;align-items:start;background:linear-gradient(rgba(243,243,237,.68),rgba(243,243,237,.68)),url("intro-background.jpg") center/cover no-repeat}
+.intro{display:grid;grid-template-columns:.45fr 1.05fr .8fr;gap:45px;padding-top:120px;padding-bottom:128px;align-items:start;background:linear-gradient(rgba(243,243,237,.68),rgba(243,243,237,.68)),url("intro-background.jpg") center calc(50% + var(--scroll-y,0px))/cover no-repeat}
 /* 介绍区词人列 */
 .intro-poet{min-width:0}
 /* 词人肖像框 */
@@ -254,7 +276,7 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}
 /* 身后之名区 */
 .afterlife-section{position:relative;isolation:isolate;min-height:370px;padding-top:62px;padding-bottom:70px;display:flex;flex-direction:column;justify-content:center;overflow:hidden;background:#f3f3ed}
 /* 身后之名区 */
-.afterlife-section:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(238,240,232,.3),rgba(238,240,232,.2) 66%,rgba(238,240,232,.16)),url("afterlife-background.jpg") center 53%/cover no-repeat;opacity:.56}
+.afterlife-section:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(238,240,232,.3),rgba(238,240,232,.2) 66%,rgba(238,240,232,.16)),url("afterlife-background.jpg") center calc(53% + var(--scroll-y,0px))/cover no-repeat;opacity:.56}
 /* 区块小标题 */
 .afterlife-section>.section-kicker{color:#755e40;text-shadow:0 1px 12px rgba(255,255,255,.5)}
 /* 区块小标题 */
@@ -272,9 +294,13 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}
 /* 收尾区 */
 .closing{position:relative;isolation:isolate;padding-top:108px;padding-bottom:110px;display:grid;grid-template-columns:.35fr 1fr .85fr;gap:45px;align-items:center}
 /* 收尾区 */
-.closing:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(rgba(238,240,232,.14),rgba(238,240,232,.14)),url("closing-background.jpg") center 54%/cover no-repeat;opacity:.56}
+.closing:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(rgba(238,240,232,.14),rgba(238,240,232,.14)),url("closing-background.jpg") center calc(54% + var(--scroll-y,0px))/cover no-repeat;opacity:.56}
 /* 收尾区松枝装饰 */
-.closing-pine{color:#879483;font-size:13px;letter-spacing:.3em;writing-mode:vertical-rl;border-left:1px solid #b8c1b5;height:170px;padding:10px 0 0 16px}
+.closing-pine{color:#879483;font-size:13px;letter-spacing:.3em;writing-mode:vertical-rl;border-left:1px solid #b8c1b5;height:170px;padding:10px 0 0 16px;animation:pine-sway 8s ease-in-out infinite;transform-origin:top left}
+/* 松影摇曳：竖排两字以左上角为轴，做 0.6° 的极缓摆动，透明度微亮微暗 */
+@keyframes pine-sway{0%,100%{rotate:0deg;opacity:.92}50%{rotate:.6deg;opacity:1}}
+/* 减弱动效：停掉松影摇曳 */
+@media(prefers-reduced-motion:reduce){.closing-pine{animation:none}}
 /* 收尾区 */
 .closing h2{margin-top:17px}
 /* 收尾区 */
@@ -296,9 +322,19 @@ textarea::placeholder{color:#9aa297}
 /* 表单反馈文字 */
 .mood-feedback,.poem-feedback{font-size:11px;color:var(--rust);margin:10px 0 0;min-height:1.5em}
 /* 站点页脚 */
-.site-footer{position:relative;isolation:isolate;min-height:112px;background:transparent;padding:25px 6.6%;display:flex;align-items:center;justify-content:space-between;gap:20px;border-top:1px solid #d9ddd4}
+.site-footer{position:relative;isolation:isolate;min-height:112px;background:transparent;padding:25px 6.6%;display:flex;align-items:center;justify-content:space-between;gap:20px;border-top:1px solid #d9ddd4;overflow:hidden}
 /* 站点页脚 */
-.site-footer:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(rgba(243,243,237,.2),rgba(243,243,237,.2)),url("footer-river-background.jpg") center 53%/cover no-repeat}
+.site-footer:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(rgba(243,243,237,.2),rgba(243,243,237,.2)),url("footer-river-background.jpg") center 53%/cover no-repeat;animation:footer-pan 90s ease-in-out infinite alternate}
+/* 页脚河景横移：90 秒一轮、往复交替，背景位置在 32% 与 68% 之间缓缓漂移，像江水流动 */
+@keyframes footer-pan{0%{background-position:32% 53%}100%{background-position:68% 53%}}
+/* 页脚水波层：一条可横向无缝滚动的浪纹带，宽度随内容自适应，用 28s 匀速左移形成流动水面 */
+.footer-wave{position:absolute;left:0;bottom:-16px;height:96px;z-index:-1;pointer-events:none;width:max-content;display:flex;animation:footer-wave-flow 28s linear infinite}
+/* 页脚水波图片：重复的浪纹图并排排列，不高不扁保持原比例，正片叠底柔融进背景 */
+.footer-wave img{flex:none;height:100%;width:auto;mix-blend-mode:multiply;opacity:.52}
+/* 水波平移：整体左移自身宽度的 50%，与重复图拼接后首尾衔接、循环无断点 */
+@keyframes footer-wave-flow{to{transform:translateX(-50%)}}
+/* 减弱动效：停掉页脚河景横移与水波滚动 */
+@media(prefers-reduced-motion:reduce){.footer-wave{animation:none}.site-footer:before{animation:none}}
 /* 站点页脚 */
 .site-footer>span{font-family:"Liyu Xingkai UI",var(--serif);font-size:15px;color:#59675b;letter-spacing:.06em}
 /* 站点页脚 */
@@ -332,7 +368,7 @@ textarea::placeholder{color:#9aa297}
 /* 子页主视觉标记 */
 .subhero-mark small{grid-column:1 / -1;line-height:1.8;font-size:10px;color:#405748;font-weight:500}
 /* 生平叙事区 */
-.story{position:relative;padding-top:94px;padding-bottom:95px;border-top:1px solid rgba(169,104,76,.34);background:linear-gradient(180deg,rgba(243,243,237,.62),rgba(243,243,237,.48) 24%,rgba(243,243,237,.54)),url("life-story-background.jpg") center 48%/cover no-repeat}
+.story{position:relative;padding-top:94px;padding-bottom:95px;border-top:1px solid rgba(169,104,76,.34);background:linear-gradient(180deg,rgba(243,243,237,.62),rgba(243,243,237,.48) 24%,rgba(243,243,237,.54)),url("life-story-background.jpg") center calc(48% + var(--scroll-y,0px))/cover no-repeat}
 /* 生平叙事区 */
 .story:before{content:"\2767\3000\2727\3000\2767";position:absolute;top:-17px;left:50%;transform:translateX(-50%);padding:0 20px;background:#f0f0e8;color:#9b7054;font-size:18px;line-height:32px;letter-spacing:.16em;text-shadow:0 1px 0 rgba(255,255,255,.7)}
 /* 区块小标题 */
@@ -432,7 +468,7 @@ textarea::placeholder{color:#9aa297}
 /* 记忆卡片行 */
 .memory-line{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin:54px 0 0 18%}
 /* 记忆卡片行 */
-.memory-line article{position:relative;min-height:225px;padding:25px 24px 23px;background:rgba(255,255,255,.39);border-top:1px solid #c5cfc3;box-shadow:0 8px 24px rgba(49,67,53,.045);cursor:pointer;transition:transform .34s cubic-bezier(.2,.7,.25,1),box-shadow .34s ease,background .34s ease}
+.memory-line article{position:relative;min-height:225px;padding:25px 24px 23px;background:rgba(255,255,255,.39);border-top:1px solid #c5cfc3;box-shadow:0 8px 24px rgba(49,67,53,.045);cursor:pointer;transition:box-shadow .34s ease,background .34s ease}
 /* 记忆卡片行 */
 .memory-line article:focus-visible{outline:2px solid var(--rust);outline-offset:4px}
 /* 记忆展开提示 */
@@ -442,7 +478,7 @@ textarea::placeholder{color:#9aa297}
 /* 记忆卡片行 */
 .memory-line article:hover .memory-open-hint span{transform:translate(2px,-2px)}
 /* 响应式适配：精确指针设备 — 记忆卡片悬停抬升 */
-@media(hover:hover) and (pointer:fine){.memory-line article:hover{z-index:2;transform:translateY(-5px) scale(1.035);background:rgba(255,255,255,.72);box-shadow:0 15px 30px rgba(49,67,53,.13)}}
+@media(hover:hover) and (pointer:fine){.memory-line article:hover{z-index:2;transform:translate3d(0,calc(var(--scroll-y,0px) - 5px),0) scale(1.035);background:rgba(255,255,255,.72);box-shadow:0 15px 30px rgba(49,67,53,.13)}}
 /* 记忆卡片行 */
 .memory-line article:before{content:"";position:absolute;width:7px;height:7px;border-radius:50%;top:-4px;left:23px;background:var(--rust);box-shadow:0 0 0 4px var(--paper)}
 /* 记忆卡片行 */
@@ -476,7 +512,7 @@ textarea::placeholder{color:#9aa297}
 /* 当代想象·荧幕天地 */
 .screen-world{position:relative;isolation:isolate;padding-top:100px;padding-bottom:95px;background:#eef0e9}
 /* 当代想象·荧幕天地 */
-.screen-world:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(rgba(243,243,237,.54),rgba(243,243,237,.64)),url("screen-world-background.jpg") center 46%/cover no-repeat}
+.screen-world:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(rgba(243,243,237,.54),rgba(243,243,237,.64)),url("screen-world-background.jpg") center calc(46% + var(--scroll-y,0px))/cover no-repeat}
 /* 区块小标题 */
 .screen-world>.section-kicker{margin-bottom:28px}
 /* 荧幕天地标题行 */
@@ -564,7 +600,7 @@ textarea::placeholder{color:#9aa297}
 /* 媒介大图（点击查看） */
 .media-art:focus-visible{outline:2px solid var(--rust);outline-offset:4px}
 /* 响应式适配：精确指针设备 — 媒介大图悬停放大 + 遮罩亮起 */
-@media(hover:hover) and (pointer:fine){.media-art:hover img{transform:scale(1.06);filter:saturate(1.08)}.media-art:hover:before,.media-art:focus-visible:before{opacity:1;transform:translateY(0)}}
+@media(hover:hover) and (pointer:fine){.media-art:hover img{filter:saturate(1.08)}.media-art:hover:before,.media-art:focus-visible:before{opacity:1;transform:translateY(0)}}
 /* 古本遗像配图底色 */
 .media-art-archive{background:linear-gradient(135deg,#d8b780,#e9d1a0 55%,#d2ad75)}
 /* 忘川风华录配图底色 */
@@ -720,7 +756,7 @@ textarea::placeholder{color:#9aa297}
 /* 听词内容区 */
 .listen-content{position:relative;isolation:isolate;padding-top:95px;padding-bottom:80px;background:#f3f3ed}
 /* 听词内容区 */
-.listen-content:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(rgba(243,243,237,.76),rgba(243,243,237,.82)),url("listen-recitation-background.jpg") center 47%/cover no-repeat}
+.listen-content:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(rgba(243,243,237,.76),rgba(243,243,237,.82)),url("listen-recitation-background.jpg") center calc(47% + var(--scroll-y,0px))/cover no-repeat}
 /* 区块小标题 */
 .listen-content>.section-kicker{margin-bottom:27px}
 /* 听词区标题行 */
@@ -734,7 +770,7 @@ textarea::placeholder{color:#9aa297}
 /* 诵读卡片 */
 .recite-card{display:grid;grid-template-columns:190px 1fr;gap:31px;padding:21px 0;border-bottom:1px solid var(--line)}
 /* 诵读配图 */
-.recite-art{min-height:158px;position:relative;overflow:hidden;background:linear-gradient(150deg,#8a9a82,#435d4a);background-position:center;background-size:cover;display:flex;flex-direction:column;justify-content:center;align-items:center;color:#f4f0e5}
+.recite-art{min-height:158px;position:relative;overflow:hidden;background:linear-gradient(150deg,#8a9a82,#435d4a);background-position:center calc(50% + var(--scroll-y,0px));background-size:cover;display:flex;flex-direction:column;justify-content:center;align-items:center;color:#f4f0e5}
 /* 诵读配图 */
 .recite-art:not(.art-moon):not(.art-rain){background-image:url("recite-spring-river.jpg")}
 /* 诵读配图 */
@@ -764,7 +800,7 @@ textarea::placeholder{color:#9aa297}
 /* 组件样式：listen-interactive */
 .listen-interactive{position:relative;isolation:isolate}
 /* 组件样式：listen-interactive */
-.listen-interactive:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(rgba(243,243,237,.61),rgba(243,243,237,.68)),url("listen-writing-background.jpg") center 48%/cover no-repeat}
+.listen-interactive:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(rgba(243,243,237,.61),rgba(243,243,237,.68)),url("listen-writing-background.jpg") center calc(48% + var(--scroll-y,0px))/cover no-repeat}
 /* 区块小标题 */
 .interactive>.section-kicker{margin-bottom:25px}
 /* 互动写词区 */
@@ -833,6 +869,12 @@ textarea::placeholder{color:#9aa297}
 .scroll-parallax-bg{will-change:transform;transform:translate3d(0,calc(var(--scroll-y,0px) * -.28),0) scale(1.06)}
 /* 滚动视差（life 页首屏视频：反向位移并放大底片，随滚动缓缓下沉） */
 .hero-video-parallax{will-change:transform;transform:translate3d(0,calc(var(--scroll-y,0px) * -.32),0) scale(1.12)}
+/* 滚动视差（图片层：反向位移并放大，用于肖像与万象媒体图，滚动时画面缓慢上移） */
+.img-parallax{will-change:transform;transform:translate3d(0,calc(var(--scroll-y,0px) * -.5),0) scale(1.08)}
+/* 肖像框：裁掉图片视差放大后的溢出，保持画框边界干净（与上方规则合并效果一致） */
+.portrait-frame{overflow:hidden}
+/* 减弱动效：图片视差复位并释放 will-change */
+@media(prefers-reduced-motion:reduce){.img-parallax{transform:none;will-change:auto}}
 /* 金竹飘落画布 */
 .bamboo-leaves{position:fixed;inset:0;z-index:1010;pointer-events:none;width:100%;height:100%;opacity:.52;mix-blend-mode:normal}
 /* 响应式适配：(max-width:700px) */
