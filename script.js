@@ -233,6 +233,218 @@
     updateStages();
   })();
 
+  // 词容万象「书影流转」3D 轮播（coverflow）：默认静态网格兜底，加 .media-deck-3d 启用 3D；
+  // 滚入视口先叠摞再铺开入场；空闲自动流转（悬停/详情弹窗/页面隐藏时停摆）；桌面悬浮微倾+中心卡内部视差；
+  // 鼠标与触摸拖拽均可翻页；键盘左右、箭头圆钮、点侧卡聚焦（捕获拦截），点中心卡交给大图弹窗
+  (() => {
+    const carousel = document.querySelector(".media-carousel");
+    if (!carousel) return;
+    // 卡组、四张卡、四段说明、页码、详情弹窗，均在本段内取用，缺任何一项都不会影响其他页面
+    const deck = carousel.querySelector(".media-deck");
+    const slides = Array.from(deck.querySelectorAll(".media-slide"));
+    const caps = Array.from(carousel.querySelectorAll(".media-carousel-info .media-caption"));
+    const counter = carousel.querySelector(".media-carousel-count b");
+    const storyDialog = document.querySelector(".memory-story-dialog");
+    const n = slides.length;
+    // 减弱动效：不启用 3D，直接把四段说明全部点亮（CSS 那边退回静态网格）
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      caps.forEach((cap) => cap.classList.add("is-active"));
+      return;
+    }
+    carousel.classList.add("carousel-ready");
+    deck.classList.add("media-deck-3d");
+    let cur = 0;
+    let started = false;
+    // 核心排布：按「与当前卡的相对位次 t」算位移、纵深、角度与缩放，再把说明与页码同步到 cur
+    const layout = (p) => {
+      p = p || 0; // p 为拖拽跟手的连续偏移量（约 -1~1），0 即静止吸附态
+      const w = slides[0].offsetWidth || 250; // 未变换布局宽度：getBoundingClientRect 会带 3D 投影，导致不同卡居中时铺开形态不一
+      slides.forEach((slide, i) => {
+        // 环形取最短距离：把 -n/2 ~ n/2 之外的值折回来，末张与首张之间不会绕远路
+        let d = ((i - cur) % n + n) % n;
+        if (d > n / 2) d -= n;
+        const t = d - p;
+        slide.style.zIndex = String(20 - Math.round(Math.abs(t) * 4));
+        slide.style.transform = "translateX(" + (t * w * 0.76).toFixed(1) + "px) translateZ(" + (-Math.abs(t) * 120).toFixed(1) + "px) rotateY(" + (-t * 32).toFixed(1) + "deg) scale(" + Math.max(.6, 1 - Math.abs(t) * .08).toFixed(3) + ")";
+        slide.classList.toggle("is-center", d === 0 && !p);
+      });
+      caps.forEach((cap, i) => cap.classList.toggle("is-active", i === cur));
+      if (counter) {
+        counter.textContent = String(cur + 1).padStart(2, "0");
+        counter.animate([{ opacity: 0, transform: "translateY(7px)" }, { opacity: 1, transform: "none" }], { duration: 420, easing: "ease-out" });
+      }
+    };
+    // 空闲自动流转：悬停、详情弹窗开启、页面隐藏时停摆，任何交互后重新计时
+    let autoTimer = 0;
+    const stopAuto = () => { if (autoTimer) { clearInterval(autoTimer); autoTimer = 0; } };
+    const startAuto = () => {
+      if (autoTimer || !started) return;
+      autoTimer = setInterval(() => {
+        if (document.hidden || deck.matches(":hover") || (storyDialog && storyDialog.open)) return;
+        go(1);
+      }, 5200);
+    };
+    const bumpAuto = () => { stopAuto(); startAuto(); };
+    const go = (dir) => { cur = (cur + dir + n) % n; layout(); ritual(dir); };
+    // 切换仪式：一句词自中心卡右侧竖排升起飘散，几粒淡墨朝翻页方向迸落（词与四图意境对应）
+    const VERSES = ["往事已成空 还如一梦中", "寻春须是先春早 看花莫待花枝老", "帘外雨潺潺 春意阑珊", "世事漫随流水 算来一梦浮生"];
+    const ritual = (dir) => {
+      // 词句节点只建一次，之后复用；重新触发动画靠「摘类名 → 强制回流 → 加类名」
+      let verse = deck.querySelector(".media-verse-float");
+      if (!verse) {
+        verse = document.createElement("span");
+        verse.className = "media-verse-float";
+        verse.setAttribute("aria-hidden", "true");
+        deck.appendChild(verse);
+      }
+      verse.classList.remove("is-rising");
+      void verse.offsetWidth;
+      verse.textContent = VERSES[cur] || "";
+      verse.classList.add("is-rising");
+      // 墨点：九粒随机散开，横向按翻页方向（右翻往左、左翻往右）铺，纵向上下随机
+      const burst = document.createElement("span");
+      burst.className = "media-ink-burst is-bursting";
+      burst.setAttribute("aria-hidden", "true");
+      const spread = dir > 0 ? -1 : 1;
+      for (let k = 0; k < 9; k++) {
+        const dot = document.createElement("i");
+        dot.style.setProperty("--mx", (spread * (46 + Math.random() * 104)).toFixed(0) + "px");
+        dot.style.setProperty("--my", (-34 + Math.random() * 88).toFixed(0) + "px");
+        dot.style.animationDelay = (Math.random() * .12).toFixed(2) + "s";
+        burst.appendChild(dot);
+      }
+      deck.appendChild(burst);
+      setTimeout(() => burst.remove(), 1400);
+    };
+    // 入场：先把四张叠摞成一摞，滚入视口后再铺开成 coverflow
+    slides.forEach((slide, i) => {
+      slide.style.zIndex = String(20 - i);
+      slide.style.transform = "translateX(0) translateZ(0) rotateY(0deg) scale(1)";
+    });
+    const revealIO = new IntersectionObserver((entries) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      revealIO.disconnect();
+      // 连等两帧再铺开，保证浏览器已完成首帧布局，过渡才不会被跳过
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        started = true;
+        layout();
+        ritual(1);
+        startAuto();
+      }));
+    }, { threshold: 0.3 });
+    revealIO.observe(deck);
+    if (storyDialog) storyDialog.addEventListener("close", bumpAuto);
+    // 鼠标/触摸拖拽跟手：卡片实时随位移流转，松手按位移+甩动速度弹性吸附（可甩页/回弹/连拖）
+    let dragX = 0, dragP = 0, dragging = false, dragged = false, lastX = 0, lastT = 0, vel = 0;
+    deck.addEventListener("pointerdown", (event) => {
+      if (!event.isPrimary) return;
+      dragX = lastX = event.clientX; lastT = performance.now(); vel = 0; dragP = 0;
+      dragging = true;
+    });
+    deck.addEventListener("pointermove", (event) => {
+      if (!dragging || !event.isPrimary) return;
+      const dx = event.clientX - dragX;
+      const now = performance.now();
+      // 甩动速度：用相邻两次移动的位移/时间差估算，松手时参与判页
+      if (now > lastT) vel = (event.clientX - lastX) / (now - lastT);
+      lastX = event.clientX; lastT = now;
+      // 超过 6px 才算「真的在拖」，避免误触把点击当拖拽
+      if (!dragged && Math.abs(dx) > 6) {
+        dragged = true;
+        deck.classList.add("is-dragging");
+      }
+      if (dragged) {
+        dragP = -dx / ((slides[0].offsetWidth || 250) * 0.76);
+        layout(dragP);
+      }
+    });
+    const endDrag = () => {
+      if (!dragging) return;
+      dragging = false;
+      if (!dragged) return;
+      deck.classList.remove("is-dragging");
+      // 判页阈值：拖过 0.32 张即翻；或拖过 0.08 张且甩得够快（< -0.45 / > 0.45）也翻
+      const flip = dragP > 0.32 || (dragP > 0.08 && vel < -0.45) ? 1 : dragP < -0.32 || (dragP < -0.08 && vel > 0.45) ? -1 : 0;
+      if (flip) {
+        cur = (cur + flip + n) % n;
+        dragX = lastX; dragP = 0;
+        layout(); ritual(flip); bumpAuto();
+      } else layout();
+      setTimeout(() => { dragged = false; }, 60);
+    };
+    deck.addEventListener("pointerup", endDrag);
+    deck.addEventListener("pointercancel", endDrag);
+    // 拖拽结束时拦下这次 click，免得松开手顺带触发卡片上的大图弹窗
+    deck.addEventListener("click", (event) => {
+      if (dragged) { event.stopPropagation(); event.preventDefault(); }
+    }, true);
+    carousel.querySelectorAll(".media-nav").forEach((btn) => btn.addEventListener("click", () => { go(Number(btn.dataset.dir)); bumpAuto(); }));
+    deck.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowLeft") { event.preventDefault(); go(-1); bumpAuto(); }
+      else if (event.key === "ArrowRight") { event.preventDefault(); go(1); bumpAuto(); }
+    });
+    // 点两侧卡片即翻到那张（用捕获阶段先拦下，避免顺带打开大图）；点中心卡不拦，交给弹窗
+    slides.forEach((slide, i) => {
+      slide.addEventListener("click", (event) => {
+        if (i === cur) return;
+        event.stopPropagation(); event.preventDefault();
+        const prev = cur;
+        cur = i; layout(); ritual(i > prev ? 1 : -1); bumpAuto();
+      }, true);
+    });
+    // 桌面悬浮：书案随指针微倾，中心卡画面反向轻移（画中人望向指针）
+    if (window.matchMedia("(hover:hover) and (pointer:fine)").matches) {
+      let tiltRaf = 0, px = 0.5, py = 0.5;
+      const applyTilt = () => {
+        tiltRaf = 0;
+        deck.style.transform = "rotateX(" + ((0.5 - py) * 4.6).toFixed(2) + "deg) rotateY(" + ((px - 0.5) * 6.4).toFixed(2) + "deg)";
+        const img = slides[cur].querySelector("img");
+        if (img) img.style.transform = "translate(" + ((0.5 - px) * 8).toFixed(1) + "px," + ((0.5 - py) * 6).toFixed(1) + "px)";
+      };
+      deck.addEventListener("pointermove", (event) => {
+        if (event.pointerType !== "mouse") return;
+        // 指针在卡组里的归一化坐标（0~1），用视口矩形换算，同帧只算一次
+        const rect = deck.getBoundingClientRect();
+        px = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
+        py = Math.min(1, Math.max(0, (event.clientY - rect.top) / rect.height));
+        if (!tiltRaf) tiltRaf = requestAnimationFrame(applyTilt);
+      });
+      // 指针离开：清掉内联倾斜，并临时挂 tilt-return 让回位带缓动
+      deck.addEventListener("pointerleave", (event) => {
+        if (event.pointerType !== "mouse") return;
+        deck.classList.add("tilt-return");
+        deck.style.transform = "";
+        const img = slides[cur].querySelector("img");
+        if (img) img.style.transform = "";
+      });
+      deck.addEventListener("pointerenter", (event) => {
+        if (event.pointerType === "mouse") deck.classList.remove("tilt-return");
+      });
+    }
+    window.addEventListener("resize", () => { if (started) layout(); });
+  })();
+
+  // 书影流转区滚动视差：按区块进出视口进度写 --glide-p（0=刚进，1=将出），
+  // 驱动巨字「影」/轮播/标题三层差速漂移；reduced-motion 不启用，CSS 走静态默认值
+  (() => {
+    const zone = document.querySelector(".screen-world");
+    if (!zone) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let raf = 0;
+    // 进度 =（视口底 - 区块顶）/（视口高 + 区块高），区块完全进入时为 0.5 左右
+    const update = () => {
+      raf = 0;
+      const rect = zone.getBoundingClientRect();
+      const vh = window.innerHeight || 1;
+      const p = Math.min(1, Math.max(0, (vh - rect.top) / (vh + rect.height)));
+      zone.style.setProperty("--glide-p", p.toFixed(4));
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    update();
+  })();
+
   /* ============================================================
    * 开场链路：翻书封面 → 书法飞落序列 → 水墨间奏 → 抵达视差
    * ============================================================ */
@@ -1544,7 +1756,7 @@
 
     // 滚动视差：给标题与装饰层按视口位置施加 --scroll-y
     if (!reducedMotion) {
-      const parallaxSelector = ".hero h1, .hero .eyebrow, .hero-art, .section-wrap h2, .section-kicker, .closing h2, .memory-lead h2, .work-number, .work-side, .work-main h3, .bg-parallax, .timeline-narrative .timeline, .timeline-scene, .intro, .story, .afterlife-section, .closing, .listen-content, .listen-interactive, .screen-world, .media-art img, .poet-portrait, .note-ornament, .echo-quote, .closing-pine, .recite-art";
+      const parallaxSelector = ".hero h1, .hero .eyebrow, .hero-art, .section-wrap h2, .section-kicker, .closing h2, .memory-lead h2, .work-number, .work-side, .work-main h3, .bg-parallax, .timeline-narrative .timeline, .timeline-scene, .intro, .story, .afterlife-section, .closing, .listen-content, .listen-interactive, .screen-world, .poet-portrait, .note-ornament, .echo-quote, .closing-pine, .recite-art";
       parallaxElements = Array.from(document.querySelectorAll(parallaxSelector)).map((el) => {
         let speed = "1";
         // 默认归入标准视差档；各特殊元素按各自速度/类名分流
@@ -1557,7 +1769,7 @@
         // 整块区块（含其 ::before 背景层）：统一 0.35 的轻微背景漂移
         else if (el.matches(".intro, .story, .afterlife-section, .closing, .listen-content, .listen-interactive, .screen-world, .recite-art")) { speed = "0.35"; cls = "bg-drift"; }
         // 区块内的配图：半速下沉，与文字拉开层次
-        else if (el.matches(".media-art img, .poet-portrait")) { speed = "0.5"; cls = "img-parallax"; }
+        else if (el.matches(".poet-portrait")) { speed = "0.5"; cls = "img-parallax"; }
         // 细碎装饰：轻缓半速，避免抢主体视线
         else if (el.matches(".note-ornament, .echo-quote")) { speed = "0.4"; cls = "scroll-parallax-slow"; }
         // 结尾松枝：中速位移，营造风过枝摇
@@ -1957,7 +2169,9 @@
     document.querySelectorAll(".media-art[aria-haspopup='dialog']").forEach((artwork) => {
       const openArtwork = () => {
         const image = artwork.querySelector("img");
-        const caption = artwork.closest(".media-card")?.querySelector(".media-caption");
+        const slide = artwork.closest(".media-slide");
+        const caption = artwork.closest(".media-card")?.querySelector(".media-caption")
+          || (slide ? document.querySelector('.media-carousel-info .media-caption[data-slide="' + slide.dataset.index + '"]') : null);
         const heading = caption?.querySelector("h3");
         if (!image || !caption || !heading) return;
         const paragraphs = [];
@@ -2126,7 +2340,7 @@
   /* 3D 倾斜：指针悬停时让卡片随指针轻微立体偏转 */
   const initializeDepthInteractions = () => {
     if (reducedMotion || window.innerWidth <= 700 || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
-    document.querySelectorAll(".poem-card, .timeline-card, .memory-line article, .media-card, .intro-card, .hero-art, .floating-verse, .sound-orbit, .recite-art").forEach((surface) => {
+    document.querySelectorAll(".poem-card, .timeline-card, .memory-line article, .intro-card, .hero-art, .floating-verse, .sound-orbit, .recite-art").forEach((surface) => {
       if (surface.dataset.depthInitialized === "true") return;
       surface.dataset.depthInitialized = "true";
       surface.classList.add("depth-surface");

@@ -1,16 +1,27 @@
 <!doctype html>
+<!-- 一江春水 · 李煜词境 — 词容万象页 / wanxiang.html -->
 <html lang="zh-CN">
 <head>
+  <!-- 文档头部：字符集、移动端视口、主题色、SEO 描述、分页标题，以及共用的样式表与交互脚本 -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#e8eee4">
   <meta name="description" content="从史实、词句和当代演绎等视角，探索李煜词作在后世读者心中的不同回响。">
+  <!-- Open Graph：分享到社交平台时的站点名、类型、标题、摘要、封面图与语言 -->
+  <meta property="og:site_name" content="春水留痕·李煜词境">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="词容万象｜春水留痕·李煜词境">
+  <meta property="og:description" content="从史实、词句和当代演绎等视角，探索李煜词作在后世读者心中的不同回响。">
+  <meta property="og:image" content="screen-world-background.jpg">
+  <meta property="og:locale" content="zh_CN">
   <title>词容万象｜春水留痕·李煜词境</title>
   <link rel="stylesheet" href="style.css">
   <script src="script.js" defer></script>
 </head>
 <body>
+  <!-- 跳过导航：键盘用户按 Tab 时可直接跳入正文(#main-content) -->
   <a class="skip-link" href="#main-content">跳至主要内容</a>
+  <!-- 页头：品牌标识 + 主导航(当前页高亮「词容万象」) + 背景音乐开关/音量 -->
   <header class="site-header">
     <a class="brand" href="index.html"><span class="brand-seal">煜</span><span>一江春水<small>李煜词境 · 南唐旧梦</small></span></a>
     <button class="menu-toggle" aria-label="打开导航" aria-expanded="false">☰</button>
@@ -19,10 +30,11 @@
     </nav>
     <div class="sound-controls"><button class="sound-toggle" type="button" aria-label="关闭背景音乐" aria-pressed="true"><span class="sound-icon">♫</span><span class="sound-status">音乐开启</span></button><label class="volume-control"><span class="visually-hidden">背景音乐音量</span><input class="volume-slider" type="range" min="0" max="1" step="0.01" value="0.32"></label></div>
   </header>
+  <!-- 主体：id="main-content" 供顶部「跳至主要内容」链接定位；tabindex="-1" 使其可被程序聚焦 -->
   <main id="main-content" tabindex="-1">
     <!-- 钉合舞台：包住首屏与其后的视角区块——首屏 sticky 吸顶，视角区块上浮覆盖（见 style.css .subhero-stage） -->
     <div class="subhero-stage">
-    <!-- 首屏：背景视频(视频未就绪时以 poster 图占位) + 标题文案 + 竖排大字水印(一词万象)；吸顶期间 --hero-p 由脚本写入 -->
+    <!-- 首屏：背景视频(未就绪时以 poster 图占位) + 标题与导语 + 右侧「一词万象」竖印；吸顶期间 --hero-p 由脚本写入 -->
     <section class="subhero wanxiang-hero">
       <video class="wanxiang-hero-video" autoplay muted loop playsinline preload="metadata" poster="screen-world-background.jpg" aria-hidden="true" tabindex="-1">
         <source src="wanxiang-hero.mp4" type="video/mp4">
@@ -33,17 +45,19 @@
         <p>李煜已远去，但他并未只留在史书里。千年之后，人们仍从他的词里读见故国、才情与寻常人的悲欢，也在心中描摹属于自己的李煜。</p>
         <a class="button button-dark" href="#many-views">看看今人眼中的他 <span>↓</span></a>
       </div>
+      <!-- 右侧竖排小印「一词万象」，纯装饰 -->
       <span class="wanxiang-mark" aria-hidden="true">一词<br>万象</span>
     </section>
 
-    <!-- 区块一：他的一生有尽，词的回声未尽（三种视角卡片）；此块即钉合舞台的覆盖面板 -->
+    <!-- 视角区块：导语 + 三张可点开的记忆卡；此块即钉合舞台的覆盖面板 -->
     <section class="memory-section section-wrap" id="many-views">
       <div class="section-kicker">01 <span>AFTER THE LAST VERSE</span></div>
+      <!-- 记忆导语：说明 978 年之后，那颗「词心」如何被后人一再解读 -->
       <div class="memory-lead">
         <h2>他的一生有尽，<br>词的回声未尽。</h2>
         <p>公元978年，李煜走完了四十二年的人生。留下来的不只是一位南唐君主的身世，还有一颗敏感、真切的词心。后来的读者透过词句望向他，也不断把自己的时代经验映照其中。</p>
       </div>
-      <!-- 三张视角卡：历史中的他 / 词句中的他 / 今人心中的他（可点击或按 Enter / 空格展开详情） -->
+      <!-- 三张记忆卡：历史中的他 / 词句中的他 / 今人心中的他；点击由脚本打开详情弹窗 -->
       <div class="memory-line">
         <article tabindex="0" role="button" aria-haspopup="dialog" aria-label="展开李煜作为南唐末主的历史故事"><span>历史中的他</span><h3>南唐末主</h3><p>从金陵宫阙到汴京囚居，命运的骤变成为理解其后期词作的一把钥匙。</p><a href="life.html">沿时间读他的故事 <span>↗</span></a><span class="memory-open-hint">点击了解更多 <span aria-hidden="true">↗</span></span></article>
         <article tabindex="0" role="button" aria-haspopup="dialog" aria-label="展开李煜词作意象与表达的故事"><span>词句中的他</span><h3>把愁写成江水</h3><p>春花秋月、深院梧桐、流水落花，让难以言说的情绪有了可以触摸的形状。</p><a href="ci.html">读他的词与笺注 <span>↗</span></a><span class="memory-open-hint">点击了解更多 <span aria-hidden="true">↗</span></span></article>
@@ -52,58 +66,77 @@
     </section>
     </div>
 
-    <!-- 区块二：同一个李煜，在当代影视 / 游戏中的不同形象（2×2 媒体卡） -->
+    <!-- 荧幕天地：背景巨字「影」+ 标题行 + 四张演绎书影轮播 + 收束小结 -->
     <section class="screen-world section-wrap" id="screen-world">
+      <!-- 背景巨字：纯装饰层，随区块进出视口上下漂移（--glide-p 由脚本写入） -->
+      <span class="screen-world-glyph" aria-hidden="true"><i>影</i></span>
       <div class="section-kicker">02 <span>ON SCREEN &amp; IN GAME</span></div>
+      <!-- 标题行：左侧标题、右侧导语，整行也随 --glide-p 差速漂移 -->
       <div class="screen-world-heading">
         <div><h2>当李煜走进<br><em>当代叙事</em>。</h2></div>
         <p>一幅后世旧绘，三种当代演绎。画像、游戏与影视各自描摹李煜，也映照出不同时代的人们如何想象这位南唐后主。</p>
       </div>
-      <!-- 2×2 媒体卡网格：古本遗像 / 忘川 / 燕云 / 影视，每张为配图 + 图注 -->
-      <div class="media-grid">
-        <!-- 卡 01：古本遗像（史书之外的面容，代表古人视角） -->
-        <article class="media-card media-card-archive">
-          <figure class="media-art media-art-archive" tabindex="0" role="button" aria-haspopup="dialog" aria-label="查看李煜古本遗像大图与介绍"><img src="liyu-portrait-archive.jpg" alt="后世追绘的南唐后主李煜古本肖像" loading="lazy" decoding="async"><span class="media-art-ink"></span><span class="media-art-vertical-title">古本遗像</span></figure>
-          <div class="media-caption"><span>AN OLD PORTRAIT / 01</span><h3>古本遗像</h3><p>这是后世流传最广的李煜旧绘。没有青衣风流，没有月下孤影，只有古人肖像画里敦厚平实的君王样貌。</p><p>史书不曾记下他的眉眼；这幅画像，亦是后人隔着百年时光，对这位后主最初的想象。</p><small class="media-caption-note">此为宋代以后追绘像，并非李煜生前写真；它代表古人视角，而忘川、燕云、影视，则是今人的重构。</small></div>
-        </article>
-        <!-- 卡 02：忘川风华录（游戏 · 纸上君王） -->
-        <article class="media-card media-card-wangchuan">
-          <figure class="media-art media-art-wangchuan" tabindex="0" role="button" aria-haspopup="dialog" aria-label="查看忘川风华录李煜演绎大图与介绍"><img src="liyu-wangchuan.jpg" alt="《忘川风华录》中身着明黄王袍、挥笔题梅的李煜角色演绎" loading="lazy" decoding="async"><span class="media-art-ink"></span><span class="media-art-vertical-title">忘川风华</span></figure>
-          <div class="media-caption"><span>GAME / 02 · 忘川风华录</span><h3>忘川风华录 · 李煜</h3><h4>纸上君王，笔底春愁</h4><p>明黄王袍尚留南唐余辉，挥笔题梅，似仍是那个尚有江山可恋的君主。</p><p>忘川以温柔的笔触，先还原他帝王的身份，再慢慢透出藏在风雅之下、预知命运的淡淡怅惘。</p><small class="media-caption-note">此为游戏艺术演绎，并非史料所载容貌；它抓住的，是世人想象里「风流多才的南唐后主」。</small></div>
-        </article>
-        <!-- 卡 03：燕云十六声（游戏 · 雨中孤客） -->
-        <article class="media-card media-card-yanyun">
-          <figure class="media-art media-art-yanyun" tabindex="0" role="button" aria-haspopup="dialog" aria-label="查看燕云十六声李煜演绎大图与介绍"><img src="liyu-yanyun.jpg" alt="《燕云十六声》中李煜在冷雨中执伞的青衫形象演绎" loading="lazy" decoding="async"><span class="media-art-ink"></span><span class="media-art-vertical-title">燕云十六声</span></figure>
-          <div class="media-caption"><span>GAME / 03 · 燕云十六声</span><h3>燕云十六声 · 李煜</h3><h4>雨中孤客，词中囚徒</h4><p>褪去帝王冕服，一袭青衫、一伞冷雨。燕云十六声没有强调他的君王身份，而放大了命运漂泊感——他不再是南唐天子，更像一个被时代洪流裹挟、满身愁绪的失意之人。</p><p>这也呼应了亡国之后「梦里不知身是客」的词境。</p><small class="media-caption-note">这是极具现代感的解构：取其「愁」，而不拘泥于其「位」，是当代年轻人容易共情的李煜形象。</small></div>
-        </article>
-        <!-- 卡 04：影视形象（杯酒余生，人间长恨） -->
-        <article class="media-card media-card-film">
-          <figure class="media-art media-art-film" tabindex="0" role="button" aria-haspopup="dialog" aria-label="查看影视形象李煜大图与介绍"><img src="liyu-film.jpg" alt="影视剧中成年李煜举杯饮酒、神情沉郁的形象" loading="lazy" decoding="async"><span class="media-art-ink"></span><span class="media-art-vertical-title">光影流年</span></figure>
-          <div class="media-caption"><span>SCREEN / 04 · 影视形象</span><h3>影视形象 · 李煜</h3><h4>杯酒余生，人间长恨</h4><p>胡须、沉郁的眉眼、仰头饮尽的姿态。影视更偏向成年之后、亡国被俘的后主：繁华落尽，锐气消磨，眼底只剩往事与无可奈何，把「天上人间」的落差，凝在一个举杯的瞬间。</p><small class="media-caption-note">影视叙事偏爱他的悲剧性；我们看见的，往往不是前期宴饮游乐的君主，而是那个「以血书词」的亡国词人。</small></div>
-        </article>
+      <!-- 书影轮播：卡组(3D coverflow) + 翻页条 + 四段说明；无脚本时退回静态网格排布 -->
+      <div class="media-carousel">
+        <!-- 卡组：四张卡各带 data-index，脚本据此算位次；tabindex 让方向键可以翻页 -->
+        <div class="media-deck" role="group" tabindex="0" aria-label="李煜演绎书影轮播，可用左右方向键切换">
+          <!-- 卡 01：古本遗像（宋代以后追绘） -->
+          <article class="media-card media-slide media-card-archive" data-index="0"><span class="media-seal" aria-hidden="true">壹</span>
+            <figure class="media-art media-art-archive" tabindex="0" role="button" aria-haspopup="dialog" aria-label="查看李煜古本遗像大图与介绍"><img src="liyu-portrait-archive.jpg" alt="后世追绘的南唐后主李煜古本肖像" loading="lazy" decoding="async"><span class="media-art-ink"></span><span class="media-art-vertical-title">古本遗像</span></figure>
+          </article>
+          <!-- 卡 02：《忘川风华录》游戏演绎 -->
+          <article class="media-card media-slide media-card-wangchuan" data-index="1"><span class="media-seal" aria-hidden="true">贰</span>
+            <figure class="media-art media-art-wangchuan" tabindex="0" role="button" aria-haspopup="dialog" aria-label="查看忘川风华录李煜演绎大图与介绍"><img src="liyu-wangchuan.jpg" alt="《忘川风华录》中身着明黄王袍、挥笔题梅的李煜角色演绎" loading="lazy" decoding="async"><span class="media-art-ink"></span><span class="media-art-vertical-title">忘川风华</span></figure>
+          </article>
+          <!-- 卡 03：《燕云十六声》游戏演绎 -->
+          <article class="media-card media-slide media-card-yanyun" data-index="2"><span class="media-seal" aria-hidden="true">叁</span>
+            <figure class="media-art media-art-yanyun" tabindex="0" role="button" aria-haspopup="dialog" aria-label="查看燕云十六声李煜演绎大图与介绍"><img src="liyu-yanyun.jpg" alt="《燕云十六声》中李煜在冷雨中执伞的青衫形象演绎" loading="lazy" decoding="async"><span class="media-art-ink"></span><span class="media-art-vertical-title">燕云十六声</span></figure>
+          </article>
+          <!-- 卡 04：影视形象 -->
+          <article class="media-card media-slide media-card-film" data-index="3"><span class="media-seal" aria-hidden="true">肆</span>
+            <figure class="media-art media-art-film" tabindex="0" role="button" aria-haspopup="dialog" aria-label="查看影视形象李煜大图与介绍"><img src="liyu-film.jpg" alt="影视剧中成年李煜举杯饮酒、神情沉郁的形象" loading="lazy" decoding="async"><span class="media-art-ink"></span><span class="media-art-vertical-title">光影流年</span></figure>
+          </article>
+        </div>
+        <!-- 翻页条：左右箭头 + 页码（页码里的 b 由脚本改写为当前页） -->
+        <div class="media-carousel-nav">
+          <button type="button" class="media-nav" data-dir="-1" aria-label="上一张">&#8249;</button>
+          <span class="media-carousel-count" aria-hidden="true"><b>01</b>&#8201;/&#8201;04</span>
+          <button type="button" class="media-nav" data-dir="1" aria-label="下一张">&#8250;</button>
+        </div>
+        <!-- 说明区：四段说明以 data-slide 与卡片一一对应，脚本按当前页切换 is-active -->
+        <div class="media-carousel-info">
+          <!-- 说明 01：古本遗像 -->
+          <div class="media-caption" data-slide="0"><span>AN OLD PORTRAIT / 01</span><h3>古本遗像</h3><p>这是后世流传最广的李煜旧绘。没有青衣风流，没有月下孤影，只有古人肖像画里敦厚平实的君王样貌。</p><p>史书不曾记下他的眉眼；这幅画像，亦是后人隔着百年时光，对这位后主最初的想象。</p><small class="media-caption-note">此为宋代以后追绘像，并非李煜生前写真；它代表古人视角，而忘川、燕云、影视，则是今人的重构。</small></div>
+          <!-- 说明 02：忘川风华录 -->
+          <div class="media-caption" data-slide="1"><span>GAME / 02 · 忘川风华录</span><h3>忘川风华录 · 李煜</h3><h4>纸上君王，笔底春愁</h4><p>明黄王袍尚留南唐余辉，挥笔题梅，似仍是那个尚有江山可恋的君主。</p><p>忘川以温柔的笔触，先还原他帝王的身份，再慢慢透出藏在风雅之下、预知命运的淡淡怅惘。</p><small class="media-caption-note">此为游戏艺术演绎，并非史料所载容貌；它抓住的，是世人想象里「风流多才的南唐后主」。</small></div>
+          <!-- 说明 03：燕云十六声 -->
+          <div class="media-caption" data-slide="2"><span>GAME / 03 · 燕云十六声</span><h3>燕云十六声 · 李煜</h3><h4>雨中孤客，词中囚徒</h4><p>褪去帝王冕服，一袭青衫、一伞冷雨。燕云十六声没有强调他的君王身份，而放大了命运漂泊感——他不再是南唐天子，更像一个被时代洪流裹挟、满身愁绪的失意之人。</p><p>这也呼应了亡国之后「梦里不知身是客」的词境。</p><small class="media-caption-note">这是极具现代感的解构：取其「愁」，而不拘泥于其「位」，是当代年轻人容易共情的李煜形象。</small></div>
+          <!-- 说明 04：影视形象 -->
+          <div class="media-caption" data-slide="3"><span>SCREEN / 04 · 影视形象</span><h3>影视形象 · 李煜</h3><h4>杯酒余生，人间长恨</h4><p>胡须、沉郁的眉眼、仰头饮尽的姿态。影视更偏向成年之后、亡国被俘的后主：繁华落尽，锐气消磨，眼底只剩往事与无可奈何，把「天上人间」的落差，凝在一个举杯的瞬间。</p><small class="media-caption-note">影视叙事偏爱他的悲剧性；我们看见的，往往不是前期宴饮游乐的君主，而是那个「以血书词」的亡国词人。</small></div>
+        </div>
       </div>
-      <!-- 区块末尾总结：不同形象，都是理解李煜的方式 -->
+      <!-- 收束小结：史书一行履历 VS 后世千般描摹 -->
       <aside class="screen-world-summary"><span>AFTER THE PORTRAITS</span><p>史书只给了他一行履历：南唐后主，国亡被俘。<br>而游戏绘其风流，赋其孤勇；影视写其沉哀，刻其落魄。</p><p>每一种模样，都不是真正的李煜，却都是我们这个时代，读懂李煜的一种方式。</p></aside>
     </section>
 
-    <!-- 引文区：词与今人相遇 -->
+    <!-- 余响区：一句收束 + 落款 -->
     <section class="living-echo section-wrap">
       <span class="echo-quote" aria-hidden="true">“</span>
       <p>春花秋月依旧，读词的人一代又一代。<br>李煜不再开口，他的词却仍与今天相遇。</p>
       <span>一江春水 · 词容万象</span>
     </section>
 
-    <!-- 下一页引导：去听词入梦 -->
+    <!-- 下一页引导：跳到听词入梦 -->
     <section class="next-step section-wrap">
       <div><span class="section-kicker">NEXT <span>LET THE WORDS BE HEARD</span></span><h2>若你愿意，<br>让他的词再响一次。</h2></div>
       <a class="button button-dark" href="listen.html">去听词入梦 <span>↗</span></a>
     </section>
-    <!-- 视角卡详情弹窗：由 script.js 按卡片索引填入对应故事（原生 dialog 模态） -->
+    <!-- 详情弹窗：点记忆卡或书影大图后由脚本填充标题、配图与正文，再以原生模态方式打开 -->
     <dialog class="memory-story-dialog" aria-labelledby="memory-story-title"><button class="memory-story-close" type="button" aria-label="关闭详情">×</button><span class="memory-story-kicker"></span><h2 id="memory-story-title"></h2><img class="memory-story-image" alt="" hidden><div class="memory-story-content"></div><p class="memory-story-note">按 Esc 或点击右上角关闭详情。史实与后世艺术演绎请分别阅读。</p></dialog>
   </main>
-  <!-- 页脚：品牌 + 标语 + 跳转链接 -->
+  <!-- 页脚：品牌标识 + 标语 + 跳转链接 -->
   <footer class="site-footer"><a class="brand" href="index.html"><span class="brand-seal">煜</span><span>一江春水<small>愿每个读词的人，都有一刻安宁。</small></span></a><span>词有尽时，春水长流。</span><a href="ci.html">再读一首 ↗</a></footer>
-  <!-- 背景音乐：自动播放、循环；实际播放由 script.js 控制(含音量/进度记忆)；preload="metadata" 只预取时长信息，不整段下载 -->
+  <!-- 背景音乐：自动播放、循环；实际播放由 script.js 控制；preload="metadata" 只预取时长信息，不整段下载 -->
   <audio class="background-audio" src="background-music.mp3" autoplay loop preload="metadata"></audio>
 </body>
 </html>
