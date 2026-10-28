@@ -509,14 +509,23 @@ textarea::placeholder{color:#9aa297}
 .screen-world:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(rgba(243,243,237,.54),rgba(243,243,237,.64)),url("screen-world-background.jpg") center calc(46% + var(--scroll-y,0px))/cover no-repeat}
 /* 区块小标题 */
 .screen-world>.section-kicker{margin-bottom:28px}
-/* 荧幕天地标题行 */
-.screen-world-heading{display:grid;grid-template-columns:1fr 1fr;gap:9%;align-items:end;margin-left:18%;margin-bottom:36px}
+/* —— 书影流转区滚动视差：--glide-p 由 JS 按区块进出视口进度写入，巨字/轮播/标题三层差速漂移 —— */
+/* 裁掉背景巨字与水印的溢出部分，避免多出横向滚动条 */
+.screen-world{overflow:hidden}
+/* 区块内所有直接子级抬到巨字之上（巨字停 z-index:0） */
+.screen-world>*{position:relative;z-index:1}
+/* 背景巨字「影」：竖向随 --glide-p 上下漂移 120px（±60），字距越大越显气韵 */
+.screen-world-glyph{position:absolute;z-index:0;left:-1%;top:34%;pointer-events:none;font-family:"Liyu Xingkai",var(--serif);font-size:clamp(220px,30vw,430px);line-height:1;color:rgba(88,108,94,.08);mix-blend-mode:multiply;translate:0 calc(var(--glide-p,.5)*120px - 60px);will-change:translate}
+/* 巨字内层：26s 往复轻微旋转与平移，让水印始终在动 */
+.screen-world-glyph i{display:block;font-style:normal;animation:glyph-drift 26s ease-in-out infinite alternate}
+/* 巨字漂移关键帧：横移 ±2.5%、竖移 ±1.5%、旋转 ±2.2deg，来回交替 */
+@keyframes glyph-drift{from{transform:translate(-2.5%,1.5%) rotate(-2.2deg)}to{transform:translate(2.5%,-1.5%) rotate(2.2deg)}}
+/* 荧幕天地标题行：与巨字、轮播差速漂移（30px，方向与巨字相同） */
+.screen-world-heading{display:grid;grid-template-columns:1fr 1fr;gap:9%;align-items:end;margin-left:18%;margin-bottom:36px;translate:0 calc((var(--glide-p,.5) - .5)*30px)}
 /* 荧幕天地标题行 */
 .screen-world-heading h2{font-size:clamp(30px,3.1vw,42px);line-height:1.65;font-weight:500;letter-spacing:.06em;margin:0}
 /* 荧幕天地标题行 */
 .screen-world-heading p{max-width:460px;font-size:13px;line-height:2.2;color:#68766b;margin:0 7% 7px 0}
-/* 媒介网格 */
-.media-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:30px 26px;margin-left:18%}
 /* 媒介卡片 */
 .media-card{min-width:0;position:relative;background:linear-gradient(160deg,rgba(252,250,242,.92),rgba(245,241,229,.93));border:1px solid rgba(199,170,119,.42);box-shadow:0 12px 30px rgba(49,67,53,.07);transition:transform .5s cubic-bezier(.2,.7,.25,1),box-shadow .5s ease,border-color .5s ease}
 /* 媒介卡片 */
@@ -531,8 +540,110 @@ textarea::placeholder{color:#9aa297}
 .media-card-yanyun::after{content:"叁"}
 /* 媒介卡片 */
 .media-card-film::after{content:"肆"}
-/* 响应式适配：精确指针设备 — 媒介卡片悬停抬升 + 金边亮起 */
-@media(hover:hover) and (pointer:fine){.media-card:hover{transform:translateY(-7px);border-color:rgba(199,170,119,.85);box-shadow:0 22px 48px rgba(49,67,53,.14)}.media-card:hover::before{opacity:1}}
+/* —— 词容万象「书影流转」3D 轮播（coverflow）：默认静态网格兜底，JS 加 .media-deck-3d 才启用 3D —— */
+/* 轮播外壳：限宽居中，随 --glide-p 反向漂移 48px，与巨字、标题形成三层视差 */
+.media-carousel{position:relative;max-width:1100px;margin:6px auto 0;translate:0 calc((var(--glide-p,.5) - .5)*-48px);will-change:translate}
+/* 卡组：默认自适应网格，作为无脚本/降级时的静态排布 */
+.media-deck{position:relative;display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:22px;outline:none}
+/* 卡组键盘聚焦时给画框描一圈暖金 */
+.media-deck:focus-visible .media-art{box-shadow:0 0 0 2px rgba(199,170,119,.6),0 0 22px rgba(255,252,240,.4)}
+/* 3D 模式：容器改为透视舞台，卡片由绝对定位铺开在中央 */
+.media-deck-3d{display:block;height:clamp(330px,36vw,470px);perspective:1500px;perspective-origin:50% 40%;will-change:transform;touch-action:pan-y}
+/* 拖动结束、倾斜回中时补一段缓动，避免生硬回弹 */
+.media-deck-3d.tilt-return{transition:transform .7s cubic-bezier(.2,.7,.3,1)}
+/* 轮播卡片：剥掉 .media-card 的底纸、描边与悬停抬升，只留画框本身 */
+.media-slide{background:none;border:none;box-shadow:none;transition:none;min-width:0}
+/* 3D 下的卡片：先按左上角定位再回拉自身一半，实现居中；预留 3D 变换与过渡 */
+.media-deck-3d .media-slide{position:absolute;left:50%;top:50%;width:clamp(190px,20.5vw,272px);margin-top:calc(clamp(256px,27.6vw,366px)/-2);margin-left:calc(clamp(190px,20.5vw,272px)/-2);transform-style:preserve-3d;transition:transform .9s cubic-bezier(.26,1.25,.35,1),filter .8s ease;will-change:transform}
+/* 拖动过程中关掉过渡，让卡片跟手 */
+.media-deck-3d.is-dragging .media-slide{transition:none}
+/* 画框：3:4 竖幅，纸白描边 + 暖白内发光 + 深绿外投影 */
+.media-slide .media-art{position:relative;width:100%;height:auto;aspect-ratio:3/4;overflow:hidden;border:2px solid rgba(252,250,242,.92);border-radius:4px;box-shadow:0 0 18px rgba(255,252,240,.42),0 16px 34px rgba(49,67,53,.24);transition:box-shadow .8s ease,filter .8s ease}
+/* 画芯：铺满画框并预先放大 1.04，悬停/浮起时不露边 */
+.media-slide .media-art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;scale:1.04;transition:filter .6s ease,transform .5s cubic-bezier(.2,.7,.3,1)}
+/* 高光扫过层：一道 105° 斜白光，默认停在画外左侧 */
+.media-slide .media-art::before{content:"";position:absolute;inset:-30%;z-index:2;pointer-events:none;background:linear-gradient(105deg,transparent 43%,rgba(255,252,240,.32) 50%,transparent 57%);transform:translateX(-72%)}
+/* 居中卡片亮一次高光，作为翻到「当前页」的提示 */
+.media-slide.is-center .media-art::before{animation:media-shine 1.05s cubic-bezier(.33,.6,.3,1) .18s both}
+/* 高光扫过关键帧：从画外左移到画外右 */
+@keyframes media-shine{to{transform:translateX(72%)}}
+/* 画芯悬停时略微提饱和 */
+.media-slide .media-art:hover img{filter:saturate(1.08)}
+/* 居中卡片：更亮的暖白外发光，把主位推前 */
+.media-slide.is-center .media-art{box-shadow:0 0 30px rgba(255,250,232,.68),0 20px 44px rgba(49,67,53,.3)}
+/* 两侧卡片：压暗降饱和，退到主位之后 */
+.media-slide:not(.is-center) .media-art{filter:brightness(.78) saturate(.92)}
+/* 两侧卡片可点击切换，鼠标给出可点提示 */
+.media-slide:not(.is-center){cursor:pointer}
+/* 响应式适配：精确指针设备 — 悬停两侧卡片时半亮回来，示意可切换 */
+@media(hover:hover) and (pointer:fine){.media-slide:not(.is-center):hover .media-art{filter:brightness(.92) saturate(1.02);box-shadow:0 0 24px rgba(255,250,232,.5),0 18px 38px rgba(49,67,53,.28)}}
+/* 画框上的墨色渐层：右上偏暖、左下偏墨，统一四张演绎图的色调 */
+.media-slide .media-art-ink{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(160deg,rgba(252,250,242,.16),transparent 42%,rgba(63,84,66,.2));mix-blend-mode:multiply}
+/* 右上竖排小题字（古本遗像/忘川风华…），带浅墨投影压在图上 */
+.media-slide .media-art-vertical-title{position:absolute;z-index:3;top:14px;right:14px;writing-mode:vertical-rl;letter-spacing:.4em;font-family:"Liyu Xingkai",var(--serif);font-size:17px;color:rgba(255,253,246,.95);text-shadow:0 1px 10px rgba(40,54,43,.6)}
+/* 左上「壹贰叁肆」小印（朱底白字，金属内描边） */
+.media-seal{position:absolute;z-index:4;top:12px;left:12px;width:34px;height:34px;display:grid;place-items:center;font-family:"Liyu Xingkai",var(--serif);font-size:18px;color:#f6ecd6;background:rgba(169,104,76,.92);border-radius:3px;box-shadow:0 3px 10px rgba(169,104,76,.4),inset 0 0 0 1px rgba(246,236,214,.32)}
+/* 浮动词句：贴在居中卡片右侧竖排，默认透明，由 JS 在切页时点亮 */
+.media-verse-float{position:absolute;left:calc(50% + clamp(110px,11.2vw,150px));top:5%;z-index:6;pointer-events:none;writing-mode:vertical-rl;font-family:"Liyu Xingkai",var(--serif);font-size:clamp(15px,1.55vw,21px);letter-spacing:.3em;color:rgba(40,54,45,.9);text-shadow:0 1px 9px rgba(255,252,240,.85);opacity:0}
+/* 加 is-rising 时播放一次「浮起—停留—消散」 */
+.media-verse-float.is-rising{animation:media-verse-rise 2.5s cubic-bezier(.25,.6,.3,1) both}
+/* 词句浮起关键帧：由下往上淡入、停住，再上飘虚化淡出 */
+@keyframes media-verse-rise{0%{opacity:0;transform:translateY(30px);filter:blur(5px)}16%{opacity:1;transform:translateY(0);filter:blur(0)}70%{opacity:1}100%{opacity:0;transform:translateY(-34px);filter:blur(2px)}}
+/* 墨点爆开容器：落在轮播中央，纯装饰不拦截交互 */
+.media-ink-burst{position:absolute;left:50%;top:46%;z-index:5;pointer-events:none}
+/* 单粒墨点：8px 径向墨晕，默认完全透明 */
+.media-ink-burst i{position:absolute;left:0;top:0;width:8px;height:8px;border-radius:50%;background:radial-gradient(circle,rgba(44,59,50,.7),rgba(44,59,50,0) 72%);opacity:0}
+/* 加 is-bursting 时逐粒飞出（方向与距离由脚本写入的 --mx/--my 决定） */
+.media-ink-burst.is-bursting i{animation:media-ink-fly 1.05s cubic-bezier(.2,.6,.35,1) both}
+/* 墨点飞出关键帧：由大而清晰缩到极小并消失 */
+@keyframes media-ink-fly{0%{opacity:.8;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--mx),var(--my)) scale(.15)}}
+/* 翻页条：居中排列左右箭头与页码 */
+.media-carousel-nav{display:flex;align-items:center;justify-content:center;gap:22px;margin-top:20px}
+/* 圆形翻页按钮：纸底 + 金色细描边，数字下方留 3px 视觉补偿 */
+.media-nav{width:44px;height:44px;border-radius:50%;border:1px solid rgba(199,170,119,.55);background:linear-gradient(160deg,rgba(252,250,242,.96),rgba(245,241,229,.96));color:#8a6a48;font-size:24px;line-height:1;display:grid;place-items:center;cursor:pointer;box-shadow:0 8px 20px rgba(49,67,53,.12);transition:transform .35s ease,box-shadow .35s ease,color .35s ease;padding:0 0 3px}
+/* 翻页按钮悬停：微抬 + 转为赭色 */
+.media-nav:hover{transform:translateY(-2px);color:var(--rust);box-shadow:0 12px 26px rgba(49,67,53,.16)}
+/* 页码容器「01 / 04」 */
+.media-carousel-count{font-size:12px;letter-spacing:.3em;color:#8a948b}
+/* 页码里的当前页数字：行楷、放大一号 */
+.media-carousel-count b{font-family:"Liyu Xingkai",var(--serif);font-size:19px;color:#54655a;font-weight:400}
+/* 说明区：用单格 grid 叠放四张说明，切换时不会把版心顶高 */
+.media-carousel-info{display:grid;margin-top:22px}
+/* 说明卡：叠在同一格（grid-area:1/1）居中限宽 */
+.media-carousel-info .media-caption{grid-area:1/1;max-width:620px;margin:0 auto;background:linear-gradient(160deg,rgba(252,250,242,.95),rgba(245,241,229,.95));border:1px solid rgba(199,170,119,.42);box-shadow:0 14px 32px rgba(49,67,53,.1)}
+/* 轮播就绪（carousel-ready）后说明卡默认隐藏：过渡结束再把 visibility 关掉，避免占位穿透 */
+.media-carousel.carousel-ready .media-carousel-info .media-caption{opacity:0;visibility:hidden;transform:translateY(12px);transition:opacity .45s ease,transform .45s ease,visibility 0s linear .45s}
+/* 当前页的说明卡淡入上浮到位（比其他卡晚 0.18s，等旧说明先退） */
+.media-carousel.carousel-ready .media-carousel-info .media-caption.is-active{opacity:1;visibility:visible;transform:none;transition:opacity .55s ease .18s,transform .55s ease .18s}
+/* 窄屏：卡组间距收紧，3D 舞台改用视口宽度定高 */
+@media(max-width:700px){
+.media-deck{gap:16px}
+.media-deck-3d{height:min(100vw,430px)}
+/* 窄屏卡片宽度改为 54vw，用 4/3 反算竖幅高度，再各回拉一半做居中 */
+.media-deck-3d .media-slide{width:54vw;margin-top:calc(54vw*4/3/-2);margin-left:-27vw}
+.media-verse-float{left:calc(50% + 29vw);font-size:14px;letter-spacing:.24em}
+.media-slide .media-art-vertical-title{font-size:13px;top:12px;right:12px}
+.media-seal{width:30px;height:30px;font-size:16px;top:10px;left:10px}
+.media-carousel-info .media-caption{max-width:100%}
+}
+/* 降级：关闭 3D 与全部滚动形变，轮播退回静态网格，说明卡恢复常显 */
+@media(prefers-reduced-motion:reduce){
+.media-deck{display:grid}
+.media-deck-3d{display:grid;height:auto;perspective:none}
+.media-deck-3d .media-slide{position:static;margin:0;width:auto;transform:none;transition:none}
+.media-slide .media-art::before{display:none}
+.media-nav{display:none}
+.screen-world-glyph i{animation:none}
+.screen-world-glyph,.screen-world-heading,.media-carousel{translate:none}
+.media-carousel.carousel-ready .media-carousel-info .media-caption{opacity:1;visibility:visible;transform:none;transition:none}
+}
+/* 轮播卡片不再显示「壹贰叁肆」角标（改由左上 .media-seal 承担） */
+.media-slide::after{display:none}
+/* 响应式适配：精确指针设备 — 非轮播的媒介卡片悬停抬升 + 金边亮起 */
+@media(hover:hover) and (pointer:fine){
+.media-card:not(.media-slide):hover{transform:translateY(-7px);border-color:rgba(199,170,119,.85);box-shadow:0 22px 48px rgba(49,67,53,.14)}
+.media-card:hover::before{opacity:1}
+}
 /* 媒介占位卡 */
 .media-placeholder{position:relative;display:grid;place-items:center;aspect-ratio:1.72;min-height:180px;overflow:hidden;background-color:#e3e7dd;color:#69786a}
 /* 媒介占位卡 */
@@ -627,8 +738,10 @@ textarea::placeholder{color:#9aa297}
 .living-echo>span:last-child{font:9px var(--sans);letter-spacing:.19em;color:#8b7660}
 /* 词作笺赏页头 */
 .ci-hero{isolation:isolate;background:radial-gradient(ellipse at 80% 50%,rgba(201,215,200,.6),transparent 36%),linear-gradient(115deg,#eff0e9,#e3e9e0)}
-/* 词作笺赏页头 */
-.ci-hero:before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:url("ci-hero-background.jpg") center 48%/cover no-repeat;opacity:.24}
+/* 词作笺赏页头 · 背景漂移层外壳：绝对铺满首屏，只负责定位与层级，不裁切内容 */
+.ci-hero-drift{position:absolute;inset:0;z-index:0;pointer-events:none}
+/* 词作笺赏页头 · 背景漂移层内层：词集底图铺底，压到 24% 透明度，缓慢推近由 keyframes ci-drift 驱动 */
+.ci-hero-drift:before{content:"";position:absolute;inset:0;background:url("ci-hero-background.jpg") center 48%/cover no-repeat;opacity:.24}
 /* 漂浮词章装饰 */
 .floating-verse{z-index:2;width:210px;height:210px;border-radius:50%;border:1px solid rgba(113,131,111,.35);display:flex;flex-direction:column;align-items:center;justify-content:center;margin-right:15%;color:#69796a}
 /* 漂浮词章装饰 */
@@ -1528,7 +1641,7 @@ body.arrival-lock{overflow:hidden}
   /* 记忆导语 */
 .memory-lead{padding-left:8%;margin-left:0}
   /* 荧幕天地标题行 */
-.screen-world-heading,.media-grid{margin-left:8%}
+.screen-world-heading{margin-left:8%}
   /* 荧幕天地脚注 */
 .screen-world-footnote{margin-left:8%}
   /* 荧幕天地总结 */
@@ -1575,8 +1688,6 @@ body.arrival-lock{overflow:hidden}
 .screen-world-heading h2{font-size:29px}
   /* 荧幕天地标题行 */
 .screen-world-heading p{margin:11px 0 0}
-  /* 媒介网格 */
-.media-grid{grid-template-columns:1fr;margin-left:0;gap:14px}
   /* 媒介占位卡 */
 .media-placeholder{aspect-ratio:1.55;min-height:160px}
   /* 媒介大图（点击查看） */
@@ -1878,8 +1989,12 @@ button:not(.book-open-button):active,.button:active{translate:0 1px}
 .subhero-stage>.works,.subhero-stage>.memory-section{background:var(--paper)}
 /* 视频与底图：随覆盖推进缓慢上移并轻轻推近，预留放大余量不露边 */
 .subhero-stage .life-hero-video,.subhero-stage .listen-hero-video,.subhero-stage .wanxiang-hero-video{will-change:transform;transform:translate3d(0,calc(var(--hero-p,0) * -46px),0) scale(calc(1.14 + var(--hero-p,0) * .05))}
-/* 词作页首屏的底纹层（:before）：同步慢推，幅度略小，与视频页保持一致的纵深节奏 */
-.subhero-stage .ci-hero:before{inset:-7%;will-change:transform;transform:translate3d(0,calc(var(--hero-p,0) * -34px),0) scale(1.05)}
+/* 词作页首屏的底纹漂移层：同步慢推，幅度略小，与视频页保持一致的纵深节奏 */
+.subhero-stage .ci-hero-drift{inset:-7%;will-change:transform;transform:translate3d(0,calc(var(--hero-p,0) * -34px),0) scale(1.05)}
+/* 底纹漂移层内层：叠加 34s 往复推近，让静态底图在钉合期间始终「活着」（两条变换互不干扰） */
+.subhero-stage .ci-hero-drift:before{animation:ci-drift 34s ease-in-out infinite alternate;will-change:transform}
+/* 底纹漂移关键帧：从原始大小 1 放大到 1.09，同时向右 1.6%、向上 1% 缓缓漂移，来回交替 */
+@keyframes ci-drift{from{transform:scale(1) translate3d(0,0,0)}to{transform:scale(1.09) translate3d(1.6%,-1%,0)}}
 /* 大标题：褪色成半透明幽灵字，轻微上滞并虚化（入场动画改用 backwards，结束后把控制权交还滚动变量） */
 .subhero-stage .subhero h1{animation-name:verse-title-arrive;animation-duration:.85s;animation-timing-function:cubic-bezier(.2,.72,.25,1);animation-fill-mode:backwards;will-change:opacity,transform,filter;opacity:calc(1 - var(--hero-p,0) * .86);transform:translate3d(0,calc(var(--hero-p,0) * 30px),0) scale(calc(1 - var(--hero-p,0) * .03));filter:blur(calc(var(--hero-p,0) * 1.8px))}
 /* 眉题、说明、按钮：比标题更早淡出并轻微上浮 */
@@ -1897,7 +2012,9 @@ button:not(.book-open-button):active,.button:active{translate:0 1px}
 .subhero-stage .subhero h1{animation:none;opacity:1;transform:none;filter:none;will-change:auto}
 .subhero-stage .eyebrow,.subhero-stage .subhero-copy>p:not(.eyebrow),.subhero-stage .subhero-copy .button,.subhero-stage .sound-orbit,.subhero-stage .wanxiang-mark,.subhero-stage .floating-verse{opacity:1;transform:none;translate:0 0;filter:none;will-change:auto}
 .subhero-stage .life-hero-video,.subhero-stage .listen-hero-video,.subhero-stage .wanxiang-hero-video{transform:none;will-change:auto}
-.subhero-stage .ci-hero:before{inset:0;transform:none}
+/* 降级：底纹漂移层回到原位，同时停掉内层的往复推近动画 */
+.subhero-stage .ci-hero-drift{inset:0;transform:none;will-change:auto}
+.subhero-stage .ci-hero-drift:before{animation:none;will-change:auto}
 }
 /* 窄屏 + 减弱动效：首屏回到顶部对齐的紧凑排布 */
 @media(max-width:700px) and (prefers-reduced-motion:reduce){.subhero-stage>.subhero{min-height:390px;padding:55px 7%;align-items:flex-start}}

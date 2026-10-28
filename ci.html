@@ -6,14 +6,14 @@
   <!-- 跳过导航：键盘用户按 Tab 时可直接跳入正文(#main-content) -->
   <a class="skip-link" href="#main-content">跳至主要内容</a>
   <!-- 页头：品牌 + 主导航(当前页高亮「词作笺赏」) + 声音开关 -->
-  <header class="site-header"><a class="brand" href="index.html"><span class="brand-seal">煜</span><span>一江春水<small>李煜词境 · 南唐旧梦</small></span></a><button class="menu-toggle" aria-label="打开导航" aria-expanded="false">☰</button><nav class="main-nav" aria-label="主导航"><a href="index.html">首页</a><a href="life.html">词人故事</a><a class="active" href="ci.html">词作笺赏</a><a href="wanxiang.html">词容万象</a><a href="listen.html">听词入梦</a></nav><div class="sound-controls"><button class="sound-toggle" type="button" aria-label="关闭背景音乐" aria-pressed="true"><span class="sound-icon">♫</span><span class="sound-status">音乐开启</span></button><label class="volume-control"><span class="visually-hidden">背景音乐音量</span><input class="volume-slider" type="range" min="0" max="1" step="0.01" value="0.32"></label></div></header>
+  <header class="site-header"><a class="brand" href="index.html"><span class="brand-seal">煜</span><span>一江春水<small>李煜词境 · 南唐旧梦</small></span></a><button class="menu-toggle" aria-label="打开导航" aria-expanded="false">☰</button><nav class="main-nav" aria-label="主导航"><a href="index.html">首页</a><a href="life.html">词人故事</a><a class="active" href="ci.html" aria-current="page">词作笺赏</a><a href="wanxiang.html">词容万象</a><a href="listen.html">听词入梦</a></nav><div class="sound-controls"><button class="sound-toggle" type="button" aria-label="关闭背景音乐" aria-pressed="true"><span class="sound-icon">♫</span><span class="sound-status">音乐开启</span></button><label class="volume-control"><span class="visually-hidden">背景音乐音量</span><input class="volume-slider" type="range" min="0" max="1" step="0.01" value="0.32"></label></div></header>
 
   <!-- 主体：四阕词 + 笺注；id="main-content" 供顶部「跳至主要内容」链接定位，tabindex="-1" 使其可被程序聚焦 -->
   <main id="main-content" tabindex="-1">
     <!-- 钉合舞台：包住首屏与其后的词作区块——首屏 sticky 吸顶，词作区块上浮覆盖（见 style.css .subhero-stage） -->
     <div class="subhero-stage">
     <!-- 首屏：标题 + 圆形「愁」字浮词圈；吸顶期间 --hero-p 由脚本写入，驱动底纹慢推与标题褪色 -->
-    <section class="subhero ci-hero"><div class="subhero-copy"><p class="eyebrow">SELECTED CI · 03</p><h1>词短情长，<br><em>余味</em>悠远。</h1><p>四阕词，四种心绪。点选词牌，读词、读背景，也读见李煜的一生。</p><a class="button button-dark" href="#虞美人">从《虞美人》开始 <span>↓</span></a></div><div class="floating-verse"><span>春水向东</span><b>愁</b><small>LI YU · CI</small></div></section>
+    <section class="subhero ci-hero"><!-- 背景漂移层：词集底图在此层内铺底并 34s 缓慢推近（.ci-hero-drift，见 style.css） --><div class="ci-hero-drift" aria-hidden="true"></div><div class="subhero-copy"><p class="eyebrow">SELECTED CI · 03</p><h1>词短情长，<br><em>余味</em>悠远。</h1><p>四阕词，四种心绪。点选词牌，读词、读背景，也读见李煜的一生。</p><a class="button button-dark" href="#虞美人">从《虞美人》开始 <span>↓</span></a></div><div class="floating-verse"><span>春水向东</span><b>愁</b><small>LI YU · CI</small></div></section>
 
     <!-- 词作列表：区块标题 + 词牌标签 + 词作画廊(四首词条目)，标签独立于画廊之外以便吸顶；此块即钉合舞台的覆盖面板 -->
     <section class="works section-wrap"><div class="section-kicker">01 <span>FOUR POEMS</span></div><div class="works-heading"><h2>一阕一境，<br>读到词心深处。</h2><p>选择一首词，打开对应的笺注。<br>也可以点「为我诵读」，听浏览器将词句轻轻读出。</p></div>

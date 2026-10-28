@@ -178,12 +178,15 @@
     <a class="brand" href="index.html"><span class="brand-seal">煜</span><span>一江春水<small>李煜词境 · 南唐旧梦</small></span></a>
     <button class="menu-toggle" aria-label="打开导航" aria-expanded="false">☰</button>
     <nav class="main-nav" aria-label="主导航">
-      <a class="active" href="index.html">首页</a><a href="life.html">词人故事</a><a href="ci.html">词作笺赏</a><a href="wanxiang.html">词容万象</a><a href="listen.html">听词入梦</a>
+      <a class="active" href="index.html" aria-current="page">首页</a><a href="life.html">词人故事</a><a href="ci.html">词作笺赏</a><a href="wanxiang.html">词容万象</a><a href="listen.html">听词入梦</a>
     </nav>
     <div class="sound-controls"><button class="sound-toggle" type="button" aria-label="关闭背景音乐" aria-pressed="true"><span class="sound-icon">♫</span><span class="sound-status">音乐开启</span></button><label class="volume-control"><span class="visually-hidden">背景音乐音量</span><input class="volume-slider" type="range" min="0" max="1" step="0.01" value="0.32"></label></div>
   </header>
   <!-- 主体：id="main-content" 供顶部「跳至主要内容」链接定位；tabindex="-1" 使其可被程序聚焦；开场未揭开时 inert -->
   <main id="main-content" tabindex="-1" inert>
+    <!-- 云气舞台：把「首屏 + 词人介绍 + 左右两团云气」收进同一个容器，作为云气绝对定位的参照系
+         （云气按脚本量出的 --hero-h 贴在首屏下缘之外，滚动时飘到词人介绍之上） -->
+    <div class="cloud-stage">
     <!-- 首屏 Hero：左侧文案(主标题 + 引言 + 按钮 + 名句) + 右侧月下古画图 + 底部滚动提示 -->
     <section class="hero">
       <div class="hero-copy">
@@ -215,10 +218,6 @@
         <img class="hero-lantern hl-c" src="hero-lantern-7.png" alt="" loading="lazy" decoding="async">
       </div>
       <div class="hero-bottom"><span>SCROLL TO WANDER</span><span class="scroll-line"></span><span>01 / 04</span></div>
-      <!-- 首屏云气（左）：贴左下缘的雾云，随滚动进度向左下外侧飘散并淡出（纯装饰） -->
-      <div class="hero-cloud hero-cloud-left" aria-hidden="true"><img src="hero-mist-cloud.png" alt=""></div>
-      <!-- 首屏云气（右）：同一张雾云镜像后贴右下缘，与左侧对称散开 -->
-      <div class="hero-cloud hero-cloud-right" aria-hidden="true"><img src="hero-mist-cloud.png" alt=""></div>
     </section>
 
     <!-- 词人介绍：左侧李煜画像 + 中间文字 + 右侧《虞美人》名句卡 -->
@@ -227,6 +226,11 @@
       <div class="intro-heading"><h2>他把无常，<br>写成了永恒。</h2><p>李煜，南唐最后一位君主，也是中国词史上极具感染力的抒情者。前期词写宫廷生活与男女情思，后期词则沉入故国之思、身世之痛；词风由绮丽转为深沉，开拓了词的表达境界。</p><a class="under-link" href="life.html">走近李煜 <span>↗</span></a></div>
       <div class="intro-card"><span class="card-index">A LIFE IN VERSE</span><p>“春花秋月何时了，<br>往事知多少。”</p><span class="card-caption">《虞美人》 · 绝唱</span><span class="card-orbit"></span></div>
     </section>
+      <!-- 首屏云气（左）：贴在云气舞台里首屏下缘之外，随滚动进度向左下外侧飘散并淡出（纯装饰） -->
+      <div class="hero-cloud hero-cloud-left" aria-hidden="true"><img src="hero-mist-cloud.png" alt="" decoding="async"></div>
+      <!-- 首屏云气（右）：同一张雾云镜像后贴右侧，与左侧对称散开（纯装饰） -->
+      <div class="hero-cloud hero-cloud-right" aria-hidden="true"><img src="hero-mist-cloud.png" alt="" decoding="async"></div>
+    </div>
 
     <!-- 精选词作：四张词卡(配图 + 编号 + 题材 + 词名 + 句选)，点击进入词作笺赏页锚点 -->
     <section class="feature-section">
