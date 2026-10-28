@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="zh-CN">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#d9d2c1"><meta name="description" content="全屏沉浸式纸片 3D 水墨云游：云海之上，金陵宫阙、钟山林泉、洪州城郭、采石矶崖、一叶江舟、汴京小楼、北邙松柏。拖拽旋转，朱砂点为引，飞往李煜人生的每一站。"><title>水墨行迹｜春水留痕·李煜词境</title><link rel="stylesheet" href="style.css"><script src="script.js" defer></script></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#d9d2c1"><meta name="description" content="全屏沉浸式纸片 3D 水墨云游：云海之上，金陵宫阙、钟山林泉、洪州城郭、采石矶崖、一叶江舟、汴京小楼、北邙松柏。拖拽旋转，朱砂点为引，飞往李煜人生的每一站。"><title>水墨行迹｜春水留痕·李煜词境</title><link rel="stylesheet" href="style.css?v=f12"><script src="script.js?v=f12" defer></script></head>
 <body class="map-page map-full">
   <!-- 无障碍：跳转主内容 -->
   <a class="skip-link" href="#main-content">跳至主要内容</a>
@@ -52,100 +52,19 @@
   <audio class="background-audio" src="background-music.mp3" autoplay loop preload="metadata"></audio>
   <!-- Three.js 本地库 -->
   <script src="three.min.js"></script>
+  <!-- 内嵌纹理表：WebP dataURI 集，缺省时回退同名图片文件 -->
+  <script src="map-textures.js?v=f12"></script>
   <script>
   (function () {
     "use strict";
-    // 未加载 Three.js 库则整段跳过（注：此行为页面原有逻辑说明）
     if (typeof THREE === "undefined") return;
     // 尊重系统「减弱动效」设置
     var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     var INK = function (a) { return "rgba(46,46,42," + a + ")"; };
-    var OCHRE = "rgba(150,92,52,";
 
-    /* ---------- 程序化水墨贴图（补缺素材：宫阙 / 城郭 / 陡崖 / 小楼 / 松柏） ---------- */
+    /* ---------- 程序化水墨贴图（云影 / 月 / 雁 / 水纹） ---------- */
     function cnv(w, h) { var c = document.createElement("canvas"); c.width = w; c.height = h; return c; }
     function toTex(c) { var t = new THREE.CanvasTexture(c); t.anisotropy = 4; return t; }
-    function roof(ctx, cx, y, wd, curve, alpha) {
-      ctx.beginPath();
-      ctx.moveTo(cx - wd / 2, y + 4);
-      ctx.quadraticCurveTo(cx - wd * 0.32, y - curve * 0.55, cx - wd * 0.12, y - curve);
-      ctx.quadraticCurveTo(cx, y - curve * 1.12, cx + wd * 0.12, y - curve);
-      ctx.quadraticCurveTo(cx + wd * 0.32, y - curve * 0.55, cx + wd / 2, y + 4);
-      ctx.lineTo(cx + wd / 2 - 7, y + 9); ctx.lineTo(cx - wd / 2 + 7, y + 9);
-      ctx.closePath();
-      ctx.fillStyle = INK(alpha); ctx.fill();
-      ctx.fillStyle = OCHRE + "0.16)"; ctx.fill();
-    }
-    function hall(ctx, cx, baseY, wd, hs, alpha) {
-      var roofY = baseY - hs;
-      ctx.fillStyle = INK(alpha * 0.16); ctx.fillRect(cx - wd * 0.36, roofY, wd * 0.72, hs - 6);
-      ctx.strokeStyle = INK(alpha * 0.62); ctx.lineWidth = 2.4;
-      for (var i = -2; i <= 2; i++) { var px = cx + i * wd * 0.16; ctx.beginPath(); ctx.moveTo(px, roofY + 4); ctx.lineTo(px, baseY); ctx.stroke(); }
-      ctx.beginPath(); ctx.moveTo(cx - wd * 0.36, roofY + 10); ctx.lineTo(cx + wd * 0.36, roofY + 10); ctx.stroke();
-      roof(ctx, cx, roofY, wd, wd * 0.24, alpha * 0.8);
-      roof(ctx, cx, roofY - wd * 0.2, wd * 0.66, wd * 0.16, alpha * 0.9);
-      ctx.fillStyle = INK(alpha * 0.9);
-      ctx.fillRect(cx - 5, roofY - wd * 0.2 - wd * 0.16 - 8, 10, 6);
-    }
-    function palaceCard() {
-      var c = cnv(640, 340), x = c.getContext("2d");
-      x.fillStyle = INK(0.14); x.fillRect(50, 282, 540, 22);
-      x.fillStyle = INK(0.1); for (var s = 0; s < 3; s++) x.fillRect(250 - s * 14, 304 + s * 8, 140 + s * 28, 5);
-      hall(x, 320, 282, 240, 92, 0.9);
-      hall(x, 130, 282, 96, 46, 0.62);
-      hall(x, 510, 282, 96, 46, 0.62);
-      x.strokeStyle = INK(0.55); x.lineWidth = 2;
-      [[36, 268], [604, 268]].forEach(function (p) {
-        x.beginPath(); x.moveTo(p[0] - 14, p[1]); x.lineTo(p[0] - 14, p[1] - 30);
-        x.moveTo(p[0] + 14, p[1]); x.lineTo(p[0] + 14, p[1] - 30); x.stroke();
-        roof(x, p[0], p[1] - 30, 52, 16, 0.7);
-      });
-      return c;
-    }
-    function citywallCard() {
-      var c = cnv(640, 220), x = c.getContext("2d");
-      x.fillStyle = INK(0.5); x.fillRect(20, 128, 600, 52);
-      x.fillStyle = INK(0.55);
-      for (var i = 0; i < 24; i++) { if (i % 2 === 0) x.fillRect(20 + i * 25, 116, 14, 12); }
-      x.fillStyle = INK(0.32);
-      x.beginPath(); x.moveTo(288, 180); x.lineTo(288, 146); x.quadraticCurveTo(320, 128, 352, 146); x.lineTo(352, 180); x.closePath(); x.fill();
-      hall(x, 320, 146, 120, 40, 0.8);
-      hall(x, 46, 128, 60, 26, 0.66); hall(x, 594, 128, 60, 26, 0.66);
-      return c;
-    }
-    function cliffCard() {
-      var c = cnv(256, 400), x = c.getContext("2d");
-      x.beginPath(); x.moveTo(256, 400); x.lineTo(256, 30);
-      x.lineTo(196, 58); x.lineTo(216, 108); x.lineTo(168, 128); x.lineTo(206, 190); x.lineTo(150, 214); x.lineTo(188, 280); x.lineTo(130, 306); x.lineTo(170, 360); x.lineTo(150, 400);
-      x.closePath();
-      var g = x.createLinearGradient(120, 0, 256, 0);
-      g.addColorStop(0, INK(0.05)); g.addColorStop(0.55, INK(0.4)); g.addColorStop(1, INK(0.62));
-      x.fillStyle = g; x.fill();
-      x.strokeStyle = INK(0.5); x.lineWidth = 1.4;
-      for (var i = 0; i < 7; i++) { var y0 = 80 + i * 44; x.beginPath(); x.moveTo(150 + i * 9, y0); x.quadraticCurveTo(200, y0 + 12, 254, y0 - 6); x.stroke(); }
-      return c;
-    }
-    function towerCard() {
-      var c = cnv(256, 300), x = c.getContext("2d");
-      hall(x, 128, 150, 92, 40, 0.72);
-      hall(x, 128, 104, 70, 30, 0.8);
-      x.fillStyle = INK(0.3); x.fillRect(30, 244, 90, 16); x.fillRect(112, 244, 112, 16);
-      x.fillStyle = INK(0.14); x.fillRect(30, 260, 194, 10);
-      x.strokeStyle = INK(0.5); x.lineWidth = 2.2;
-      x.beginPath(); x.moveTo(212, 262); x.lineTo(206, 214); x.moveTo(206, 226); x.lineTo(190, 206); x.moveTo(206, 232); x.lineTo(222, 212); x.stroke();
-      return c;
-    }
-    function pinesCard() {
-      var c = cnv(512, 160), x = c.getContext("2d");
-      for (var i = 0; i < 18; i++) {
-        var px = 16 + i * 28 + Math.random() * 8, py = 128 + Math.random() * 16, ph = 26 + Math.random() * 18;
-        x.strokeStyle = INK(0.45 + Math.random() * 0.25); x.lineWidth = 2.4;
-        x.beginPath(); x.moveTo(px, py); x.lineTo(px, py - ph); x.stroke();
-        x.lineWidth = 2;
-        for (var l = 0; l < 3; l++) { var w2 = 20 - l * 5; x.beginPath(); x.moveTo(px - w2 / 2, py - ph + 6 + l * 7); x.lineTo(px + w2 / 2, py - ph + 6 + l * 7); x.stroke(); }
-      }
-      return c;
-    }
     function blobTex() {
       var c = cnv(128, 128), x = c.getContext("2d");
       var g = x.createRadialGradient(64, 64, 4, 64, 64, 62);
@@ -206,6 +125,7 @@
     // 加载管理：真素材全部就绪后揭去入卷遮罩（超时 3.2s 兜底）
     var manager = new THREE.LoadingManager();
     var imgLoader = new THREE.TextureLoader(manager);
+    imgLoader.crossOrigin = null; // 关键：去掉 CORS 模式，file:// 双击直开也能加载图片
     var veilDone = false;
     function hideVeil() {
       if (veilDone) return; veilDone = true;
@@ -215,18 +135,31 @@
     manager.onLoad = hideVeil;
     window.setTimeout(hideVeil, 3200);
 
-    // 真抠图素材：云 / 远山 / 中景 / 水岸 / 孤舟 / 柳 / 芦苇
-    var cloudTex = imgLoader.load("hero-mist-cloud.png");
-    var texFar = imgLoader.load("parallax-far.png");
-    var texMid = imgLoader.load("parallax-mid.png");
-    var texShore = imgLoader.load("parallax-shore.png");
-    var texBoat = imgLoader.load("parallax-boat-v2.png");
-    var texWillow = imgLoader.load("parallax-willow.png");
-    var texReed = imgLoader.load("parallax-reed.png");
+    // 内嵌纹理（map-textures.js 里的 WebP dataURI）：data: 不受跨域限制，file:// 双击直开也能进 WebGL
+    var EMB = window.MAP_TEXTURES || {};
+    function srcOf(n) { return EMB[n] || n; }
+    // 真抠图素材：云 / 远山 / 水岸 / 孤舟 / 柳 / 芦苇
+    var cloudTex = imgLoader.load(srcOf("hero-mist-cloud.png"));
+    var texFar = imgLoader.load(srcOf("parallax-far.png"));
+    var texShore = imgLoader.load(srcOf("parallax-shore.png"));
+    var texBoat = imgLoader.load(srcOf("parallax-boat-v2.png"));
+    var texWillow = imgLoader.load(srcOf("parallax-willow.png"));
+    var texReed = imgLoader.load(srcOf("parallax-reed.png"));
+    // 山峦/汀州素材：已离线预抠图（*-a.png 带透明通道），file:// 与 http:// 渲染完全一致
+    var inkTex = {};
+    ["mtn-sharp-focal.png", "mtn-peak-dense.png", "mtn-dome-dark.png", "mtn-range-mist.png", "mtn-triple.png", "mtn-dome-ochre.png", "mtn-far-faint.png", "mtn-bg-mist.png", "isle-front.jpg", "isle-mid.jpg", "isle-far.jpg", "palace.jpg", "citywall.jpg", "tower.jpg", "cliff.jpg", "pine-1.jpg", "pine-2.jpg", "pine-3.jpg"].forEach(function (u) {
+      inkTex[u] = imgLoader.load(srcOf(u.replace(/\.(png|jpg)$/, "-a.png")));
+    });
+    var inkList = Object.keys(inkTex).map(function (k) { return inkTex[k]; });
 
-    // 云海大地（比背景稍亮的雾白色）
+    // 云海大地（水面：极淡波纹 + 半透明，承载倒影）
+    var seaCnv = cnv(512, 256);
+    seaCnv.getContext("2d").globalAlpha = 0.3;
+    seaCnv.getContext("2d").drawImage(rippleTex(), 0, 0, seaCnv.width, seaCnv.height);
+    var seaTex = toTex(seaCnv);
+    seaTex.wrapS = seaTex.wrapT = THREE.RepeatWrapping; seaTex.repeat.set(10, 4);
     var seaGeo = new THREE.PlaneGeometry(460, 460);
-    var sea = new THREE.Mesh(seaGeo, new THREE.MeshBasicMaterial({ color: 0xe7e1d0 }));
+    var sea = new THREE.Mesh(seaGeo, new THREE.MeshBasicMaterial({ map: seaTex, color: 0xe7e1d0, transparent: true, opacity: 0.92, depthWrite: false }));
     sea.rotation.x = -Math.PI / 2; scene.add(sea);
 
     // 面片：真素材按原始宽高比立起
@@ -234,6 +167,9 @@
     function imagePlane(tex, w, x, z, opts) {
       opts = opts || {};
       var mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, side: THREE.DoubleSide, depthWrite: false, opacity: opts.opacity || 1 });
+      // 光影：光自西北来，东侧山体/汀州稍暗（静态烘焙受光差）
+      var lb = 1 - 0.06 * THREE.MathUtils.clamp((x + 70) / 140, 0, 1);
+      if (inkList.indexOf(tex) >= 0) mat.color.setScalar(lb);
       var mesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), mat);
       function fit() {
         var img = tex.image;
@@ -244,81 +180,112 @@
       }
       if (opts.ry) mesh.rotation.y = opts.ry;
       scene.add(mesh); upright.push({ mesh: mesh, fit: fit, tex: tex });
-      // 纸背厚度
-      var back = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: tex, transparent: true, side: THREE.DoubleSide, depthWrite: false, color: 0x8b8b84, opacity: 0.5 }));
-      function fitBack() { back.scale.copy(mesh.scale); back.position.set(x, mesh.position.y, z - 0.24); back.rotation.y = opts.ry || 0; }
-      scene.add(back); upright.push({ mesh: back, fit: fitBack, tex: tex });
+      // 纸背厚度（水墨拆片为透明底，无纸边，不带纸背）
+      if (inkList.indexOf(tex) < 0) {
+        var back = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: tex, transparent: true, side: THREE.DoubleSide, depthWrite: false, color: 0x8b8b84, opacity: 0.5 }));
+        function fitBack() { back.scale.copy(mesh.scale); back.position.set(x, mesh.position.y, z - 0.24); back.rotation.y = opts.ry || 0; }
+        scene.add(back); upright.push({ mesh: back, fit: fitBack, tex: tex });
+      }
+      // 水面倒影：垂直镜像 + 低透明度 + 水色混合（模糊在 onLoad 统一处理）
+      if (opts.reflect) {
+        var refl = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: tex, transparent: true, side: THREE.DoubleSide, depthWrite: false, opacity: 0.1, color: 0xd4cdb8 }));
+        refl.userData.isRefl = true;
+        function fitRefl() {
+          refl.scale.set(mesh.scale.x, -mesh.scale.y, 1);
+          refl.position.set(x, (opts.y || 0) - mesh.scale.y / 2 + 0.05, z);
+          refl.rotation.y = opts.ry || 0;
+        }
+        scene.add(refl); upright.push({ mesh: refl, fit: fitRefl, tex: tex });
+      }
       if (tex.image && tex.image.width) fit(); else tex.addEventListener("load", fit);
       return mesh;
     }
-    manager.onLoad = function () {
-      upright.forEach(function (u) { u.fit(); });
-      hideVeil();
-    };
-    // 程序化纸片（含纸背）
-    // 贴图缓存：同类纸片复用同一张画布纹理
-    var texCache = {};
-    function cardTex(name, maker) { if (!texCache[name]) texCache[name] = toTex(maker()); return texCache[name]; }
-    function paperPlane(tex, w, h, x, z, opts) {
-      opts = opts || {};
-      var mesh = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: tex, transparent: true, side: THREE.DoubleSide, depthWrite: false }));
-      mesh.position.set(x, (opts.y || 0) + h / 2, z);
-      if (opts.ry) mesh.rotation.y = opts.ry;
-      scene.add(mesh);
-      var back = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: tex, transparent: true, side: THREE.DoubleSide, depthWrite: false, color: 0x8b8b84, opacity: 0.55 }));
-      back.position.set(x, mesh.position.y, z - 0.24);
-      if (opts.ry) back.rotation.y = opts.ry;
-      scene.add(back);
-      return mesh;
+    // 轻模糊纹理：用于水面倒影（canvas filter blur；file:// 下先探测画布可用性）
+    function blurredTex(tex, r) {
+      var img = tex.image; if (!img || !img.width) return tex;
+      var c = cnv(img.width, img.height), x = c.getContext("2d");
+      x.filter = "blur(" + r + "px)"; x.drawImage(img, 0, 0); x.filter = "none";
+      var t = new THREE.CanvasTexture(c); t.needsUpdate = true; return t;
     }
+    function canvasUsable(img) {
+      try {
+        var t = document.createElement("canvas"); t.width = t.height = 2;
+        var g = t.getContext("2d"); g.drawImage(img, 0, 0, 2, 2); g.getImageData(0, 0, 1, 1);
+        return true;
+      } catch (e) { return false; }
+    }
+    // 素材全部就绪：倒影轻模糊、面片按原图比例立起、揭开遮罩
+    manager.onLoad = function () {
+      upright.forEach(function (u) {
+        if (u.mesh.userData && u.mesh.userData.isRefl && u.mesh.material.map.image && canvasUsable(u.mesh.material.map.image)) {
+          u.mesh.material.map = blurredTex(u.mesh.material.map, 3);
+        }
+        u.fit();
+      });
+      hideVeil();
+      console.log("[水墨行迹] build f12 · 内嵌纹理直载");
+    };
+    // 水面墨点投影：给落点垫一团淡影
     function shadowBlob(x, z, s) {
       var m = new THREE.Mesh(new THREE.PlaneGeometry(s, s * 0.36), new THREE.MeshBasicMaterial({ map: toTex(blobTex()), transparent: true, opacity: 0.45, depthWrite: false }));
       m.rotation.x = -Math.PI / 2; m.position.set(x, 0.03, z); scene.add(m);
     }
 
     /* ---------- 七处景致（山峦用真抠图素材） ---------- */
-    // 远山底幕（环绕）
-    imagePlane(texFar, 60, -34, -58);
-    imagePlane(texFar, 64, 12, -64, { ry: 0.12 });
-    imagePlane(texFar, 56, 46, -30, { ry: 0.5 });
-    imagePlane(texFar, 52, -62, 26, { ry: -0.5 });
-    imagePlane(texFar, 58, 34, 52, { ry: -0.3 });
-    imagePlane(texFar, 54, -30, 54, { ry: -0.7 });
-    // 1 金陵：宫阙 + 中景主峰
+    // 远山底幕：远景层与留白层交替环绕，底边沉入云海
+    imagePlane(inkTex["mtn-far-faint.png"], 66, -34, -58, { y: -11 });
+    imagePlane(inkTex["mtn-bg-mist.png"], 70, 12, -64, { y: -12, ry: 0.12, opacity: 0.9 });
+    imagePlane(inkTex["mtn-far-faint.png"], 62, 46, -30, { y: -10, ry: 0.5, opacity: 0.85 });
+    imagePlane(inkTex["mtn-bg-mist.png"], 66, -62, 26, { y: -11, ry: -0.5, opacity: 0.9 });
+    imagePlane(inkTex["mtn-far-faint.png"], 64, 34, 52, { y: -10, ry: -0.3, opacity: 0.85 });
+    imagePlane(inkTex["mtn-bg-mist.png"], 68, -30, 54, { y: -12, ry: -0.7, opacity: 0.9 });
+    // 最外侧天际留白大幕
+    imagePlane(inkTex["mtn-bg-mist.png"], 130, -8, -92, { y: -30, opacity: 0.75 });
+    imagePlane(inkTex["mtn-bg-mist.png"], 110, 66, -66, { y: -26, ry: 0.5, opacity: 0.7 });
+    // 1·2 主峰拆片群（金陵·钟山共享）：六片由近及远叠出纵深
     shadowBlob(-30, -14, 18);
-    paperPlane(cardTex("palace", palaceCard), 14, 7.4, -30, -14);
-    imagePlane(texMid, 40, -30, -30, { stretch: 1.15 });
-    imagePlane(texShore, 34, -44, -22, { ry: 0.3, opacity: 0.9 });
-    // 2 钟山：浓墨主峰群
     shadowBlob(-12, -40, 15);
-    imagePlane(texMid, 46, -12, -44, { stretch: 1.2 });
-    imagePlane(texMid, 32, 12, -48, { ry: -0.35, opacity: 0.92 });
-    imagePlane(texShore, 38, -14, -28, { opacity: 0.85 });
-    imagePlane(texShore, 24, 6, -34, { ry: -0.2, opacity: 0.7 });
-    paperPlane(cardTex("pines1", pinesCard), 14, 4.4, -8, -22);
-    // 3 洪州：城郭
+    // 宫阙（金陵·都城）：真素材 + 十字交叉面片
+    imagePlane(inkTex["palace.jpg"], 15, -30, -14, null);
+    // 松柏（钟山林泉）：真素材单株 + 十字交叉面片
+    imagePlane(inkTex["pine-2.jpg"], 4.5, -8, -22, null);
+    imagePlane(inkTex["isle-front.jpg"], 30, -44, -22, { y: -5.3, ry: 0.3, opacity: 0.95 });
+    imagePlane(inkTex["isle-mid.jpg"], 22, 6, -34, { y: -3.8, ry: -0.2, opacity: 0.85 });
+    imagePlane(inkTex["mtn-dome-dark.png"], 36, 0, -17, { ry: 0.12, stretch: 0.6 });
+    imagePlane(inkTex["mtn-peak-dense.png"], 52, -26, -30, { reflect: true });
+    imagePlane(inkTex["mtn-sharp-focal.png"], 46, -4, -34, { reflect: true });
+    imagePlane(inkTex["mtn-triple.png"], 38, 14, -42, { ry: -0.2, opacity: 0.95 });
+    imagePlane(inkTex["mtn-range-mist.png"], 60, -22, -46, { opacity: 0.85 });
+    imagePlane(inkTex["mtn-dome-ochre.png"], 40, -44, -50, { ry: 0.25, opacity: 0.8 });
+    // 3 洪州：城郭 + 岸山
     shadowBlob(-46, 20, 16);
-    paperPlane(cardTex("wall", citywallCard), 16, 5.5, -46, 20);
-    imagePlane(texShore, 36, -46, 32, { opacity: 0.9 });
+    // 城郭（洪州·南都）：真素材 + 十字交叉面片
+    imagePlane(inkTex["citywall.jpg"], 16, -46, 20, null);
+    imagePlane(inkTex["isle-front.jpg"], 32, -46, 32, { y: -5.7, opacity: 0.95 });
     imagePlane(texFar, 40, -52, 40, { ry: -0.4, opacity: 0.85 });
-    // 4 采石矶：陡崖
+    // 4 采石矶：陡崖 + 浓墨辅助山
     shadowBlob(20, -8, 10);
-    paperPlane(cardTex("cliff", cliffCard), 6.5, 10, 20, -8, { ry: -0.25 });
-    imagePlane(texShore, 30, 30, -20, { ry: -0.25, opacity: 0.85 });
-    // 5 江舟：孤舟（真素材）
+    // 江防要塞（采石矶）：真素材 + 十字交叉面片，横向构图加宽落位
+    imagePlane(inkTex["cliff.jpg"], 13, 20, -8, { ry: -0.25 });
+    imagePlane(texFar, 30, 38, -30, { ry: -0.25, opacity: 0.85 });
+    imagePlane(inkTex["isle-far.jpg"], 34, 30, -20, { y: -4.7, ry: -0.25, opacity: 0.9 });
+    // 5 江舟：孤舟（主峰群在望）
     var boat = imagePlane(texBoat, 4.6, 34, 1, { y: 0.06 });
-    imagePlane(texShore, 26, 40, -24, { opacity: 0.8 });
-    imagePlane(texShore, 24, 44, 20, { ry: -0.2, opacity: 0.75 });
+    imagePlane(inkTex["isle-mid.jpg"], 26, 40, -24, { y: -4.5, opacity: 0.9 });
+    imagePlane(inkTex["isle-front.jpg"], 24, 44, 20, { y: -4.3, ry: -0.2, opacity: 0.9 });
     imagePlane(texFar, 40, 30, -34, { opacity: 0.9 });
     // 6 汴京：小楼庭院（周围大片留白）
     shadowBlob(-58, -46, 7);
-    paperPlane(cardTex("tower", towerCard), 5, 5.8, -58, -46);
+    // 囚居小院（汴京·违命侯）：真素材 + 十字交叉面片
+    imagePlane(inkTex["tower.jpg"], 5, -58, -46, null);
     imagePlane(texFar, 34, -60, -62, { opacity: 0.8 });
-    // 7 北邙山：平缓丘陵松柏
+    // 7 北邙山：赭石圆顶丘陵 + 松柏（倒影）
     shadowBlob(50, 40, 13);
-    imagePlane(texShore, 32, 50, 42, { stretch: 0.75 });
+    imagePlane(inkTex["mtn-dome-ochre.png"], 38, 50, 44, { stretch: 0.75, reflect: true });
     imagePlane(texShore, 24, 38, 34, { ry: 0.3, stretch: 0.7, opacity: 0.85 });
-    paperPlane(cardTex("pines2", pinesCard), 16, 5, 50, 36);
+    // 北邙松柏：苍虬老松 + 虬曲松 环侍圆丘（真素材 + 十字交叉面片）
+    imagePlane(inkTex["pine-3.jpg"], 5.5, 50, 36, null);
+    imagePlane(inkTex["pine-1.jpg"], 4, 41, 40, null);
     // 岸芷汀兰：柳与芦苇（真素材）
     imagePlane(texWillow, 7, 24, 8, { ry: 0.4 });
     imagePlane(texWillow, 6, -20, 10, { ry: -0.5 });
@@ -340,6 +307,15 @@
     waterA.rotation.x = -Math.PI / 2; waterA.position.set(6, 0.06, 0); scene.add(waterA);
     var waterB = new THREE.Mesh(new THREE.PlaneGeometry(110, 18), new THREE.MeshBasicMaterial({ map: waterTexB, transparent: true, opacity: 0.26, depthWrite: false }));
     waterB.rotation.x = -Math.PI / 2; waterB.position.set(-10, 0.05, 5); scene.add(waterB);
+    // 云影：大片淡墨影子掠过水面（光影呼吸感）
+    var cshadows = [];
+    [[-52, -16, 40, 24, 1.0], [-8, 18, 46, 26, 1.35], [26, -34, 38, 22, 0.8], [58, 8, 42, 24, 1.1]].forEach(function (s) {
+      var cs = new THREE.Mesh(new THREE.PlaneGeometry(s[2], s[3]), new THREE.MeshBasicMaterial({ map: toTex(blobTex()), transparent: true, opacity: 0.075, color: 0x57503e, depthWrite: false }));
+      cs.rotation.x = -Math.PI / 2;
+      cs.position.set(s[0], 0.04, s[1]);
+      cs.userData.v = s[4];
+      scene.add(cs); cshadows.push(cs);
+    });
 
     // 云海：低层铺谷 + 高层薄纱（真云素材）
     var mists = [];
@@ -355,13 +331,13 @@
 
     /* ---------- 八组相机镜头坐标 ---------- */
     var VIEWS = {
-      jinling:   { pos: [-25, 4.5, 1],   tgt: [-30, 3, -14] },
-      zhongshan: { pos: [-4, 6.5, -25],  tgt: [-13, 5, -42] },
-      hongzhou:  { pos: [-39, 5, 8],     tgt: [-46, 2.5, 20] },
-      caishi:    { pos: [25, 5.5, 3],    tgt: [20, 3.5, -9] },
-      jiangzhou: { pos: [35.5, 3.2, 8.5],tgt: [34, 1.1, 1] },
-      bianjing:  { pos: [-51, 4.5, -37], tgt: [-58, 2.2, -46] },
-      beimang:   { pos: [43, 5, 29],     tgt: [50, 2, 40] },
+      jinling:   { pos: [-25, 4.2, 6],   tgt: [-26, 5.5, -24] },
+      zhongshan: { pos: [-4, 4.8, -25],  tgt: [-8, 6, -38] },
+      hongzhou:  { pos: [-39, 3.6, 8],   tgt: [-46, 4, 20] },
+      caishi:    { pos: [25, 3.8, 3],    tgt: [20, 4.5, -9] },
+      jiangzhou: { pos: [35.5, 2.4, 8.5], tgt: [34, 2, 1] },
+      bianjing:  { pos: [-51, 3.2, -37], tgt: [-58, 3.2, -46] },
+      beimang:   { pos: [43, 3.4, 29],   tgt: [50, 3, 40] },
       overview:  { pos: [2, 44, 84],     tgt: [-2, 2, -6] }
     };
 
@@ -391,7 +367,6 @@
       var p1 = tgt1.clone().add(new THREE.Vector3(v.pos[0] - v.tgt[0], v.pos[1] - v.tgt[1], v.pos[2] - v.tgt[2]));
       fly = { p0: camera.position.clone(), p1: p1, t0: ctl.tgt.clone(), t1: tgt1, start: performance.now(), dur: reduced ? 0 : (dur || 2100) };
     }
-    // 三次缓入缓出
     function ease(k) { return k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2; }
     var dragging = 0, lastX = 0, lastY = 0, hinted = false;
     var dom = renderer.domElement;
@@ -500,12 +475,13 @@
     function hideHint() { if (!hinted && hint) { hinted = true; hint.classList.add("is-hidden"); } }
 
     /* ---------- 渲染循环 ---------- */
-    // 渲染循环：飞行插值 / 轨道缓动 / 水纹云雾漂移 / 孤舟摇曳
+    // 渲染循环：飞行插值 / 轨道缓动 / 水纹云影漂移 / 孤舟摇曳
     var clock = new THREE.Clock();
     function animate() {
       requestAnimationFrame(animate);
       var dt = Math.min(clock.getDelta(), 0.05);
       var t = clock.elapsedTime;
+      try {
       if (fly) {
         var k = fly.dur ? Math.min((performance.now() - fly.start) / fly.dur, 1) : 1;
         var ek = ease(k);
@@ -529,13 +505,24 @@
       if (!reduced) {
         waterTexA.offset.x += dt * 0.02;
         waterTexB.offset.x -= dt * 0.012;
+        seaTex.offset.x += dt * 0.006;
+        seaTex.offset.y += dt * 0.003;
         mists.forEach(function (sp) {
           sp.position.x += sp.userData.v * dt;
           if (sp.position.x > 82) sp.position.x = -82;
         });
+        cshadows.forEach(function (cs) {
+          cs.position.x += cs.userData.v * dt;
+          if (cs.position.x > 95) cs.position.x = -95;
+        });
         if (boat.userData.baseY !== undefined) boat.position.y = boat.userData.baseY + Math.sin(t * 1.4) * 0.06;
       }
       renderer.render(scene, camera);
+      } catch (err) {
+        // 渲染循环绝不允许死掉：异常拦截 + 释放 fly（fly 卡死会永久锁死拖拽）
+        if (!window.__mapErr) { window.__mapErr = err; console.error("[水墨行迹] 渲染循环异常（已拦截并继续）:", err); }
+        fly = null;
+      }
     }
     resize();
     animate();

@@ -1,0 +1,69 @@
+<!doctype html><html><head><meta charset="utf-8"><title>embed-textures</title></head><body><pre id="out">WORKING</pre>
+<script>
+(function () {
+  "use strict";
+  /* 把下列图片用 canvas 转成 WebP dataURI，汇总成 map-textures.js 的内容。
+     以后新增素材：把文件放进本目录并在 FILES 里加一行“文件名: 最大宽度”即可重跑。 */
+  // 素材清单：键为图片文件名（与本页放同一目录），值为内嵌时的最大宽度(px)，原图超宽会等比缩小
+  var FILES = {
+    "hero-mist-cloud.png": 1600,
+    "parallax-far.png": 1600,
+    "parallax-shore.png": 1600,
+    "parallax-boat-v2.png": 1100,
+    "parallax-willow.png": 1600,
+    "parallax-reed.png": 1600,
+    "mtn-sharp-focal-a.png": 1280,
+    "mtn-peak-dense-a.png": 1280,
+    "mtn-dome-dark-a.png": 1280,
+    "mtn-range-mist-a.png": 1280,
+    "mtn-triple-a.png": 1280,
+    "mtn-dome-ochre-a.png": 1280,
+    "mtn-far-faint-a.png": 1280,
+    "mtn-bg-mist-a.png": 1280,
+    "isle-front-a.png": 1280,
+    "isle-mid-a.png": 1280,
+    "isle-far-a.png": 1280,
+    "palace-a.png": 1280,
+    "citywall-a.png": 1280,
+    "tower-a.png": 1280,
+    "cliff-a.png": 1280,
+    "pine-1-a.png": 1024,
+    "pine-2-a.png": 1024,
+    "pine-3-a.png": 1024
+  };
+  // WebP 编码质量(0~1)；若浏览器不支持 toDataURL("image/webp") 会自动降级为 PNG
+  var Q = 0.82;
+  var out = document.getElementById("out");
+  var names = Object.keys(FILES);
+  var done = 0, res = {};
+  var testC = document.createElement("canvas"); testC.width = testC.height = 2;
+  var webp = testC.toDataURL("image/webp").indexOf("data:image/webp") === 0;
+  var mime = webp ? "image/webp" : "image/png";
+  // 逐张加载：等比缩放后画到 canvas 再转 dataURI；加载失败记空串，最后以 missed 列出
+  names.forEach(function (n) {
+    var img = new Image();
+    img.onload = function () {
+      var mw = FILES[n], sc = Math.min(1, mw / img.naturalWidth);
+      var w = Math.max(1, Math.round(img.naturalWidth * sc)), h = Math.max(1, Math.round(img.naturalHeight * sc));
+      var c = document.createElement("canvas"); c.width = w; c.height = h;
+      c.getContext("2d").drawImage(img, 0, 0, w, h);
+      res[n] = c.toDataURL(mime, Q);
+      done++; if (done === names.length) finish();
+    };
+    img.onerror = function () { res[n] = ""; done++; if (done === names.length) finish(); };
+    img.src = n;
+  });
+  // 汇总输出：把转换成功的项拼成 window.MAP_TEXTURES 赋值，夹在 @@@START@@@/@@@END@@@ 标记之间——复制中间那段保存为 map-textures.js 即可
+  function finish() {
+    var parts = [], total = 0, miss = [];
+    names.forEach(function (n) {
+      if (res[n]) { parts.push(JSON.stringify(n) + ":" + JSON.stringify(res[n])); total += res[n].length; }
+      else miss.push(n);
+    });
+    var js = "window.MAP_TEXTURES={" + parts.join(",") + "};";
+    out.textContent = "EMBED_OK webp=" + webp + " count=" + parts.length +
+      " total=" + (total / 1048576).toFixed(2) + "MB missed=" + miss.join(",") +
+      "\n@@@START@@@" + js + "@@@END@@@";
+  }
+})();
+</script></body></html>
