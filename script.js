@@ -2660,6 +2660,8 @@
     });
     // 笺语留言抽屉打开时，联动关闭文创笺铺抽屉（两抽屉互斥）
     document.addEventListener("jy-drawer-open", closeDrawer);
+    // 分享词境抽屉打开时，联动关闭文创笺铺抽屉（三抽屉互斥）
+    document.addEventListener("share-drawer-open", closeDrawer);
 
     const nameSlot = dialog.querySelector("[data-shop-name]");
     // 每张卡片的「立即选购」：把商品名填进弹窗标题并弹出
@@ -2800,6 +2802,8 @@ let drawerOpen = false;
       if (event.key === "Escape" && drawerOpen) closeDrawer();
     });
     document.addEventListener("shop-drawer-open", closeDrawer);
+    // 分享词境抽屉打开时，联动关闭笺语留言抽屉
+    document.addEventListener("share-drawer-open", closeDrawer);
 
         // 输入计数与提交：留言仅存本机 localStorage
 const textarea = drawer.querySelector("#jy-input");
@@ -2826,6 +2830,147 @@ const textarea = drawer.querySelector("#jy-input");
       toast.classList.add("is-show");
       toastTimer = setTimeout(() => toast.classList.remove("is-show"), 2200);
     });
+  })();
+
+  // 分享词境：全站侧边栏。微信朋友圈无网页直连通道，采用「扫码后转发」；
+  // QQ空间动态、QQ好友、微博使用官方分享页，另提供复制链接与系统分享。
+  (function initializeShareSidebar() {
+    if (document.querySelector(".share-tab")) return;
+        // 分享参数：当前页地址、标题、描述与配图
+const pageUrl = location.href.split("#")[0];
+    const pageTitle = "春水留痕·李煜词境";
+    const pageDesc = "以一江春水为引，走进南唐后主的词境：读词人故事，赏四阕词笺，听一段诵读，留一句笺语。";
+    const isHttp = location.protocol === "http:" || location.protocol === "https:";
+    const pagePic = isHttp ? location.origin + "/plum-blossom.jpg" : "";
+    const enc = encodeURIComponent;
+        // 各平台官方一键分享链接（微信无网页直连接口，走扫码）
+const shareLinks = {
+      qzone: "https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=" + enc(pageUrl) + "&title=" + enc(pageTitle) + "&summary=" + enc(pageDesc) + (pagePic ? "&pics=" + enc(pagePic) : ""),
+      qqFriend: "https://connect.qq.com/widget/shareqq/index.html?url=" + enc(pageUrl) + "&title=" + enc(pageTitle) + "&summary=" + enc(pageDesc),
+      weibo: "https://service.weibo.com/share/share.php?url=" + enc(pageUrl) + "&title=" + enc(pageTitle) + (pagePic ? "&pic=" + enc(pagePic) : "")
+    };
+
+        // 注入四节点：竖签 / 遮罩 / 抽屉 / 轻提示
+const tab = document.createElement("button");
+    tab.type = "button";
+    tab.className = "shop-tab share-tab";
+    tab.setAttribute("aria-label", "打开分享词境侧边栏（分享到微信、QQ 或复制链接）");
+    tab.setAttribute("aria-expanded", "false");
+    tab.innerHTML = "分享词境<small>微信 · QQ</small>";
+
+    const mask = document.createElement("div");
+    mask.className = "shop-mask";
+    mask.setAttribute("aria-hidden", "true");
+
+        // 微信二维码：HTTP(S) 下用 qrserver 生成，本地预览降级为文字提示
+const qrHtml = isHttp
+      ? `<div class="share-qr-img"><img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=0&data=${enc(pageUrl)}" alt="当前页面地址二维码" loading="lazy" decoding="async"></div>
+         <div class="share-qr-copy"><b>微信 · 扫码分享</b><p>手机微信扫码打开本站，点击右上角「…」即可转发到朋友圈或送给朋友。</p></div>`
+      : `<div class="share-qr-copy" style="flex:1"><b>微信 · 扫码分享</b><p>当前为本地预览，暂无法生成二维码。通过本地服务器或部署上线后，这里会显示页面二维码。</p></div>`;
+
+    const drawer = document.createElement("aside");
+    drawer.className = "shop-drawer share-drawer";
+    drawer.setAttribute("role", "dialog");
+    drawer.setAttribute("aria-modal", "true");
+    drawer.setAttribute("aria-label", "分享词境");
+    drawer.innerHTML = `
+      <div class="shop-drawer-head">
+        <span class="shop-drawer-seal" aria-hidden="true">享</span>
+        <div><h2>分享词境</h2><small>SHARE · 把这条春水送出去</small></div>
+        <button class="shop-drawer-close" type="button" aria-label="关闭分享词境">×</button>
+      </div>
+      <div class="shop-drawer-body">
+        <div class="share-qr">${qrHtml}</div>
+        <div class="share-links">
+          <button class="share-btn" type="button" data-share="qzone"><i>空</i>QQ空间动态</button>
+          <button class="share-btn" type="button" data-share="qqFriend"><i>友</i>分享给QQ好友</button>
+          <button class="share-btn" type="button" data-share="weibo"><i>博</i>分享到微博</button>
+          <button class="share-btn" type="button" data-share="copy"><i>链</i>复制词境链接</button>
+          <button class="share-btn share-btn-sys" type="button" data-share="system" hidden><i>享</i>更多分享方式（系统分享）</button>
+        </div>
+        <div class="jy-note" role="note">
+          <b>分享说明</b>
+          微信朋友圈不提供网页端直连接口，故采用「扫码 → 手机微信内转发」的通用方案；QQ 空间、QQ 好友与微博通过官方分享页调起，需登录对应账号。
+        </div>
+        <p class="share-footnote">本地演示时链接为本机地址 · 网站部署上线后分享的即是正式网址</p>
+      </div>`;
+
+    const toast = document.createElement("div");
+    toast.className = "jy-toast";
+    toast.setAttribute("role", "status");
+
+    document.body.append(tab, mask, drawer, toast);
+
+        // 开合状态：锁 body 滚动、焦点返还、Esc/遮罩关闭
+let drawerOpen = false;
+    let lastFocused = null;
+    let toastTimer = null;
+    const showToast = (message) => {
+      toast.textContent = message;
+      toast.classList.add("is-show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("is-show"), 2200);
+    };
+    const openDrawer = () => {
+      drawerOpen = true;
+      lastFocused = document.activeElement;
+      drawer.classList.add("is-open");
+      mask.classList.add("is-open");
+      tab.setAttribute("aria-expanded", "true");
+      document.body.style.overflow = "hidden";
+      drawer.querySelector(".shop-drawer-close").focus();
+      document.dispatchEvent(new Event("share-drawer-open"));
+    };
+    const closeDrawer = () => {
+      if (!drawerOpen) return;
+      drawerOpen = false;
+      drawer.classList.remove("is-open");
+      mask.classList.remove("is-open");
+      tab.setAttribute("aria-expanded", "false");
+      document.body.style.overflow = "";
+      if (lastFocused && typeof lastFocused.focus === "function") lastFocused.focus();
+    };
+    tab.addEventListener("click", () => (drawerOpen ? closeDrawer() : openDrawer()));
+    mask.addEventListener("click", closeDrawer);
+    drawer.querySelector(".shop-drawer-close").addEventListener("click", closeDrawer);
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && drawerOpen) closeDrawer();
+    });
+    document.addEventListener("shop-drawer-open", closeDrawer);
+    document.addEventListener("jy-drawer-open", closeDrawer);
+
+        // 复制链接：clipboard API 失败时降级 execCommand
+const copyLink = async () => {
+      try {
+        await navigator.clipboard.writeText(pageUrl);
+        showToast("词境链接已复制");
+      } catch {
+        const helper = document.createElement("textarea");
+        helper.value = pageUrl;
+        helper.style.position = "fixed";
+        helper.style.opacity = "0";
+        document.body.appendChild(helper);
+        helper.select();
+        try { document.execCommand("copy"); showToast("词境链接已复制"); }
+        catch { showToast("复制失败，请手动复制地址栏链接"); }
+        helper.remove();
+      }
+    };
+        // 分发点击：复制 / 系统分享 / 各平台新窗口打开
+drawer.querySelectorAll(".share-btn").forEach((button) => {
+      button.addEventListener("click", () => {
+        const kind = button.dataset.share;
+        if (kind === "copy") { copyLink(); return; }
+        if (kind === "system") {
+          if (navigator.share) navigator.share({ title: pageTitle, text: pageDesc, url: pageUrl }).catch(() => { });
+          return;
+        }
+        const target = shareLinks[kind];
+        if (target) window.open(target, "_blank", "noopener,width=720,height=640");
+      });
+    });
+        // 支持系统分享时显示「更多分享方式」按钮
+if (navigator.share) drawer.querySelector(".share-btn-sys").hidden = false;
   })();
   }
   initializePageContent();
