@@ -1284,47 +1284,11 @@ button:not(.book-open-button):active,.button:active{translate:0 1px}
 }
 /* 移动端降级 */
 @media(max-width:700px) and (prefers-reduced-motion:reduce){.subhero-stage>.subhero{min-height:390px;padding:55px 7%;align-items:flex-start}}
-/* —— 听词入梦 · 终幕：滚过 BACK 区即入的收束一幕（形式同首页导引：暗色 + 居中文案 + 金墨线描边），
-   .is-visible 由 script.js 通用 IntersectionObserver 写入，逐行错峰浮现 —— */
+/* —— 听词入梦 · BACK 区动作组（终幕一期内嵌 .finale-scene 版已删，终幕独立成 finale.html）—— */
 /* BACK 区按钮组：竖排右对齐 */
 .next-step-actions{display:flex;flex-direction:column;align-items:flex-end;gap:16px}
-/* 终幕场景：径向夜色底 + 居中排版 */
-.finale-scene{position:relative;min-height:100vh;min-height:100svh;display:flex;align-items:center;justify-content:center;overflow:hidden;text-align:center;color:#f4f0e6;background:radial-gradient(120% 90% at 50% 8%,#1d2c26 0%,#16211d 52%,#101917 100%);isolation:isolate}
-/* 底部金晕 */
-.finale-scene:before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(58% 42% at 50% 78%,rgba(199,170,119,.1),transparent 70%)}
-/* 右上竖排巨字印 */
-.finale-seal{position:absolute;z-index:0;top:9%;right:6%;color:rgba(240,228,199,.07);font:clamp(120px,16vw,210px)/1 "Liyu Xingkai","HongLei Calligraphy",var(--serif);writing-mode:vertical-rl;pointer-events:none}
-/* 居中文案栏 */
-.finale-inner{position:relative;z-index:1;max-width:660px;padding:110px 7% 90px;display:flex;flex-direction:column;align-items:center}
-/* 眉题：左右渐隐细线夹字 */
-.finale-kicker{display:flex;align-items:center;gap:12px;color:#e1c69c;font:10px var(--sans);letter-spacing:.26em}
-.finale-kicker:before,.finale-kicker:after{content:"";width:34px;height:1px}
-.finale-kicker:before{background:linear-gradient(90deg,transparent,rgba(225,198,156,.75))}
-.finale-kicker:after{background:linear-gradient(270deg,transparent,rgba(225,198,156,.75))}
-/* 大标题（洪雷楷书） */
-.finale-title{margin:26px 0 0;font-family:"HongLei Calligraphy",var(--serif);font-size:clamp(34px,4.6vw,56px);font-weight:400;line-height:1.55;letter-spacing:.09em}
-.finale-title em{font-style:normal;color:#e4c795}
-/* 金墨笔锋线（SVG 描边） */
-.finale-stroke{display:block;width:min(220px,44%);height:18px;margin:16px 0 30px;overflow:visible}
-.finale-stroke path{fill:none;stroke:#cdb287;stroke-width:2;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1}
-/* 结语 */
-.finale-copy{margin:0;color:rgba(244,240,230,.86);font-family:"Liyu Xingkai UI","Liyu Xingkai",var(--serif);font-size:clamp(15px,1.5vw,18px);line-height:2.2;letter-spacing:.12em}
-/* 回首页链接 */
-.finale-home{margin-top:44px;color:rgba(228,202,158,.92)}
-/* 渐显动画：逐行错峰（JS 加 .is-visible 触发） */
-@media(prefers-reduced-motion:no-preference){
-  .finale-scene .finale-kicker,.finale-scene .finale-title,.finale-scene .finale-copy,.finale-scene .finale-home{opacity:0;transform:translateY(26px);transition:opacity .9s ease,transform 1.1s cubic-bezier(.2,.7,.25,1)}
-  .finale-scene .finale-title{transition-delay:.15s}
-  .finale-scene .finale-copy{transition-delay:.3s}
-  .finale-scene .finale-home{transition-delay:.5s}
-  .finale-scene .finale-stroke path{transition:stroke-dashoffset 1.2s ease .45s}
-  .finale-scene.is-visible .finale-kicker,.finale-scene.is-visible .finale-title,.finale-scene.is-visible .finale-copy,.finale-scene.is-visible .finale-home{opacity:1;transform:none}
-  .finale-scene.is-visible .finale-stroke path{stroke-dashoffset:0}
-}
-/* 降级 */
-@media(prefers-reduced-motion:reduce){.finale-scene .finale-stroke path{stroke-dashoffset:0;transition:none}}
 /* 移动端 */
-@media(max-width:700px){.next-step-actions{align-items:flex-start}.finale-inner{padding:84px 8% 70px}.finale-seal{font-size:118px;top:6%;right:4%}}
+@media(max-width:700px){.next-step-actions{align-items:flex-start}}
 
 /* —— 终幕页 finale.html：导引式沉浸一幕——雾感三层、月亮缓升、巨字水印 + 指针/滚动双视差、
    滚动叙事逐行晕开（进度写 .finale-scroll 的 --finale-p，指针写 --px/--py，见 script.js 末尾 IIFE）；
@@ -1462,4 +1426,143 @@ button:not(.book-open-button):active,.button:active{translate:0 1px}
   .part-js .finale-gate:before{translate:calc(var(--part-px,0) * 34px) calc(var(--part-py,0) * 20px - var(--part-p,0) * 40px);opacity:calc(.4 + var(--part-p,0) * .6)}
 }
 /* 终幕移动端 */
-@media(max-width:700px){.finale-inner{padding:84px 8% 90px}.finale-glyph{font-size:250px}.finale-title{font-size:34px}.finale-gate-inner{padding:100px 8%}}
+@media(max-width:700px){.finale-inner{padding:84px 8% 90px}.finale-glyph{width:min(240px,64vw)}.finale-title{font-size:34px}.finale-gate-inner{padding:100px 8%}}
+
+/* ========== 文创笺铺（全站侧边栏抽屉 · script.js 动态注入） ========== */
+/* 侧缘小签：常驻右缘的竖排入口 */
+.shop-tab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:60;display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 8px;background:linear-gradient(160deg,#2f463a,#24362e);color:#f2ecdd;border:1px solid rgba(199,170,119,.4);border-right:0;border-radius:8px 0 0 8px;writing-mode:vertical-rl;font-family:"Liyu Xingkai UI",var(--serif);font-size:15px;letter-spacing:.22em;cursor:pointer;box-shadow:-6px 0 18px rgba(24,39,30,.22);transition:background .3s,transform .3s}
+/* 悬停：换赭红并向左让出 3px（暗示抽屉方向） */
+.shop-tab:hover{background:var(--rust);transform:translateY(-50%) translateX(-3px)}
+/* 小签副标（竖排细字） */
+.shop-tab small{writing-mode:vertical-rl;font:8px var(--sans);letter-spacing:.3em;color:#d2b990}
+/* 首页开卷前不显示入口（避免打断封面仪式） */
+body.home-page:not(.book-opened) .shop-tab{display:none}
+/* 遮罩 */
+.shop-mask{position:fixed;inset:0;z-index:65;background:rgba(24,39,31,.48);backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .35s ease}
+/* 遮罩开启态 */
+.shop-mask.is-open{opacity:1;pointer-events:auto}
+/* 抽屉本体 */
+.shop-drawer{position:fixed;top:0;right:0;z-index:70;height:100dvh;width:min(400px,94vw);display:flex;flex-direction:column;background:linear-gradient(180deg,#f7f6ef,#eef0e7);border-left:1px solid rgba(122,84,58,.3);box-shadow:-24px 0 60px rgba(24,39,30,.3);transform:translateX(106%);transition:transform .45s cubic-bezier(.2,.75,.25,1);visibility:hidden}
+/* 抽屉滑入态（同时解除 visibility 以可交互） */
+.shop-drawer.is-open{transform:translateX(0);visibility:visible}
+/* 抽屉头部：印章 + 标题 + 关闭键 */
+.shop-drawer-head{display:flex;align-items:center;gap:12px;padding:20px 20px 14px;border-bottom:1px solid rgba(122,84,58,.22)}
+/* 头部方印（赭红描边，微旋 -5deg） */
+.shop-drawer-seal{flex-shrink:0;width:40px;height:40px;display:grid;place-items:center;border:1px solid var(--rust);color:var(--rust);font-family:"Liyu Xingkai UI",var(--serif);font-size:21px;transform:rotate(-5deg)}
+/* 头部标题 */
+.shop-drawer-head h2{margin:0;font-family:"HongLei Calligraphy",var(--serif);font-weight:400;font-size:24px;letter-spacing:.1em}
+/* 头部英文副标 */
+.shop-drawer-head small{display:block;font:9px var(--sans);letter-spacing:.22em;color:var(--muted);margin-top:3px}
+/* 关闭键：右推至尽头 */
+.shop-drawer-close{margin-left:auto;background:none;border:0;font-size:23px;line-height:1;color:#6d786d;cursor:pointer;padding:4px 6px}
+.shop-drawer-close:hover{color:var(--rust)}
+/* 抽屉滚动区（限制滚动不外溢） */
+.shop-drawer-body{flex:1;overflow-y:auto;padding:16px 18px 22px;overscroll-behavior:contain}
+/* 抽屉内概念声明（常驻顶部，避免误判为真实商店） */
+.shop-drawer-notice{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;margin-bottom:14px;background:rgba(169,104,76,.08);border:1px solid rgba(169,104,76,.4);border-left:3px solid var(--rust)}
+/* 声明左侧标头 */
+.shop-drawer-notice b{flex-shrink:0;font-family:"Liyu Xingkai UI",var(--serif);font-size:15px;color:#8a4a34;letter-spacing:.08em}
+/* 声明正文 */
+.shop-drawer-notice p{margin:0;font-size:11.5px;line-height:1.9;color:#42524a}
+/* 抽屉内商品卡：左图右文的紧凑横卡 */
+.shop-card{display:flex;gap:13px;padding:13px;margin-bottom:12px;background:linear-gradient(180deg,#fbfaf4,#f1f2ea);border:1px solid rgba(122,84,58,.22);box-shadow:0 4px 14px rgba(43,61,48,.06);transition:transform .35s cubic-bezier(.2,.75,.25,1),box-shadow .35s ease,border-color .35s ease}
+/* 悬停（仅精确指针设备）：卡片左移微抬 */
+@media(hover:hover){.shop-card:hover{transform:translateX(-4px);border-color:rgba(169,104,76,.5);box-shadow:0 10px 22px rgba(43,61,48,.14)}}
+/* 商品图框：正方形裁切 */
+.shop-art{position:relative;flex-shrink:0;width:96px;height:96px;overflow:hidden;background:#e4e8df}
+/* 商品图：轻微降饱和以融纸感 */
+.shop-art img{width:100%;height:100%;object-fit:cover;filter:saturate(.92);transition:transform .5s cubic-bezier(.2,.7,.25,1)}
+/* 悬停时图片缓推近 */
+@media(hover:hover){.shop-card:hover .shop-art img{transform:scale(1.07)}}
+/* 「概念 · 非卖」角标 */
+.shop-ribbon{position:absolute;top:6px;left:0;z-index:2;padding:2px 7px;background:rgba(169,104,76,.94);color:#fdf9f0;font:8px/1.6 var(--sans);letter-spacing:.12em}
+/* 商品文字区（纵向弹性） */
+.shop-body{display:flex;flex-direction:column;flex:1;min-width:0}
+/* 元信息行（灵感出处） */
+.shop-meta{display:flex;flex-wrap:wrap;gap:5px;margin:0 0 4px;font:8.5px var(--sans);letter-spacing:.12em;color:#8d7b63;text-transform:uppercase}
+/* 商品名 */
+.shop-body h3{margin:0 0 5px;font-family:"Liyu Xingkai UI",var(--serif);font-weight:400;font-size:17px;letter-spacing:.08em;color:#2a3b30}
+/* 商品描述：两行截断 */
+.shop-body>p{margin:0;font-size:11px;line-height:1.85;color:#5f6c61;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+/* 「立即选购」概念按钮（点击只弹概念说明，不下单） */
+.concept-buy{margin-top:auto;padding-top:8px;background:none;border:0;cursor:pointer;align-self:flex-start;font:10.5px var(--sans);letter-spacing:.14em;color:var(--pine);border-bottom:1px solid #a9b6a7;padding-bottom:4px;transition:color .3s,border-color .3s}
+/* 按钮箭头 */
+.concept-buy span{color:var(--rust);margin-left:5px;display:inline-block;transition:transform .3s}
+/* 悬停：字色转赭红 + 箭头右上移 */
+@media(hover:hover){.concept-buy:hover{color:#8a4a34;border-color:var(--rust)}.concept-buy:hover span{transform:translate(2px,-2px)}}
+/* 抽屉底部：活化思路速览 + 脚注 */
+.shop-drawer-idea{margin-top:6px;padding:14px;border:1px dashed rgba(122,84,58,.35)}
+/* 速览小标题 */
+.shop-drawer-idea h3{margin:0 0 8px;font-family:"Liyu Xingkai UI",var(--serif);font-weight:400;font-size:15px;letter-spacing:.1em;color:#8a4a34}
+/* 三步思路列表 */
+.shop-drawer-idea ol{margin:0;padding-left:18px;font-size:11px;line-height:2;color:#5f6c61}
+/* 底部脚注（图稿为示意） */
+.shop-drawer-foot{margin:12px 2px 0;font-size:10px;line-height:1.9;color:#8a9387;text-align:center}
+/* 概念说明弹窗（原生 dialog，样式与时间线弹窗呼应） */
+.shop-notice-dialog{width:min(480px,calc(100vw - 36px));max-width:none;border:1px solid rgba(134,151,131,.46);padding:clamp(30px,5vw,46px);background:linear-gradient(145deg,rgba(249,248,240,.99),rgba(232,236,226,.99));color:var(--ink);box-shadow:0 24px 90px rgba(24,39,30,.32);text-align:center}
+/* 弹窗背景遮罩层 */
+.shop-notice-dialog::backdrop{background:rgba(24,39,31,.52);backdrop-filter:blur(4px)}
+/* 弹窗关闭键 */
+.shop-notice-close{position:absolute;top:14px;right:16px;background:none;border:0;font-size:24px;line-height:1;color:#6d786d;cursor:pointer}
+.shop-notice-close:hover{color:var(--rust)}
+/* 弹窗顶部方印（实心赭红） */
+.shop-notice-seal{display:grid;place-items:center;width:58px;height:58px;margin:0 auto 18px;background:var(--rust);color:#fbf7ee;font-family:"Liyu Xingkai UI",var(--serif);font-size:31px;transform:rotate(-5deg)}
+/* 弹窗眉题 */
+.shop-notice-kicker{font:10px var(--sans);letter-spacing:.22em;color:#a9684c}
+/* 弹窗标题 */
+.shop-notice-dialog h2{margin:12px 0 16px;font-family:"HongLei Calligraphy",var(--serif);font-weight:400;font-size:27px;letter-spacing:.08em}
+/* 标题内商品名高亮 */
+.shop-notice-dialog h2 span{color:#8a4a34}
+/* 弹窗主文案 */
+.shop-notice-message{margin:0 auto 12px;max-width:380px;font-family:"Xuandong Kaishu",var(--serif);font-size:17px;line-height:2;color:#34483b}
+/* 弹窗补充说明 */
+.shop-notice-sub{margin:0 0 26px;font-size:11px;line-height:1.9;color:#8a9387}
+/* 「我知道了」主按钮 */
+.shop-notice-ok{min-height:44px;padding:10px 34px;background:var(--pine);border:1px solid var(--pine);border-radius:3px;color:#f7f5ef;font:12px var(--sans);letter-spacing:.18em;cursor:pointer;transition:background .3s,letter-spacing .3s}
+/* 主按钮悬停：加深 + 字距拉开 */
+.shop-notice-ok:hover{background:#243b30;letter-spacing:.24em}
+/* 移动端：小签与商品卡整体收窄、描述放宽到三行 */
+@media(max-width:700px){
+  .shop-tab{padding:13px 7px;font-size:13px;letter-spacing:.16em}
+  .shop-art{width:82px;height:82px}.shop-body h3{font-size:15px}.shop-body>p{-webkit-line-clamp:3}
+}
+/* 降级：减弱动效时去掉全部过渡 */
+@media(prefers-reduced-motion:reduce){.shop-tab,.shop-drawer,.shop-mask,.shop-card,.shop-art img{transition:none}}
+/* ========== 笺语留言（全站侧边栏 · localStorage 本地笺筒） ========== */
+/* 第二枚小签：位于「文创笺铺」下方 */
+.jy-tab{top:calc(50% + 128px);background:linear-gradient(160deg,#8a4a34,#6e3826);border-color:rgba(210,185,144,.45)}
+.jy-tab:hover{background:#98583f}
+body.home-page:not(.book-opened) .jy-tab{display:none}
+/* 面板主体复用 .shop-drawer 骨架，仅覆写配色细节 */
+.jy-drawer .shop-drawer-seal{border-color:#8a4a34;color:#8a4a34}
+/* 留言列表：笺纸/木简质感 */
+.jy-list{display:flex;flex-direction:column;gap:12px;margin-bottom:16px}
+.jy-msg{position:relative;padding:13px 15px 12px 19px;background:linear-gradient(180deg,#f6efdd,#efe4cb);border:1px solid rgba(122,84,58,.35);box-shadow:0 3px 10px rgba(43,61,48,.08)}
+.jy-msg:before{content:"";position:absolute;left:7px;top:10px;bottom:10px;width:2px;background:linear-gradient(180deg,rgba(169,104,76,.7),rgba(169,104,76,.25))}
+.jy-msg-text{margin:0;font-family:"Xuandong Kaishu",var(--serif);font-size:14.5px;line-height:1.95;color:#3a4a3f;word-break:break-word}
+.jy-msg-meta{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:7px}
+.jy-msg-name{font-family:"Liyu Xingkai UI",var(--serif);font-size:13px;letter-spacing:.12em;color:#8a4a34}
+.jy-msg-time{font:9.5px var(--sans);letter-spacing:.08em;color:#9a8f79}
+/* 我的留言卡：赭红边强调 */
+.jy-msg.jy-msg-mine{background:linear-gradient(180deg,#f2ecdc,#e9dfc6);border-color:rgba(169,104,76,.5)}
+/* 「我的」小标签 */
+.jy-msg-name .jy-mine-tag{margin-left:6px;padding:1px 6px;background:var(--rust);color:#fbf7ee;font:8.5px var(--sans);letter-spacing:.14em;vertical-align:1px}
+/* 书写区：笺纸输入 */
+.jy-write{padding:14px;background:rgba(251,250,244,.92);border:1px solid rgba(122,84,58,.3)}
+.jy-write label{display:block;margin-bottom:8px;font-family:"Liyu Xingkai UI",var(--serif);font-size:15px;letter-spacing:.1em;color:#2a3b30}
+.jy-write textarea{width:100%;min-height:86px;resize:vertical;padding:11px 12px;background:linear-gradient(180deg,#f8f2e2,#f3ead4);border:1px solid rgba(122,84,58,.4);font-family:"Xuandong Kaishu",var(--serif);font-size:14.5px;line-height:1.9;color:#33443a}
+/* 输入焦点态 */
+.jy-write textarea:focus{outline:2px solid rgba(169,104,76,.5);outline-offset:1px}
+.jy-write-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:9px}
+.jy-count{font:9.5px var(--sans);letter-spacing:.08em;color:#9a8f79}
+/* 提交按钮 */
+.jy-submit{min-height:38px;padding:8px 22px;background:var(--rust);border:1px solid var(--rust);border-radius:3px;color:#fdf9f0;font:11.5px var(--sans);letter-spacing:.16em;cursor:pointer;transition:background .3s,letter-spacing .3s}
+.jy-submit:hover{background:#7c4632;letter-spacing:.22em}
+/* 原型说明（用户要求的文档化声明，常驻面板底部） */
+.jy-note{margin:14px 2px 0;padding:12px 13px;border:1px dashed rgba(122,84,58,.4);font-size:10.5px;line-height:1.95;color:#6d786d}
+.jy-note b{display:block;margin-bottom:4px;font-family:"Liyu Xingkai UI",var(--serif);font-size:13px;letter-spacing:.1em;color:#8a4a34}
+/* 轻提示：已存入本地笺筒 */
+.jy-toast{position:fixed;left:50%;bottom:9vh;z-index:90;transform:translate(-50%,12px);padding:11px 26px;background:rgba(36,59,48,.94);color:#f2ecdd;font-family:"Xuandong Kaishu",var(--serif);font-size:15px;letter-spacing:.14em;border:1px solid rgba(199,170,119,.4);border-radius:3px;box-shadow:0 12px 34px rgba(24,39,30,.35);opacity:0;pointer-events:none;transition:opacity .35s ease,transform .35s ease}
+.jy-toast.is-show{opacity:1;transform:translate(-50%,0)}
+/* 减弱动效：轻提示不再过渡 */
+@media(prefers-reduced-motion:reduce){.jy-toast{transition:none}}

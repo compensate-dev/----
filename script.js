@@ -2541,6 +2541,292 @@
     field.value = "";
     document.getElementById("line-count").textContent = "0 / 100";
   });
+
+  // 文创笺铺：全站右侧滑出抽屉（概念展示，不存在任何真实下单/支付链路）
+  (function initializeShopSidebar() {
+    // 已注入过则不重复挂载（防重复初始化）
+    if (document.querySelector(".shop-tab")) return;
+    // 概念文创清单：每件取一阕词的核心意象转译为器物
+    const goods = [
+      { img: "shop-paper.jpg", alt: "浣花春水笺概念图：带春水暗纹的宣纸信笺", meta: "文房信笺 · 灵感《虞美人》", name: "浣花春水笺", desc: "一套八张的仿古宣笺，以「一江春水」波纹作暗纹，落梅点缀纸角。提笔写信时，愁绪也化作了东流的水。" },
+      { img: "shop-bookmark.jpg", alt: "月钩梧桐书签概念图：弯月梧桐造型的黄铜楠木书签", meta: "流苏书签 · 灵感《相见欢》", name: "月钩梧桐签", desc: "黄铜为钩月，楠木作梧桐，垂一缕墨色流苏。「无言独上西楼」的那夜月色，从此夹在正在读的那一页。" },
+      { img: "shop-scroll.jpg", alt: "春水东流卷轴概念图：绘有江山孤舟的中式水墨挂轴", meta: "卷轴壁纸 · 灵感《虞美人》", name: "春水东流卷", desc: "一款可打印的数字长卷壁纸，亦可装裱为案头小挂轴。远山、孤舟与东流江水展开在屏幕上，愁有了形状，也有了归处。" },
+      { img: "shop-postcard.jpg", alt: "春花秋月明信片概念图：四张一套的水墨词意明信片", meta: "词意明信片 · 灵感四阕代表作", name: "春花秋月帖", desc: "四阕词、四帧景：春水花月、深院梧桐、暮雨归梦、落梅春草。背面印词，正面入画，寄给此刻想念的人。" },
+      { img: "shop-tape.jpg", alt: "落花流水胶带概念图：绘有落花春水纹样的三卷和纸胶带", meta: "和纸胶带 · 灵感《浪淘沙令》", name: "落花流水纹", desc: "「流水落花春去也」化作两卷手账胶带：一卷落花，一卷水纹。贴在日记边角，给普通的一天盖上词的落款。" },
+      { img: "shop-seal.jpg", alt: "煜字朱砂闲章概念图：石质印章与朱砂拓印", meta: "朱砂闲章 · 灵感词帝之名", name: "「煜」字小印", desc: "一方朱文小印，刻他的名字，也刻「一江春水」四字作引首章。盖在书的扉页，像与千年前的词人同署了一页。" }
+    ];
+    // 商品卡 HTML 片段：左图 + 角标 + 右文（元信息/名/描述/概念按钮）
+    const cardsHtml = goods.map((item) => `
+      <article class="shop-card">
+        <div class="shop-art"><img src="${item.img}" alt="${item.alt}" loading="lazy" decoding="async"><span class="shop-ribbon">概念 · 非卖</span></div>
+        <div class="shop-body">
+          <p class="shop-meta">${item.meta}</p>
+          <h3>${item.name}</h3>
+          <p>${item.desc}</p>
+          <button class="concept-buy" type="button" data-name="${item.name}">立即选购 <span>↗</span></button>
+        </div>
+      </article>`).join("");
+
+    // 侧缘竖排小签（入口按钮）
+    const tab = document.createElement("button");
+    tab.type = "button";
+    tab.className = "shop-tab";
+    tab.setAttribute("aria-label", "打开文创笺铺侧边栏（概念展示，非真实售卖）");
+    tab.setAttribute("aria-expanded", "false");
+    tab.innerHTML = "文创笺铺<small>概念展示</small>";
+
+    // 遮罩层
+    const mask = document.createElement("div");
+    mask.className = "shop-mask";
+    mask.setAttribute("aria-hidden", "true");
+
+    // 抽屉本体（role=dialog + aria-modal，开启时焦点进入）
+    const drawer = document.createElement("aside");
+    drawer.className = "shop-drawer";
+    drawer.setAttribute("role", "dialog");
+    drawer.setAttribute("aria-modal", "true");
+    drawer.setAttribute("aria-label", "文创笺铺：概念文创展示");
+    drawer.innerHTML = `
+      <div class="shop-drawer-head">
+        <span class="shop-drawer-seal" aria-hidden="true">煜</span>
+        <div><h2>文创笺铺</h2><small>CONCEPT GOODS · 概念文创</small></div>
+        <button class="shop-drawer-close" type="button" aria-label="关闭文创笺铺">×</button>
+      </div>
+      <div class="shop-drawer-body">
+        <div class="shop-drawer-notice" role="note">
+          <b>概念展示 · 非卖品</b>
+          <p>本栏为竞赛概念设计，所列文创均为虚拟方案，不设价格、订单与任何真实支付通道，仅呈现李煜文化 IP 的当代文创活化思路。</p>
+        </div>
+        ${cardsHtml}
+        <div class="shop-drawer-idea">
+          <h3>从一句词，到一件可以带走的物</h3>
+          <ol>
+            <li>取象于词：提取春水、钩月、梧桐、落梅等核心意象；</li>
+            <li>转译于器：化作信笺、书签、卷轴等日常器物；</li>
+            <li>活化于今：让宋词进入书写、阅读、手账等当代生活。</li>
+          </ol>
+        </div>
+        <p class="shop-drawer-foot">图稿为设计意向示意 · 不代表真实在售商品</p>
+      </div>`;
+
+    // 概念说明弹窗（点「立即选购」只此提示，不产生交易）
+    const dialog = document.createElement("dialog");
+    dialog.className = "shop-notice-dialog";
+    dialog.setAttribute("aria-labelledby", "shop-notice-title");
+    dialog.innerHTML = `
+      <button class="shop-notice-close" type="button" aria-label="关闭提示">×</button>
+      <span class="shop-notice-seal" aria-hidden="true">示</span>
+      <span class="shop-notice-kicker">CONCEPT NOTICE · 概念说明</span>
+      <h2 id="shop-notice-title">感谢关注<span data-shop-name></span></h2>
+      <p class="shop-notice-message">此为竞赛概念设计，暂无真实售卖通道，仅展示文创转化思路。</p>
+      <p class="shop-notice-sub">本栏所有「文创」均为虚拟概念方案，不产生价格、订单与支付。</p>
+      <button class="shop-notice-ok" type="button">我知道了</button>`;
+
+    document.body.append(tab, mask, drawer, dialog);
+
+    let drawerOpen = false;
+    let lastFocused = null;
+    // 开抽屉：记下原焦点、锁 body 滚动、焦点移到关闭键
+    const openDrawer = () => {
+      drawerOpen = true;
+      lastFocused = document.activeElement;
+      drawer.classList.add("is-open");
+      mask.classList.add("is-open");
+      tab.setAttribute("aria-expanded", "true");
+      document.body.style.overflow = "hidden";
+      drawer.querySelector(".shop-drawer-close").focus();
+      // 广播「文创笺铺抽屉已打开」事件，供笺语留言抽屉联动互斥
+      document.dispatchEvent(new Event("shop-drawer-open"));
+    };
+    // 关抽屉：复原状态与滚动，焦点还给原元素
+    const closeDrawer = () => {
+      if (!drawerOpen) return;
+      drawerOpen = false;
+      drawer.classList.remove("is-open");
+      mask.classList.remove("is-open");
+      tab.setAttribute("aria-expanded", "false");
+      document.body.style.overflow = "";
+      if (lastFocused && typeof lastFocused.focus === "function") lastFocused.focus();
+    };
+    // 入口键切换开合
+    tab.addEventListener("click", () => (drawerOpen ? closeDrawer() : openDrawer()));
+    // 点遮罩关闭
+    mask.addEventListener("click", closeDrawer);
+    // 点关闭键关闭
+    drawer.querySelector(".shop-drawer-close").addEventListener("click", closeDrawer);
+    // Esc 关闭抽屉（但概念弹窗打开时交给弹窗自己处理）
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && drawerOpen && !dialog.open) closeDrawer();
+    });
+    // 笺语留言抽屉打开时，联动关闭文创笺铺抽屉（两抽屉互斥）
+    document.addEventListener("jy-drawer-open", closeDrawer);
+
+    const nameSlot = dialog.querySelector("[data-shop-name]");
+    // 每张卡片的「立即选购」：把商品名填进弹窗标题并弹出
+    drawer.querySelectorAll(".concept-buy").forEach((button) => {
+      button.addEventListener("click", () => {
+        nameSlot.textContent = button.dataset.name ? `「${button.dataset.name}」` : "";
+        if (!dialog.open && typeof dialog.showModal === "function") dialog.showModal();
+        else dialog.setAttribute("open", "");
+      });
+    });
+    // 关弹窗（兼容不支持 showModal 的降级 open 属性）
+    const closeDialog = () => {
+      if (dialog.open) dialog.close();
+      else dialog.removeAttribute("open");
+    };
+    // 关闭键 / 「我知道了」都关弹窗
+    dialog.querySelectorAll(".shop-notice-close, .shop-notice-ok").forEach((button) => {
+      button.addEventListener("click", closeDialog);
+    });
+    // 点弹窗外的 backdrop 区域也关
+    dialog.addEventListener("click", (event) => {
+      if (event.target === dialog) closeDialog();
+    });
+  })();
+
+  // 笺语留言：全站侧边弹出面板。交互原型——仅存 localStorage，无公共数据库，
+  // 留言只在用户本机浏览器可见，不提供公开评论发布。
+  (function initializeJianyuSidebar() {
+    if (document.querySelector(".jy-tab")) return;
+    const STORAGE_KEY = "liyu-jianyu-v1";
+        // 三条示范笺语：预置展示内容，让面板不空场
+const presets = [
+      { name: "金陵访客", time: "示范笺语", text: "读到「一江春水向东流」，才知愁绪也可以这样浩浩荡荡，流过千年仍不歇。" },
+      { name: "西楼听雨", time: "示范笺语", text: "无言独上西楼，月如钩。今夜案头重读，恍与词人同看一钩残月。" },
+      { name: "江南旧客", time: "示范笺语", text: "流水落花春去也，天上人间。愿每个读词的人，都有一刻安宁。" }
+    ];
+        // 本地笺筒读写与 HTML 转义（防注入）
+const loadMine = () => {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+      catch { return []; }
+    };
+    const saveMine = (list) => {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); } catch { }
+    };
+    const escapeHtml = (value) => value.replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+
+        // 注入四节点：竖签 / 遮罩 / 抽屉 / 轻提示
+const tab = document.createElement("button");
+    tab.type = "button";
+    tab.className = "shop-tab jy-tab";
+    tab.setAttribute("aria-label", "打开笺语留言侧边栏（本地存储，不公开发布）");
+    tab.setAttribute("aria-expanded", "false");
+    tab.innerHTML = "笺语留言<small>本地笺筒</small>";
+
+    const mask = document.createElement("div");
+    mask.className = "shop-mask";
+    mask.setAttribute("aria-hidden", "true");
+
+    const drawer = document.createElement("aside");
+    drawer.className = "shop-drawer jy-drawer";
+    drawer.setAttribute("role", "dialog");
+    drawer.setAttribute("aria-modal", "true");
+    drawer.setAttribute("aria-label", "笺语留言：本地笺筒");
+    drawer.innerHTML = `
+      <div class="shop-drawer-head">
+        <span class="shop-drawer-seal" aria-hidden="true">笺</span>
+        <div><h2>笺语留言</h2><small>LOCAL LETTERS · 本地笺筒</small></div>
+        <button class="shop-drawer-close" type="button" aria-label="关闭笺语留言">×</button>
+      </div>
+      <div class="shop-drawer-body">
+        <div class="jy-list" aria-live="polite"></div>
+        <form class="jy-write">
+          <label for="jy-input">提笔留一句</label>
+          <textarea id="jy-input" maxlength="100" placeholder="此刻读到哪一句，心里有波澜？（100 字以内）"></textarea>
+          <div class="jy-write-foot">
+            <span class="jy-count">0 / 100 · 仅存本机</span>
+            <button class="jy-submit" type="submit">留下笺语</button>
+          </div>
+        </form>
+        <div class="jy-note" role="note">
+          <b>原型说明</b>
+          本留言模块为交互原型，采用浏览器本地存储实现，留言仅保存在用户本机，无公共数据存储服务器，不提供公开可见的评论发布，用于演示用户互动设计思路。
+        </div>
+      </div>`;
+
+    const toast = document.createElement("div");
+    toast.className = "jy-toast";
+    toast.setAttribute("role", "status");
+    toast.textContent = "已存入本地笺筒";
+
+    document.body.append(tab, mask, drawer, toast);
+
+        // 渲染留言列表：我的留言置顶，示范笺语垫底
+const listEl = drawer.querySelector(".jy-list");
+    const renderList = () => {
+      const mine = loadMine();
+      const mineHtml = mine.map((item) => `
+        <div class="jy-msg jy-msg-mine">
+          <p class="jy-msg-text">${escapeHtml(item.text)}</p>
+          <div class="jy-msg-meta"><span class="jy-msg-name">读词人<span class="jy-mine-tag">我的</span></span><span class="jy-msg-time">${escapeHtml(item.time)}</span></div>
+        </div>`).join("");
+      const presetHtml = presets.map((item) => `
+        <div class="jy-msg">
+          <p class="jy-msg-text">${item.text}</p>
+          <div class="jy-msg-meta"><span class="jy-msg-name">${item.name}</span><span class="jy-msg-time">${item.time}</span></div>
+        </div>`).join("");
+      listEl.innerHTML = mineHtml + presetHtml;
+    };
+    renderList();
+
+        // 开合状态：锁 body 滚动、焦点返还、Esc/遮罩关闭
+let drawerOpen = false;
+    let lastFocused = null;
+    let toastTimer = null;
+    const openDrawer = () => {
+      drawerOpen = true;
+      lastFocused = document.activeElement;
+      drawer.classList.add("is-open");
+      mask.classList.add("is-open");
+      tab.setAttribute("aria-expanded", "true");
+      document.body.style.overflow = "hidden";
+      drawer.querySelector(".shop-drawer-close").focus();
+      document.dispatchEvent(new Event("jy-drawer-open"));
+    };
+    const closeDrawer = () => {
+      if (!drawerOpen) return;
+      drawerOpen = false;
+      drawer.classList.remove("is-open");
+      mask.classList.remove("is-open");
+      tab.setAttribute("aria-expanded", "false");
+      document.body.style.overflow = "";
+      if (lastFocused && typeof lastFocused.focus === "function") lastFocused.focus();
+    };
+    tab.addEventListener("click", () => (drawerOpen ? closeDrawer() : openDrawer()));
+    mask.addEventListener("click", closeDrawer);
+    drawer.querySelector(".shop-drawer-close").addEventListener("click", closeDrawer);
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && drawerOpen) closeDrawer();
+    });
+    document.addEventListener("shop-drawer-open", closeDrawer);
+
+        // 输入计数与提交：留言仅存本机 localStorage
+const textarea = drawer.querySelector("#jy-input");
+    const counter = drawer.querySelector(".jy-count");
+    textarea.addEventListener("input", () => {
+      counter.textContent = `${textarea.value.length} / 100 · 仅存本机`;
+    });
+    drawer.querySelector(".jy-write").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const text = textarea.value.trim();
+      if (!text) {
+        textarea.focus();
+        return;
+      }
+      const mine = loadMine();
+      const now = new Date();
+      const time = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, "0")}.${String(now.getDate()).padStart(2, "0")}`;
+      mine.unshift({ text, time });
+      saveMine(mine);
+      renderList();
+      textarea.value = "";
+      counter.textContent = "0 / 100 · 仅存本机";
+      clearTimeout(toastTimer);
+      toast.classList.add("is-show");
+      toastTimer = setTimeout(() => toast.classList.remove("is-show"), 2200);
+    });
+  })();
   }
   initializePageContent();
 // 首屏：初始化页面内容
