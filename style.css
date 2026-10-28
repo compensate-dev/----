@@ -1593,3 +1593,115 @@ body.home-page:not(.book-opened) .share-tab{display:none}
 .share-btn-wx-tip,.share-btn-sys{grid-column:1 / -1}
 /* 底部说明文字 */
 .share-footnote{margin:12px 2px 0;font-size:10px;line-height:1.9;color:#8a9387;text-align:center}
+/* ========== 水墨行迹（map.html · 南唐疆域水墨地图） ========== *//* 第四枚小签：仅注入其余六页，点击直达 map.html */
+
+.map-tab{top:calc(50% + 384px);background:linear-gradient(160deg,#3c5148,#25352e);border-color:rgba(210,185,144,.45)}
+.map-tab:hover{background:#466153}
+body.map-page .map-tab{display:none}
+@media(max-height:720px){.map-tab{top:auto;bottom:306px;transform:none}}
+/* 头部 */
+.map-hero{position:relative;min-height:52vh;display:flex;align-items:center;justify-content:space-between;gap:40px;padding:96px 7vw 48px;background:linear-gradient(180deg,rgba(232,238,228,0),rgba(232,238,228,.65))}
+.map-hero-copy{max-width:560px}
+.map-hero-copy h1{font-family:"Liyu Xingkai UI",var(--serif);font-size:clamp(38px,5.6vw,64px);line-height:1.18;color:#2f3b32;margin:14px 0 18px}
+.map-hero-copy h1 em{font-style:normal;color:#7a2e1e}
+.map-hero-copy p{font-size:15px;line-height:2.1;color:#4b5a4e}
+.map-hero-actions{display:flex;align-items:center;gap:22px;margin-top:26px}
+/* 纸片 3D 云游舞台（Three.js） */
+@keyframes map-pulse{0%{transform:scale(.5);opacity:.9}80%{transform:scale(1.7);opacity:0}100%{opacity:0}}
+.stage3d{position:relative;height:clamp(560px,78vh,820px);border:1px solid rgba(122,84,58,.28);border-radius:4px;overflow:hidden;background:#f1ecdd;box-shadow:0 18px 44px rgba(47,59,50,.14);cursor:grab;touch-action:none}
+.stage3d:active{cursor:grabbing}
+.stage3d canvas{display:block;width:100%;height:100%}/* 朱砂点位导航（舞台右侧竖列） */
+
+.dot-nav{position:absolute;right:16px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:18px;z-index:10}/* 单个点位：朱砂圆点 + 激活脉冲圈 */
+
+.dot-btn{position:relative;width:15px;height:15px;padding:0;border-radius:50%;border:0;background:#a03a24;box-shadow:0 0 0 3px rgba(160,58,36,.16);cursor:pointer;transition:transform .25s ease,box-shadow .25s ease}
+.dot-btn::before{content:"";position:absolute;inset:-6px;border-radius:50%;border:1.5px solid rgba(160,58,36,.5);opacity:0;transition:opacity .25s ease}
+.dot-btn:hover,.dot-btn:focus-visible{transform:scale(1.3)}
+.dot-btn.is-active{box-shadow:0 0 0 4px rgba(160,58,36,.28)}
+.dot-btn.is-active::before{opacity:1;animation:map-pulse 2.4s ease-out infinite}/* 「全景」点位：墨绿区分 */
+
+.dot-btn-overview{background:#2f3b32;box-shadow:0 0 0 3px rgba(47,59,50,.16)}
+.dot-btn-overview.is-active{box-shadow:0 0 0 4px rgba(47,59,50,.3)}
+.dot-btn-overview::before{border-color:rgba(47,59,50,.5)}/* 悬停地名浮签 */
+
+.dot-tip{position:absolute;right:26px;top:50%;transform:translateY(-50%);white-space:nowrap;padding:4px 11px;background:#f6efe0;border:1px solid #6c5a40;border-radius:3px;font-family:"Xuandong Kaishu",var(--serif);font-size:12px;letter-spacing:.2em;color:#3a3126;opacity:0;pointer-events:none;transition:opacity .25s ease}
+.dot-btn:hover .dot-tip,.dot-btn:focus-visible .dot-tip{opacity:1}
+.ink-popup{z-index:12}/* 笺卡关闭按钮 */
+
+.popup-close{position:absolute;right:10px;top:8px;width:30px;height:30px;border:0;background:none;color:#6b6252;font-size:19px;cursor:pointer;line-height:1}
+.popup-close:hover{color:#7a2e1e}/* 操作提示胶囊 */
+
+.stage-hint{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);z-index:9;padding:6px 16px;background:rgba(246,239,224,.88);border:1px dashed rgba(122,84,58,.4);border-radius:16px;font-size:11.5px;letter-spacing:.18em;color:#6b6252;transition:opacity .8s ease;pointer-events:none}
+.stage-hint.is-hidden{opacity:0}
+/* 全屏沉浸模式（水墨行迹） */
+.map-page{overflow:hidden}
+.map-page .shop-tab{display:none}
+.map-page .stage3d{position:fixed;inset:0;height:100dvh;border:0;border-radius:0;box-shadow:none}
+.map-page .ink-popup{z-index:15}
+.map-page .dot-nav{z-index:15}
+.map-page .stage-hint{z-index:14;bottom:14px}
+/* 顶部浮层：品牌 / 返回 / 音乐开关 */
+.map-topbar{position:fixed;top:16px;left:18px;z-index:20;display:flex;align-items:center;gap:10px}
+.map-topbar .map-title{display:flex;flex-direction:column;font-family:"Xuandong Kaishu",var(--serif);letter-spacing:.3em;color:#2f2b22;line-height:1.2}
+.map-topbar .map-title small{font-family:var(--serif);font-size:10px;letter-spacing:.28em;color:#7d7565}
+.map-topbar .brand-seal{width:38px;height:38px;font-size:20px}
+/* 返回词境链接 */
+.map-back{padding:7px 14px;background:rgba(246,239,224,.85);border:1px solid rgba(122,84,58,.45);border-radius:3px;font-family:"Xuandong Kaishu",var(--serif);font-size:12px;letter-spacing:.18em;color:#4b4438;text-decoration:none;transition:border-color .25s ease,color .25s ease}
+.map-back:hover{border-color:#a03a24;color:#7a2e1e}
+.map-sound{width:36px;height:36px;padding:0;display:grid;place-items:center;background:rgba(246,239,224,.85);border:1px solid rgba(122,84,58,.45);border-radius:50%;color:#4b4438;font-size:15px;cursor:pointer;transition:border-color .25s ease,color .25s ease}
+.map-sound:hover{border-color:#a03a24;color:#7a2e1e}
+/* 入卷遮罩：资源加载完成或超时后揭去 */
+.map-veil{position:fixed;inset:0;z-index:40;display:grid;place-items:center;background:#d9d2c1;transition:opacity 1s ease,visibility 1s ease}
+.map-veil.is-hidden{opacity:0;visibility:hidden}
+.veil-inner{display:flex;flex-direction:column;align-items:center;gap:12px}
+.veil-inner p{margin:0;font-family:"Xuandong Kaishu",var(--serif);font-size:24px;letter-spacing:.5em;text-indent:.5em;color:#2f2b22}
+.veil-inner small{font-size:10.5px;letter-spacing:.4em;color:#8d8574}
+.veil-seal{width:56px;height:56px;font-size:28px;animation:veil-breathe 2.4s ease-in-out infinite}
+@keyframes veil-breathe{0%,100%{opacity:.55;transform:scale(.96)}50%{opacity:1;transform:scale(1.04)}}
+.map-page .map-footnote{position:fixed;right:16px;bottom:12px;left:auto;margin:0;z-index:14;text-align:right;color:#8d8676}
+/* 小屏适配 */
+@media(max-width:700px){
+  .map-topbar{left:12px;top:12px}
+  .map-topbar .map-title small{display:none}
+  .map-page .map-footnote{display:none}
+}
+@media(prefers-reduced-motion:reduce){.veil-seal{animation:none}}
+/* 详情笺卡 */
+.map-panel{position:relative;display:flex;flex-direction:column;justify-content:center;background:linear-gradient(165deg,#fbf8ef,#f2ecdb);border:1px solid rgba(122,84,58,.3);border-radius:4px;box-shadow:0 18px 44px rgba(47,59,50,.12);padding:30px 28px;min-height:420px}
+.map-panel::before{content:"";position:absolute;inset:9px;border:1px dashed rgba(122,84,58,.35);border-radius:3px;pointer-events:none}/* 默认空态 */
+
+.map-panel-empty{text-align:center;padding:20px 6px}
+.map-panel-seal{display:grid;place-items:center;width:64px;height:64px;margin:0 auto 18px;background:#a03a24;border-radius:6px;color:#f6efe0;font-family:"Liyu Xingkai UI",var(--serif);font-size:30px;transform:rotate(-3deg);box-shadow:0 8px 18px rgba(160,58,36,.35)}
+.map-panel-empty h3{font-family:"Liyu Xingkai UI",var(--serif);font-size:24px;letter-spacing:.12em;color:#2f3b32;margin-bottom:12px}
+.map-panel-empty p{font-size:12.5px;line-height:2.2;color:#5d6a5e}/* 详情态：朝代签 / 站点名 / 今地 */
+
+.map-detail header{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.map-detail-tag{align-self:flex-start;padding:4px 12px;background:#2f3b32;color:#e8e2ce;font-size:11px;letter-spacing:.18em}
+.map-detail h3{font-family:"Liyu Xingkai UI",var(--serif);font-size:30px;letter-spacing:.1em;color:#2f3b32}
+.map-detail small{font-size:11.5px;letter-spacing:.08em;color:#8a8272}/* 生平事件列表 */
+
+.map-events{list-style:none;margin:0 0 18px;padding:0}
+.map-events li{position:relative;padding:9px 0 9px 20px;border-bottom:1px solid rgba(122,84,58,.18);font-size:13px;line-height:1.9;color:#3f4a40}
+.map-events li::before{content:"";position:absolute;left:2px;top:17px;width:7px;height:7px;background:#a03a24;border-radius:50%}
+.map-events li b{font-family:"Xuandong Kaishu",var(--serif);font-weight:400;margin-right:8px;color:#7a2e1e}/* 代表词句引块 */
+
+.map-word{background:rgba(47,59,50,.05);border-left:3px solid #a03a24;padding:13px 15px}
+.map-word span{display:block;font-family:"Xuandong Kaishu",var(--serif);font-size:14px;letter-spacing:.14em;color:#7a2e1e;margin-bottom:6px}
+.map-word p{margin:0;font-family:"Xuandong Kaishu",var(--serif);font-size:15px;letter-spacing:.06em;line-height:1.9;color:#333d34}
+.map-footnote{margin:18px 2px 0;font-size:11px;line-height:1.9;color:#8a9387;text-align:center}/* 笺卡在舞台内的定位（覆盖通用样式） */
+
+.ink-popup{position:absolute;left:20px;bottom:20px;width:min(380px,88%);max-height:72%;overflow:auto;min-height:0}
+/* 减弱动效：关闭脉冲圈动画 */
+@media(prefers-reduced-motion:reduce){
+  .dot-btn.is-active::before{animation:none}
+}
+/* 响应式 */
+@media(max-width:1000px){
+  .stage3d{height:clamp(440px,64vh,620px)}
+  .ink-popup{left:12px;right:12px;bottom:12px;width:auto;max-height:50%}
+  .dot-nav{right:10px;gap:14px}
+  .stage-hint{display:none}
+}
+@media(max-width:700px){
+  .map-hero{padding-top:84px;flex-direction:column;align-items:flex-start}
+}
