@@ -1758,7 +1758,7 @@
       card.parentNode.insertBefore(layer, card);
       layer.appendChild(card);
     });
-    const revealTargets = document.querySelectorAll(".timeline-item, .poem-card, .recite-card, .media-card, .memory-line article, .work-entry, .intro-card");
+    const revealTargets = document.querySelectorAll(".timeline-item, .poem-card, .recite-card, .media-card, .memory-line article, .work-entry, .intro-card, .finale-gate");
     // 减弱动效或不支持 IntersectionObserver 时直接全部显示
     if (reducedMotion || !("IntersectionObserver" in window)) {
       revealTargets.forEach((element) => element.classList.add("is-visible"));
@@ -2528,4 +2528,41 @@
   }
   initializePageContent();
 // 首屏：初始化页面内容
+})();
+
+// 终幕页 finale.html：滚动叙事进度 + 指针视差
+// 滚动进度写 .finale-scroll 的 --finale-p（0→1，驱动月亮升起/逐行晕开/场景缓推/归于寂静）；
+// 精确指针设备上写 --px/--py（-1~1，驱动雾层/巨字/月亮视差）。reduced-motion 不启用。
+(() => {
+  const scrollBox = document.querySelector(".finale-scroll");
+  // 非终幕页（无 .finale-scroll）或减弱动效时不启用
+  if (!scrollBox) return;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  let raf = 0;
+  // 滚动进度：页面滚动占比 → --finale-p
+  const update = () => {
+    raf = 0;
+    const doc = document.documentElement;
+    const max = doc.scrollHeight - window.innerHeight || 1;
+    const p = Math.min(1, Math.max(0, window.scrollY / max));
+    scrollBox.style.setProperty("--finale-p", p.toFixed(4));
+  };
+  const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("resize", onScroll);
+  update();
+  // 指针视差：光标位置归一到 -1~1 → --px/--py（rAF 节流）
+  if (window.matchMedia("(pointer: fine)").matches) {
+    let pRaf = 0, px = 0, py = 0;
+    const writeP = () => {
+      pRaf = 0;
+      scrollBox.style.setProperty("--px", px.toFixed(3));
+      scrollBox.style.setProperty("--py", py.toFixed(3));
+    };
+    window.addEventListener("pointermove", (event) => {
+      px = (event.clientX / window.innerWidth) * 2 - 1;
+      py = (event.clientY / window.innerHeight) * 2 - 1;
+      if (!pRaf) pRaf = requestAnimationFrame(writeP);
+    }, { passive: true });
+  }
 })();
