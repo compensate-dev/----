@@ -445,6 +445,30 @@
     update();
   })();
 
+  // 两山开合：按各区块（ci 词作笺赏 / index 词牌卡 / wanxiang 记忆卡）进出视口进度
+  // 各自写 --part-p（0=刚进，1=将出），驱动山影向两侧退开、渐隐消散；
+  // reduced-motion 不启用，山影保持静态
+  (() => {
+    const zones = Array.from(document.querySelectorAll(".works, .feature-section, .memory-section"));
+    if (!zones.length) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let raf = 0;
+    // 进度 =（视口底 - 区块顶）/（视口高 + 区块高），与 --glide-p 同一套公式
+    const update = () => {
+      raf = 0;
+      const vh = window.innerHeight || 1;
+      for (const zone of zones) {
+        const rect = zone.getBoundingClientRect();
+        const p = Math.min(1, Math.max(0, (vh - rect.top) / (vh + rect.height)));
+        zone.style.setProperty("--part-p", p.toFixed(4));
+      }
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    update();
+  })();
+
   /* ============================================================
    * 开场链路：翻书封面 → 书法飞落序列 → 水墨间奏 → 抵达视差
    * ============================================================ */

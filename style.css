@@ -1728,8 +1728,37 @@ body.arrival-lock{overflow:hidden}
 .poem-gallery:before{content:"";position:absolute;z-index:-1;inset:0;background:linear-gradient(rgba(243,243,237,.62),rgba(243,243,237,.62)),url("poem-background.jpg") center 42%/cover no-repeat}
 /* 词作画廊（含标签导航） */
 .poem-gallery .poem-tabs{margin-left:18%}
-/* 词作区 */
-.works{overflow-x:clip}
+/* 词作区：relative 作山影定位参照，clip 防山影横向溢出 */
+.works{overflow-x:clip;position:relative}
+/* 词作笺赏两山开合：山影分列区块左右（multiply 融纸底免抠图，右山镜像使主峰朝外），
+   滚动深入时向两侧退开、渐隐消散；--part-p 由 JS 写入（0=刚进视口，1=将出） */
+/* 区块内除山影外的所有直接子级抬到 z-index:1，压在山影之上 */
+.works>*:not(.works-mountain){position:relative;z-index:1}
+/* 山影公共层：绝对定位贴区块上部，multiply 混合融进纸底，不拦截点击 */
+.works-mountain{position:absolute;z-index:0;top:clamp(46px,7vw,104px);pointer-events:none;mix-blend-mode:multiply;will-change:translate,opacity,filter}
+/* 左山：贴出区块左缘（50%-50vw），随 --part-p 向左退出 55vw 并逐渐模糊 */
+.works-mountain-left{left:calc(50% - 50vw);width:clamp(120px,29vw,440px);aspect-ratio:904/596;background:url("ci-mountain-left.jpg") center bottom/contain no-repeat;opacity:calc(clamp(0,var(--part-p,0) * 8,1) * clamp(0,(0.52 - var(--part-p,0)) * 3,1));translate:calc(var(--part-p,0) * -55vw) 0;filter:blur(calc(var(--part-p,0) * 4px))}
+/* 右山：同一进度窗口向右退出，透明度略低（×.88）拉开主次 */
+.works-mountain-right{right:calc(50% - 50vw);width:clamp(126px,31vw,470px);aspect-ratio:908/576;background:url("ci-mountain-right.jpg") center bottom/contain no-repeat;transform:scaleX(-1);opacity:calc(clamp(0,var(--part-p,0) * 8,1) * clamp(0,(0.52 - var(--part-p,0)) * 2.7,1) * .88);translate:calc(var(--part-p,0) * 55vw) 0;filter:blur(calc(var(--part-p,0) * 4px))}
+/* 减弱动效：山影固定微透明，不位移不模糊 */
+@media(prefers-reduced-motion:reduce){.works-mountain{opacity:.8;translate:0 0;filter:none;will-change:auto}}
+/* 同款两山开合复用：index 词牌卡区（山居卡行两侧留白）+ wanxiang 记忆卡区（山居卡下空档带）；
+   区块高度不同，fade/位移窗口各自重调 */
+/* 两个复用区块同样 relative + 横向裁剪，子级抬层压住山影 */
+.feature-section,.memory-section{position:relative;overflow-x:clip}
+.feature-section>*:not(.works-mountain),.memory-section>*:not(.works-mountain){position:relative;z-index:1}
+/* index 词牌卡区：山影压到卡行高度附近（top 更大） */
+.feature-section .works-mountain{top:clamp(300px,26vw,430px)}
+/* index 两山：改用 2.38 宽高比整幅拉伸（background-size:100% 100%） */
+.feature-section .works-mountain-left,.feature-section .works-mountain-right{width:clamp(200px,26vw,420px);aspect-ratio:2.38;background-size:100% 100%}
+.feature-section .works-mountain-left{opacity:calc(clamp(0,var(--part-p,0) * 8,1) * clamp(0,(0.82 - var(--part-p,0)) * 2.6,1))}
+.feature-section .works-mountain-right{opacity:calc(clamp(0,var(--part-p,0) * 8,1) * clamp(0,(0.82 - var(--part-p,0)) * 2.3,1) * .88)}
+/* wanxiang 记忆卡区：山影改贴区块底部空档带 */
+.memory-section .works-mountain{top:auto;bottom:clamp(20px,3vw,56px)}
+.memory-section .works-mountain-left,.memory-section .works-mountain-right{width:clamp(160px,20vw,340px)}
+/* wanxiang 两山：进度过 0.3 后才向两侧大幅退出（75vw）并模糊消散 */
+.memory-section .works-mountain-left{opacity:calc(clamp(0,(0.85 - var(--part-p,0)) * 2.4,1));translate:calc(max(0,var(--part-p,0) - .3) * 75vw) 0;filter:blur(calc(max(0,var(--part-p,0) - .3) * 6px))}
+.memory-section .works-mountain-right{opacity:calc(clamp(0,(0.85 - var(--part-p,0)) * 2.1,1) * .88);translate:calc(max(0,var(--part-p,0) - .3) * 75vw) 0;filter:blur(calc(max(0,var(--part-p,0) - .3) * 6px))}
 /* 响应式适配：(max-width:1000px) */
 @media(max-width:1000px){.poem-gallery{padding-left:7vw;padding-right:7vw}}
 /* 响应式适配：(max-width:700px) */
