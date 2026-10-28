@@ -1,0 +1,575 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#e8eee4"><meta name="description" content="以 Three.js 纸片式 3D 重构南唐山水：金陵宫阙、钟山林泉、洪州城郭、采石矶崖、一叶江舟、汴京小楼、北邙松柏。拖拽旋转、滚轮缩放，点朱砂圆点，镜头飞往李煜人生的每一站。"><meta property="og:site_name" content="春水留痕·李煜词境"><meta property="og:type" content="website"><meta property="og:title" content="水墨行迹｜春水留痕·李煜词境"><meta property="og:description" content="一卷立起来的水墨古画：拖拽旋转，朱砂点为引，飞往李煜人生的每一站。"><meta property="og:image" content="plum-blossom.jpg"><meta property="og:locale" content="zh_CN"><title>水墨行迹｜春水留痕·李煜词境</title><link rel="stylesheet" href="style.css"><script src="script.js" defer></script></head>
+<body class="map-page">
+  <!-- 无障碍：跳转主内容 -->
+  <a class="skip-link" href="#main-content">跳至主要内容</a>
+  <!-- 站点头：品牌 / 折叠导航 / 背景音乐开关与音量滑杆 -->
+  <header class="site-header"><a class="brand" href="index.html"><span class="brand-seal">煜</span><span>一江春水<small>李煜词境 · 南唐旧梦</small></span></a><button class="menu-toggle" aria-label="打开导航" aria-expanded="false">☰</button><nav class="main-nav" aria-label="主导航"><a href="index.html">首页</a><a href="life.html">词人故事</a><a href="ci.html">词作笺赏</a><a href="wanxiang.html">词容万象</a><a href="listen.html">听词入梦</a></nav><div class="sound-controls"><button class="sound-toggle" type="button" aria-label="关闭背景音乐" aria-pressed="true"><span class="sound-icon">♫</span><span class="sound-status">音乐开启</span></button><label class="volume-control"><span class="visually-hidden">背景音乐音量</span><input class="volume-slider" type="range" min="0" max="1" step="0.01" value="0.32"></label></div></header>
+  <main id="main-content" tabindex="-1">
+    <!-- 首屏：左侧文案 + 右侧「迹」字浮签 -->
+    <section class="map-hero">
+      <div class="map-hero-copy">
+        <p class="eyebrow">INK VOYAGE · 行迹</p>
+        <h1>立起来的水墨，<br><em>走进去</em>的一生。</h1>
+        <p>七处景致，皆是以淡墨绘于薄纸、立于三维空间的一片片古画——金陵宫阙、钟山林泉、洪州城郭、采石矶崖、一叶江舟、汴京小楼、北邙松柏。拖拽旋转，滚轮推近；点右侧朱砂圆点，镜头便飞往他人生的那一站。</p>
+        <div class="map-hero-actions"><a class="button button-dark" href="#stage3d-wrap">进入云游 <span>↓</span></a><a class="text-link" href="index.html">⟵ 返回词境</a></div>
+      </div>
+      <div class="floating-verse"><span>一纸千里</span><b>迹</b><small>LI YU · MAP</small></div>
+    </section>
+
+    <!-- 3D 舞台：Three.js 纸片水墨场景挂载点 -->
+    <section class="map-stage section-wrap" id="stage3d-wrap">
+      <div class="section-kicker">01 <span>THE PAPER INK WORLD</span></div>
+      <div class="works-heading"><h2>一卷立体的古画，<br>八个落脚的人生。</h2><p>拖拽旋转视角 · 滚轮缩放 · 右键平移；<br>点选朱砂圆点，镜头平滑飞行至那一站，笺上展开当年人事与词句。</p></div>
+      <div class="stage3d" id="stage3d" aria-label="纸片式水墨山水三维场景，可拖拽旋转、滚轮缩放">
+        <!-- 朱砂点位导航：八站，点击飞镜头并展开笺卡 -->
+        <nav class="dot-nav" aria-label="云游站点">
+          <button class="dot-btn" type="button" data-go="jinling" aria-label="飞往金陵：南唐都城"><span class="dot-tip">金陵 · 都城</span></button>
+          <button class="dot-btn" type="button" data-go="zhongshan" aria-label="飞往钟山：少年隐读"><span class="dot-tip">钟山 · 少隐</span></button>
+          <button class="dot-btn" type="button" data-go="hongzhou" aria-label="飞往洪州：南唐南都"><span class="dot-tip">洪州 · 南都</span></button>
+          <button class="dot-btn" type="button" data-go="caishi" aria-label="飞往采石矶：江防要冲"><span class="dot-tip">采石矶 · 江防</span></button>
+          <button class="dot-btn" type="button" data-go="jiangzhou" aria-label="飞往江舟：辞庙北上"><span class="dot-tip">江舟 · 北迁</span></button>
+          <button class="dot-btn" type="button" data-go="bianjing" aria-label="飞往汴京：违命侯岁月"><span class="dot-tip">汴京 · 囚居</span></button>
+          <button class="dot-btn" type="button" data-go="beimang" aria-label="飞往北邙山：长眠之所"><span class="dot-tip">北邙山 · 归处</span></button>
+          <button class="dot-btn dot-btn-overview" type="button" data-go="overview" aria-label="回到全景"><span class="dot-tip">全景 · 疆域</span></button>
+        </nav>
+        <!-- 笺卡面板：默认提示 + 站点详情（内容由脚本填充） -->
+        <aside class="map-panel ink-popup" id="inkPopup" aria-live="polite">
+          <button class="popup-close" type="button" aria-label="收起笺卡">×</button>
+          <div class="map-panel-empty" data-popup-default>
+            <span class="map-panel-seal" aria-hidden="true">迹</span>
+            <h3>点选右侧朱砂圆点</h3>
+            <p>八个点位，一段四十一年的旅程：<br>镜头飞往何处，笺纸上便展开何处的人事——<br>与一句至今仍在流转的词。</p>
+          </div>
+          <article class="map-detail" data-popup-detail hidden>
+            <header><span class="map-detail-tag" data-spot-era></span><h3 data-spot-name></h3><small data-spot-now></small></header>
+            <ul class="map-events" data-spot-events></ul>
+            <div class="map-word"><span>代表词句</span><p data-spot-word></p></div>
+          </article>
+        </aside>
+        <!-- 操作提示（首次拖拽/滚轮后由脚本隐藏） -->
+        <span class="stage-hint" id="stageHint">拖拽旋转 · 滚轮缩放 · 右键平移</span>
+      </div>
+      <!-- 艺术示意声明 -->
+      <p class="map-footnote">纸片式三维水墨场景：景物以面片贴图立于空间，山川城邑为艺术示意，不作历史地理考据；各站点所配词作为与该时期词心相映的代表之作。</p>
+    </section>
+
+    <!-- 过渡引导 -->
+    <section class="next-step section-wrap"><div><span class="section-kicker">NEXT <span>HIS LIFE STORY</span></span><h2>山河已阅，<br>再读他的一生。</h2></div><a class="button button-dark" href="life.html">词人故事 <span>↗</span></a></section>
+  </main>
+  <!-- 页脚 -->
+  <footer class="site-footer"><a class="brand" href="index.html"><span class="brand-seal">煜</span><span>一江春水<small>愿每个读词的人，都有一刻安宁。</small></span></a><span>词有尽时，春水长流。</span><a href="listen.html">听一首词 ↗</a></footer>
+  <!-- 背景音乐（与全站同款） -->
+  <audio class="background-audio" src="background-music.mp3" autoplay loop preload="metadata"></audio>
+  <!-- Three.js 本地库 -->
+  <script src="three.min.js"></script>
+  <script>
+  (function () {
+    "use strict";
+    // 未加载 Three.js 库则整段跳过
+    if (typeof THREE === "undefined") return;
+    // 尊重系统「减弱动效」设置
+    var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var INK = function (a) { return "rgba(46,46,42," + a + ")"; };
+    var OCHRE = "rgba(150,92,52,";
+
+    /* ---------- 程序化水墨贴图 ---------- */
+    function cnv(w, h) { var c = document.createElement("canvas"); c.width = w; c.height = h; return c; }
+    // Canvas 贴图封装：可设平铺重复
+    function toTex(c, repX, repY) {
+      var t = new THREE.CanvasTexture(c);
+      t.anisotropy = 4;
+      if (repX) { t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(repX, repY || 1); }
+      return t;
+    }
+    // 山峦：三叠远中近，正弦叠峰 + 洇墨渐变
+    function paintRidge(ctx, w, h, base, amp, freq, phase, alpha, blur, stroke) {
+      var pts = [], N = 56, i, x, y;
+      for (i = 0; i <= N; i++) {
+        x = i / N * w;
+        y = base - amp * (0.55 * Math.sin(i / N * 6.283 * freq + phase) + 0.3 * Math.sin(i / N * 6.283 * freq * 2.17 + phase * 1.71) + 0.15 * Math.sin(i / N * 6.283 * freq * 4.31 + phase * 2.3));
+        pts.push([x, y]);
+      }
+      ctx.save();
+      if (blur) ctx.filter = "blur(" + blur + "px)";
+      var g = ctx.createLinearGradient(0, base - amp * 1.5, 0, base + amp * 0.5);
+      g.addColorStop(0, INK(alpha * 0.12)); g.addColorStop(0.45, INK(alpha * 0.7)); g.addColorStop(1, INK(alpha));
+      ctx.beginPath(); ctx.moveTo(0, h);
+      for (i = 0; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+      ctx.lineTo(w, h); ctx.closePath(); ctx.fillStyle = g; ctx.fill();
+      if (stroke) {
+        ctx.filter = "none"; ctx.beginPath();
+        for (i = 0; i < pts.length; i++) { if (i) ctx.lineTo(pts[i][0], pts[i][1]); else ctx.moveTo(pts[i][0], pts[i][1]); }
+        ctx.strokeStyle = INK(alpha * 0.85); ctx.lineWidth = 1.6; ctx.stroke();
+      }
+      ctx.restore();
+    }
+    function mountainCard(freq, amp, treeRow) {
+      var c = cnv(512, 260), x = c.getContext("2d");
+      paintRidge(x, 512, 260, 175, amp * 0.55, freq * 0.8, 1.2, 0.14, 5, false);
+      paintRidge(x, 512, 260, 205, amp * 0.8, freq, 3.1, 0.3, 2.2, false);
+      paintRidge(x, 512, 260, 245, amp, freq * 1.15, 5.4, 0.55, 0, true);
+      if (treeRow) {
+        x.filter = "none";
+        for (var i = 0; i < 26; i++) {
+          var tx = 10 + Math.random() * 492, ty = 240 - Math.random() * 12;
+          x.strokeStyle = INK(0.4 + Math.random() * 0.25); x.lineWidth = 2;
+          x.beginPath(); x.moveTo(tx, ty); x.lineTo(tx, ty - 9 - Math.random() * 7); x.stroke();
+          x.beginPath(); x.moveTo(tx - 5, ty - 9); x.lineTo(tx + 5, ty - 9); x.stroke();
+        }
+      }
+      return c;
+    }
+    // 屋顶（宋式起翘）
+    function roof(ctx, cx, y, wd, curve, alpha) {
+      ctx.beginPath();
+      ctx.moveTo(cx - wd / 2, y + 4);
+      ctx.quadraticCurveTo(cx - wd * 0.32, y - curve * 0.55, cx - wd * 0.12, y - curve);
+      ctx.quadraticCurveTo(cx, y - curve * 1.12, cx + wd * 0.12, y - curve);
+      ctx.quadraticCurveTo(cx + wd * 0.32, y - curve * 0.55, cx + wd / 2, y + 4);
+      ctx.lineTo(cx + wd / 2 - 7, y + 9); ctx.lineTo(cx - wd / 2 + 7, y + 9);
+      ctx.closePath();
+      ctx.fillStyle = INK(alpha); ctx.fill();
+      ctx.fillStyle = OCHRE + "0.16)"; ctx.fill();
+    }
+    function hall(ctx, cx, baseY, wd, hs, alpha) {
+      var roofY = baseY - hs;
+      ctx.fillStyle = INK(alpha * 0.16); ctx.fillRect(cx - wd * 0.36, roofY, wd * 0.72, hs - 6);
+      ctx.strokeStyle = INK(alpha * 0.62); ctx.lineWidth = 2.4;
+      for (var i = -2; i <= 2; i++) { var px = cx + i * wd * 0.16; ctx.beginPath(); ctx.moveTo(px, roofY + 4); ctx.lineTo(px, baseY); ctx.stroke(); }
+      ctx.beginPath(); ctx.moveTo(cx - wd * 0.36, roofY + 10); ctx.lineTo(cx + wd * 0.36, roofY + 10); ctx.stroke();
+      roof(ctx, cx, roofY, wd, wd * 0.24, alpha * 0.8);
+      roof(ctx, cx, roofY - wd * 0.2, wd * 0.66, wd * 0.16, alpha * 0.9);
+      ctx.fillStyle = INK(alpha * 0.9);
+      ctx.fillRect(cx - 5, roofY - wd * 0.2 - wd * 0.16 - 8, 10, 6);
+    }
+    function palaceCard() {
+      var c = cnv(640, 340), x = c.getContext("2d");
+      x.fillStyle = INK(0.14); x.fillRect(50, 282, 540, 22);
+      x.fillStyle = INK(0.1); for (var s = 0; s < 3; s++) x.fillRect(250 - s * 14, 304 + s * 8, 140 + s * 28, 5);
+      hall(x, 320, 282, 240, 92, 0.9);
+      hall(x, 130, 282, 96, 46, 0.62);
+      hall(x, 510, 282, 96, 46, 0.62);
+      // 亭
+      x.strokeStyle = INK(0.55); x.lineWidth = 2;
+      [[36, 268], [604, 268]].forEach(function (p) {
+        x.beginPath(); x.moveTo(p[0] - 14, p[1]); x.lineTo(p[0] - 14, p[1] - 30);
+        x.moveTo(p[0] + 14, p[1]); x.lineTo(p[0] + 14, p[1] - 30); x.stroke();
+        roof(x, p[0], p[1] - 30, 52, 16, 0.7);
+      });
+      return c;
+    }
+    function citywallCard() {
+      var c = cnv(640, 220), x = c.getContext("2d");
+      x.fillStyle = INK(0.5); x.fillRect(20, 128, 600, 52);
+      x.fillStyle = INK(0.55);
+      for (var i = 0; i < 24; i++) { if (i % 2 === 0) x.fillRect(20 + i * 25, 116, 14, 12); }
+      x.fillStyle = INK(0.32);
+      x.beginPath(); x.moveTo(288, 180); x.lineTo(288, 146); x.quadraticCurveTo(320, 128, 352, 146); x.lineTo(352, 180); x.closePath(); x.fill();
+      hall(x, 320, 146, 120, 40, 0.8);
+      hall(x, 46, 128, 60, 26, 0.66); hall(x, 594, 128, 60, 26, 0.66);
+      paintRidge(x, 640, 220, 112, 34, 1.1, 2.2, 0.2, 4, false);
+      return c;
+    }
+    function cliffCard() {
+      var c = cnv(256, 400), x = c.getContext("2d");
+      x.beginPath(); x.moveTo(256, 400); x.lineTo(256, 30);
+      x.lineTo(196, 58); x.lineTo(216, 108); x.lineTo(168, 128); x.lineTo(206, 190); x.lineTo(150, 214); x.lineTo(188, 280); x.lineTo(130, 306); x.lineTo(170, 360); x.lineTo(150, 400);
+      x.closePath();
+      var g = x.createLinearGradient(120, 0, 256, 0);
+      g.addColorStop(0, INK(0.05)); g.addColorStop(0.55, INK(0.4)); g.addColorStop(1, INK(0.62));
+      x.fillStyle = g; x.fill();
+      x.strokeStyle = INK(0.5); x.lineWidth = 1.4;
+      for (var i = 0; i < 7; i++) { var y0 = 80 + i * 44; x.beginPath(); x.moveTo(150 + i * 9, y0); x.quadraticCurveTo(200, y0 + 12, 254, y0 - 6); x.stroke(); }
+      x.strokeStyle = INK(0.45); x.lineWidth = 1.6;
+      for (var r = 0; r < 9; r++) { var rx = 18 + Math.random() * 80, ry = 356 + Math.random() * 36; x.beginPath(); x.moveTo(rx, ry); x.quadraticCurveTo(rx + 3, ry - 12, rx + 8, ry - 20); x.stroke(); }
+      return c;
+    }
+    function boatCard() {
+      var c = cnv(256, 128), x = c.getContext("2d");
+      x.beginPath(); x.moveTo(36, 74); x.quadraticCurveTo(128, 100, 220, 74); x.lineTo(198, 60); x.quadraticCurveTo(128, 78, 58, 60); x.closePath();
+      x.fillStyle = INK(0.78); x.fill();
+      x.beginPath(); x.moveTo(96, 60); x.quadraticCurveTo(128, 34, 160, 60); x.lineTo(160, 52); x.quadraticCurveTo(128, 30, 96, 52); x.closePath();
+      x.fillStyle = INK(0.55); x.fill();
+      x.strokeStyle = INK(0.7); x.lineWidth = 2.6;
+      x.beginPath(); x.moveTo(178, 60); x.lineTo(178, 44); x.moveTo(174, 48); x.lineTo(182, 48); x.stroke();
+      x.fillStyle = INK(0.16);
+      x.beginPath(); x.ellipse(128, 96, 80, 8, 0, 0, 6.283); x.fill();
+      x.strokeStyle = INK(0.3); x.lineWidth = 1.4;
+      x.beginPath(); x.moveTo(60, 104); x.quadraticCurveTo(70, 100, 80, 104); x.moveTo(180, 108); x.quadraticCurveTo(190, 104, 200, 108); x.stroke();
+      return c;
+    }
+    function towerCard() {
+      var c = cnv(256, 300), x = c.getContext("2d");
+      hall(x, 128, 150, 92, 40, 0.72);
+      hall(x, 128, 104, 70, 30, 0.8);
+      x.fillStyle = INK(0.3); x.fillRect(30, 244, 90, 16); x.fillRect(112, 244, 112, 16);
+      x.fillStyle = INK(0.14); x.fillRect(30, 260, 194, 10);
+      x.strokeStyle = INK(0.5); x.lineWidth = 2.2;
+      x.beginPath(); x.moveTo(212, 262); x.lineTo(206, 214); x.moveTo(206, 226); x.lineTo(190, 206); x.moveTo(206, 232); x.lineTo(222, 212); x.stroke();
+      return c;
+    }
+    function mistTex() {
+      var c = cnv(256, 256), x = c.getContext("2d");
+      var g = x.createRadialGradient(128, 128, 10, 128, 128, 124);
+      g.addColorStop(0, "rgba(247,243,229,0.85)"); g.addColorStop(0.6, "rgba(247,243,229,0.4)"); g.addColorStop(1, "rgba(247,243,229,0)");
+      x.fillStyle = g; x.fillRect(0, 0, 256, 256);
+      return c;
+    }
+    function rippleTex() {
+      var c = cnv(512, 256), x = c.getContext("2d");
+      x.strokeStyle = INK(0.4); x.lineWidth = 1.6; x.lineCap = "round";
+      for (var row = 0; row < 7; row++) {
+        var y = 24 + row * 34;
+        for (var seg = 0; seg < 5; seg++) {
+          var sx = ((row * 97 + seg * 123) % 512);
+          [sx - 512, sx, sx + 512].forEach(function (bx) {
+            x.beginPath(); x.moveTo(bx, y); x.quadraticCurveTo(bx + 16, y - 7, bx + 34, y); x.stroke();
+          });
+        }
+      }
+      return c;
+    }
+    function groundTex() {
+      var c = cnv(512, 512), x = c.getContext("2d");
+      x.fillStyle = "#f1ecdd"; x.fillRect(0, 0, 512, 512);
+      for (var i = 0; i < 1000; i++) { x.fillStyle = "rgba(120,110,88," + (Math.random() * 0.045) + ")"; x.fillRect(Math.random() * 512, Math.random() * 512, 1.4, 1.4); }
+      x.strokeStyle = "rgba(120,110,88,0.03)"; x.lineWidth = 1;
+      for (var f = 0; f < 26; f++) { var y0 = Math.random() * 512; x.beginPath(); x.moveTo(Math.random() * 512, y0); x.lineTo(Math.random() * 512, y0 + (Math.random() - 0.5) * 26); x.stroke(); }
+      for (var b = 0; b < 4; b++) {
+        var bx = Math.random() * 512, by = Math.random() * 512;
+        var g = x.createRadialGradient(bx, by, 8, bx, by, 120);
+        g.addColorStop(0, "rgba(185,170,138,0.07)"); g.addColorStop(1, "rgba(185,170,138,0)");
+        x.fillStyle = g; x.fillRect(0, 0, 512, 512);
+      }
+      return c;
+    }
+    function blobTex() {
+      var c = cnv(128, 128), x = c.getContext("2d");
+      var g = x.createRadialGradient(64, 64, 4, 64, 64, 62);
+      g.addColorStop(0, "rgba(60,60,54,0.4)"); g.addColorStop(1, "rgba(60,60,54,0)");
+      x.fillStyle = g; x.fillRect(0, 0, 128, 128);
+      return c;
+    }
+    function moonTex() {
+      var c = cnv(128, 128), x = c.getContext("2d");
+      x.beginPath(); x.arc(64, 64, 34, 0, 6.283);
+      x.fillStyle = "rgba(233,227,203,0.5)"; x.fill();
+      x.strokeStyle = "rgba(140,134,112,0.5)"; x.lineWidth = 2; x.stroke();
+      return c;
+    }
+    function birdsTex() {
+      var c = cnv(128, 64), x = c.getContext("2d");
+      x.strokeStyle = INK(0.5); x.lineWidth = 2; x.lineCap = "round";
+      [[20, 18], [56, 10], [92, 24]].forEach(function (p) {
+        x.beginPath(); x.moveTo(p[0] - 7, p[1] + 4); x.quadraticCurveTo(p[0], p[1] - 4, p[0] + 7, p[1] + 4); x.stroke();
+      });
+      return c;
+    }
+
+    /* ---------- 场景搭建 ---------- */
+    // 场景 / 相机 / 渲染器初始化（雾色同宣纸底）
+    var stage = document.getElementById("stage3d");
+    if (!stage) return;
+    var scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xf1ecdd);
+    scene.fog = new THREE.Fog(0xf1ecdd, 55, 170);
+    var camera = new THREE.PerspectiveCamera(46, 1, 0.1, 420);
+    var renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    stage.appendChild(renderer.domElement);
+    // 视口自适应
+    function resize() {
+      var w = stage.clientWidth, h = stage.clientHeight;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h; camera.updateProjectionMatrix();
+    }
+    window.addEventListener("resize", resize);
+
+    // 宣纸大地
+    var ground = new THREE.Mesh(new THREE.PlaneGeometry(440, 440), new THREE.MeshBasicMaterial({ map: toTex(groundTex(), 3, 3) }));
+    ground.rotation.x = -Math.PI / 2; scene.add(ground);
+
+    // 纸片：贴图 + 纸背厚度 + 投影
+    // 贴图缓存：同类纸片复用同一张画布纹理
+    var texCache = {};
+    function cardTex(name, maker) { if (!texCache[name]) texCache[name] = toTex(maker()); return texCache[name]; }
+    function shadowBlob(x, z, s) {
+      var m = new THREE.Mesh(new THREE.PlaneGeometry(s, s * 0.36), new THREE.MeshBasicMaterial({ map: toTex(blobTex()), transparent: true, opacity: 0.5, depthWrite: false }));
+      m.rotation.x = -Math.PI / 2; m.position.set(x, 0.02, z); scene.add(m);
+    }
+    function paperPlane(tex, w, h, x, z, opts) {
+      opts = opts || {};
+      var mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, side: THREE.DoubleSide, depthWrite: false });
+      var mesh = new THREE.Mesh(new THREE.PlaneGeometry(w, h), mat);
+      mesh.position.set(x, (opts.y || 0) + h / 2, z);
+      if (opts.ry) mesh.rotation.y = opts.ry;
+      scene.add(mesh);
+      var back = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: tex, transparent: true, side: THREE.DoubleSide, depthWrite: false, color: 0x8b8b84, opacity: 0.55 }));
+      back.position.set(x, mesh.position.y, z - 0.22);
+      if (opts.ry) back.rotation.y = opts.ry;
+      scene.add(back);
+      return mesh;
+    }
+    // 江水
+    var waterTexA = toTex(rippleTex(), 7, 1), waterTexB = toTex(rippleTex(), 5, 1);
+    var waterA = new THREE.Mesh(new THREE.PlaneGeometry(200, 10), new THREE.MeshBasicMaterial({ map: waterTexA, transparent: true, opacity: 0.5, depthWrite: false }));
+    waterA.rotation.x = -Math.PI / 2; waterA.position.set(0, 0.04, 0); scene.add(waterA);
+    var waterB = new THREE.Mesh(new THREE.PlaneGeometry(200, 12), new THREE.MeshBasicMaterial({ map: waterTexB, transparent: true, opacity: 0.3, depthWrite: false }));
+    waterB.rotation.x = -Math.PI / 2; waterB.position.set(0, 0.03, 0); scene.add(waterB);
+    // 水岸线（淡墨一道）
+    var bank = new THREE.Mesh(new THREE.PlaneGeometry(200, 0.5), new THREE.MeshBasicMaterial({ color: 0x4c5049, transparent: true, opacity: 0.28, depthWrite: false }));
+    bank.rotation.x = -Math.PI / 2; bank.position.set(0, 0.05, -5.2); scene.add(bank);
+    var bank2 = bank.clone(); bank2.position.z = 5.2; scene.add(bank2);
+
+    // 1 金陵：宫阙 + 平缓远山
+    shadowBlob(-34, -17, 18);
+    paperPlane(cardTex("palace", palaceCard), 15, 8, -34, -17);
+    paperPlane(cardTex("gentle1", function () { return mountainCard(0.9, 46, false); }), 40, 9, -34, -30);
+    paperPlane(cardTex("gentle2", function () { return mountainCard(0.7, 30, false); }), 30, 7, -52, -26, { ry: 0.3 });
+    // 2 钟山：连绵山峦山林
+    shadowBlob(-16, -44, 14);
+    paperPlane(cardTex("zhong1", function () { return mountainCard(1.5, 105, true); }), 42, 19, -16, -46);
+    paperPlane(cardTex("zhong2", function () { return mountainCard(1.25, 80, false); }), 34, 15, 2, -50, { ry: -0.25 });
+    paperPlane(cardTex("zhong3", function () { return mountainCard(1.7, 60, true); }), 22, 10, -6, -33);
+    // 3 洪州：城郭
+    shadowBlob(-46, 24, 17);
+    paperPlane(cardTex("wall", citywallCard), 17, 5.8, -46, 24);
+    paperPlane(cardTex("hong1", function () { return mountainCard(0.8, 55, false); }), 32, 9, -46, 37);
+    // 4 采石矶：陡崖
+    shadowBlob(21, -10, 10);
+    paperPlane(cardTex("cliff", cliffCard), 6.5, 10, 21, -9, { ry: -0.25 });
+    paperPlane(cardTex("caishi1", function () { return mountainCard(1.3, 70, false); }), 26, 10, 34, -26);
+    // 5 江舟：孤舟 + 两岸远山
+    var boat = paperPlane(cardTex("boat", boatCard), 3.4, 1.7, 36, 0.6, { y: 0.08 });
+    paperPlane(cardTex("bank1", function () { return mountainCard(1.0, 42, false); }), 30, 7, 36, -22);
+    paperPlane(cardTex("bank2", function () { return mountainCard(0.95, 34, false); }), 28, 6, 42, 20, { ry: -0.15 });
+    // 6 汴京：小楼庭院
+    shadowBlob(-60, -53, 7);
+    paperPlane(cardTex("tower", towerCard), 5, 5.8, -60, -53);
+    paperPlane(cardTex("bian1", function () { return mountainCard(0.75, 40, false); }), 34, 8, -66, -68);
+    // 7 北邙山：平缓丘陵松柏
+    shadowBlob(56, 44, 13);
+    paperPlane(cardTex("bei1", function () { return mountainCard(1.05, 30, true); }), 30, 7, 56, 46);
+    paperPlane(cardTex("bei2", function () { return mountainCard(0.9, 22, true); }), 22, 5.5, 46, 38, { ry: 0.3 });
+    // 芦苇点缀
+    paperPlane(cardTex("reeds", function () {
+      var c = cnv(256, 128), x2 = c.getContext("2d");
+      x2.strokeStyle = INK(0.4); x2.lineWidth = 1.6; x2.lineCap = "round";
+      for (var i = 0; i < 22; i++) { var rx = 12 + Math.random() * 232, ry = 118 + Math.random() * 8; x2.beginPath(); x2.moveTo(rx, ry); x2.quadraticCurveTo(rx + 2, ry - 16, rx + 6, ry - 30 - Math.random() * 14); x2.stroke(); }
+      return c;
+    }), 5, 2.5, -8, 8.6);
+    paperPlane(texCache.reeds, 4, 2, -70, -6);
+    paperPlane(texCache.reeds, 4, 2, 62, 9);
+    // 月与雁
+    var moon = new THREE.Sprite(new THREE.SpriteMaterial({ map: toTex(moonTex()), transparent: true, opacity: 0.8, depthWrite: false }));
+    moon.scale.set(9, 9, 1); moon.position.set(-24, 24, -48); scene.add(moon);
+    var birds = new THREE.Sprite(new THREE.SpriteMaterial({ map: toTex(birdsTex()), transparent: true, opacity: 0.65, depthWrite: false }));
+    birds.scale.set(5, 2.5, 1); birds.position.set(12, 17, -18); scene.add(birds);
+
+    // 云雾精灵
+    var mists = [];
+    var sharedMistTex = toTex(mistTex());
+    for (var mi = 0; mi < 26; mi++) {
+      var sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: sharedMistTex, transparent: true, opacity: 0.09 + Math.random() * 0.16, depthWrite: false }));
+      var sc = 7 + Math.random() * 16;
+      sp.scale.set(sc, sc * 0.42, 1);
+      sp.position.set(-75 + Math.random() * 150, 1.5 + Math.random() * 9, -60 + Math.random() * 120);
+      sp.userData.v = 0.4 + Math.random() * 0.9;
+      scene.add(sp); mists.push(sp);
+    }
+
+    /* ---------- 八组相机镜头坐标 ---------- */
+    var VIEWS = {
+      jinling:   { pos: [-30, 5.5, -2],  tgt: [-34, 2.6, -17] },
+      zhongshan: { pos: [-10, 8, -28],   tgt: [-17, 5.5, -45] },
+      hongzhou:  { pos: [-42, 6, 12],    tgt: [-46, 2.8, 24] },
+      caishi:    { pos: [24, 6.5, 2],    tgt: [21, 4, -10] },
+      jiangzhou: { pos: [37, 4, 8],      tgt: [36, 1.2, 0.6] },
+      bianjing:  { pos: [-56, 5, -44],   tgt: [-60, 2.4, -53] },
+      beimang:   { pos: [50, 6, 34],     tgt: [56, 2, 45] },
+      overview:  { pos: [4, 62, 86],     tgt: [-2, 0, -6] }
+    };
+
+    /* ---------- 自制轨道控制 + 镜头飞行 ---------- */
+    // 轨道状态：目标点 + 半径/方位角/仰角（d* 为缓动目标值）
+    var ctl = { tgt: new THREE.Vector3(), r: 60, theta: 0, phi: 0.9, dTgt: new THREE.Vector3(), dR: 60, dTheta: 0, dPhi: 0.9 };
+    var fly = null;
+    function setFromView(v) { ctl.dTgt.set(v.tgt[0], v.tgt[1], v.tgt[2]); ctl.dR = Math.max(4, Math.hypot(v.pos[0] - v.tgt[0], v.pos[1] - v.tgt[1], v.pos[2] - v.tgt[2])); var off = new THREE.Vector3(v.pos[0] - v.tgt[0], v.pos[1] - v.tgt[1], v.pos[2] - v.tgt[2]); var sph = new THREE.Spherical().setFromVector3(off); ctl.dTheta = sph.theta; ctl.dPhi = sph.phi; }
+    function snapNow() {
+      ctl.tgt.copy(ctl.dTgt); ctl.r = ctl.dR; ctl.theta = ctl.dTheta; ctl.phi = dPhi();
+      applyCamera();
+    }
+    function dPhi() { return ctl.dPhi; }
+    function applyCamera() {
+      var sph = new THREE.Spherical(ctl.r, THREE.MathUtils.clamp(ctl.phi, 0.12, 1.42), ctl.theta);
+      var off = new THREE.Vector3().setFromSpherical(sph);
+      camera.position.copy(ctl.tgt).add(off);
+      camera.lookAt(ctl.tgt);
+    }
+    setFromView(VIEWS.overview); snapNow();
+    // 镜头飞行：记录起终点，交由渲染循环插值
+    function flyTo(key, dur) {
+      var v = VIEWS[key]; if (!v) return;
+      var p0 = camera.position.clone(), t0 = ctl.tgt.clone();
+      var tgt1 = new THREE.Vector3(v.tgt[0], v.tgt[1], v.tgt[2]);
+      var off1 = new THREE.Vector3(v.pos[0] - v.tgt[0], v.pos[1] - v.tgt[1], v.pos[2] - v.tgt[2]);
+      var p1 = tgt1.clone().add(off1);
+      fly = { p0: p0, p1: p1, t0: t0, t1: tgt1, start: performance.now(), dur: reduced ? 0 : (dur || 2100) };
+    }
+    // 三次缓入缓出
+    function ease(k) { return k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2; }
+    var dragging = 0, lastX = 0, lastY = 0, hinted = false;
+    var dom = renderer.domElement;
+    dom.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+    // 拖拽：左键旋转，右键/Shift 平移
+    dom.addEventListener("pointerdown", function (e) {
+      if (fly) return;
+      dragging = e.button === 2 || e.shiftKey ? 2 : 1;
+      lastX = e.clientX; lastY = e.clientY;
+      dom.setPointerCapture(e.pointerId);
+      hideHint();
+    });
+    dom.addEventListener("pointermove", function (e) {
+      if (!dragging || fly) return;
+      var dx = e.clientX - lastX, dy = e.clientY - lastY; lastX = e.clientX; lastY = e.clientY;
+      if (dragging === 1) {
+        ctl.dTheta -= dx * 0.005;
+        ctl.dPhi = THREE.MathUtils.clamp(ctl.dPhi - dy * 0.004, 0.12, 1.42);
+      } else {
+        var panScale = ctl.r * 0.0012;
+        var right = new THREE.Vector3().setFromSphericalCoords(1, Math.PI / 2, ctl.dTheta + Math.PI / 2);
+        ctl.dTgt.addScaledVector(right, -dx * panScale);
+        ctl.dTgt.y = 0;
+        var fwd = new THREE.Vector3().subVectors(ctl.dTgt, camera.position).setY(0).normalize();
+        ctl.dTgt.addScaledVector(fwd, dy * panScale);
+        ctl.dTgt.x = THREE.MathUtils.clamp(ctl.dTgt.x, -90, 90);
+        ctl.dTgt.z = THREE.MathUtils.clamp(ctl.dTgt.z, -90, 90);
+      }
+    });
+    function endDrag() { dragging = 0; }
+    dom.addEventListener("pointerup", endDrag);
+    dom.addEventListener("pointercancel", endDrag);
+    dom.addEventListener("wheel", function (e) {
+      e.preventDefault(); if (fly) return;
+      ctl.dR = THREE.MathUtils.clamp(ctl.dR * (1 + e.deltaY * 0.001), 5, 130);
+      hideHint();
+    }, { passive: false });
+
+    /* ---------- 点位与笺卡 ---------- */
+    var SPOTS = {
+      jinling: { name: "金陵", tag: "南唐都城", now: "今 · 江苏南京",
+        events: [["937", "七夕生于金陵宫苑，丰额骈齿、一目重瞳，宫中视为奇相"], ["961", "中主李璟病逝，二十五岁的李煜在金陵柩前即位"], ["975", "宋军围城日久，城破辞庙北上，「最是仓皇辞庙日」"]],
+        word: "《破阵子》 四十年来家国，三千里地山河。" },
+      zhongshan: { name: "钟山", tag: "少年隐读", now: "金陵城北 · 今紫金山",
+        events: [["约955—959", "长兄弘冀性猜忌，李煜自号「钟隐」，志在山水，隐读经籍以避锋芒"]],
+        word: "《渔父》 一壶酒，一竿身，快活如侬有几人。" },
+      hongzhou: { name: "洪州", tag: "南唐南都", now: "今 · 江西南昌",
+        events: [["961", "中主迁都洪州未几病逝；李煜自金陵入继大统，而国势已如累卵"]],
+        word: "《浣溪沙》 欲寻陈迹怅人非，天教心愿与身违。" },
+      caishi: { name: "采石矶", tag: "江防要冲", now: "今 · 安徽马鞍山",
+        events: [["974", "宋人于采石矶江面架设浮桥，宋军由此渡江，金陵遂成孤城"], ["975", "围城经年，城中愁思日深，终至城破"]],
+        word: "《乌夜啼》 世事漫随流水，算来一梦浮生。" },
+      jiangzhou: { name: "江舟", tag: "辞庙北上", now: "长江 · 975 年冬",
+        events: [["975", "城破，登舟北上。教坊乐工送别，「最是仓皇辞庙日，垂泪对宫娥」"]],
+        word: "《浪淘沙令》 梦里不知身是客，一晌贪欢。" },
+      bianjing: { name: "汴京", tag: "违命侯岁月", now: "今 · 河南开封",
+        events: [["975", "被押北上，受封「违命侯」，自言「此中日夕，只以眼泪洗面」"], ["978", "七夕四十二岁生日，作《虞美人》，是夜被赐牵机药，词成而人逝"]],
+        word: "《虞美人》 问君能有几多愁？恰似一江春水向东流。" },
+      beimang: { name: "北邙山", tag: "词心不朽", now: "洛阳之北 · 长眠之所",
+        events: [["978", "葬于北邙山，江南旧臣设奠相送。词人已逝，词心自此不朽"]],
+        word: "《浪淘沙令》 流水落花春去也，天上人间。" },
+      overview: { name: "全景", tag: "三千里地山河", now: "南唐疆域 · 写意",
+        events: [["937—978", "四十一年，从金陵宫苑到北邙孤冢。一卷水墨，走完一生"]],
+        word: "《破阵子》 四十年来家国，三千里地山河。" }
+    };
+    var popup = document.getElementById("inkPopup");
+    var popupDefault = popup.querySelector("[data-popup-default]");
+    var popupDetail = popup.querySelector("[data-popup-detail]");
+    var dotBtns = Array.prototype.slice.call(document.querySelectorAll(".dot-btn"));
+    // 填充并弹出站点笺卡
+    function showSpot(key) {
+      var spot = SPOTS[key]; if (!spot) return;
+      popupDefault.hidden = true; popupDetail.hidden = false; popup.hidden = false;
+      popupDetail.querySelector("[data-spot-era]").textContent = spot.tag;
+      popupDetail.querySelector("[data-spot-name]").textContent = spot.name;
+      popupDetail.querySelector("[data-spot-now]").textContent = spot.now;
+      var list = popupDetail.querySelector("[data-spot-events]");
+      list.innerHTML = "";
+      spot.events.forEach(function (ev) {
+        var li = document.createElement("li");
+        var b = document.createElement("b"); b.textContent = ev[0];
+        li.appendChild(b); li.appendChild(document.createTextNode(ev[1]));
+        list.appendChild(li);
+      });
+      popupDetail.querySelector("[data-spot-word]").textContent = spot.word;
+    }
+    // 点位点击：点亮圆点 + 镜头飞行 + 弹笺
+    function go(key) {
+      dotBtns.forEach(function (d) { d.classList.toggle("is-active", d.dataset.go === key); });
+      flyTo(key);
+      showSpot(key);
+    }
+    dotBtns.forEach(function (d) { d.addEventListener("click", function () { go(d.dataset.go); }); });
+    // 收起笺卡与 Esc 关闭
+    popup.querySelector(".popup-close").addEventListener("click", function () {
+      popup.hidden = true;
+      popupDefault.hidden = false; popupDetail.hidden = true;
+      dotBtns.forEach(function (d) { d.classList.remove("is-active"); });
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && !popup.hidden) {
+        popup.hidden = true; popupDefault.hidden = false; popupDetail.hidden = true;
+      }
+    });
+    var hint = document.getElementById("stageHint");
+    function hideHint() { if (!hinted && hint) { hinted = true; hint.classList.add("is-hidden"); } }
+
+    /* ---------- 渲染循环 ---------- */
+    // 渲染循环：飞行插值 / 轨道缓动 / 水纹云雾漂移 / 孤舟摇曳
+    var clock = new THREE.Clock();
+    function animate() {
+      requestAnimationFrame(animate);
+      var dt = Math.min(clock.getDelta(), 0.05);
+      var t = clock.elapsedTime;
+      if (fly) {
+        var k = fly.dur ? Math.min((performance.now() - fly.start) / fly.dur, 1) : 1;
+        var ek = ease(k);
+        camera.position.lerpVectors(fly.p0, fly.p1, ek);
+        ctl.tgt.lerpVectors(fly.t0, fly.t1, ek);
+        camera.lookAt(ctl.tgt);
+        if (k >= 1) {
+          var off = new THREE.Vector3().subVectors(camera.position, ctl.tgt);
+          var sph = new THREE.Spherical().setFromVector3(off);
+          ctl.r = sph.radius; ctl.theta = sph.theta; ctl.phi = sph.phi;
+          ctl.dR = ctl.r; ctl.dTheta = ctl.theta; ctl.dPhi = ctl.phi; ctl.dTgt.copy(ctl.tgt);
+          fly = null;
+        }
+      } else {
+        ctl.tgt.lerp(ctl.dTgt, 0.1);
+        ctl.r += (ctl.dR - ctl.r) * 0.1;
+        ctl.theta += (ctl.dTheta - ctl.theta) * 0.12;
+        ctl.phi += (ctl.dPhi - ctl.phi) * 0.12;
+        applyCamera();
+      }
+      if (!reduced) {
+        waterTexA.offset.x += dt * 0.022;
+        waterTexB.offset.x -= dt * 0.013;
+        mists.forEach(function (sp) {
+          sp.position.x += sp.userData.v * dt;
+          if (sp.position.x > 80) sp.position.x = -80;
+          sp.material.opacity = sp.userData.base || (sp.userData.base = sp.material.opacity);
+        });
+        boat.position.y = 0.93 + Math.sin(t * 1.4) * 0.05;
+        boat.rotation.z = Math.sin(t * 1.1) * 0.02;
+      }
+      renderer.render(scene, camera);
+    }
+    resize();
+    animate();
+    // 初始即展示全景点位
+    dotBtns[7].classList.add("is-active");
+  })();
+  </script>
+</body></html>
