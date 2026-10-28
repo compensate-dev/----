@@ -2,7 +2,7 @@
 <!-- 一江春水 · 李煜词境 — 首页 / index.html -->
 <html lang="zh-CN">
 <head>
-  <!-- 文档头部：字符集、移动端视口、主题色、SEO 描述、分页标题，以及共用的样式表与交互脚本 -->
+<!-- 文档头部：字符集、移动端视口、主题色、SEO 描述、分页标题，以及共用的样式表与交互脚本 -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#e8eee4">
@@ -15,58 +15,58 @@
   <meta property="og:description" content="走进南唐后主李煜的一生与词作，读写作背景、听词句回响，在一江春水间遇见千年前的悲欢。">
   <meta property="og:image" content="home-hero-clean-v2.jpg">
   <meta property="og:locale" content="zh_CN">
-  <link rel="stylesheet" href="style.css">
-  <script src="script.js" defer></script>
+  <link rel="stylesheet" href="style.css?v=f37">
+  <script src="script.js?v=f37" defer></script>
 </head>
 <!-- body.home-page：首页专用类，供 CSS 区分首页与其他子页（开场未揭开前隐藏页头与正文） -->
 <body class="home-page">
-  <!-- 跳过导航：键盘用户按 Tab 时可直接跳入正文(#main-content) -->
+<!-- 跳过导航：键盘用户按 Tab 时可直接跳入正文(#main-content) -->
   <a class="skip-link" href="#main-content">跳至主要内容</a>
-  <!-- 开场封面：全屏「书封」层，role=dialog 语义化，读到封面标题为无障碍名称 -->
+<!-- 开场封面：全屏「书封」层，role=dialog 语义化，读到封面标题为无障碍名称 -->
   <section class="book-opening" role="dialog" aria-modal="true" aria-labelledby="book-cover-heading">
-    <!-- 封面右侧花枝：立于封面右侧的梅枝小鸟图，正片叠底并轻微摇曳，纯装饰 -->
+<!-- 封面右侧花枝：立于封面右侧的梅枝小鸟图，正片叠底并轻微摇曳，纯装饰 -->
     <div class="book-side-plum" aria-hidden="true"><img src="book-plum-bird.png" alt=""></div>
-    <!-- 封面上左花枝：铺在封面左下侧并镜像的梅枝图，同样正片叠底 + 极缓摆动 -->
+<!-- 封面上左花枝：铺在封面左下侧并镜像的梅枝图，同样正片叠底 + 极缓摆动 -->
     <div class="book-side-branch" aria-hidden="true"><img src="book-plum-branch.png" alt=""></div>
     <div class="book-cover">
-      <!-- 封面正面：题字、印章、四角装饰与「翻开词境」按钮 -->
+<!-- 封面正面：题字、印章、四角装饰与「翻开词境」按钮 -->
       <div class="book-cover-front">
-        <!-- 封面折枝梅插画：左上角压印的梅枝图，正片叠底融入纸面（纯装饰） -->
+<!-- 封面折枝梅插画：左上角压印的梅枝图，正片叠底融入纸面（纯装饰） -->
         <div class="book-cover-plum" aria-hidden="true"><img src="plum-blossom.jpg" alt=""></div>
         <span class="book-cover-kicker">南唐 · 李煜 · 词中帝王</span>
-        <!-- 题字图：同时作为 dialog 的无障碍标题(id=book-cover-heading) -->
+<!-- 题字图：同时作为 dialog 的无障碍标题(id=book-cover-heading) -->
         <div class="book-cover-title"><img id="book-cover-heading" src="book-title.png" alt="春水留痕，书法题字"><i></i><small>李煜词境 · 南唐旧梦</small></div>
         <span class="book-cover-seal" aria-hidden="true">煜</span>
-        <!-- 四角 ❧ 装饰，纯视觉 -->
+<!-- 四角 ❧ 装饰，纯视觉 -->
         <span class="book-cover-corner book-cover-corner-tl" aria-hidden="true">❧</span>
         <span class="book-cover-corner book-cover-corner-tr" aria-hidden="true">❧</span>
         <span class="book-cover-corner book-cover-corner-bl" aria-hidden="true">❧</span>
         <span class="book-cover-corner book-cover-corner-br" aria-hidden="true">❧</span>
-        <!-- 翻开按钮：点击后由 script.js 触发翻书 + 书法飞落 + 墨迹插页序列 -->
+<!-- 翻开按钮：点击后由 script.js 触发翻书 + 书法飞落 + 墨迹插页序列 -->
         <button class="book-open-button" type="button" autofocus>翻开词境 <span>↗</span></button>
         <span class="book-cover-foot">A JOURNEY THROUGH LI YU'S VERSES</span>
       </div>
-      <!-- 封面背面：翻书动画的 3D 背面，纯视觉 -->
+<!-- 封面背面：翻书动画的 3D 背面，纯视觉 -->
       <div class="book-cover-back" aria-hidden="true"></div>
     </div>
   </section>
-  <!-- 书法飞落层：序列期间承载随机飞落的书法字与「字化飞墨」粒子画布；背景视频不作 loop，播完即进入墨迹插页 -->
+<!-- 书法飞落层：序列期间承载随机飞落的书法字与「字化飞墨」粒子画布；背景视频不作 loop，播完即进入墨迹插页 -->
   <div class="calligraphy-sequence" aria-hidden="true">
     <video class="calligraphy-background" src="calligraphy-background.mp4" muted playsinline preload="none" tabindex="-1"></video>
-    <!-- 雾霭层：书法飞落期间缓缓漂移的柔雾，柔化视频边缘并烘托纸墨氛围（纯装饰） -->
+<!-- 雾霭层：书法飞落期间缓缓漂移的柔雾，柔化视频边缘并烘托纸墨氛围（纯装饰） -->
     <div class="calligraphy-mist" aria-hidden="true"></div>
-    <!-- 雨丝层（近）：CSS 渐变排出的细密斜雨，匀速下落，压在雾霭之上 -->
+<!-- 雨丝层（近）：CSS 渐变排出的细密斜雨，匀速下落，压在雾霭之上 -->
     <div class="calligraphy-rain" aria-hidden="true"></div>
-    <!-- 雨丝层（远）：同一套雨丝加 rain-far，间距更疏、更淡、落得更慢，叠出远近两重雨幕 -->
+<!-- 雨丝层（远）：同一套雨丝加 rain-far，间距更疏、更淡、落得更慢，叠出远近两重雨幕 -->
     <div class="calligraphy-rain rain-far" aria-hidden="true"></div>
-    <!-- 墨点层：容器留空，内部 <canvas> 由 script.js 动态创建；30 粒墨点改由 canvas 逐帧绘制（带拖尾与旋绕），此处只留装饰性空壳 -->
+<!-- 墨点层：容器留空，内部 <canvas> 由 script.js 动态创建；30 粒墨点改由 canvas 逐帧绘制（带拖尾与旋绕），此处只留装饰性空壳 -->
     <div class="calligraphy-inkmotes" aria-hidden="true"></div>
-    <!-- 粒子画布：飞落收尾阶段的粒子动画（字化飞墨），由 script.js 绘制，进入粒子阶段后渐显 -->
+<!-- 粒子画布：飞落收尾阶段的粒子动画（字化飞墨），由 script.js 绘制，进入粒子阶段后渐显 -->
     <canvas class="calligraphy-particle-canvas"></canvas>
-    <!-- 粒子阶段文案：视频淡出后延迟渐显的「由词入画」题注 -->
+<!-- 粒子阶段文案：视频淡出后延迟渐显的「由词入画」题注 -->
     <div class="calligraphy-particle-caption" aria-hidden="true"><span>由词入画</span><b>字化飞墨，凝为月下人</b></div>
   </div>
-  <!-- 墨迹插页：书法飞落结束后的水墨过渡页，canvas 绘制墨色晕染，文案居中 -->
+<!-- 墨迹插页：书法飞落结束后的水墨过渡页，canvas 绘制墨色晕染，文案居中 -->
   <section class="ink-interlude" aria-hidden="true">
     <canvas class="ink-canvas"></canvas>
     <div class="ink-interlude-content">
@@ -74,73 +74,73 @@
       <p>这里记录李煜的一生、他的词，以及那些穿越千年仍动人的悲欢。</p>
     </div>
   </section>
-  <!-- 抵达幕：三幕叙事 + 视差山水。整段为全屏固定层（position:fixed），内部自带滚动容器负责行程进度；
+<!-- 抵达幕：三幕叙事 + 视差山水。整段为全屏固定层（position:fixed），内部自带滚动容器负责行程进度；
        滚到底后继续下滚即触发水墨收场并进入首页，配套 style.css 的 .arrival-interlude(fixed) + .arrival-scroller + 390svh 轨道 -->
   <section class="arrival-interlude" data-scene="1" aria-hidden="true" inert aria-labelledby="arrival-title">
-    <!-- 内层滚动容器：真正承接滚动的层（隐藏滚动条），脚本监听其 scroll 事件推进进度 -->
+<!-- 内层滚动容器：真正承接滚动的层（隐藏滚动条），脚本监听其 scroll 事件推进进度 -->
     <div class="arrival-scroller">
-    <!-- 行程轨道：高度即可滚动行程，脚本用 offsetHeight - scroller.clientHeight 换算进度 -->
+<!-- 行程轨道：高度即可滚动行程，脚本用 offsetHeight - scroller.clientHeight 换算进度 -->
     <div class="arrival-track">
-      <!-- 舞台：sticky 固定在视口内承托所有视差图层，各层随 --arrival-* 变量位移 -->
+<!-- 舞台：sticky 固定在视口内承托所有视差图层，各层随 --arrival-* 变量位移 -->
       <div class="arrival-stage">
-          <!-- 远山层：随进度上移，制造纵深 -->
+<!-- 远山层：随进度上移，制造纵深 -->
           <div class="arrival-landscape" aria-hidden="true"></div>
-          <!-- 第一幕场景背景层：arrival-scene1-bg.jpg 整幅铺底，进第一幕时渐显接管底图（与第二/三幕 scene2/3-bg 同款写法） -->
+<!-- 第一幕场景背景层：arrival-scene1-bg.jpg 整幅铺底，进第一幕时渐显接管底图（与第二/三幕 scene2/3-bg 同款写法） -->
           <div class="arrival-scene1-bg" aria-hidden="true"></div>
-          <!-- 第二幕场景背景层：arrival-scene2-bg.jpg 整幅铺底，进第二幕时渐显接管底图（与第三幕 scene3-bg 同款写法） -->
+<!-- 第二幕场景背景层：arrival-scene2-bg.jpg 整幅铺底，进第二幕时渐显接管底图（与第三幕 scene3-bg 同款写法） -->
           <div class="arrival-scene2-bg" aria-hidden="true"></div>
-          <!-- 第三幕场景背景层：arrival-scene3-bg-2.jpg 整幅铺底，进第三幕时渐显接管底图（CSS 于 00:28 版已先行引入，此处补齐对应节点） -->
+<!-- 第三幕场景背景层：arrival-scene3-bg-2.jpg 整幅铺底，进第三幕时渐显接管底图（CSS 于 00:28 版已先行引入，此处补齐对应节点） -->
           <div class="arrival-scene3-bg" aria-hidden="true"></div>
-          <!-- 纸底层：由透明渐入米黄纸色的底衬，垫在山峦之后统一整幕色调 -->
+<!-- 纸底层：由透明渐入米黄纸色的底衬，垫在山峦之后统一整幕色调 -->
           <div class="arrival-paper" aria-hidden="true"></div>
-          <!-- 远景山峦层：PNG 平铺剪影，横向纵向双轴慢速视差（最远景） -->
+<!-- 远景山峦层：PNG 平铺剪影，横向纵向双轴慢速视差（最远景） -->
           <div class="arrival-hill-far" aria-hidden="true"></div>
-          <!-- 中景山峦层：PNG 平铺剪影，横移更快，与远山拉开层次 -->
+<!-- 中景山峦层：PNG 平铺剪影，横移更快，与远山拉开层次 -->
           <div class="arrival-hill-mid" aria-hidden="true"></div>
-          <!-- 江岸层：PNG 平铺堤岸，横移量最大，承接山体与水面 -->
+<!-- 江岸层：PNG 平铺堤岸，横移量最大，承接山体与水面 -->
           <div class="arrival-shore" aria-hidden="true"></div>
-          <!-- 孤舟层：PNG 小舟，随进度横移并带上下漂浮与轻微倾斜 -->
+<!-- 孤舟层：PNG 小舟，随进度横移并带上下漂浮与轻微倾斜 -->
           <div class="arrival-boat" aria-hidden="true"></div>
-          <!-- 雁阵层：SVG 飞雁，随进度斜向掠过，第二/三幕按场景切换透明度 -->
+<!-- 雁阵层：SVG 飞雁，随进度斜向掠过，第二/三幕按场景切换透明度 -->
           <div class="arrival-geese" aria-hidden="true"></div>
-          <!-- 落花层：容器本身为空，由 script.js 注入若干花瓣 i 缓缓飘落 -->
+<!-- 落花层：容器本身为空，由 script.js 注入若干花瓣 i 缓缓飘落 -->
           <div class="arrival-petals" aria-hidden="true"></div>
-          <!-- 垂柳层（右）：PNG 柳枝自右上垂下，作前景框景 -->
+<!-- 垂柳层（右）：PNG 柳枝自右上垂下，作前景框景 -->
           <div class="arrival-willow" aria-hidden="true"></div>
-          <!-- 垂柳层（左）：同一张图水平翻转，与右侧柳枝左右呼应 -->
+<!-- 垂柳层（左）：同一张图水平翻转，与右侧柳枝左右呼应 -->
           <div class="arrival-willow arrival-willow-2" aria-hidden="true"></div>
-          <!-- 场景切换层：分幕转场时的过渡遮罩 -->
+<!-- 场景切换层：分幕转场时的过渡遮罩 -->
           <div class="arrival-world-change" aria-hidden="true"></div>
-          <!-- 松枝层：前景剪影 -->
+<!-- 松枝层：前景剪影 -->
           <div class="arrival-pine" aria-hidden="true"></div>
-          <!-- 墨韵光晕层：随 --arrival-bloom 渐显的柔光 -->
+<!-- 墨韵光晕层：随 --arrival-bloom 渐显的柔光 -->
           <div class="arrival-ink-bloom" aria-hidden="true"></div>
-          <!-- 雾气层：随进度横纵漂移的雾面，柔化远山与水面的接缝 -->
+<!-- 雾气层：随进度横纵漂移的雾面，柔化远山与水面的接缝 -->
           <div class="arrival-mist" aria-hidden="true"></div>
-          <!-- 浮尘层：容器本身为空，由 script.js 注入若干光点 i 缓缓上升 -->
+<!-- 浮尘层：容器本身为空，由 script.js 注入若干光点 i 缓缓上升 -->
           <div class="arrival-motes" aria-hidden="true"></div>
-          <!-- 水面层：三条波纹线，铺在舞台底部 -->
+<!-- 水面层：三条波纹线，铺在舞台底部 -->
           <div class="arrival-water" aria-hidden="true"><i></i><i></i><i></i></div>
-          <!-- 余烬层：十粒漂浮火星，点缀夜色 -->
+<!-- 余烬层：十粒漂浮火星，点缀夜色 -->
           <div class="arrival-embers" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-          <!-- 暗角：压暗四周，聚焦视线 -->
+<!-- 暗角：压暗四周，聚焦视线 -->
           <div class="arrival-vignette" aria-hidden="true"></div>
-          <!-- 水墨晕染层：切幕时的墨色洗染，由 script.js 切换 is-active / is-opening 完成「淡入—化开」 -->
+<!-- 水墨晕染层：切幕时的墨色洗染，由 script.js 切换 is-active / is-opening 完成「淡入—化开」 -->
           <div class="arrival-ink-wash" aria-hidden="true"></div>
-          <!-- 第一幕：题眼 + 主标题 + 导语 + 耳语 + 墨迹笔触 + 滚动提示；默认 is-current 为当前幕 -->
+<!-- 第一幕：题眼 + 主标题 + 导语 + 耳语 + 墨迹笔触 + 滚动提示；默认 is-current 为当前幕 -->
           <div class="arrival-copy is-current" data-scene="0">
             <span class="arrival-kicker">南唐 · 开宝年间 · 金陵</span>
-            <!-- 主标题：两行拆成两个块级 span，第二行由 CSS 右缩进，形成阶梯式落行 -->
+<!-- 主标题：两行拆成两个块级 span，第二行由 CSS 右缩进，形成阶梯式落行 -->
             <h1 id="arrival-title"><span class="arrival-tl">风月一场梦，</span><span class="arrival-tl arrival-tl-2"><em>江山</em>万里愁。</span></h1>
             <p>这里记录李煜的一生、他的词，以及那些穿越千年仍动人的悲欢。</p>
-            <!-- 耳语：短句旁白，补充叙事语气 -->
+<!-- 耳语：短句旁白，补充叙事语气 -->
             <span class="arrival-whisper">故事，要从江南的一场春雨说起。</span>
-            <!-- 墨迹笔触：SVG 曲线分隔线，pathLength=1 便于按比例做描边动画 -->
+<!-- 墨迹笔触：SVG 曲线分隔线，pathLength=1 便于按比例做描边动画 -->
             <svg class="arrival-ink-stroke" viewBox="0 0 220 18" aria-hidden="true"><path pathLength="1" d="M2 12 C42 4 73 16 112 9 S178 4 218 8"/></svg>
-            <!-- 滚动提示：纯视觉 -->
+<!-- 滚动提示：纯视觉 -->
             <span class="arrival-scroll-cue"><i aria-hidden="true"></i>向下滚动，走近词境</span>
           </div>
-          <!-- 第二幕：词句幕，默认 aria-hidden，滚动到对应进度由脚本切换 -->
+<!-- 第二幕：词句幕，默认 aria-hidden，滚动到对应进度由脚本切换 -->
           <div class="arrival-copy arrival-copy-verse" data-scene="1" aria-hidden="true">
             <span class="arrival-kicker">第二阕 · 春花秋月 · 往事如烟</span>
             <h2>春花秋月何时了，<br><em>往事知多少。</em></h2>
@@ -148,39 +148,39 @@
             <span class="arrival-whisper">他问春天何时了，也问往事还剩多少。</span>
             <svg class="arrival-ink-stroke" viewBox="0 0 220 18" aria-hidden="true"><path pathLength="1" d="M2 12 C42 4 73 16 112 9 S178 4 218 8"/></svg>
           </div>
-          <!-- 第三幕：收束幕，arrival-copy-last 用于末幕特殊定位 -->
+<!-- 第三幕：收束幕，arrival-copy-last 用于末幕特殊定位 -->
           <div class="arrival-copy arrival-copy-verse arrival-copy-last" data-scene="2" aria-hidden="true">
             <span class="arrival-kicker">第三阕 · 故国已远 · 词心长流</span>
-            <!-- 末句：nobreak 包住「向东流。」，避免换行时把这四字拆散 -->
+<!-- 末句：nobreak 包住「向东流。」，避免换行时把这四字拆散 -->
             <h2>问君能有几多愁？<br><em>恰似一江春水<span class="nobreak">向东流。</span></em></h2>
             <p>后来，那些无法归去的路，都化作笔下的江水。它向东流去，也替他把这场离别，缓缓说给千年以后的人听。</p>
             <span class="arrival-whisper">读到这里，便与他相逢。</span>
             <svg class="arrival-ink-stroke" viewBox="0 0 220 18" aria-hidden="true"><path pathLength="1" d="M2 12 C42 4 73 16 112 9 S178 4 218 8"/></svg>
           </div>
-          <!-- 章节导航：三枚按钮对应三幕，aria-pressed 标记当前幕，点击按幕位换算目标滚动位置 -->
+<!-- 章节导航：三枚按钮对应三幕，aria-pressed 标记当前幕，点击按幕位换算目标滚动位置 -->
           <nav class="arrival-chapter-rail" aria-label="入场章节">
             <button type="button" data-arrival-scene="0" aria-label="第一幕：春水初现" aria-pressed="true"><span>01</span></button>
             <button type="button" data-arrival-scene="1" aria-label="第二幕：春花秋月" aria-pressed="false"><span>02</span></button>
             <button type="button" data-arrival-scene="2" aria-label="第三幕：故国长流" aria-pressed="false"><span>03</span></button>
           </nav>
-          <!-- 侧边竖排英文注记，纯视觉 -->
+<!-- 侧边竖排英文注记，纯视觉 -->
           <span class="arrival-side-note" aria-hidden="true">SPRING RIVER · ENDLESS SORROW</span>
         </div>
       </div>
     </div>
-    <!-- 操作区：进度标签 + 进度条 + 「继续」/「跳过」按钮。已移出 stage/track，作为 section 的直接子级固定在右上角（top:104px），不随行程滚动 -->
+<!-- 操作区：进度标签 + 进度条 + 「继续」/「跳过」按钮。已移出 stage/track，作为 section 的直接子级固定在右上角（top:104px），不随行程滚动 -->
     <div class="arrival-actions">
-      <!-- 进度标签：内层 span 为英文说明，b 为「当前幕 / 总幕数」 -->
+<!-- 进度标签：内层 span 为英文说明，b 为「当前幕 / 总幕数」 -->
       <span class="arrival-progress-label"><span>A JOURNEY THROUGH LI YU'S VERSES</span><b>01 / 03</b></span>
-      <!-- 进度条：填充宽度由脚本写入的 --arrival-progress-width 驱动 -->
+<!-- 进度条：填充宽度由脚本写入的 --arrival-progress-width 驱动 -->
       <div class="arrival-progress-track" aria-hidden="true"><span></span></div>
-      <!-- 继续按钮：默认 disabled，脚本首次更新进度时解禁，点击平滑滚到首页首屏 -->
+<!-- 继续按钮：默认 disabled，脚本首次更新进度时解禁，点击平滑滚到首页首屏 -->
       <button class="arrival-enter-button" type="button" disabled>继续，进入词境 <span aria-hidden="true">↓</span></button>
-      <!-- 跳过按钮：任意时刻均可直接进入首页 -->
+<!-- 跳过按钮：任意时刻均可直接进入首页 -->
       <button class="arrival-skip-button" type="button">跳过入场</button>
     </div>
   </section>
-  <!-- 页头：品牌 + 主导航(当前页高亮「首页」) + 背景音乐开关/音量；开场未揭开时 inert 禁用交互 -->
+<!-- 页头：品牌 + 主导航(当前页高亮「首页」) + 背景音乐开关/音量；开场未揭开时 inert 禁用交互 -->
   <header class="site-header" inert>
     <a class="brand" href="index.html"><span class="brand-seal">煜</span><span>一江春水<small>李煜词境 · 南唐旧梦</small></span></a>
     <button class="menu-toggle" aria-label="打开导航" aria-expanded="false">☰</button>
@@ -189,28 +189,28 @@
     </nav>
     <div class="sound-controls"><button class="sound-toggle" type="button" aria-label="关闭背景音乐" aria-pressed="true"><span class="sound-icon">♫</span><span class="sound-status">音乐开启</span></button><label class="volume-control"><span class="visually-hidden">背景音乐音量</span><input class="volume-slider" type="range" min="0" max="1" step="0.01" value="0.32"></label></div>
   </header>
-  <!-- 主体：id="main-content" 供顶部「跳至主要内容」链接定位；tabindex="-1" 使其可被程序聚焦；开场未揭开时 inert -->
+<!-- 主体：id="main-content" 供顶部「跳至主要内容」链接定位；tabindex="-1" 使其可被程序聚焦；开场未揭开时 inert -->
   <main id="main-content" tabindex="-1" inert>
-    <!-- 云气舞台：把「首屏 + 词人介绍 + 左右两团云气」收进同一个容器，作为云气绝对定位的参照系
+<!-- 云气舞台：把「首屏 + 词人介绍 + 左右两团云气」收进同一个容器，作为云气绝对定位的参照系
          （云气按脚本量出的 --hero-h 贴在首屏下缘之外，滚动时飘到词人介绍之上） -->
     <div class="cloud-stage">
-    <!-- 首屏 Hero：左侧文案(主标题 + 引言 + 按钮 + 名句) + 右侧月下古画图 + 底部滚动提示 -->
+<!-- 首屏 Hero：左侧文案(主标题 + 引言 + 按钮 + 名句) + 右侧月下古画图 + 底部滚动提示 -->
     <section class="hero">
       <div class="hero-copy">
         <p class="eyebrow"><span></span> 南唐 · 李煜 · 词中帝王</p>
-        <!-- 主标题：两行拆成两个块级 span（.hero-tl / .hero-tl-2），第二行由 CSS 右缩进，与抵达幕主标题同款阶梯落行 -->
+<!-- 主标题：两行拆成两个块级 span（.hero-tl / .hero-tl-2），第二行由 CSS 右缩进，与抵达幕主标题同款阶梯落行 -->
         <h1><span class="hero-tl">风月一场梦，</span><span class="hero-tl hero-tl-2"><em>江山</em>万里愁。</span></h1>
         <p class="hero-intro">从金陵宫阙到汴京月色，一位亡国之君将半生悲欢，写成了千年不散的词。</p>
         <div class="hero-actions"><a class="button button-dark" href="ci.html">循词而入 <span>↗</span></a><a class="text-link" href="life.html">读他的半生故事 <span>→</span></a></div>
         <div class="hero-verse"><span class="verse-rule"></span><span>问君能有几多愁？恰似一江春水向东流。</span></div>
       </div>
-      <!-- 主视觉图：月下执伞的青衣古人；左上题注、右下竖排诗句、右下角印章 -->
+<!-- 主视觉图：月下执伞的青衣古人；左上题注、右下竖排诗句、右下角印章 -->
       <div class="hero-art">
-        <!-- 配图场景层：底图（无人版）与人物立绘分两层叠放，随指针各自反向/同向微移，形成景深 -->
+<!-- 配图场景层：底图（无人版）与人物立绘分两层叠放，随指针各自反向/同向微移，形成景深 -->
         <span class="hero-scene">
-          <!-- 底图层：月下水上的空景，去掉人物后作为最远一层 -->
+<!-- 底图层：月下水上的空景，去掉人物后作为最远一层 -->
           <img class="hero-base" src="home-hero-clean-v2.jpg" alt="" fetchpriority="high" decoding="async">
-          <!-- 人物层：执伞青衣古人，位置由脚本按底图实际渲染尺寸换算后写入，故 HTML 里不写内联坐标 -->
+<!-- 人物层：执伞青衣古人，位置由脚本按底图实际渲染尺寸换算后写入，故 HTML 里不写内联坐标 -->
           <span class="hero-figure-layer"><img class="hero-figure" src="hero-figure.png" alt="月下水上，一位执伞的青衣古人" fetchpriority="high" decoding="async"></span>
         </span>
         <span class="image-shade" aria-hidden="true"></span>
@@ -218,7 +218,7 @@
         <div class="art-poem">小楼昨夜又东风<br><span>故国不堪回首月明中</span></div>
         <span class="art-stamp"><span>南唐</span><span>词境</span></span>
       </div>
-      <!-- 灯笼前景层：三只灯笼独立漂浮并随指针位移最大，是画面最靠前的一层（纯装饰） -->
+<!-- 灯笼前景层：三只灯笼独立漂浮并随指针位移最大，是画面最靠前的一层（纯装饰） -->
       <div class="hero-lantern-field" aria-hidden="true">
         <img class="hero-lantern hl-a" src="hero-lantern-5.png" alt="" loading="lazy" decoding="async">
         <img class="hero-lantern hl-b" src="hero-lantern-6.png" alt="" loading="lazy" decoding="async">
@@ -227,21 +227,21 @@
       <div class="hero-bottom"><span>SCROLL TO WANDER</span><span class="scroll-line"></span><span>01 / 04</span></div>
     </section>
 
-    <!-- 词人介绍：左侧李煜画像 + 中间文字 + 右侧《虞美人》名句卡 -->
+<!-- 词人介绍：左侧李煜画像 + 中间文字 + 右侧《虞美人》名句卡 -->
     <section class="intro section-wrap">
       <div class="intro-poet"><div class="section-kicker">01 <span>THE POET</span></div><div class="portrait-frame"><img class="poet-portrait" src="li-yu-portrait.jpg" alt="李煜人物画像" loading="lazy" decoding="async"></div></div>
       <div class="intro-heading"><h2>他把无常，<br>写成了永恒。</h2><p>李煜，南唐最后一位君主，也是中国词史上极具感染力的抒情者。前期词写宫廷生活与男女情思，后期词则沉入故国之思、身世之痛；词风由绮丽转为深沉，开拓了词的表达境界。</p><a class="under-link" href="life.html">走近李煜 <span>↗</span></a></div>
       <div class="intro-card"><span class="card-index">A LIFE IN VERSE</span><p>“春花秋月何时了，<br>往事知多少。”</p><span class="card-caption">《虞美人》 · 绝唱</span><span class="card-orbit"></span></div>
     </section>
-      <!-- 首屏云气（左）：贴在云气舞台里首屏下缘之外，随滚动进度向左下外侧飘散并淡出（纯装饰） -->
+<!-- 首屏云气（左）：贴在云气舞台里首屏下缘之外，随滚动进度向左下外侧飘散并淡出（纯装饰） -->
       <div class="hero-cloud hero-cloud-left" aria-hidden="true"><img src="hero-mist-cloud.png" alt="" decoding="async"></div>
-      <!-- 首屏云气（右）：同一张雾云镜像后贴右侧，与左侧对称散开（纯装饰） -->
+<!-- 首屏云气（右）：同一张雾云镜像后贴右侧，与左侧对称散开（纯装饰） -->
       <div class="hero-cloud hero-cloud-right" aria-hidden="true"><img src="hero-mist-cloud.png" alt="" decoding="async"></div>
     </div>
 
-    <!-- 精选词作：四张词卡(配图 + 编号 + 题材 + 词名 + 句选)，点击进入词作笺赏页锚点 -->
+<!-- 精选词作：四张词卡(配图 + 编号 + 题材 + 词名 + 句选)，点击进入词作笺赏页锚点 -->
     <section class="feature-section">
-      <!-- 两山开合（左/右）：区块底层的山影装饰，随区块进出视口进度向两侧退开、渐隐消散（--part-p 由脚本写入，纯装饰） -->
+<!-- 两山开合（左/右）：区块底层的山影装饰，随区块进出视口进度向两侧退开、渐隐消散（--part-p 由脚本写入，纯装饰） -->
       <span class="works-mountain works-mountain-left" aria-hidden="true"></span><span class="works-mountain works-mountain-right" aria-hidden="true"></span>
       <div class="section-wrap feature-head"><div><div class="section-kicker">02 <span>SELECTED CI</span></div><h2>循着词句，<em>读懂</em>李煜</h2></div><a class="under-link" href="ci.html">全部词作 <span>↗</span></a></div>
       <div class="poem-grid">
@@ -252,19 +252,19 @@
       </div>
     </section>
 
-    <!-- 词外余韵：引导进入「词容万象」页 -->
+<!-- 词外余韵：引导进入「词容万象」页 -->
     <section class="afterlife-section section-wrap"><div class="section-kicker">03 <span>BEYOND HIS TIME</span></div><div class="afterlife-copy"><div><h2>李煜已远去，<br><em>词中的他</em>仍在此刻。</h2><p>千年之后，人们仍在诗词、舞台与自己的阅读里重新看见李煜。走进不同的目光，看看同一个名字如何映出万千心境。</p></div><a class="button button-dark" href="wanxiang.html">走进词容万象 <span>↗</span></a></div></section>
 
-    <!-- 结语：留心情表单 + 引导进入「听词入梦」页 -->
+<!-- 结语：留心情表单 + 引导进入「听词入梦」页 -->
     <section class="closing section-wrap"><div class="closing-pine">松<br>影</div><div><div class="section-kicker">04 <span>MAKE A MOMENT</span></div><h2>此刻，你心中<br>也有一江春水吗？</h2><p>留下一句此刻的心情，让千年前的词与你相遇。</p><a class="button button-dark" href="listen.html">进入听词小院 <span>↗</span></a></div><form class="mood-form"><label for="mood">把心情写在这里</label><textarea id="mood" maxlength="80" placeholder="例如：今夜月色很好……"></textarea><div class="form-bottom"><span id="mood-count">0 / 80</span><button type="submit">投进春水　↗</button></div><p class="mood-feedback" aria-live="polite"></p></form></section>
   </main>
-  <!-- 页脚：品牌 + 标语 + 跳转链接；开场未揭开时 inert -->
+<!-- 页脚：品牌 + 标语 + 跳转链接；开场未揭开时 inert -->
   <footer class="site-footer" inert><a class="brand" href="index.html"><span class="brand-seal">煜</span><span>一江春水<small>愿每个读词的人，都有一刻安宁。</small></span></a><span>词有尽时，春水长流。</span><a href="ci.html">再读一首 ↗</a></footer>
-  <!-- 背景音乐：循环；自动起播时机改由 script.js 控制（引子待播时先压住），inert 也随 autoplay 一并移除；preload="metadata" 只预取时长信息，不整段下载 -->
+<!-- 背景音乐：循环；自动起播时机改由 script.js 控制（引子待播时先压住），inert 也随 autoplay 一并移除；preload="metadata" 只预取时长信息，不整段下载 -->
   <audio class="background-audio" src="background-music.mp3" loop preload="metadata"></audio>
-  <!-- 开场引子音频：翻开书封时播放的引子（intro-audio.aac），preload="auto" 预加载，播完由 script.js 接力背景音乐 -->
+<!-- 开场引子音频：翻开书封时播放的引子（intro-audio.aac），preload="auto" 预加载，播完由 script.js 接力背景音乐 -->
   <audio class="intro-audio" src="intro-audio.aac" preload="auto" aria-hidden="true"></audio>
-  <!-- 金竹飘落画布：全屏固定层，由 script.js 绘制缓缓飘落的竹叶；mix-blend-mode 与页面底色柔融，pointer-events:none 不拦截点击；减弱动效时由 CSS 隐藏 -->
+<!-- 金竹飘落画布：全屏固定层，由 script.js 绘制缓缓飘落的竹叶；mix-blend-mode 与页面底色柔融，pointer-events:none 不拦截点击；减弱动效时由 CSS 隐藏 -->
   <canvas class="bamboo-leaves" aria-hidden="true"></canvas>
 </body>
 </html>
