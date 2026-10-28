@@ -445,13 +445,29 @@
     update();
   })();
 
-  // 两山开合：按各区块（ci 词作笺赏 / index 词牌卡 / wanxiang 记忆卡）进出视口进度
-  // 各自写 --part-p（0=刚进，1=将出），驱动山影向两侧退开、渐隐消散；
+  // 两山开合：按各区块（ci 词作笺赏 / index 词牌卡 / wanxiang 记忆卡 / listen 终幕引子）进出视口进度
+  // 各自写 --part-p（0=刚进，1=将出），驱动山影向两侧退开、渐隐消散；终幕引子用它驱动逐层晕开；
+  // 同时挂 part-js 并在精确指针设备写 --part-px/--part-py（-1~1）供引子巨字/雾团视差；
   // reduced-motion 不启用，山影保持静态
   (() => {
-    const zones = Array.from(document.querySelectorAll(".works, .feature-section, .memory-section"));
+    const zones = Array.from(document.querySelectorAll(".works, .feature-section, .memory-section, .finale-gate"));
     if (!zones.length) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    document.documentElement.classList.add("part-js");
+    // 指针视差：光标位置归一到 -1~1 → --part-px/--part-py（rAF 节流，挂在 html 上全局共用）
+    if (window.matchMedia("(pointer: fine)").matches) {
+      let pRaf = 0, gx = 0, gy = 0;
+      const writeG = () => {
+        pRaf = 0;
+        document.documentElement.style.setProperty("--part-px", gx.toFixed(3));
+        document.documentElement.style.setProperty("--part-py", gy.toFixed(3));
+      };
+      window.addEventListener("pointermove", (event) => {
+        gx = (event.clientX / window.innerWidth) * 2 - 1;
+        gy = (event.clientY / window.innerHeight) * 2 - 1;
+        if (!pRaf) pRaf = requestAnimationFrame(writeG);
+      }, { passive: true });
+    }
     let raf = 0;
     // 进度 =（视口底 - 区块顶）/（视口高 + 区块高），与 --glide-p 同一套公式
     const update = () => {
@@ -1758,7 +1774,7 @@
       card.parentNode.insertBefore(layer, card);
       layer.appendChild(card);
     });
-    const revealTargets = document.querySelectorAll(".timeline-item, .poem-card, .recite-card, .media-card, .memory-line article, .work-entry, .intro-card, .finale-gate");
+    const revealTargets = document.querySelectorAll(".timeline-item, .poem-card, .recite-card, .media-card, .memory-line article, .work-entry, .intro-card");
     // 减弱动效或不支持 IntersectionObserver 时直接全部显示
     if (reducedMotion || !("IntersectionObserver" in window)) {
       revealTargets.forEach((element) => element.classList.add("is-visible"));
@@ -2565,4 +2581,56 @@
       if (!pRaf) pRaf = requestAnimationFrame(writeP);
     }, { passive: true });
   }
+})();
+
+// 终幕页尾声配乐：finale.html 不挂全站背景音乐（.background-audio），进入即播独立尾声曲；
+// 原背景音乐在跳转离开上一页时随页面销毁立刻停止。音量沿用全站滑杆设置，页头开关同样可控；
+// 尊重全局静音（liyu-audio-enabled=false 则不自动播，显示"点击开启"）；不写背景音乐进度键，
+// 返回首页后原曲仍从上次进度接续。浏览器自动播放策略拦截时由首次点击/按键兜底触发。
+(() => {
+  const finaleAudio = document.querySelector(".finale-audio");
+  // 非终幕页（无 .finale-audio）不启用
+  if (!finaleAudio) return;
+  const finaleButtons = document.querySelectorAll(".sound-toggle");
+  const finaleSlider = document.querySelector(".volume-slider");
+  // 读取全局静音标记（false = 用户上次主动关掉了声音）
+  const finaleEnabled = sessionStorage.getItem("liyu-audio-enabled") !== "false";
+  // 同步页头开关状态与文案（aria-pressed / aria-label / 状态字）
+  const updateFinale = (playing, message) => {
+    finaleButtons.forEach((button) => {
+      button.setAttribute("aria-pressed", String(playing));
+      button.setAttribute("aria-label", playing ? "关闭背景音乐" : "开启背景音乐");
+      const status = button.querySelector(".sound-status");
+      if (status) status.textContent = message || (playing ? "音乐开启" : "音乐关闭");
+    });
+  };
+  // 恢复上次音量并赋给尾声曲（未存过则用默认 0.32）
+  const savedFinaleVolume = sessionStorage.getItem("liyu-audio-volume");
+  if (finaleSlider && savedFinaleVolume !== null) finaleSlider.value = savedFinaleVolume;
+  finaleAudio.volume = Number(finaleSlider?.value || 0.32);
+  const playFinale = () => {
+    // 播放成功→更新为开启态；被自动播放策略拦截→显示「点击开启」待兜底
+    finaleAudio.play().then(() => updateFinale(true)).catch(() => updateFinale(false, "点击开启"));
+  };
+  if (finaleEnabled) playFinale();
+  else updateFinale(false, "点击开启");
+  // 兜底：自动播放被拦截时，首次点击 / 按键即补播
+  document.addEventListener("pointerdown", () => {
+    if (finaleEnabled && finaleAudio.paused) playFinale();
+  }, { once: true });
+  document.addEventListener("keydown", (event) => {
+    if (finaleEnabled && finaleAudio.paused && !event.target.closest("input, textarea, button, a")) playFinale();
+  }, { once: true });
+  // 音量滑杆：实时调音量并写入会话存储
+  if (finaleSlider) finaleSlider.addEventListener("input", () => {
+    finaleAudio.volume = Number(finaleSlider.value);
+    sessionStorage.setItem("liyu-audio-volume", finaleSlider.value);
+  });
+  // 页头开关：暂停/续播并记录到会话存储（跨页记忆）
+  finaleButtons.forEach((button) => button.addEventListener("click", () => {
+    const enabled = finaleAudio.paused;
+    sessionStorage.setItem("liyu-audio-enabled", String(enabled));
+    if (enabled) playFinale();
+    else { finaleAudio.pause(); updateFinale(false); }
+  }));
 })();

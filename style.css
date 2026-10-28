@@ -1343,10 +1343,25 @@ button:not(.book-open-button):active,.button:active{translate:0 1px}
 .finale-stage:before{content:"";position:absolute;inset:-6%;z-index:0;background:radial-gradient(120% 90% at 50% 8%,#1e2e27 0%,#16211d 52%,#0e1714 100%);transform:scale(calc(1 + var(--finale-p) * .05));filter:brightness(calc(1 - max(0,var(--finale-p) - .85) * 1.2))}
 /* 底部金晕 */
 .finale-stage:after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(58% 42% at 50% 80%,rgba(199,170,119,.12),transparent 70%)}
-/* 明月：进度前 24% 内自下方 64px 处升起点亮，带指针视差 */
-.finale-moon{position:absolute;z-index:1;top:15%;left:50%;width:clamp(88px,10vw,150px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 38% 34%,#f6ecd4,#e8d9b0 58%,#d9c491);box-shadow:0 0 46px rgba(238,220,172,.38),0 0 130px rgba(238,220,172,.18);opacity:calc(min(1,var(--finale-p) / .24));translate:calc(var(--px,0) * -10px) calc(var(--py,0) * -7px - (1 - min(1,var(--finale-p) / .24)) * 64px)}
-/* 巨字水印：指针/滚动双视差 + 随进度上滞 */
-.finale-glyph{position:absolute;z-index:0;top:50%;left:50%;color:rgba(240,228,199,.06);font:clamp(240px,36vw,560px)/1 "Liyu Xingkai","HongLei Calligraphy",var(--serif);pointer-events:none;translate:calc(-50% + var(--px,0) * 16px) calc(-54% + var(--py,0) * 10px - var(--finale-p) * 70px)}
+/* 明月（移至画面右上）：进度前 24% 内自下方 64px 处升起点亮，带指针视差 */
+.finale-moon{position:absolute;z-index:1;top:15%;left:auto;right:10%;width:clamp(88px,10vw,150px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 38% 34%,#f6ecd4,#e8d9b0 58%,#d9c491);box-shadow:0 0 46px rgba(238,220,172,.38),0 0 130px rgba(238,220,172,.18);opacity:calc(min(1,var(--finale-p) / .24));translate:calc(var(--px,0) * -10px) calc(var(--py,0) * -7px - (1 - min(1,var(--finale-p) / .24)) * 64px)}
+/* 巨字水印（改用美术图 finale-glyph-art.jpg）：multiply 融墨底，指针/滚动双视差 + 随进度上滞；
+   透明度基础 0.18，滚动叙事区块里在前 15% 进度内再点亮到全值 */
+.finale-glyph{position:absolute;z-index:0;top:52%;left:50%;width:clamp(280px,38vw,520px);pointer-events:none;mix-blend-mode:multiply;opacity:.18;translate:calc(-50% + var(--px,0) * 16px) calc(-54% + var(--py,0) * 10px - var(--finale-p) * 70px)}
+/* 导引视差层进驻终幕：远山/中山/岸苇横铺 repeat-x + 泊船/远雁，multiply 融墨底免抠图；
+   随 --px/--py 指针视差 + --finale-p 滚动叙事：山缓升、船缓缓漂离下沉（收帆归岸）、雁远去淡出 */
+/* 远山/中山/岸苇公共层：左右各出血 8%，贴底横向平铺 */
+.finale-hill{position:absolute;left:-8%;right:-8%;z-index:1;pointer-events:none;mix-blend-mode:multiply;background-repeat:repeat-x;background-position:bottom}
+/* 远山：随进度缓缓升起（-26px），指针反向轻移 */
+.finale-hill.far{bottom:9%;height:32%;background-image:url("parallax-far.png");background-size:auto 100%;opacity:.85;translate:calc(var(--px,0) * -14px) calc(var(--py,0) * -8px - var(--finale-p) * 26px)}
+/* 中山：升幅更大（-40px），与远山拉开层次 */
+.finale-hill.mid{bottom:5%;height:34%;background-image:url("parallax-mid.png");background-size:auto 100%;opacity:.92;translate:calc(var(--px,0) * -22px) calc(var(--py,0) * -12px - var(--finale-p) * 40px)}
+/* 岸苇：压住画面底缘（-2%），不随进度升降，只跟指针 */
+.finale-hill.shore{bottom:-2%;height:24%;background-image:url("parallax-shore.png");background-size:auto 100%;opacity:.95;translate:calc(var(--px,0) * -30px) 0}
+/* 泊船（收帆归岸）：随进度向左漂离并缓缓下沉、渐隐，指针带轻微横移与旋转 */
+.finale-boat{position:absolute;z-index:1;left:56%;bottom:11%;width:clamp(140px,15vw,220px);aspect-ratio:1308/1008;pointer-events:none;background:url("parallax-boat-v2.png") no-repeat center/contain;mix-blend-mode:multiply;opacity:calc(.9 - var(--finale-p) * .45);translate:calc(var(--px,0) * -26px + var(--finale-p) * -110px) calc(var(--py,0) * -14px + var(--finale-p) * 26px);rotate:calc(var(--px,0) * -1.2deg)}
+/* 远雁：随进度向右上远去并淡出（天空留白归于寂静） */
+.finale-geese{position:absolute;z-index:1;left:12%;top:13%;width:clamp(200px,22vw,320px);aspect-ratio:420/170;pointer-events:none;background:url("svg-parallax-geese.svg") no-repeat center/contain;opacity:calc(.6 - var(--finale-p) * .5);translate:calc(var(--px,0) * -18px + var(--finale-p) * 60px) calc(var(--py,0) * -10px - var(--finale-p) * 30px)}
 /* 三团雾感（screen 提亮 + 大模糊） */
 .finale-mist{position:absolute;z-index:2;pointer-events:none;filter:blur(46px);mix-blend-mode:screen}
 .mist-a{top:-12%;left:-16%;width:64%;height:52%;background:radial-gradient(closest-side,rgba(214,222,205,.17),transparent 72%);animation:finale-mist-a 46s ease-in-out infinite alternate;translate:calc(var(--px,0) * -30px) calc(var(--py,0) * -16px)}
@@ -1362,8 +1377,10 @@ button:not(.book-open-button):active,.button:active{translate:0 1px}
 .finale-kicker:before,.finale-kicker:after,.finale-gate-kicker:before,.finale-gate-kicker:after{content:"";width:34px;height:1px}
 .finale-kicker:before,.finale-gate-kicker:before{background:linear-gradient(90deg,transparent,rgba(225,198,156,.75))}
 .finale-kicker:after,.finale-gate-kicker:after{background:linear-gradient(270deg,transparent,rgba(225,198,156,.75))}
-/* 大标题：两行 .finale-line 逐行晕开 */
-.finale-title{margin:30px 0 0;font-family:"HongLei Calligraphy",var(--serif);font-size:clamp(36px,5.4vw,64px);font-weight:400;line-height:1.55;letter-spacing:.1em}
+/* 大标题：改左对齐排（第二行右缩进 .9em 形成错落），两行 .finale-line 逐行晕开 */
+.finale-title{margin:30px 0 0;font-family:"HongLei Calligraphy",var(--serif);font-size:clamp(36px,5.4vw,64px);font-weight:400;line-height:1.85;letter-spacing:.1em;text-align:left}
+/* 标题第二行错落缩进 */
+.finale-title .finale-line:nth-child(2){padding-left:.9em}
 .finale-title em{font-style:normal;color:#e4c795}
 .finale-title .finale-line{display:block}
 /* 金墨笔锋线：进度 35% 起描边 */
@@ -1387,6 +1404,8 @@ button:not(.book-open-button):active,.button:active{translate:0 1px}
 @keyframes finale-cue-fall{0%{transform:translateY(0);opacity:0}30%{opacity:1}100%{transform:translateY(30px);opacity:0}}
 /* 滚动叙事：各元素按 --finale-p 区间先后晕开（对应 JS 进度写入） */
 @media(prefers-reduced-motion:no-preference){
+  /* 巨字图在前 15% 进度内从 0 点亮到基础透明度 .18 */
+  .finale-js .finale-glyph{opacity:calc(min(1,var(--finale-p) / .15) * .18)}
   .finale-js .finale-kicker{opacity:calc(clamp(0,(var(--finale-p) - .08) * 12,1));translate:0 calc((1 - clamp(0,(var(--finale-p) - .08) * 12,1)) * 22px)}
   .finale-js .finale-title .finale-line:nth-child(1){opacity:calc(clamp(0,(var(--finale-p) - .16) * 8,1));translate:0 calc((1 - clamp(0,(var(--finale-p) - .16) * 8,1)) * 30px);filter:blur(calc((1 - clamp(0,(var(--finale-p) - .16) * 8,1)) * 7px))}
   .finale-js .finale-title .finale-line:nth-child(2){opacity:calc(clamp(0,(var(--finale-p) - .23) * 8,1));translate:0 calc((1 - clamp(0,(var(--finale-p) - .23) * 8,1)) * 30px);filter:blur(calc((1 - clamp(0,(var(--finale-p) - .23) * 8,1)) * 7px))}
@@ -1406,13 +1425,41 @@ button:not(.book-open-button):active,.button:active{translate:0 1px}
   .finale-glyph{translate:-50% -54%}
   .finale-mist{animation:none}
   .finale-stroke path{stroke-dashoffset:0}
+  /* 视差层归位：山/船/雁取消位移与旋转，船雁给固定可见透明度 */
+  .finale-hill,.finale-boat,.finale-geese{translate:0 0;rotate:0deg}
+  .finale-boat{opacity:.85}
+  .finale-geese{opacity:.55}
   .finale-scroll-cue{display:none}
 }
-/* 终幕引子（listen 页尾 gate）：暗色满屏，雾感初现 + 按钮跳转 finale.html，整块复用全站 reveal 渐显 */
+/* 终幕引子（listen 页尾 gate）：暗色满屏 + 金晕光斑；不再走全站 reveal，改由专属 --part-p 滚动叙事接管 */
 .finale-gate{position:relative;min-height:100vh;min-height:100svh;display:flex;align-items:center;justify-content:center;overflow:hidden;text-align:center;color:#f4f0e6;background:radial-gradient(120% 100% at 50% 0%,#1b2a24 0%,#141f1b 55%,#0f1815 100%);isolation:isolate}
+/* 右下金晕光斑：随滚动叙事变亮并轻移 */
+.finale-gate:before{content:"";position:absolute;z-index:0;right:-14%;bottom:-16%;width:60%;height:52%;background:radial-gradient(closest-side,rgba(199,170,119,.1),transparent 72%);filter:blur(46px);pointer-events:none}
+/* 覆盖暗幕：初始压暗 0.72 上下，随区块进入视口（--part-p 升高）逐渐揭去，形成「入梦」过渡 */
+.finale-gate:after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:#0f1815;opacity:0}
+/* 巨字「归」水印：--part-px/--part-py 指针视差 + --part-p 随滚动上滞 */
+.finale-gate-glyph{position:absolute;z-index:0;top:50%;left:50%;color:rgba(240,228,199,.05);font:clamp(220px,30vw,420px)/1 "Liyu Xingkai","HongLei Calligraphy",var(--serif);pointer-events:none;translate:calc(-50% + var(--part-px,0) * 22px) calc(-52% + var(--part-py,0) * 14px - var(--part-p,0) * 80px)}
 .finale-gate-mist{position:absolute;z-index:0;top:-10%;left:-12%;width:70%;height:60%;background:radial-gradient(closest-side,rgba(214,222,205,.14),transparent 72%);filter:blur(46px);pointer-events:none}
 .finale-gate-inner{position:relative;z-index:1;padding:120px 8%;display:flex;flex-direction:column;align-items:center}
 .finale-gate h2{margin:26px 0 0;font-family:"HongLei Calligraphy",var(--serif);font-size:clamp(30px,4vw,48px);font-weight:400;line-height:1.6;letter-spacing:.09em}
 .finale-gate p{margin:18px 0 34px;color:rgba(244,240,230,.8);font-family:"Liyu Xingkai UI","Liyu Xingkai",var(--serif);font-size:clamp(14px,1.4vw,17px);line-height:2.1;letter-spacing:.1em}
+/* 终幕引子滚动叙事：--part-p（区块进出视口进度，见 script.js --part-p IIFE）驱动 kicker→标题→正文→按钮
+   逐层晕开（淡入+上浮+blur 消散），雾团随滚动聚散漂移；.part-js 启用时才挂 html，无 JS / reduced-motion 全静态直显 */
+@media(prefers-reduced-motion:no-preference){
+  /* 覆盖暗幕随进度揭去（初始 opacity .72 → 归零） */
+  .part-js .finale-gate:after{opacity:calc(max(0,.4 - var(--part-p,0)) * 1.8)}
+  /* 眉题：4% 进度起晕开 */
+  .part-js .finale-gate-kicker{opacity:calc(clamp(0,(var(--part-p,0) - .04) * 12,1));translate:0 calc((1 - clamp(0,(var(--part-p,0) - .04) * 12,1)) * 22px)}
+  /* 标题：10% 起晕开，并由 1.09 缓收到 1（微推近感） */
+  .part-js .finale-gate h2{opacity:calc(clamp(0,(var(--part-p,0) - .1) * 10,1));translate:0 calc((1 - clamp(0,(var(--part-p,0) - .1) * 10,1)) * 30px);scale:calc(1.09 - var(--part-p,0) * .09);filter:blur(calc((1 - clamp(0,(var(--part-p,0) - .1) * 10,1)) * 7px))}
+  /* 正文：22% 起晕开 */
+  .part-js .finale-gate p{opacity:calc(clamp(0,(var(--part-p,0) - .22) * 10,1));translate:0 calc((1 - clamp(0,(var(--part-p,0) - .22) * 10,1)) * 24px);filter:blur(calc((1 - clamp(0,(var(--part-p,0) - .22) * 10,1)) * 5px))}
+  /* 按钮：36% 起浮现 */
+  .part-js .finale-gate-button{opacity:calc(clamp(0,(var(--part-p,0) - .36) * 9,1));translate:0 calc((1 - clamp(0,(var(--part-p,0) - .36) * 9,1)) * 24px)}
+  /* 雾团：随进度增亮并向左下漂散 */
+  .part-js .finale-gate-mist{opacity:calc(.3 + var(--part-p,0) * .7);translate:calc(var(--part-px,0) * -46px + var(--part-p,0) * -90px) calc(var(--part-py,0) * -26px + var(--part-p,0) * 40px)}
+  /* 金晕光斑：随进度变亮上移 */
+  .part-js .finale-gate:before{translate:calc(var(--part-px,0) * 34px) calc(var(--part-py,0) * 20px - var(--part-p,0) * 40px);opacity:calc(.4 + var(--part-p,0) * .6)}
+}
 /* 终幕移动端 */
 @media(max-width:700px){.finale-inner{padding:84px 8% 90px}.finale-glyph{font-size:250px}.finale-title{font-size:34px}.finale-gate-inner{padding:100px 8%}}
