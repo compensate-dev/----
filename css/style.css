@@ -1527,3 +1527,125 @@ body.map-page .map-tab{display:none}
 .arrival-hint b{font-family:"ZhongQi ZhiMang","HongLei Calligraphy",var(--serif);font-weight:400;font-size:clamp(30px,4.6vw,52px);letter-spacing:.14em;color:#f7f2e7;text-shadow:0 8px 36px rgba(9,18,16,.42)} /* 主标题大字（钟齐志莽） */
 .arrival-hint span{font:12px var(--sans);letter-spacing:.22em;color:rgba(241,231,210,.68)} /* 底部英文小字提示 */
 @keyframes arrival-hint-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(9px)}}
+
+/* —— f68 互动反馈升级：诵读呼吸 / 收藏弹跳 / 表单两态 / 墨线焦点 / 词签墨线 ——
+   read-aloud：诵读中朱砂色 + 2s 呼吸明暗（脚本播 onstart 挂 .is-speaking，结束/出错即撤）
+   favorite-button.pop：收藏成功瞬间弹性放大（0→1.26→1，带回弹曲线），动画播完由脚本移除
+   mood/poem-feedback：两态配色——is-ok 墨绿（成功）/ is-err 朱砂（空提交）
+   textarea.shake：空提交时文本框左右急抖 0.4s 提醒
+   mood/poem-form textarea：聚焦时底部 2px 朱砂墨线从左向右展开（墨线焦点）
+   prompt-words：快捷词按钮按下轻陷 1px
+   poem-tabs a:after：词牌签悬停/聚焦/激活时渐变朱砂下划线从中心展开（词签墨线）
+   menu-toggle：菜单按钮悬停转朱砂并轻放大 */
+.read-aloud{transition:color .25s ease}
+.read-aloud.is-speaking{color:var(--rust);animation:speaking-breathe 2s ease-in-out infinite}
+@keyframes speaking-breathe{0%,100%{opacity:1}50%{opacity:.5}}
+.favorite-button{transition:color .25s ease}
+.favorite-button.pop{animation:favorite-pop .42s cubic-bezier(.2,.8,.3,1.4)}
+@keyframes favorite-pop{0%{transform:scale(1)}35%{transform:scale(1.26)}100%{transform:scale(1)}}
+.mood-feedback.is-ok,.poem-feedback.is-ok{color:#4c6b57} /* 成功态：墨绿 */
+.mood-feedback.is-err,.poem-feedback.is-err{color:var(--rust)} /* 错误态：朱砂 */
+@keyframes field-shake{0%,100%{translate:0 0}20%{translate:-5px 0}40%{translate:5px 0}60%{translate:-3px 0}80%{translate:3px 0}} /* 左右急抖 */
+textarea.shake{animation:field-shake .4s ease}
+.mood-form textarea,.poem-form textarea{background-image:linear-gradient(90deg,var(--rust),rgba(199,170,119,.9));background-repeat:no-repeat;background-size:0% 2px;background-position:0 100%;transition:background-size .45s cubic-bezier(.2,.7,.25,1)}
+.mood-form textarea:focus,.poem-form textarea:focus{background-size:100% 2px} /* 聚焦时墨线铺满 100% */
+.prompt-words button{transition:background .2s,color .2s,translate .15s ease}
+.prompt-words button:active{translate:0 1px} /* 按下微陷 */
+.poem-tabs a:after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:2px;background:linear-gradient(90deg,transparent,var(--rust) 25%,var(--rust) 75%,transparent);transform:scaleX(0);transform-origin:center;transition:transform .3s cubic-bezier(.2,.7,.25,1)}
+.poem-tabs a:hover:after,.poem-tabs a:focus-visible:after,.poem-tabs a.is-active:after{transform:scaleX(1)} /* 展开下划线 */
+.menu-toggle{transition:color .2s ease,transform .2s ease}
+.menu-toggle:hover,.menu-toggle:focus-visible{color:var(--rust);transform:scale(1.08)}
+
+/* ============ f69 全站纸墨氛围深化 ============ */
+/* 1) 纸纹颗粒：feTurbulence 细噪点以 soft-light 极淡叠印全站，页面从「屏幕」回到「纸面」；
+      z14 位于 header(20)/侧签(60)/弹窗(15+) 之下、普通内容之上，不挡交互 */
+body::before{content:"";position:fixed;inset:0;z-index:14;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23g)' opacity='.6'/%3E%3C/svg%3E");background-size:300px 300px;mix-blend-mode:soft-light;opacity:.34}
+/* 2) 墨晕压角：极淡暗角聚拢视线纸心；终幕深色页改纯黑压角 */
+body::after{content:"";position:fixed;inset:0;z-index:14;pointer-events:none;background:radial-gradient(125% 95% at 50% 42%,transparent 60%,rgba(44,58,48,.08) 100%)}
+body.finale-page::after{background:radial-gradient(125% 95% at 50% 45%,transparent 52%,rgba(0,0,0,.24) 100%)}
+@media(max-width:700px){body::before{opacity:.24}}
+/* 3) 首屏编排入场：眉题→书法标题→导语→按钮依次浮入（h1 保留原 verse-title-arrive，
+      仅补 .14s 延迟接在眉题之后；fill:backwards 不锁终态，动画一结束滚动淡出等普通规则立即接管） */
+@media(prefers-reduced-motion:no-preference){
+  @keyframes subhero-stagger{from{opacity:0;transform:translateY(20px)}}
+  .subhero h1,.hero h1{animation-delay:.14s}
+  .subhero .subhero-copy>*:not(h1),.hero .hero-copy>*:not(h1){animation:subhero-stagger .9s cubic-bezier(.2,.72,.25,1) backwards}
+  .subhero .subhero-copy>*:nth-child(1),.hero .hero-copy>*:nth-child(1){animation-delay:.06s}
+  .subhero .subhero-copy>*:nth-child(3),.hero .hero-copy>*:nth-child(3){animation-delay:.3s}
+  .subhero .subhero-copy>*:nth-child(4),.hero .hero-copy>*:nth-child(4){animation-delay:.44s}
+  .subhero .subhero-copy>*:nth-child(n+5),.hero .hero-copy>*:nth-child(n+5){animation-delay:.58s}
+  .hero .hero-copy .hero-verse{animation:subhero-stagger .9s cubic-bezier(.2,.72,.25,1) .58s backwards,text-breathe 7s ease-in-out 1.48s infinite}
+}
+/* 4) 听词页声纹涟漪：诵读书卡中心一圈墨环从词句后缓缓漾开（字有 z1 环在其后） */
+.recite-art:before{content:"";position:absolute;left:50%;top:50%;width:64px;height:64px;margin:-32px 0 0 -32px;border:1px solid rgba(244,240,229,.4);border-radius:50%;opacity:0;pointer-events:none;animation:recite-ripple 4.2s ease-out 1.2s infinite}
+@keyframes recite-ripple{0%{opacity:0;transform:scale(.6)}18%{opacity:.55}100%{opacity:0;transform:scale(2.6)}}
+/* 5) 细节统一：页脚链接墨线展开 / 词牌卡图 hover 轻提亮 */
+.site-footer>a:last-child{position:relative;transition:color .3s ease,border-color .3s ease}
+.site-footer>a:last-child:after{content:"";position:absolute;left:0;bottom:-1px;width:100%;height:1px;background:linear-gradient(90deg,var(--rust),rgba(199,170,119,.9));transform:scaleX(0);transform-origin:left;transition:transform .38s cubic-bezier(.2,.7,.25,1)}
+.site-footer>a:last-child:hover,.site-footer>a:last-child:focus-visible{color:var(--rust);border-bottom-color:transparent}
+.site-footer>a:last-child:hover:after,.site-footer>a:last-child:focus-visible:after{transform:scaleX(1)}
+@media(hover:hover) and (pointer:fine){.poem-card:hover .poem-card-image{filter:brightness(1.07) saturate(1.05)}}
+@media(prefers-reduced-motion:reduce){.recite-art:before{display:none}}
+
+/* ============ f70 全站文字可读性修正 ============ */
+/* 原则：中文说明字 ≥12px；纸底灰绿说明字加深一档；深底小字提亮加大；保留笺注式字号梯度的美感 */
+/* —— 首页 —— */
+.hero-bottom{font-size:11px;color:#5d6a5c}
+.card-index{font-size:10.5px;color:#6b776c}
+.card-caption{font-size:11.5px;color:#5d6a5c}
+.poem-number,.poem-tag{font-size:10.5px}
+.form-bottom{font-size:11px;color:#6f7a70}
+.afterlife-copy p{font-size:14px}
+.section-kicker span{font-size:10px;color:#79857a}
+/* —— 词人故事 —— */
+.timeline-open-hint{font-size:13px}
+.timeline-story-note{font-size:12px;color:#6f7a70}
+.life-note>span:last-child{font-size:11px;color:#d6ddca}
+/* —— 词作笺赏 —— */
+.works-heading p{font-size:13px;color:#5a665c}
+/* —— 词容万象 —— */
+.memory-lead p{font-size:14px;color:#52604f}
+.memory-line p{font-size:13px;color:#59675a}
+.memory-line article>span{font-size:10px;color:#8a5238}
+.memory-line a{font-size:11px}
+.screen-world-footnote{font-size:11.5px;color:#5f6b60}
+.media-caption-note{font-size:12px;color:#6a6a5f}
+.screen-world-summary p+p{font-size:12.5px;color:#5c6a5e}
+.living-echo>span:last-child{font-size:10.5px;color:#7d6450}
+/* —— 听词入梦 —— */
+.listen-title p{font-size:13px;color:#5a665c}
+.interactive p{font-size:13px;color:#5a665c}
+.recite-info p{font-size:12px;color:#616d63}
+.recite-art>span{font-size:10px}
+.recite-art>small{font-size:9.5px}
+.audio-panel p{font-size:12px;color:#5f6b60}
+/* —— 终幕 / 深底 —— */
+.finale-copy{color:rgba(244,240,230,.92)}
+.finale-gate p{color:rgba(244,240,230,.88)}
+/* —— 移动端中文小字底线 —— */
+@media(max-width:700px){
+  .timeline-scene-kicker{font-size:9px}
+  .book-cover-foot{font-size:9px}
+  .hero-bottom{font-size:10px}
+}
+/* —— 共用抽屉组件（手记/赠语/分享）：说明字≥12px，浅灰绿加深 —— */
+.jy-note{font-size:12px;color:#59675a}
+.jy-msg-time,.jy-count{font-size:10.5px;color:#7d7461}
+.jy-submit{font-size:12.5px}
+.shop-drawer-notice p{font-size:12.5px}
+.shop-body>p{font-size:12.5px;color:#4d5a50}
+.shop-drawer-idea ol{font-size:12px;color:#4d5a50}
+.shop-drawer-foot{font-size:11px;color:#6f7a70}
+.shop-notice-sub{font-size:12px;color:#6f7a70}
+.shop-notice-ok{font-size:12.5px}
+.share-qr-copy p{font-size:12.5px}
+.share-footnote{font-size:11px;color:#6f7a70}
+/* 英文装饰小字仅微调字号，不动色 */
+.shop-drawer-head small{font-size:10px}
+.shop-tab small{font-size:9px}
+.shop-ribbon{font-size:9px}
+.shop-meta{font-size:9.5px;color:#7a6752}
+.jy-mine-tag{font-size:9.5px}
+/* —— 终幕页辅助文字 —— */
+.finale-scroll-cue{font-size:11px;color:rgba(240,232,212,.72)}
+.finale-again{color:rgba(228,202,158,.9)}

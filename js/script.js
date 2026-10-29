@@ -2319,6 +2319,10 @@
   initializeTimelineStories();
   initializeMemoryStories();
   let speaking = false;
+  // f68 诵读呼吸：同一时刻只允许一枚诵读按钮处于 .is-speaking 态，切换前先统一清除
+  const clearSpeakingButtons = () => {
+    document.querySelectorAll(".read-aloud.is-speaking").forEach((b) => b.classList.remove("is-speaking"));
+  };
   document.querySelectorAll(".read-aloud").forEach((button) => {
     button.addEventListener("click", () => {
       if (!("speechSynthesis" in window)) {
@@ -2332,14 +2336,18 @@
       utterance.onstart = () => {
         speaking = true;
         button.textContent = "正在诵读　■";
+        clearSpeakingButtons();
+        button.classList.add("is-speaking"); // 当前诵读中的按钮挂呼吸态（CSS 让它朱砂色呼吸）
       };
       utterance.onend = () => {
         speaking = false;
         button.textContent = "为我诵读　▶";
+        clearSpeakingButtons(); // 诵读结束，撤掉呼吸态
       };
       utterance.onerror = () => {
         speaking = false;
         button.textContent = "诵读未能播放，请重试";
+        clearSpeakingButtons(); // 播报失败同样不能把按钮留在呼吸态
       };
       window.speechSynthesis.speak(utterance);
     });
@@ -2355,6 +2363,13 @@
       button.setAttribute("aria-pressed", String(selected));
       button.textContent = selected ? "♥ 已收藏" : "♡ 收藏这首";
       localStorage.setItem(key, String(selected));
+      // f68 收藏弹跳：仅在「收藏成功」瞬间播一次 .pop 动画（先移除再强制重排以重启动画）
+      if (selected) {
+        button.classList.remove("pop");
+        void button.offsetWidth;
+        button.classList.add("pop");
+        button.addEventListener("animationend", () => button.classList.remove("pop"), { once: true });
+      }
     });
   });
 
@@ -2369,16 +2384,36 @@
   setupCounter("mood", "mood-count", 80);
   setupCounter("my-line", "line-count", 100);
 
+  /* ---------- f68 表单反馈：抖动 + 两态文案（ok 绿 / err 朱砂） + 轻浮入场 ---------- */
+  // 抖动提示：移除→强制重排→重挂 shake 动画，保证连续点击也能重复播
+  const shakeField = (field) => {
+    field.classList.remove("shake");
+    void field.offsetWidth;
+    field.classList.add("shake");
+    field.addEventListener("animationend", () => field.classList.remove("shake"), { once: true });
+  };
+  // 写入反馈文案并切换两态配色，支持 animate 的浏览器再补一段淡入上浮
+  const showFeedback = (el, message, state) => {
+    if (!el) return;
+    el.textContent = message;
+    el.classList.toggle("is-ok", state === "ok");
+    el.classList.toggle("is-err", state === "err");
+    if (typeof el.animate === "function") {
+      el.animate([{ opacity: 0, transform: "translateY(5px)" }, { opacity: 1, transform: "none" }], { duration: 320, easing: "ease-out" });
+    }
+  };
+
   document.querySelector(".mood-form")?.addEventListener("submit", (event) => {
     event.preventDefault();
     const field = document.getElementById("mood");
     const feedback = document.querySelector(".mood-feedback");
     if (!field.value.trim()) {
-      feedback.textContent = "写下一点心情，再让它随春水而去。";
+      showFeedback(feedback, "写下一点心情，再让它随春水而去。", "err");
+      shakeField(field); // 空提交：抖动文本框 + 朱砂错误文案
       field.focus();
       return;
     }
-    feedback.textContent = "收到了。愿这份心情，在词里找到回声。";
+    showFeedback(feedback, "收到了。愿这份心情，在词里找到回声。", "ok"); // 成功：墨绿文案 + 淡入上浮
     field.value = "";
     document.getElementById("mood-count").textContent = "0 / 80";
   });
@@ -2388,6 +2423,10 @@
       field.value = `${field.value}${button.dataset.prompt}`;
       field.focus();
       field.dispatchEvent(new Event("input", { bubbles: true }));
+      // f68 快捷词插入：文本框底色闪一下朱砂淡光，提示「已写入」
+      if (typeof field.animate === "function") {
+        field.animate([{ backgroundColor: "rgba(169,104,76,.14)" }, { backgroundColor: "transparent" }], { duration: 600, easing: "ease-out" });
+      }
     });
   });
   document.querySelector(".poem-form")?.addEventListener("submit", (event) => {
@@ -2395,13 +2434,14 @@
     const field = document.getElementById("my-line");
     const feedback = document.querySelector(".poem-feedback");
     if (!field.value.trim()) {
-      feedback.textContent = "先写下一句心情，再让涟漪带走它。";
+      showFeedback(feedback, "先写下一句心情，再让涟漪带走它。", "err");
+      shakeField(field); // 词签表单同样抖动 + 朱砂错误态
       field.focus();
       return;
     }
     const writtenLine = field.value.trim();
     animateWrittenLineAway(event.currentTarget, writtenLine);
-    feedback.textContent = `“${writtenLine}” —— 已随风带入词境。`;
+    showFeedback(feedback, `“${writtenLine}” —— 已随风带入词境。`, "ok");
     field.value = "";
     document.getElementById("line-count").textContent = "0 / 100";
   });
