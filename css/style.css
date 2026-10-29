@@ -1633,6 +1633,127 @@ body.finale-page::after{background:radial-gradient(125% 95% at 50% 45%,transpare
 .jy-msg-time,.jy-count{font-size:10.5px;color:#7d7461}
 .jy-submit{font-size:12.5px}
 .shop-drawer-notice p{font-size:12.5px}
+
+/* ================= 首页·古风叙事增强（f71，入场动画之外的区域） ================= */
+/* —— Hero 氛围层：月、侧诗、落英。全部 pointer-events:none，不影响既有交互 —— */
+.hero-art{z-index:1}
+.hero-moon{position:absolute;right:16%;top:9%;width:118px;height:118px;border-radius:50%;background:radial-gradient(circle at 42% 38%,#fdf7e6,#f1e2ba 58%,#e6d09e);box-shadow:0 0 58px 26px rgba(246,229,187,.46);opacity:.72;z-index:0;pointer-events:none;animation:hero-moon-breathe 9s ease-in-out infinite}
+@keyframes hero-moon-breathe{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:.82;transform:scale(1.045)}}
+.hero-side-poem{position:absolute;left:2.7%;top:50%;transform:translateY(-52%);writing-mode:vertical-rl;font-family:"Liyu Xingkai",var(--serif);font-size:15px;letter-spacing:.46em;line-height:1.6;color:#6b7a6c;padding-left:15px;border-left:1px solid #c3cabb;z-index:2;pointer-events:none;text-shadow:0 1px 0 rgba(243,243,237,.7)}
+.hero-side-poem i{font-style:normal;color:var(--rust)}
+.hero-petals{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden}
+.hero-petals i{position:absolute;top:-4%;left:var(--pt-left,50%);width:var(--pt-size,13px);height:calc(var(--pt-size,13px) * .78);background:radial-gradient(circle at 32% 30%,#eccfc2,#d9a78f 68%,#c8917a);border-radius:64% 4% 64% 4%;opacity:0;animation:hero-petal-fall var(--pt-dur,13s) linear var(--pt-delay,0s) infinite;will-change:transform}
+.hero-petals i:nth-child(1){--pt-left:6%;--pt-size:11px;--pt-dur:14s;--pt-delay:-2s;--pt-sway:9vw}
+.hero-petals i:nth-child(2){--pt-left:17%;--pt-size:14px;--pt-dur:17s;--pt-delay:-9s;--pt-sway:-7vw}
+.hero-petals i:nth-child(3){--pt-left:29%;--pt-size:10px;--pt-dur:12s;--pt-delay:-5s;--pt-sway:6vw}
+.hero-petals i:nth-child(4){--pt-left:43%;--pt-size:15px;--pt-dur:18s;--pt-delay:-13s;--pt-sway:-9vw}
+.hero-petals i:nth-child(5){--pt-left:58%;--pt-size:11px;--pt-dur:13s;--pt-delay:-7s;--pt-sway:8vw}
+.hero-petals i:nth-child(6){--pt-left:70%;--pt-size:13px;--pt-dur:16s;--pt-delay:-11s;--pt-sway:-6vw}
+.hero-petals i:nth-child(7){--pt-left:82%;--pt-size:10px;--pt-dur:12.5s;--pt-delay:-4s;--pt-sway:7vw}
+.hero-petals i:nth-child(8){--pt-left:92%;--pt-size:12px;--pt-dur:15s;--pt-delay:-15s;--pt-sway:-8vw}
+@keyframes hero-petal-fall{0%{transform:translate3d(0,-4vh,0) rotate(0deg);opacity:0}9%{opacity:.78}86%{opacity:.62}100%{transform:translate3d(var(--pt-sway,6vw),104vh,0) rotate(315deg);opacity:0}}
+
+/* —— 词间一戏：拾字成句 —— */
+.verse-game{position:relative;padding-top:104px;padding-bottom:112px;background:radial-gradient(60% 44% at 88% 6%,rgba(199,170,119,.12),transparent 70%),radial-gradient(52% 42% at 5% 94%,rgba(83,107,89,.12),transparent 72%),linear-gradient(180deg,#f1f0e8,#ebe9dc)}
+.verse-game:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(48,77,63,.026) 0 1px,transparent 1px 5px);pointer-events:none}
+.verse-game:after{content:"";position:absolute;top:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,rgba(146,111,84,.4),transparent)}
+.verse-game-seal{position:absolute;top:58px;right:9%;width:62px;height:62px;display:grid;place-items:center;border:1.5px solid rgba(169,104,76,.5);border-radius:7px;color:rgba(169,104,76,.62);background:rgba(243,240,230,.5);font-family:"Liyu Xingkai",var(--serif);font-size:29px;transform:rotate(6deg);pointer-events:none}
+.verse-game-head{position:relative;z-index:1}
+.verse-game-head p{max-width:480px;color:#5c675c;font-size:16px;line-height:2.05;letter-spacing:.04em}
+.verse-game-body{position:relative;z-index:1;display:grid;grid-template-columns:1.3fr .7fr;gap:42px;margin-top:46px;align-items:stretch}
+.verse-stage{position:relative;padding:30px 34px 26px;background:linear-gradient(150deg,#f9f7ef,#efeadb);border:1px solid #42554a;border-radius:18px;box-shadow:0 14px 34px rgba(47,62,49,.12);overflow:hidden}
+.verse-stage:before{content:"";position:absolute;inset:6px;border:1px solid rgba(48,77,63,.55);border-radius:13px;pointer-events:none}
+.verse-stage:after{content:"";position:absolute;right:-42px;bottom:-48px;width:210px;height:210px;background:radial-gradient(circle,rgba(83,107,89,.15),transparent 68%);pointer-events:none}
+.verse-round-meta{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.verse-round-name{font-family:"Xuandong Kaishu",var(--serif);font-size:19px;letter-spacing:.14em;color:#37493d}
+.verse-round-dots{display:flex;gap:9px}
+.verse-round-dots i{width:8px;height:8px;border-radius:50%;border:1px solid #a3927a;transition:background .3s,border-color .3s,box-shadow .3s}
+.verse-round-dots i.is-on{background:var(--rust);border-color:var(--rust);box-shadow:0 0 0 3px rgba(169,104,76,.18)}
+.verse-assemble{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 12px;min-height:96px;margin:20px 0 8px;padding:14px 4px 16px;border-bottom:1px dashed rgba(146,111,84,.5)}
+.verse-assemble:empty:before{content:"水面浮字，待君拾取 ……";align-self:center;font-family:"Xuandong Kaishu",var(--serif);font-size:14px;letter-spacing:.2em;color:#a7a394}
+.verse-assemble.is-complete{border-bottom-color:rgba(169,104,76,.85);animation:verse-line-glow 1.7s ease}
+.verse-assemble.is-complete .verse-placed{background:linear-gradient(160deg,#7a4a33,#5f3a28);border-color:rgba(238,195,168,.6)}
+@keyframes verse-line-glow{0%{box-shadow:none}35%{box-shadow:0 10px 24px rgba(169,104,76,.3)}100%{box-shadow:none}}
+.verse-pool{display:flex;flex-wrap:wrap;gap:13px;min-height:60px;padding:14px 2px 4px}
+.verse-tile{font-family:"Liyu Xingkai",var(--serif);font-size:18px;letter-spacing:.1em;padding:9px 17px 10px;color:#2f4136;background:linear-gradient(165deg,#fdfbf3,#f1ecdc);border:1px solid rgba(146,111,84,.55);border-radius:9px 2px 9px 2px;box-shadow:0 3px 8px rgba(47,62,49,.1);cursor:pointer;transition:transform .28s cubic-bezier(.2,.7,.25,1),box-shadow .3s,border-color .3s,opacity .3s,visibility .3s;animation:verse-tile-float 4.6s ease-in-out infinite}
+.verse-pool .verse-tile:nth-child(3n+2){animation-delay:-1.4s}
+.verse-pool .verse-tile:nth-child(3n){animation-delay:-2.9s}
+@keyframes verse-tile-float{0%,100%{translate:0 0}50%{translate:0 -4px}}
+.verse-tile:hover,.verse-tile:focus-visible{transform:translateY(-4px) rotate(-.6deg);border-color:var(--rust);box-shadow:0 9px 18px rgba(47,62,49,.16)}
+.verse-tile.is-taken{opacity:0;visibility:hidden;transform:scale(.7);pointer-events:none}
+.verse-tile.is-wrong{animation:verse-tile-shake .42s ease;border-color:rgba(169,104,76,.9)}
+@keyframes verse-tile-shake{0%,100%{transform:translateX(0)}22%{transform:translateX(-5px) rotate(-1deg)}46%{transform:translateX(5px)}70%{transform:translateX(-3px)}88%{transform:translateX(2px)}}
+.verse-placed{font-family:"Liyu Xingkai",var(--serif);font-size:19px;letter-spacing:.1em;padding:8px 15px 9px;color:#f6f1e2;background:linear-gradient(160deg,#37503f,#2b3f33);border:1px solid rgba(199,170,119,.5);border-radius:9px 2px 9px 2px;box-shadow:0 4px 10px rgba(35,54,46,.25);animation:verse-placed-in .42s cubic-bezier(.2,.75,.3,1.2) both}
+@keyframes verse-placed-in{0%{opacity:0;transform:translateY(-12px) scale(.82) rotate(-2deg)}100%{opacity:1;transform:none}}
+.verse-game-actions{display:flex;gap:26px;margin-top:18px}
+.verse-game-actions button{background:none;border:0;border-bottom:1px solid rgba(146,111,84,.55);padding:4px 2px 6px;font-family:var(--sans);font-size:12px;letter-spacing:.14em;color:#4a5b4e;cursor:pointer;transition:color .25s,border-color .25s}
+.verse-game-actions button:hover{color:var(--rust);border-color:var(--rust)}
+.verse-feedback{margin:12px 0 0;min-height:1.6em;font-size:13px;letter-spacing:.08em;color:#8b6f55}
+.verse-feedback.is-ok{color:#4c6b52}
+.verse-feedback.is-err{color:var(--rust)}
+.verse-scroll{position:relative;padding:26px 24px;background:linear-gradient(155deg,#31473a,#26382e 70%);border:1px solid rgba(199,170,119,.35);border-radius:18px;color:#efe9d8;overflow:hidden;box-shadow:0 14px 34px rgba(35,54,46,.22)}
+.verse-scroll:before{content:"";position:absolute;inset:6px;border:1px solid rgba(199,170,119,.28);border-radius:13px;pointer-events:none}
+.verse-scroll:after{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,rgba(199,170,119,.7),transparent)}
+.verse-scroll-title{display:block;margin-bottom:18px;font:10px var(--sans);letter-spacing:.32em;color:#c7aa77}
+.verse-done{list-style:none;margin:0;padding:2px 0 0;display:flex;gap:22px;min-height:206px;align-items:flex-start}
+.verse-done li{writing-mode:vertical-rl;height:204px;padding:2px 10px 2px 0;border-right:1px solid rgba(199,170,119,.4);font-family:"Liyu Xingkai",var(--serif);font-size:14px;letter-spacing:.22em;line-height:2;color:#efe6cf;animation:verse-done-in .7s ease both}
+.verse-done li b{font-weight:400;font-size:12px;color:#c7aa77;letter-spacing:.34em}
+@keyframes verse-done-in{0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:none}}
+.verse-game-link{margin-top:16px;color:#e7d7ba;border-color:rgba(231,215,186,.5);font-size:13px}
+.verse-game-link span{color:#c7aa77}
+
+/* —— 结尾春水与心情河灯 —— */
+.closing>div,.closing>form{position:relative;z-index:1}
+.closing-river{position:absolute;left:0;right:0;bottom:0;height:70px;overflow:hidden;pointer-events:none;z-index:0}
+.closing-river:before{content:"";position:absolute;left:6%;right:6%;bottom:0;height:1px;background:linear-gradient(90deg,transparent,#b9c4b5 18%,#b9c4b5 82%,transparent)}
+.closing-river i{position:absolute;left:-10%;right:-10%;bottom:12px;height:26px;background:linear-gradient(180deg,transparent,rgba(140,160,148,.16));border-radius:50%;filter:blur(1px);animation:river-drift 9s ease-in-out infinite}
+.closing-river i+i{bottom:3px;opacity:.7;animation-delay:-4.5s}
+@keyframes river-drift{0%,100%{transform:translateX(-2.5%)}50%{transform:translateX(2.5%)}}
+.mood-lantern{position:absolute;left:104%;bottom:16px;z-index:2;display:flex;flex-direction:column;align-items:center;gap:3px;pointer-events:none;filter:drop-shadow(0 6px 12px rgba(176,84,30,.32));animation:mood-lantern-drift var(--ml-dur,12s) linear forwards}
+.mood-lantern img{width:46px;height:auto;animation:mood-lantern-bob 3.2s ease-in-out infinite}
+.mood-lantern b{max-width:170px;padding:3px 9px;background:rgba(248,244,232,.88);border:1px solid rgba(146,111,84,.4);border-radius:6px;font-family:"Xuandong Kaishu",var(--serif);font-weight:400;font-size:11px;letter-spacing:.08em;color:#5d5136;white-space:nowrap}
+@keyframes mood-lantern-drift{0%{left:104%;opacity:0}5%{opacity:1}90%{opacity:1}100%{left:-18%;opacity:0}}
+@keyframes mood-lantern-bob{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-6px) rotate(1.5deg)}}
+
+@media(max-width:1100px){.hero-side-poem{display:none}}
+@media(max-width:900px){.verse-game-body{grid-template-columns:1fr}}
+@media(max-width:700px){
+  .hero-moon{width:74px;height:74px;right:9%;top:6%}
+  .hero-petals i:nth-child(n+5){display:none}
+  .verse-game{padding-top:74px;padding-bottom:82px}
+  .verse-game-seal{width:50px;height:50px;font-size:24px;top:38px;right:7%}
+  .verse-stage{padding:22px 18px 18px}
+  .verse-round-name{font-size:16px}
+  .verse-tile{font-size:16px;padding:8px 13px 9px}
+  .verse-placed{font-size:16px}
+  .verse-done{min-height:176px}
+  .verse-done li{height:172px;font-size:12.5px}
+}
+@media(prefers-reduced-motion:reduce){
+  .hero-petals,.hero-moon{display:none}
+  .verse-tile,.verse-placed,.verse-done li,.mood-lantern,.mood-lantern img,.closing-river i{animation:none}
+  .verse-assemble.is-complete{animation:none}
+}
+
+/* —— 叙事主线：五折引子（区块主题与链接不变，仅以折子过渡串联） —— */
+.narrative-thread{position:relative;display:flex;align-items:center;gap:26px;padding:40px 10% 36px;overflow:hidden;opacity:0;transform:translateY(16px);transition:opacity .8s cubic-bezier(.2,.65,.25,1),transform .8s cubic-bezier(.2,.65,.25,1)}
+.narrative-thread.is-visible{opacity:1;transform:none}
+.narrative-thread:before{content:"";position:absolute;left:10%;right:10%;bottom:0;height:1px;background:linear-gradient(90deg,transparent,rgba(146,111,84,.34),transparent)}
+.nt-kicker{flex-shrink:0;writing-mode:vertical-rl;font:10px var(--sans);letter-spacing:.3em;color:#98583f;border-left:1px solid #cdc6b4;padding-left:12px}
+.nt-line{font-family:"Xuandong Kaishu",var(--serif);font-size:19px;letter-spacing:.12em;color:#45534a}
+.nt-stroke{width:110px;flex-shrink:0;stroke:rgba(146,111,84,.55);stroke-width:2;fill:none;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 1.2s ease .3s}
+.narrative-thread.is-visible .nt-stroke{stroke-dashoffset:0}
+.nt-glyph{position:absolute;right:11%;top:50%;transform:translateY(-52%) rotate(-4deg);font-family:"ZhongQi ZhiMang","HongLei Calligraphy",var(--serif);font-weight:400;font-size:120px;line-height:1;color:rgba(48,77,63,.06);pointer-events:none}
+.narrative-thread.nt-alt{flex-direction:row-reverse;text-align:right}
+.narrative-thread.nt-alt .nt-glyph{right:auto;left:11%;transform:translateY(-52%) rotate(4deg)}
+.narrative-thread.nt-alt .nt-kicker{border-left:0;border-right:1px solid #cdc6b4;padding-left:0;padding-right:12px}
+@media(max-width:700px){
+  .narrative-thread{padding:28px 8% 24px;gap:16px}
+  .nt-line{font-size:15.5px;letter-spacing:.08em}
+  .nt-glyph{font-size:74px}
+  .nt-stroke{width:64px}
+}
+@media(prefers-reduced-motion:reduce){.narrative-thread{opacity:1;transform:none;transition:none}.nt-stroke{stroke-dashoffset:0;transition:none}}
 .shop-body>p{font-size:12.5px;color:#4d5a50}
 .shop-drawer-idea ol{font-size:12px;color:#4d5a50}
 .shop-drawer-foot{font-size:11px;color:#6f7a70}
@@ -1649,3 +1770,100 @@ body.finale-page::after{background:radial-gradient(125% 95% at 50% 45%,transpare
 /* —— 终幕页辅助文字 —— */
 .finale-scroll-cue{font-size:11px;color:rgba(240,232,212,.72)}
 .finale-again{color:rgba(228,202,158,.9)}
+
+/* ================= 全站点击互动：墨点晕染 + 书法字浮出（f73，叠加于既有 click-ripple，不改任何区块主题） ================= */
+.click-ink{position:fixed;left:var(--ink-x);top:var(--ink-y);z-index:998;width:14px;height:14px;pointer-events:none;transform:translate(-50%,-50%)}
+.click-ink:before,.click-ink:after{content:"";position:absolute;border-radius:47% 53% 52% 48%/51% 46% 54% 49%;background:radial-gradient(circle,rgba(38,56,47,.42) 0%,rgba(38,56,47,.24) 46%,rgba(38,56,47,0) 72%);animation:click-ink-bloom 1.3s cubic-bezier(.2,.6,.25,1) forwards}
+.click-ink:before{inset:0}
+.click-ink:after{left:9px;top:3px;width:5px;height:5px;animation-duration:1.05s;animation-delay:.08s}
+@keyframes click-ink-bloom{0%{transform:scale(.3);opacity:.9;filter:blur(0)}62%{opacity:.45}100%{transform:scale(5.4);opacity:0;filter:blur(3px)}}
+.click-glyph{position:fixed;left:var(--glyph-x);top:var(--glyph-y);z-index:998;height:118px;width:auto;pointer-events:none;opacity:0;filter:drop-shadow(0 2px 6px rgba(38,56,47,.16));transform:translate(-50%,-70%) rotate(var(--glyph-rot)) scale(.86);animation:click-glyph-rise 2.05s cubic-bezier(.25,.6,.3,1) forwards}
+@keyframes click-glyph-rise{0%{opacity:0;transform:translate(-50%,-70%) rotate(var(--glyph-rot)) scale(.86)}14%{opacity:.9}100%{opacity:0;transform:translate(calc(-50% + var(--glyph-drift)),-268%) rotate(var(--glyph-rot)) scale(1.03)}}
+@media(max-width:700px){.click-glyph{height:88px}}
+@media(prefers-reduced-motion:reduce){.click-ink,.click-glyph{display:none}}
+
+/* ================= 首页纯叙事重塑（f74，仅 .home-page 注入的节点）：three.js 氛围长卷 + 幕间墨晕 + 拖动墨痕 ================= */
+.scene-atmosphere{position:fixed;inset:0;width:100%;height:100%;z-index:1003;pointer-events:none;opacity:0;transition:opacity 1.8s ease .25s}
+body.book-opened .scene-atmosphere{opacity:1}
+.brush-trail{position:fixed;inset:0;width:100%;height:100%;z-index:1008;pointer-events:none}
+.scene-wipe{position:fixed;inset:0;z-index:1004;pointer-events:none;opacity:0;box-shadow:inset 0 0 190px 64px rgba(38,56,47,.6),inset 0 0 64px 8px rgba(38,56,47,.28)}
+.scene-wipe.is-active{animation:scene-wipe-breath 1.05s cubic-bezier(.4,.1,.3,1)}
+@keyframes scene-wipe-breath{0%{opacity:0}32%{opacity:.55}100%{opacity:0}}
+@media(max-width:700px){.scene-wipe{box-shadow:inset 0 0 120px 40px rgba(38,56,47,.5)}}
+@media(prefers-reduced-motion:reduce){.scene-atmosphere,.brush-trail,.scene-wipe{display:none}}
+
+/* ================= f76：首页整屏舞台（仅 .home-page）——固定视口 · 一幕一景 · 自纵深飞来 ================= */
+body.home-page.stage-mode{height:100vh;overflow:hidden;background:#eef0e8}
+body.home-page.stage-mode>main{position:fixed;inset:0;z-index:1}
+body.home-page.stage-mode>.site-footer{position:fixed;left:0;right:0;bottom:0;z-index:11;min-height:0;padding:10px 6.6%;border-top:1px solid rgba(48,77,63,.14);background:linear-gradient(rgba(243,243,237,.92),rgba(243,243,237,.88)),url("../assets/image/navigation-background.jpg") center 52%/cover no-repeat;backdrop-filter:blur(14px)}
+body.home-page.stage-mode>.site-footer .brand span{font-size:14px}
+body.home-page.stage-mode>.site-footer .brand small{font-size:10px}
+body.home-page.stage-mode>.site-footer>span{font-size:11px;letter-spacing:.14em;color:#6f7d72}
+body.home-page.stage-mode>.site-footer>a{font-size:11px;letter-spacing:.14em}
+
+body.home-page.stage-mode .home-stage{position:absolute;inset:0;perspective:1700px;transform-style:preserve-3d;overflow:hidden}
+body.home-page.stage-mode .stage-ambience{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+body.home-page.stage-mode .stage-ambience .hero-cloud{top:auto;bottom:-10%;opacity:.42}
+
+/* 幕：同屏叠放，靠 is-live / fly / depart 三组类切换；未加 stage-mode 时自然回流（无 JS / 减少动效兜底） */
+body.home-page.stage-mode .scene{position:absolute;inset:0;display:flex;flex-direction:column;opacity:0;visibility:hidden;pointer-events:none;transform-style:preserve-3d;will-change:transform,opacity,filter;backface-visibility:hidden}
+body.home-page.stage-mode .scene.is-live{opacity:1;visibility:visible;pointer-events:auto}
+body.home-page.stage-mode .scene-wrap{position:relative;display:flex;flex-direction:column;height:100%;padding:86px 0 64px}
+body.home-page.stage-mode .scene-content{flex:1;min-height:0;display:flex;flex-direction:column;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}
+body.home-page.stage-mode .scene-content::-webkit-scrollbar{width:0;height:0}
+body.home-page.stage-mode .scene-content>*{width:100%;flex:none;margin:auto 0}
+
+body.home-page.stage-mode .scene[data-scene="0"]{background:#f1f2ec}
+body.home-page.stage-mode .scene[data-scene="1"]{background:#f3f3ed}
+body.home-page.stage-mode .scene[data-scene="2"]{background:#e9ebe4}
+body.home-page.stage-mode .scene[data-scene="3"]{background:#ebe9dc}
+body.home-page.stage-mode .scene[data-scene="4"]{background:#f3f3ed}
+body.home-page.stage-mode .scene[data-scene="5"]{background:#eef0e8}
+
+/* 飞入（顺读自深处）/ 落回（回读自近处）/ 旧幕向前掠过 */
+body.home-page.stage-mode .scene.fly-fwd{opacity:0;transform:perspective(1700px) translate3d(0,9vh,-1300px) rotateX(11deg) scale(.85);filter:blur(16px)}
+body.home-page.stage-mode .scene.fly-back{opacity:0;transform:perspective(1700px) translate3d(0,-6vh,540px) rotateX(-6deg) scale(1.06);filter:blur(12px)}
+body.home-page.stage-mode .scene.is-settled{opacity:1;transform:perspective(1700px) translate3d(0,0,0) rotateX(0deg) scale(1);filter:blur(0);transition:transform 1.18s cubic-bezier(.22,1,.36,1),opacity .72s ease,filter .95s ease}
+body.home-page.stage-mode .scene.is-depart-fwd{opacity:0;transform:perspective(1700px) translate3d(0,-15vh,620px) rotateX(-8deg) scale(1.09);filter:blur(16px);pointer-events:none;transition:transform 1.04s cubic-bezier(.3,.7,.3,1),opacity .72s ease .05s,filter .9s ease}
+body.home-page.stage-mode .scene.is-depart-back{opacity:0;transform:perspective(1700px) translate3d(0,12vh,-1150px) rotateX(9deg) scale(.9);filter:blur(15px);pointer-events:none;transition:transform 1.04s cubic-bezier(.3,.7,.3,1),opacity .72s ease .05s,filter .9s ease}
+
+/* 幕内字句错落（视频二：卡片按位置左右分流，标题逐行落定） */
+body.home-page.stage-mode .scene .stg{opacity:0;transform:translate3d(var(--sx,0px),46px,-150px) rotateX(22deg);transform-origin:50% 64%;filter:blur(7px)}
+body.home-page.stage-mode .scene.stg-run .stg{opacity:1;transform:translate3d(0,0,0) rotateX(0deg);filter:blur(0);transition:transform .96s cubic-bezier(.22,1,.36,1),opacity .72s ease,filter .86s ease;transition-delay:calc(.2s + var(--i,0)*.07s)}
+
+/* 折子作幕眉：常显，随整幕一起飞 */
+body.home-page.stage-mode .home-stage .narrative-thread{flex:none;opacity:1;transform:none;padding:18px 8% 16px}
+body.home-page.stage-mode .home-stage .narrative-thread .nt-stroke{stroke-dashoffset:0}
+
+/* 各幕主体：去竖直留白，交给舞台居中；hero 撑满整屏 */
+body.home-page.stage-mode .home-stage .hero{height:100%;min-height:0;padding:30px 10% 22px}
+body.home-page.stage-mode .home-stage .intro{padding-top:0;padding-bottom:0;align-content:center;align-items:center;background:transparent}
+body.home-page.stage-mode .home-stage .feature-section{padding-top:0;padding-bottom:0}
+body.home-page.stage-mode .home-stage .verse-game{padding-top:0;padding-bottom:0}
+body.home-page.stage-mode .home-stage .afterlife-section{min-height:0;padding-top:0;padding-bottom:0;justify-content:center}
+body.home-page.stage-mode .home-stage .closing{padding-top:0;padding-bottom:0}
+body.home-page.stage-mode .scene[data-scene="0"] .scene-content{overflow:hidden}
+body.home-page.stage-mode .scene[data-scene="0"] .hero{margin:0}
+
+/* 右侧章节侧栏 */
+body.home-page.stage-mode .stage-rail{position:fixed;right:24px;top:50%;transform:translateY(-50%);z-index:16;display:flex;flex-direction:column;gap:11px;align-items:center}
+body.home-page.stage-mode .stage-rail button{width:30px;height:20px;padding:0;border:0;background:none;cursor:pointer;display:grid;place-items:center}
+body.home-page.stage-mode .stage-rail button i{display:block;width:1px;height:11px;background:rgba(48,77,63,.32);transition:height .55s cubic-bezier(.22,1,.36,1),width .55s,background .55s}
+body.home-page.stage-mode .stage-rail button.is-on i{width:2px;height:24px;background:#24362e}
+body.home-page.stage-mode .stage-rail button:hover i{background:#24362e}
+body.home-page.stage-mode .stage-rail button:focus-visible{outline:1px solid #8b9d8e;outline-offset:2px}
+
+@media(max-width:760px){
+  body.home-page.stage-mode .stage-rail{right:8px;gap:8px}
+  body.home-page.stage-mode .stage-rail button{width:20px}
+  body.home-page.stage-mode .home-stage .hero{padding:18px 7% 14px}
+  body.home-page.stage-mode .home-stage .narrative-thread{padding:12px 7% 10px}
+  body.home-page.stage-mode .scene.fly-fwd{transform:perspective(1200px) translate3d(0,6vh,-820px) rotateX(8deg) scale(.88)}
+  body.home-page.stage-mode .scene.fly-back{transform:perspective(1200px) translate3d(0,-4vh,320px) rotateX(-5deg) scale(1.04)}
+  body.home-page.stage-mode .scene.is-settled{transform:perspective(1200px) translate3d(0,0,0) rotateX(0deg) scale(1)}
+  body.home-page.stage-mode .scene-wrap{padding:70px 0 58px}
+}
+@media(prefers-reduced-motion:reduce){
+  body.home-page.stage-mode .scene{transition:none!important;filter:none!important;transform:none!important}
+  body.home-page.stage-mode .scene .stg{opacity:1!important;transform:none!important;filter:none!important;transition:none!important}
+}

@@ -3381,10 +3381,10 @@
   }, true);
 })();
 
-// ================= 首页纯叙事重塑（f75）：滚轮一幕幕 + 纵深飞入切幕 + three.js 氛围长卷 + 拖动墨痕 =================
+// ================= 首页整屏舞台重塑（f76）：一幕一景 · 自纵深飞来切幕 + three.js 氛围长卷 + 拖动墨痕 =================
 // 只作用于首页（.home-page）；入场动画、既有区块、样式与链接全部保留，其他页面不受影响。
-// 幕序：hero → 折子一/intro → 折子二/feature → 折子三/verse-game → 折子四/afterlife → 折子五/closing → footer。
-// 换幕时新幕自 Z 轴深处（顺读）或近处（回读）飞来落定，幕内标题/正文/卡片错落跟进（见 style.css f75 段）。
+// 骨架：main > .home-stage > 6 个 .scene（各含 .scene-wrap / .scene-content / 折子幕眉） + .stage-rail 章节。
+// 换幕时新幕自 Z 轴深处（顺读）或近处（回读）飞来落定，幕内标题/正文/卡片错落跟进（见 style.css f76 段）。
 (() => {
   const body = document.body;
   if (!body.classList.contains("home-page")) return;
@@ -3394,24 +3394,13 @@
   const finePointer = window.matchMedia("(pointer: fine)").matches;
   const desktopLayout = window.matchMedia("(min-width: 761px)").matches;
 
-  /* ---------- 一、停点与幕 ---------- */
-  const stops = Array.from(main.querySelectorAll(".hero, .narrative-thread, .intro, .feature-section, .verse-game, .afterlife-section, .closing"));
-  const footer = document.querySelector(".site-footer");
-  if (footer) stops.push(footer);
-  if (stops.length < 3) return;
-  // 幕编号：0 月色 / 1 识人 / 2 读词 / 3 拾句(水) / 4 回响(灯) / 5 留笔(江)；折子引子归入其后的那一幕
-  const actOfSection = (el) => {
-    if (el.classList.contains("hero")) return 0;
-    if (el.classList.contains("intro")) return 1;
-    if (el.classList.contains("feature-section")) return 2;
-    if (el.classList.contains("verse-game")) return 3;
-    if (el.classList.contains("afterlife-section")) return 4;
-    return 5;
-  };
-  stops.forEach((el, i) => {
-    el.dataset.act = String(el.classList.contains("narrative-thread") ? actOfSection(stops[i + 1] || el) : actOfSection(el));
-  });
-  const measureStops = () => stops.map((el) => ({ el, top: el.getBoundingClientRect().top + window.scrollY, height: el.offsetHeight, act: Number(el.dataset.act) }));
+  /* ---------- 一、整屏舞台与幕 ---------- */
+  const stage = main.querySelector(".home-stage");
+  if (!stage) return;
+  const scenes = Array.from(stage.querySelectorAll(".scene"));
+  if (scenes.length < 3) return;
+  const railButtons = Array.from(main.querySelectorAll(".stage-rail button"));
+  document.body.classList.add("stage-mode");
   // 入场（翻书/抵达序章）期间不接管任何叙事互动：书已翻开且抵达序章落幕才算就绪
   const narrativeReady = () => body.classList.contains("book-opened") && !body.classList.contains("arrival-lock");
 
@@ -3425,155 +3414,144 @@
     { a: 0x93a5ad, b: 0xd9e0e1, speed: 1.05, dirY: -0.4, opacity: 0.85, size: 0.9 }   // 5 留笔 · 江下行
   ];
   let moodTarget = MOODS[0];
-  let activeIdx = -1;
-  let lastFlyAt = 0;
+  /* ---------- 二之一、换幕导演：一幕一景，新幕自纵深飞来 ---------- */
+  const STAGGER_SEL = [
+    ".hero-copy > .eyebrow", ".hero-copy > h1", ".hero-copy > .hero-intro",
+    ".hero-copy > .hero-actions", ".hero-copy > .hero-verse",
+    ".intro-poet", ".intro-heading", ".intro-card",
+    ".feature-head", ".poem-card",
+    ".verse-game-head", ".verse-stage", ".verse-scroll",
+    ".afterlife-copy",
+    ".closing > div:not(.closing-pine)", ".mood-form",
+    ".nt-kicker", ".nt-line", ".nt-glyph"
+  ].join(",");
+  let current = 0;
+  let busy = false;
+  let settleTimer = 0;
+  let staggerTimer = 0;
 
-  /* ---------- 二之一、一幕幕飞来：新幕自画卷深处（顺读）或近处（回读）落定，幕内字句错落跟进 ---------- */
-  const FLY_CHILD_SEL = ".eyebrow, h1, h2, .hero-intro, .hero-actions, .hero-art, .nt-kicker, .nt-line, .nt-glyph, .intro-poet, .intro-heading, .intro-card, .feature-head, .poem-card, .verse-game-head, .verse-stage, .verse-scroll, .afterlife-copy, .closing-pine, .mood-form, .site-footer .brand, .site-footer > span, .site-footer > a";
-  const collectFlyChildren = (el) => {
-    const all = Array.from(el.querySelectorAll(FLY_CHILD_SEL));
-    const tops = all.filter((node) => !all.some((other) => other !== node && other.contains(node)));
-    return tops.slice(0, 8);
+  const updateRail = (idx) => {
+    railButtons.forEach((btn, i) => {
+      const on = i === idx;
+      btn.classList.toggle("is-on", on);
+      if (on) btn.setAttribute("aria-current", "step");
+      else btn.removeAttribute("aria-current");
+    });
   };
-  const flyScene = (el, dir) => {
-    if (el._flyTimer) { clearTimeout(el._flyTimer); el._flyTimer = 0; }
-    if (el._flyKids) el._flyKids.forEach((k) => { k.classList.remove("fly-child"); k.style.removeProperty("--i"); });
-    el.classList.remove("fly-scene", "fly-deep", "fly-near", "fly-land");
-    const kids = collectFlyChildren(el);
-    kids.forEach((k, i) => { k.style.setProperty("--i", String(i)); k.classList.add("fly-child"); });
-    el._flyKids = kids;
-    el.classList.add("fly-scene", dir >= 0 ? "fly-deep" : "fly-near");
-    void el.offsetWidth; // 先落定起始态，再开启动画
-    el.classList.add("fly-land");
-    // three.js 氛围层同步一振：云雾向后掠去再归于平静
+  const clearStagger = () => {
+    stage.querySelectorAll(".stg").forEach((node) => {
+      node.classList.remove("stg");
+      node.style.removeProperty("--i");
+      node.style.removeProperty("--sx");
+    });
+    scenes.forEach((scene) => scene.classList.remove("stg-run"));
+  };
+  const prepStagger = (scene) => {
+    Array.from(scene.querySelectorAll(STAGGER_SEL)).forEach((node, i) => {
+      node.classList.add("stg");
+      node.style.setProperty("--i", String(i));
+      if (node.classList.contains("poem-card")) node.style.setProperty("--sx", i % 2 ? "90px" : "-90px");
+    });
+  };
+
+  const go = (next) => {
+    if (busy || next === current || next < 0 || next >= scenes.length) return;
+    if (!narrativeReady()) return;
+    busy = true;
+    const dir = next > current ? 1 : -1;
+    const from = scenes[current];
+    const to = scenes[next];
+    window.clearTimeout(settleTimer);
+    window.clearTimeout(staggerTimer);
+    clearStagger();
+    scenes.forEach((scene, i) => { scene.style.zIndex = i === next ? "3" : i === current ? "2" : ""; });
+    to.classList.remove("fly-fwd", "fly-back", "is-settled", "is-depart-fwd", "is-depart-back");
+    to.classList.add("is-live", dir > 0 ? "fly-fwd" : "fly-back");
+    prepStagger(to);
+    void to.offsetWidth; // 先落定起始态，再开启动画
+    to.classList.add("is-settled", "stg-run");
+    from.classList.add(dir > 0 ? "is-depart-fwd" : "is-depart-back");
+    // 氛围层同步一振：云雾向后退去再归于平静
     pulse = Math.min(1, pulse + 0.5);
-    wind.y += dir >= 0 ? -0.24 : 0.2;
+    wind.y += dir > 0 ? -0.26 : 0.22;
     wind.x += (Math.random() - 0.5) * 0.08;
-    el._flyTimer = setTimeout(() => {
-      el.classList.remove("fly-scene", "fly-deep", "fly-near", "fly-land");
-      kids.forEach((k) => { k.classList.remove("fly-child"); k.style.removeProperty("--i"); });
-      el._flyKids = null;
-      el._flyTimer = 0;
-    }, 1450 + kids.length * 75);
+    current = next;
+    moodTarget = MOODS[next] || MOODS[0];
+    body.dataset.act = String(next);
+    updateRail(next);
+    settleTimer = window.setTimeout(() => {
+      from.classList.remove("is-live", "is-depart-fwd", "is-depart-back");
+      from.style.zIndex = "";
+      to.classList.remove("fly-fwd", "fly-back", "is-settled");
+      to.style.zIndex = "";
+      const box = to.querySelector(".scene-content");
+      if (box) box.scrollTop = 0;
+      busy = false;
+    }, 1180);
+    staggerTimer = window.setTimeout(clearStagger, 1900);
   };
 
-  const updateActiveScene = () => {
-    const y = window.scrollY;
-    const vh = window.innerHeight;
-    const list = measureStops();
-    let idx = 0;
-    for (let i = 0; i < list.length; i++) { if (list[i].top <= y + vh * 0.38) idx = i; else break; }
-    if (idx === activeIdx) return;
-    const prevIdx = activeIdx;
-    activeIdx = idx;
-    body.dataset.act = String(list[idx].act);
-    moodTarget = MOODS[list[idx].act];
-    // 就绪后换幕才播飞入；初次定位（入场序章交接）不播，避免与既有入场过渡重复
-    if (prevIdx >= 0 && narrativeReady()) {
-      const now = performance.now();
-      const since = now - lastFlyAt;
-      const target = list[idx].el;
-      if (since > 650) {
-        lastFlyAt = now;
-        flyScene(target, idx > prevIdx ? 1 : -1);
-      } else {
-        // 快速连跨多幕时，被防抖吞掉的幕在停稳后补播，保证最终一幕一定飞来
-        clearTimeout(updateActiveScene._defer);
-        updateActiveScene._defer = setTimeout(() => {
-          if (narrativeReady()) { lastFlyAt = performance.now(); flyScene(target, 1); }
-        }, 700 - since);
-      }
-    }
+  const canScrollContent = (scene, dir) => {
+    const box = scene.querySelector(".scene-content");
+    if (!box || box.scrollHeight <= box.clientHeight + 2) return false;
+    return dir > 0
+      ? box.scrollTop + box.clientHeight < box.scrollHeight - 2
+      : box.scrollTop > 2;
   };
-  let activeRaf = false;
-  const scheduleActive = () => {
-    if (activeRaf) return;
-    activeRaf = true;
-    window.requestAnimationFrame(() => { activeRaf = false; updateActiveScene(); });
-  };
-  window.addEventListener("scroll", scheduleActive, { passive: true });
-  updateActiveScene();
-
-  /* ---------- 三、滚轮一幕幕（桌面端；高幕内部保留自由阅读滚动） ---------- */
-  const wipe = document.createElement("div");
-  wipe.className = "scene-wipe";
-  wipe.setAttribute("aria-hidden", "true");
-  body.appendChild(wipe);
-  const playWipe = () => {
-    wipe.classList.remove("is-active");
-    void wipe.offsetWidth;
-    wipe.classList.add("is-active");
-  };
-
-  let gliding = false;
-  let lastGlideEnd = 0;
-  const glideTo = (target) => {
-    gliding = true;
-    playWipe();
-    const root = document.documentElement;
-    const prevBehavior = root.style.scrollBehavior;
-    root.style.scrollBehavior = "auto"; // 关闭 CSS smooth，逐帧手动缓动
-    const startY = window.scrollY;
-    const dist = target - startY;
-    const duration = Math.min(1150, 620 + Math.abs(dist) * 0.28);
-    const t0 = performance.now();
-    const ease = (p) => (p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2);
-    const step = (now) => {
-      const p = Math.min(1, (now - t0) / duration);
-      window.scrollTo(0, Math.round(startY + dist * ease(p)));
-      if (p < 1) {
-        window.requestAnimationFrame(step);
-      } else {
-        root.style.scrollBehavior = prevBehavior;
-        gliding = false;
-        lastGlideEnd = performance.now();
-        updateActiveScene();
-      }
-    };
-    window.requestAnimationFrame(step);
-  };
-  const tryAdvance = (dir) => {
-    const y = window.scrollY;
-    const vh = window.innerHeight;
-    const maxScroll = document.documentElement.scrollHeight - vh;
-    const list = measureStops();
-    let idx = 0;
-    for (let i = 0; i < list.length; i++) { if (list[i].top <= y + vh * 0.5) idx = i; else break; }
-    const cur = list[idx];
-    if (cur.height > vh * 1.22) {
-      // 高幕：内部先自由滚动，读到底/顶后再换幕
-      const innerBottom = cur.top + cur.height - vh;
-      if (dir > 0 && y < innerBottom - 4) return false;
-      if (dir < 0 && y > cur.top + 4) return false;
-    } else if (dir < 0 && y > cur.top + 4 && cur.height > vh * 0.85) {
-      return false; // 接近满屏的幕：向上先回到幕首
-    }
-    const nextIdx = idx + dir;
-    if (nextIdx < 0 || nextIdx >= list.length) return false;
-    let target = list[nextIdx].top;
-    if (list[nextIdx].height < vh * 0.6) target -= (vh - list[nextIdx].height) / 2; // 短过场居中呈现
-    target = Math.max(0, Math.min(maxScroll, target));
-    if ((dir > 0 && target <= y + 2) || (dir < 0 && target >= y - 2)) return false;
-    glideTo(target);
+  const step = (dir) => {
+    if (!narrativeReady() || busy) return false;
+    if (canScrollContent(scenes[current], dir)) return false; // 幕内还有内容：交还原生滚动
+    const next = current + dir;
+    if (next < 0 || next >= scenes.length) return false;
+    go(next);
     return true;
   };
+
+  updateRail(0);
+  body.dataset.act = "0";
+  moodTarget = MOODS[0];
+
   /* 输入：滚轮 / 键盘 / 触控 / 右侧章节 */
+  let lastWheelAt = 0;
   if (desktopLayout && finePointer) {
     window.addEventListener("wheel", (event) => {
-      if (!narrativeReady()) return; // 入场动画期间不接管
-      if (event.ctrlKey || !event.deltaY) return;
-      if (gliding || performance.now() - lastGlideEnd < 100) { event.preventDefault(); return; }
-      if (tryAdvance(event.deltaY > 0 ? 1 : -1)) event.preventDefault();
+      if (!narrativeReady() || event.ctrlKey || !event.deltaY) return;
+      const dir = event.deltaY > 0 ? 1 : -1;
+      if (canScrollContent(scenes[current], dir)) return;
+      event.preventDefault();
+      if (busy || performance.now() - lastWheelAt < 720) return;
+      if (step(dir)) lastWheelAt = performance.now();
     }, { passive: false });
     window.addEventListener("keydown", (event) => {
-      if (!narrativeReady() || gliding) return;
+      if (!narrativeReady() || busy) return;
       if (event.target.closest("input, textarea, select, [contenteditable]")) return;
       const dir = event.key === "PageDown" || event.key === "ArrowDown" || event.key === " " ? 1
         : event.key === "PageUp" || event.key === "ArrowUp" ? -1 : 0;
       if (!dir) return;
-      if (tryAdvance(dir)) event.preventDefault();
+      if (canScrollContent(scenes[current], dir)) return;
+      if (step(dir)) event.preventDefault();
     });
   }
+  let touchY = 0;
+  let touchAt = 0;
+  window.addEventListener("touchstart", (event) => {
+    if (event.touches.length !== 1) return;
+    touchY = event.touches[0].clientY;
+    touchAt = performance.now();
+  }, { passive: true });
+  window.addEventListener("touchend", (event) => {
+    if (!narrativeReady() || busy) return;
+    const end = event.changedTouches && event.changedTouches[0];
+    if (!end) return;
+    const dy = end.clientY - touchY;
+    if (performance.now() - touchAt > 760 || Math.abs(dy) < 56) return;
+    const dir = dy < 0 ? 1 : -1;
+    if (canScrollContent(scenes[current], dir)) return;
+    step(dir);
+  }, { passive: true });
+  railButtons.forEach((btn) => {
+    btn.addEventListener("click", () => go(Number(btn.dataset.go)));
+  });
 
   /* ---------- 四、three.js 氛围长卷：随幕换调的淡墨云雾 ---------- */
   const wind = { x: 0, y: 0 };
