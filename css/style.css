@@ -1,10 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap');
 
-@font-face{font-family:"HongLei Calligraphy";src:url("../assets/fonts/honglei-calligraphy.otf") format("opentype");font-style:normal;font-weight:400;font-display:swap}
-@font-face{font-family:"ZhongQi ZhiMang";src:url("../assets/fonts/zhongqi-zhimang-calligraphy.ttf") format("truetype");font-style:normal;font-weight:400;font-display:swap}
-@font-face{font-family:"Xuandong Kaishu";src:url("../assets/fonts/xuandong-kaishu.ttf") format("truetype");font-style:normal;font-weight:400;font-display:swap}
-@font-face{font-family:"Liyu Xingkai";src:url("../assets/fonts/liyu-xingkai.ttf") format("truetype");font-style:normal;font-weight:400;font-display:swap}
-@font-face{font-family:"Liyu Xingkai UI";src:url("../assets/fonts/liyu-xingkai-header.ttf") format("truetype");font-style:normal;font-weight:400;font-display:swap}
+@font-face{font-family:"HongLei Calligraphy";src:url("../assets/font/honglei-calligraphy.otf") format("opentype");font-style:normal;font-weight:400;font-display:swap}
+@font-face{font-family:"ZhongQi ZhiMang";src:url("../assets/font/zhongqi-zhimang-calligraphy.ttf") format("truetype");font-style:normal;font-weight:400;font-display:swap}
+@font-face{font-family:"Xuandong Kaishu";src:url("../assets/font/xuandong-kaishu.ttf") format("truetype");font-style:normal;font-weight:400;font-display:swap}
+@font-face{font-family:"Liyu Xingkai";src:url("../assets/font/liyu-xingkai.ttf") format("truetype");font-style:normal;font-weight:400;font-display:swap}
+@font-face{font-family:"Liyu Xingkai UI";src:url("../assets/font/liyu-xingkai-header.ttf") format("truetype");font-style:normal;font-weight:400;font-display:swap}
 :root{--paper:#f3f3ed;--paper-deep:#e9ece4;--ink:#24362e;--muted:#6d786d;--pine:#304d3f;--moss:#73806a;--rust:#a9684c;--gold:#c7aa77;--line:#d9ddd3;--serif:"Noto Serif SC","Songti SC",serif;--sans:"Manrope","Microsoft YaHei",sans-serif}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;scroll-padding-top:100px;scroll-snap-type:y proximity}
