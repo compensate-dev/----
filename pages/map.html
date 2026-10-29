@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="zh-CN">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#d9d2c1"><meta name="description" content="全屏沉浸式纸片 3D 水墨云游：云海之上，金陵宫阙、钟山林泉、洪州城郭、采石矶崖、一叶江舟、汴京小楼、北邙松柏。拖拽旋转，朱砂点为引，飞往李煜人生的每一站。"><title>水墨行迹｜春水留痕·李煜词境</title><link rel="stylesheet" href="../css/style.css?v=f62"><script src="../js/script.js?v=f59" defer></script><style>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#d9d2c1"><meta name="description" content="全屏沉浸式纸片 3D 水墨云游：云海之上，金陵宫阙、钟山林泉、洪州城郭、采石矶崖、一叶江舟、汴京小楼、北邙松柏。拖拽旋转，朱砂点为引，飞往李煜人生的每一站。"><title>水墨行迹｜春水留痕·李煜词境</title><link rel="stylesheet" href="../css/style.css?v=f74"><script src="../js/script.js?v=f74" defer></script><style>
   /* 渲染质感层：水墨夜空（淡墨晕染三叠）+ 画面色调 + 纸纹/暗角叠层 */
   .stage3d{background:
     radial-gradient(52% 36% at 24% 16%,rgba(56,62,58,.22),rgba(56,62,58,0) 70%),
@@ -98,7 +98,7 @@
     </div>
   </div>
 
-  <audio class="background-audio" src="../assets/audio/background-music.mp3" autoplay loop preload="metadata"></audio>
+  <audio class="background-audio" src="../assets/audio/background-music.mp3" preload="metadata"></audio>
   <script src="../js/three.min.js"></script>
   <script src="../js/map-textures.js?v=f59"></script>
   <script>
@@ -999,20 +999,20 @@
       if (andFly) { tourIdx = 0; go(TOUR[0]); tourSync(); } // 「从金陵起笔」：先飞一站做示范
     }
     if (guide) {
-      var guideBtn = document.getElementById("mapGuideBtn");   // 「知道了 · 从金陵起笔」：关闭并飞往第一站
-      var guideSkip = document.getElementById("mapGuideSkip"); // 「先自己随便看看」：仅关闭，留在全景
-      var guideMask = guide.querySelector(".map-guide-mask");  // 半透明遮罩：点击空白处等同于跳过
+      var guideBtn = document.getElementById("mapGuideBtn");
+      var guideSkip = document.getElementById("mapGuideSkip");
+      var guideMask = guide.querySelector(".map-guide-mask");
       if (guideBtn) guideBtn.addEventListener("click", function () { closeGuide(true); });
       if (guideSkip) guideSkip.addEventListener("click", function () { closeGuide(false); });
       if (guideMask) guideMask.addEventListener("click", function () { closeGuide(false); });
-      document.addEventListener("keydown", function (e) { // Esc 键也可以关闭指南
+      document.addEventListener("keydown", function (e) {
         if (e.key === "Escape" && !guide.hidden) closeGuide(false);
       });
-      var helpBtn = document.getElementById("mapHelp"); // 顶栏「？」按钮：随时重看指南
+      var helpBtn = document.getElementById("mapHelp");
       if (helpBtn) helpBtn.addEventListener("click", openGuide);
       (function guideArm() { // 每次进入都展开：等入卷遮罩揭开后再弹出
         if (veilDone) window.setTimeout(openGuide, 800);
-        else window.setTimeout(guideArm, 200); // 遮罩未揭开则每 200ms 再探一次
+        else window.setTimeout(guideArm, 200);
       })();
     }
 

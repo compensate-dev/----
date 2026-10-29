@@ -1,10 +1,211 @@
 // 全站交互总入口：整体包在一个立即执行函数里，避免向全局暴露变量。
 // 各功能块按需自检元素是否存在，同一份脚本可被所有页面共用而互不打扰。
+// 全站音频过渡工具：背景音乐、封面序曲与终幕配乐共用
+// fadeTo 负责音量缓动（播放/暂停/交接时不出现突兀的断点）；
+// createLoopingPlayer 用两条同源音轨在循环交界处交叉淡化，让长曲反复播放也听不出接缝。
+(() => {
+  const fades = new WeakMap();
+  const players = new WeakMap();
+  const clamp = (value) => Math.min(1, Math.max(0, Number.isFinite(value) ? value : 0));
+
+  const fadeTo = (element, target, duration = 900) => {
+    if (!element) return Promise.resolve();
+    const to = clamp(target);
+    const running = fades.get(element);
+    if (running) {
+      window.clearInterval(running.timer);
+      fades.delete(element);
+      running.resolve();
+    }
+    const from = clamp(element.volume);
+    if (!(duration > 0) || Math.abs(to - from) < 0.004) {
+      element.volume = to;
+      return Promise.resolve();
+    }
+    return new Promise((resolve) => {
+      const startedAt = performance.now();
+      const timer = window.setInterval(() => {
+        const progress = Math.min(1, (performance.now() - startedAt) / duration);
+        const eased = progress * progress * (3 - 2 * progress); // smoothstep，起落更柔
+        element.volume = from + (to - from) * eased;
+        if (progress < 1) return;
+        window.clearInterval(timer);
+        fades.delete(element);
+        element.volume = to;
+        resolve();
+      }, 40);
+      // 用定时器而非 rAF：标签页切到后台时音量过渡也能走完，不会停在半途
+      fades.set(element, { timer, resolve });
+    });
+  };
+
+  const createLoopingPlayer = (primary, options = {}) => {
+    if (!primary) return null;
+    const crossfade = Math.max(0, Number(options.crossfade) || 0);
+    const source = primary.currentSrc || primary.src;
+    primary.loop = false;
+    primary.removeAttribute("loop");
+
+    let active = primary;
+    let standby = null;
+    let target = clamp(primary.volume);
+    let playing = false;
+    let switching = false;
+    let generation = 0;
+    const timeListeners = [];
+
+    // 备用音轨按需创建：临近循环点才加载，避免每次进站都预载整段音轨
+    const ensureStandby = () => {
+      if (standby) return standby;
+      standby = new Audio(source);
+      standby.preload = "auto";
+      standby.volume = 0;
+      standby.addEventListener("timeupdate", handleTime);
+      standby.addEventListener("ended", handleEnded);
+      return standby;
+    };
+
+    const crossfadeLoop = () => {
+      switching = true;
+      const token = generation;
+      const next = ensureStandby();
+      next.pause();
+      next.currentTime = 0;
+      next.volume = 0;
+      const started = next.play();
+      if (started && typeof started.catch === "function") started.catch(() => {});
+      fadeTo(next, target, crossfade * 1000);
+      fadeTo(active, 0, crossfade * 1000).then(() => {
+        if (token !== generation || !playing) {
+          switching = false;
+          next.pause();
+          return;
+        }
+        const finished = active;
+        active = next;
+        standby = finished;
+        finished.pause();
+        finished.currentTime = 0;
+        finished.volume = 0;
+        active.volume = target;
+        switching = false;
+      });
+    };
+
+    function handleTime() {
+      if (!playing) return;
+      const element = active;
+      timeListeners.forEach((callback) => callback(element));
+      if (switching || crossfade <= 0) return;
+      const duration = element.duration;
+      if (!Number.isFinite(duration) || duration < crossfade * 2.2) return;
+      if (duration - element.currentTime <= crossfade) crossfadeLoop();
+    }
+
+    function handleEnded(event) {
+      // 时长信息缺失导致没来得及交叉淡化时兜底：直接从下一段开头轻接上
+      if (!playing || switching || event.target !== active) return;
+      const next = ensureStandby();
+      next.currentTime = 0;
+      next.volume = 0;
+      const started = next.play();
+      if (started && typeof started.catch === "function") started.catch(() => {});
+      fadeTo(next, target, 800);
+      const finished = active;
+      active = next;
+      standby = finished;
+      finished.volume = 0;
+      active.volume = target;
+    }
+
+    primary.addEventListener("timeupdate", handleTime);
+    primary.addEventListener("ended", handleEnded);
+
+    const player = {
+      play({ fade = 2400, restart = false } = {}) {
+        if (playing && !active.paused) {
+          if (!switching && active.volume < target) fadeTo(active, target, fade);
+          return Promise.resolve();
+        }
+        generation += 1;
+        playing = true;
+        if (restart) active.currentTime = 0;
+        active.volume = 0;
+        const started = active.play();
+        const ramp = () => {
+          if (playing) fadeTo(active, target, fade);
+        };
+        if (started && typeof started.then === "function") {
+          return started.then(ramp).catch((error) => {
+            playing = false;
+            throw error;
+          });
+        }
+        ramp();
+        return Promise.resolve();
+      },
+      pause({ fade = 900 } = {}) {
+        generation += 1;
+        const token = generation;
+        playing = false;
+        switching = false;
+        const elements = [active, standby].filter(Boolean);
+        return Promise.all(elements.map((element) => fadeTo(element, 0, fade))).then(() => {
+          // 淡出途中若用户又点了开启（或再次暂停），交给最新一次操作收尾
+          if (token !== generation) return;
+          elements.forEach((element) => element.pause());
+          active.volume = target;
+          if (standby) standby.volume = 0;
+        });
+      },
+      setVolume(value) {
+        target = clamp(value);
+        if (!playing) {
+          active.volume = target;
+          return;
+        }
+        if (!switching) fadeTo(active, target, 240);
+      },
+      seek(value) {
+        if (active) active.currentTime = Math.max(0, value);
+      },
+      currentTime() {
+        return active ? active.currentTime : 0;
+      },
+      isPlaying() {
+        return playing;
+      },
+      onTime(callback) {
+        timeListeners.push(callback);
+      }
+    };
+    players.set(primary, player);
+    return player;
+  };
+
+  // 离场淡出：交给播放器暂停，正在发声的那条音轨（含循环切换后的备用轨）都会淡出
+  const fadeOut = (primary, duration = 400) => {
+    const player = primary ? players.get(primary) : null;
+    if (player) return player.pause({ fade: duration });
+    return fadeTo(primary, 0, duration).then(() => primary?.pause());
+  };
+
+  window.liyuAudio = { fadeTo, fadeOut, clamp, createLoopingPlayer };
+})();
+
 (() => {
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   // 资源基址：script.js 位于 js/，会被根页面与 pages/ 子页共同引用；
   // 动态图片路径按脚本自身 URL 推导，避免相对页面 URL 在子页里解析失败（file:// 同样适用）
   const ASSET_IMAGE = new URL("../assets/image/", document.currentScript.src).href;
+  // 点击互动可用的书法字条（assets/image 下的竖排透明字）
+  const CLICK_GLYPHS = ["01", "02", "03", "04", "06", "08", "09", "11"];
+  // 页面加载完成后闲时预载，避免首次点击时字条延迟出现（字条互动仅首页使用）
+  if (document.body.classList.contains("home-page")) {
+    window.addEventListener("load", () => {
+      CLICK_GLYPHS.forEach((id) => { const img = new Image(); img.src = `${ASSET_IMAGE}calligraphy-added-${id}.png`; });
+    });
+  }
 
   document.addEventListener("click", (event) => {
     if (reducedMotion || event.target.closest("input, textarea, select, audio, video")) return;
@@ -21,6 +222,31 @@
     ripple.style.setProperty("--ripple-y", `${event.clientY}px`);
     document.body.append(ripple);
     window.setTimeout(() => ripple.remove(), 1100);
+
+    // 墨晕与书法字条仅属于首页叙事体验，其他页面保持原有点击反馈
+    if (!document.body.classList.contains("home-page")) return;
+
+    // 墨点晕染：一小团淡墨自落点散开，似笔落宣纸
+    const ink = document.createElement("span");
+    ink.className = "click-ink";
+    ink.setAttribute("aria-hidden", "true");
+    ink.style.setProperty("--ink-x", `${event.clientX}px`);
+    ink.style.setProperty("--ink-y", `${event.clientY}px`);
+    document.body.append(ink);
+    window.setTimeout(() => ink.remove(), 1500);
+
+    // 书法字条浮出：随机一列词中字自落点升起、缓缓散去
+    const glyph = document.createElement("img");
+    glyph.className = "click-glyph";
+    glyph.src = `${ASSET_IMAGE}calligraphy-added-${CLICK_GLYPHS[Math.floor(Math.random() * CLICK_GLYPHS.length)]}.png`;
+    glyph.alt = "";
+    glyph.setAttribute("aria-hidden", "true");
+    glyph.style.setProperty("--glyph-x", `${event.clientX}px`);
+    glyph.style.setProperty("--glyph-y", `${event.clientY}px`);
+    glyph.style.setProperty("--glyph-rot", `${(Math.random() * 10 - 5).toFixed(1)}deg`);
+    glyph.style.setProperty("--glyph-drift", `${(Math.random() * 40 - 20).toFixed(0)}px`);
+    document.body.append(glyph);
+    window.setTimeout(() => glyph.remove(), 2200);
   });
 
   const menuButton = document.querySelector(".menu-toggle");
@@ -48,82 +274,111 @@
       if (status) status.textContent = message || (playing ? "音乐开启" : "开启音乐");
     });
   };
-  const playBackgroundMusic = () => {
-    if (!audio || !audioEnabled) return;
-    audio.play().then(() => {
+  const musicVolume = () => Number(volumeSlider?.value ?? 0.32);
+  // 背景音乐交由脚本接管：进站淡入、暂停淡出、循环交界交叉淡化
+  const music = audio ? window.liyuAudio.createLoopingPlayer(audio, { crossfade: 3.2 }) : null;
+  const startBackgroundMusic = () => {
+    if (!music || !audioEnabled) return;
+    music.play({ fade: 2600 }).then(() => {
       updateSoundControls(true);
     }).catch(() => {
       updateSoundControls(false, "点击开启");
     });
   };
-  if (audio) {
-    audio.autoplay = audioEnabled && !coverIntroPending;
-    if (!audioEnabled || coverIntroPending) audio.pause();
+  if (music) {
+    // 关掉浏览器原生自动播放，统一从 0 音量淡入，避免一进页面就骤然出声
+    audio.autoplay = false;
+    audio.removeAttribute("autoplay");
     const savedVolume = sessionStorage.getItem("liyu-audio-volume");
     if (volumeSlider && savedVolume !== null) volumeSlider.value = savedVolume;
-    audio.volume = Number(volumeSlider?.value || 0.32);
+    music.setVolume(musicVolume());
     audio.muted = false;
-    updateSoundControls(!audio.paused, audio.paused ? (audioEnabled ? "点击开启" : "音乐关闭") : "音乐开启");
+    updateSoundControls(false, audioEnabled ? "点击开启" : "音乐关闭");
     audio.addEventListener("error", () => {
       updateSoundControls(false, "音频加载失败");
     });
     if (volumeSlider) {
       volumeSlider.addEventListener("input", () => {
-        audio.volume = Number(volumeSlider.value);
+        const value = Number(volumeSlider.value);
+        music.setVolume(value);
+        if (introAudio && !introAudio.paused) window.liyuAudio.fadeTo(introAudio, introVolume(value), 240);
         sessionStorage.setItem("liyu-audio-volume", volumeSlider.value);
       });
     }
     const restoreAudioPosition = () => {
       const savedTime = Number(sessionStorage.getItem("liyu-audio-time") || 0);
-      if (savedTime > 0 && savedTime < audio.duration - 1) audio.currentTime = savedTime;
-      if (audioEnabled && !audio.autoplay) playBackgroundMusic();
+      if (savedTime > 0 && savedTime < (audio.duration || 0) - 1) music.seek(savedTime);
+      if (audioEnabled && !coverIntroPending) startBackgroundMusic();
     };
     if (audio.readyState >= 1) restoreAudioPosition();
     else audio.addEventListener("loadedmetadata", restoreAudioPosition, { once: true });
-    audio.addEventListener("timeupdate", () => {
-      sessionStorage.setItem("liyu-audio-time", String(audio.currentTime));
+    music.onTime((element) => {
+      sessionStorage.setItem("liyu-audio-time", String(element.currentTime));
     });
     window.addEventListener("pagehide", () => {
-      sessionStorage.setItem("liyu-audio-time", String(audio.currentTime));
+      sessionStorage.setItem("liyu-audio-time", String(music.currentTime()));
     });
     soundButtons.forEach((button) => {
       button.addEventListener("click", () => {
-        audioEnabled = audio.paused;
+        audioEnabled = !music.isPlaying();
         sessionStorage.setItem("liyu-audio-enabled", String(audioEnabled));
         if (audioEnabled) {
-          playBackgroundMusic();
+          startBackgroundMusic();
         } else {
-          audio.pause();
-          updateSoundControls(false);
+          music.pause({ fade: 900 }).then(() => updateSoundControls(false));
         }
       });
     });
     document.addEventListener("pointerdown", (event) => {
-      if (audioEnabled && audio.paused && !event.target.closest(".sound-toggle") && !event.target.closest(".book-opening")) playBackgroundMusic();
+      if (audioEnabled && !coverIntroPending && !music.isPlaying() && !event.target.closest(".sound-toggle") && !event.target.closest(".book-opening")) startBackgroundMusic();
     }, { once: true });
     document.addEventListener("keydown", (event) => {
-      if (audioEnabled && audio.paused && !event.target.closest("input, textarea, button, a")) playBackgroundMusic();
+      if (audioEnabled && !coverIntroPending && !music.isPlaying() && !event.target.closest("input, textarea, button, a")) startBackgroundMusic();
     }, { once: true });
   }
-  // 音频一：封面点击后立即播放，播放结束后自动接续原有背景音乐
+  // 音频一：封面点击后淡入，结束前与背景音乐交叉淡化接续
+  const introVolume = (volume = musicVolume()) => Math.min(1, volume * 1.4);
+  let introPlaying = false;
+  let introHandingOff = false;
   const startIntroAudio = () => {
     if (!introAudio) {
-      playBackgroundMusic();
+      startBackgroundMusic();
       return;
     }
-    introAudio.volume = Math.min(1, (audio ? audio.volume : Number(volumeSlider?.value || 0.32)) * 1.4);
+    introPlaying = true;
+    introAudio.volume = 0;
+    const fadeIntroIn = () => window.liyuAudio.fadeTo(introAudio, introVolume(), 1400);
     try {
       const playPromise = introAudio.play();
       if (playPromise && typeof playPromise.catch === "function") {
-        playPromise.catch(() => playBackgroundMusic());
+        playPromise.then(fadeIntroIn).catch(() => {
+          introPlaying = false;
+          startBackgroundMusic();
+        });
+      } else {
+        fadeIntroIn();
       }
     } catch (error) {
-      playBackgroundMusic();
+      introPlaying = false;
+      startBackgroundMusic();
     }
   };
   if (introAudio && !introAudio.dataset.introBound) {
     introAudio.dataset.introBound = "1";
-    introAudio.addEventListener("ended", () => playBackgroundMusic());
+    introAudio.addEventListener("timeupdate", () => {
+      if (!introPlaying || introHandingOff) return;
+      const remaining = introAudio.duration - introAudio.currentTime;
+      if (!Number.isFinite(remaining) || remaining > 2.6) return;
+      introHandingOff = true;
+      introPlaying = false;
+      // 序曲尾音淡出，背景音乐同时从零淡入，两段声音交叠而不留空拍
+      window.liyuAudio.fadeTo(introAudio, 0, remaining * 1000 + 200);
+      startBackgroundMusic();
+    });
+    introAudio.addEventListener("ended", () => {
+      introPlaying = false;
+      if (!introHandingOff) startBackgroundMusic();
+    });
   }
 
   // 首页 hero 云雾：脱离首屏裁剪，以半速慢移越过边界，飘入第二部分（他把无常，写成了永恒）后消散
@@ -1134,8 +1389,8 @@
       let rafPending = false;
       /* ---------- 全屏下滑提示：入场稳定 1.1s 后弹出，滚动/点击即散去 ---------- */
       const arrivalHintVeil = arrivalInterlude.querySelector(".arrival-hint");
-      let hintVeilUp = false; // 提示当前是否已弹出
       // 弹出提示：仅在用户尚未开始滚动（scrollTop≈0）且提示未显示时触发
+      let hintVeilUp = false;
       const raiseHint = () => {
         if (finished || hintVeilUp || !arrivalHintVeil) return;
         if (arrivalScroller.scrollTop > 4) return; // 已开始滚动就不再打扰
@@ -1457,6 +1712,12 @@
       location.assign(url.href);
     }
   };
+  // 整页跳转前先让声音淡出，避免旧页音乐被瞬间掐断；新页面的音乐再从零淡入
+  const fadeSiteAudioBeforeExit = (duration = 340) => {
+    document.querySelectorAll(".background-audio, .finale-audio").forEach((element) => {
+      window.liyuAudio.fadeOut(element, duration);
+    });
+  };
   document.addEventListener("click", (event) => {
     const link = event.target.closest("a[href]");
     if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
@@ -1466,16 +1727,27 @@
     if (url.pathname === location.pathname && url.search === location.search) return;
     event.preventDefault();
     const origin = { x: event.clientX, y: event.clientY };
-    if (location.protocol === "file:") {
+    // 终幕页有独立的配乐与整页动效，进出都走整页加载，才能接上尾声曲并淡出旧曲
+    const fullReload = location.protocol === "file:"
+      || url.pathname.endsWith("finale.html")
+      || Boolean(document.querySelector(".finale-audio"));
+    if (fullReload) {
       sessionStorage.setItem("liyu-page-ripple-origin", `${origin.x},${origin.y}`);
       startPageRipple(origin);
-      window.setTimeout(() => location.assign(url.href), 240);
+      fadeSiteAudioBeforeExit();
+      window.setTimeout(() => location.assign(url.href), 360);
       return;
     }
     navigateTo(url, true, origin);
   });
   window.addEventListener("popstate", () => {
-    if (location.protocol !== "file:" && location.pathname.endsWith(".html")) navigateTo(new URL(location.href), false);
+    if (location.protocol !== "file:" && location.pathname.endsWith(".html")) {
+      if (document.querySelector(".finale-audio")) {
+        location.reload();
+        return;
+      }
+      navigateTo(new URL(location.href), false);
+    }
   });
 
   let timelineScrollTicking = false;
@@ -2892,8 +3164,8 @@
   }
 })();
 
-// 终幕页尾声配乐：finale.html 不挂全站背景音乐（.background-audio），进入即播独立尾声曲；
-// 原背景音乐在跳转离开上一页时随页面销毁立刻停止。音量沿用全站滑杆设置，页头开关同样可控；
+// 终幕页尾声配乐：finale.html 不挂全站背景音乐（.background-audio），进入即淡入独立尾声曲；
+// 循环交界交叉淡化，页头开关淡出/淡入，音量沿用全站滑杆设置；
 // 尊重全局静音（liyu-audio-enabled=false 则不自动播，显示"点击开启"）；不写背景音乐进度键，
 // 返回首页后原曲仍从上次进度接续。浏览器自动播放策略拦截时由首次点击/按键兜底触发。
 (() => {
@@ -2912,26 +3184,594 @@
   };
   const savedFinaleVolume = sessionStorage.getItem("liyu-audio-volume");
   if (finaleSlider && savedFinaleVolume !== null) finaleSlider.value = savedFinaleVolume;
-  finaleAudio.volume = Number(finaleSlider?.value || 0.32);
+  const finaleMusic = window.liyuAudio.createLoopingPlayer(finaleAudio, { crossfade: 3 });
+  finaleMusic.setVolume(Number(finaleSlider?.value || 0.32));
   const playFinale = () => {
-    finaleAudio.play().then(() => updateFinale(true)).catch(() => updateFinale(false, "点击开启"));
+    finaleMusic.play({ fade: 3000 }).then(() => updateFinale(true)).catch(() => updateFinale(false, "点击开启"));
   };
   if (finaleEnabled) playFinale();
   else updateFinale(false, "点击开启");
   document.addEventListener("pointerdown", () => {
-    if (finaleEnabled && finaleAudio.paused) playFinale();
+    if (finaleEnabled && !finaleMusic.isPlaying()) playFinale();
   }, { once: true });
   document.addEventListener("keydown", (event) => {
-    if (finaleEnabled && finaleAudio.paused && !event.target.closest("input, textarea, button, a")) playFinale();
+    if (finaleEnabled && !finaleMusic.isPlaying() && !event.target.closest("input, textarea, button, a")) playFinale();
   }, { once: true });
   if (finaleSlider) finaleSlider.addEventListener("input", () => {
-    finaleAudio.volume = Number(finaleSlider.value);
+    finaleMusic.setVolume(Number(finaleSlider.value));
     sessionStorage.setItem("liyu-audio-volume", finaleSlider.value);
   });
   finaleButtons.forEach((button) => button.addEventListener("click", () => {
-    const enabled = finaleAudio.paused;
+    const enabled = !finaleMusic.isPlaying();
     sessionStorage.setItem("liyu-audio-enabled", String(enabled));
     if (enabled) playFinale();
-    else { finaleAudio.pause(); updateFinale(false); }
+    else finaleMusic.pause({ fade: 900 }).then(() => updateFinale(false));
   }));
+})();
+
+// 首页「词间一戏 · 拾字成句」：字笺按原句次序拾取，三阕皆圆后开启词作笺赏入口。
+// 仅存在于首页（.verse-game 为判据），不触碰入场动画与既有交互。
+(() => {
+  const game = document.querySelector(".verse-game");
+  if (!game) return;
+  const ROUNDS = [
+    { name: "第一阕 · 虞美人", title: "虞美人", caption: "春花秋月何时了，往事知多少。", tiles: ["春花", "秋月", "何时了", "往事", "知多少"] },
+    { name: "第二阕 · 相见欢", title: "相见欢", caption: "剪不断，理还乱，是离愁。别是一般滋味在心头。", tiles: ["剪不断", "理还乱", "是离愁", "别是", "一般滋味", "在心头"] },
+    { name: "第三阕 · 浪淘沙令", title: "浪淘沙令", caption: "流水落花春去也，天上人间。", tiles: ["流水", "落花", "春去也", "天上", "人间"] }
+  ];
+  const stage = game.querySelector(".verse-stage");
+  const roundName = game.querySelector(".verse-round-name");
+  const dots = Array.from(game.querySelectorAll(".verse-round-dots i"));
+  const assemble = game.querySelector(".verse-assemble");
+  const pool = game.querySelector(".verse-pool");
+  const feedback = game.querySelector(".verse-feedback");
+  const doneList = game.querySelector(".verse-done");
+  const gameLink = game.querySelector(".verse-game-link");
+  const shuffleButton = game.querySelector(".verse-shuffle");
+  const restartButton = game.querySelector(".verse-restart");
+  if (!stage || !roundName || !assemble || !pool) return;
+
+  let roundIndex = 0;
+  let picked = 0;
+  let locked = false;
+  let roundToken = 0;
+
+  const setFeedback = (message, state) => {
+    if (!feedback) return;
+    feedback.textContent = message;
+    feedback.classList.toggle("is-ok", state === "ok");
+    feedback.classList.toggle("is-err", state === "err");
+  };
+  const shuffled = (list) => {
+    const copy = list.slice();
+    for (let i = copy.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+  };
+  const renderDots = () => {
+    dots.forEach((dot, i) => dot.classList.toggle("is-on", i < roundIndex || (i === roundIndex && roundIndex < ROUNDS.length)));
+  };
+  const renderRound = () => {
+    const round = ROUNDS[roundIndex];
+    picked = 0;
+    locked = false;
+    roundName.textContent = round.name;
+    assemble.classList.remove("is-complete");
+    assemble.innerHTML = "";
+    pool.innerHTML = "";
+    shuffled(round.tiles.map((text, order) => ({ text, order }))).forEach(({ text, order }) => {
+      const tile = document.createElement("button");
+      tile.type = "button";
+      tile.className = "verse-tile";
+      tile.textContent = text;
+      tile.dataset.order = String(order);
+      tile.addEventListener("click", () => pickTile(tile));
+      pool.appendChild(tile);
+    });
+    renderDots();
+    setFeedback("", "");
+  };
+  const completeRound = () => {
+    locked = true;
+    assemble.classList.add("is-complete");
+    const round = ROUNDS[roundIndex];
+    if (doneList) {
+      const item = document.createElement("li");
+      const title = document.createElement("b");
+      title.textContent = round.title;
+      item.append(title, document.createTextNode(round.caption));
+      doneList.appendChild(item);
+    }
+    dots.forEach((dot, i) => dot.classList.toggle("is-on", i <= roundIndex));
+    if (roundIndex >= ROUNDS.length - 1) {
+      roundName.textContent = "三阕皆圆 · 词心已拾回";
+      setFeedback("三阕皆圆。词里的春天，已经还给他了。", "ok");
+      if (gameLink) gameLink.hidden = false;
+      return;
+    }
+    setFeedback("一阕已圆——下一句，还在水面等你。", "ok");
+    const token = ++roundToken;
+    window.setTimeout(() => {
+      if (token !== roundToken) return;
+      roundIndex += 1;
+      renderRound();
+    }, 1400);
+  };
+  const pickTile = (tile) => {
+    if (locked || tile.classList.contains("is-taken")) return;
+    const round = ROUNDS[roundIndex];
+    if (Number(tile.dataset.order) !== picked) {
+      tile.classList.remove("is-wrong");
+      void tile.offsetWidth;
+      tile.classList.add("is-wrong");
+      tile.addEventListener("animationend", () => tile.classList.remove("is-wrong"), { once: true });
+      setFeedback("顺序还差一点——再读一遍这句词。", "err");
+      return;
+    }
+    tile.classList.add("is-taken");
+    tile.disabled = true;
+    const placed = document.createElement("span");
+    placed.className = "verse-placed";
+    placed.textContent = round.tiles[picked];
+    assemble.appendChild(placed);
+    picked += 1;
+    setFeedback(picked < round.tiles.length ? "落字成句。" : "", "ok");
+    if (picked >= round.tiles.length) completeRound();
+  };
+  shuffleButton?.addEventListener("click", () => {
+    if (locked) return;
+    const remaining = Array.from(pool.querySelectorAll(".verse-tile:not(.is-taken)"));
+    shuffled(remaining).forEach((tile) => pool.appendChild(tile));
+    setFeedback("字笺已随水重洗。", "");
+  });
+  restartButton?.addEventListener("click", () => {
+    roundToken += 1;
+    roundIndex = 0;
+    if (doneList) doneList.innerHTML = "";
+    if (gameLink) gameLink.hidden = true;
+    renderRound();
+    setFeedback("从首阕重来。", "");
+  });
+  renderRound();
+})();
+
+// 首页叙事主线「五折引子」：滚动入视淡入 + 墨线描边。独立于既有 reveal 体系，仅作用于 .narrative-thread。
+(() => {
+  const threads = document.querySelectorAll(".narrative-thread");
+  if (!threads.length) return;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window)) {
+    threads.forEach((el) => el.classList.add("is-visible"));
+    return;
+  }
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add("is-visible");
+      observer.unobserve(entry.target);
+    });
+  }, { threshold: 0.35, rootMargin: "0px 0px -6% 0px" });
+  threads.forEach((el) => observer.observe(el));
+})();
+
+// 首页结尾「心情河灯」：mood 表单投递成功时，放一盏载有心事的灯顺水流去。
+// capture 阶段监听，抢在既有处理清空文本框之前读取内容；reduced-motion 不放灯。
+(() => {
+  const moodForm = document.querySelector(".mood-form");
+  const river = document.querySelector(".closing-river");
+  if (!moodForm || !river) return;
+  moodForm.addEventListener("submit", () => {
+    const field = document.getElementById("mood");
+    const text = (field?.value || "").trim();
+    if (!text) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const lantern = document.createElement("span");
+    lantern.className = "mood-lantern";
+    const img = document.createElement("img");
+    img.src = "assets/image/hero-lantern-7.png";
+    img.alt = "";
+    const label = document.createElement("b");
+    label.textContent = text.length > 14 ? `${text.slice(0, 14)}…` : text;
+    lantern.append(img, label);
+    lantern.style.setProperty("--ml-dur", `${(11 + Math.random() * 4).toFixed(1)}s`);
+    lantern.style.bottom = `${(8 + Math.random() * 16).toFixed(0)}px`;
+    river.appendChild(lantern);
+    lantern.addEventListener("animationend", () => lantern.remove());
+  }, true);
+})();
+
+// ================= 首页纯叙事重塑（f75）：滚轮一幕幕 + 纵深飞入切幕 + three.js 氛围长卷 + 拖动墨痕 =================
+// 只作用于首页（.home-page）；入场动画、既有区块、样式与链接全部保留，其他页面不受影响。
+// 幕序：hero → 折子一/intro → 折子二/feature → 折子三/verse-game → 折子四/afterlife → 折子五/closing → footer。
+// 换幕时新幕自 Z 轴深处（顺读）或近处（回读）飞来落定，幕内标题/正文/卡片错落跟进（见 style.css f75 段）。
+(() => {
+  const body = document.body;
+  if (!body.classList.contains("home-page")) return;
+  const main = document.getElementById("main-content");
+  if (!main) return;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const finePointer = window.matchMedia("(pointer: fine)").matches;
+  const desktopLayout = window.matchMedia("(min-width: 761px)").matches;
+
+  /* ---------- 一、停点与幕 ---------- */
+  const stops = Array.from(main.querySelectorAll(".hero, .narrative-thread, .intro, .feature-section, .verse-game, .afterlife-section, .closing"));
+  const footer = document.querySelector(".site-footer");
+  if (footer) stops.push(footer);
+  if (stops.length < 3) return;
+  // 幕编号：0 月色 / 1 识人 / 2 读词 / 3 拾句(水) / 4 回响(灯) / 5 留笔(江)；折子引子归入其后的那一幕
+  const actOfSection = (el) => {
+    if (el.classList.contains("hero")) return 0;
+    if (el.classList.contains("intro")) return 1;
+    if (el.classList.contains("feature-section")) return 2;
+    if (el.classList.contains("verse-game")) return 3;
+    if (el.classList.contains("afterlife-section")) return 4;
+    return 5;
+  };
+  stops.forEach((el, i) => {
+    el.dataset.act = String(el.classList.contains("narrative-thread") ? actOfSection(stops[i + 1] || el) : actOfSection(el));
+  });
+  const measureStops = () => stops.map((el) => ({ el, top: el.getBoundingClientRect().top + window.scrollY, height: el.offsetHeight, act: Number(el.dataset.act) }));
+  // 入场（翻书/抵达序章）期间不接管任何叙事互动：书已翻开且抵达序章落幕才算就绪
+  const narrativeReady = () => body.classList.contains("book-opened") && !body.classList.contains("arrival-lock");
+
+  /* ---------- 二、氛围基调（每幕一种水色墨意） ---------- */
+  const MOODS = [
+    { a: 0xaebfb2, b: 0xe3e9de, speed: 0.8, dirY: 0.10, opacity: 0.75, size: 1.0 },   // 0 月色 · 静
+    { a: 0xc2ac8a, b: 0xe9dfc8, speed: 0.6, dirY: 0.06, opacity: 0.65, size: 0.9 },   // 1 识人 · 纸暖
+    { a: 0x7e9385, b: 0xd3dcd0, speed: 0.9, dirY: 0.12, opacity: 0.8, size: 1.0 },    // 2 读词 · 墨绿
+    { a: 0x8aa69e, b: 0xd2e1d9, speed: 1.2, dirY: -0.16, opacity: 0.85, size: 0.95 }, // 3 拾句 · 水流
+    { a: 0xc9a26f, b: 0xead9b6, speed: 0.7, dirY: 0.34, opacity: 0.8, size: 0.8 },    // 4 回响 · 灯上浮
+    { a: 0x93a5ad, b: 0xd9e0e1, speed: 1.05, dirY: -0.4, opacity: 0.85, size: 0.9 }   // 5 留笔 · 江下行
+  ];
+  let moodTarget = MOODS[0];
+  let activeIdx = -1;
+  let lastFlyAt = 0;
+
+  /* ---------- 二之一、一幕幕飞来：新幕自画卷深处（顺读）或近处（回读）落定，幕内字句错落跟进 ---------- */
+  const FLY_CHILD_SEL = ".eyebrow, h1, h2, .hero-intro, .hero-actions, .hero-art, .nt-kicker, .nt-line, .nt-glyph, .intro-poet, .intro-heading, .intro-card, .feature-head, .poem-card, .verse-game-head, .verse-stage, .verse-scroll, .afterlife-copy, .closing-pine, .mood-form, .site-footer .brand, .site-footer > span, .site-footer > a";
+  const collectFlyChildren = (el) => {
+    const all = Array.from(el.querySelectorAll(FLY_CHILD_SEL));
+    const tops = all.filter((node) => !all.some((other) => other !== node && other.contains(node)));
+    return tops.slice(0, 8);
+  };
+  const flyScene = (el, dir) => {
+    if (el._flyTimer) { clearTimeout(el._flyTimer); el._flyTimer = 0; }
+    if (el._flyKids) el._flyKids.forEach((k) => { k.classList.remove("fly-child"); k.style.removeProperty("--i"); });
+    el.classList.remove("fly-scene", "fly-deep", "fly-near", "fly-land");
+    const kids = collectFlyChildren(el);
+    kids.forEach((k, i) => { k.style.setProperty("--i", String(i)); k.classList.add("fly-child"); });
+    el._flyKids = kids;
+    el.classList.add("fly-scene", dir >= 0 ? "fly-deep" : "fly-near");
+    void el.offsetWidth; // 先落定起始态，再开启动画
+    el.classList.add("fly-land");
+    // three.js 氛围层同步一振：云雾向后掠去再归于平静
+    pulse = Math.min(1, pulse + 0.5);
+    wind.y += dir >= 0 ? -0.24 : 0.2;
+    wind.x += (Math.random() - 0.5) * 0.08;
+    el._flyTimer = setTimeout(() => {
+      el.classList.remove("fly-scene", "fly-deep", "fly-near", "fly-land");
+      kids.forEach((k) => { k.classList.remove("fly-child"); k.style.removeProperty("--i"); });
+      el._flyKids = null;
+      el._flyTimer = 0;
+    }, 1450 + kids.length * 75);
+  };
+
+  const updateActiveScene = () => {
+    const y = window.scrollY;
+    const vh = window.innerHeight;
+    const list = measureStops();
+    let idx = 0;
+    for (let i = 0; i < list.length; i++) { if (list[i].top <= y + vh * 0.38) idx = i; else break; }
+    if (idx === activeIdx) return;
+    const prevIdx = activeIdx;
+    activeIdx = idx;
+    body.dataset.act = String(list[idx].act);
+    moodTarget = MOODS[list[idx].act];
+    // 就绪后换幕才播飞入；初次定位（入场序章交接）不播，避免与既有入场过渡重复
+    if (prevIdx >= 0 && narrativeReady()) {
+      const now = performance.now();
+      const since = now - lastFlyAt;
+      const target = list[idx].el;
+      if (since > 650) {
+        lastFlyAt = now;
+        flyScene(target, idx > prevIdx ? 1 : -1);
+      } else {
+        // 快速连跨多幕时，被防抖吞掉的幕在停稳后补播，保证最终一幕一定飞来
+        clearTimeout(updateActiveScene._defer);
+        updateActiveScene._defer = setTimeout(() => {
+          if (narrativeReady()) { lastFlyAt = performance.now(); flyScene(target, 1); }
+        }, 700 - since);
+      }
+    }
+  };
+  let activeRaf = false;
+  const scheduleActive = () => {
+    if (activeRaf) return;
+    activeRaf = true;
+    window.requestAnimationFrame(() => { activeRaf = false; updateActiveScene(); });
+  };
+  window.addEventListener("scroll", scheduleActive, { passive: true });
+  updateActiveScene();
+
+  /* ---------- 三、滚轮一幕幕（桌面端；高幕内部保留自由阅读滚动） ---------- */
+  const wipe = document.createElement("div");
+  wipe.className = "scene-wipe";
+  wipe.setAttribute("aria-hidden", "true");
+  body.appendChild(wipe);
+  const playWipe = () => {
+    wipe.classList.remove("is-active");
+    void wipe.offsetWidth;
+    wipe.classList.add("is-active");
+  };
+
+  let gliding = false;
+  let lastGlideEnd = 0;
+  const glideTo = (target) => {
+    gliding = true;
+    playWipe();
+    const root = document.documentElement;
+    const prevBehavior = root.style.scrollBehavior;
+    root.style.scrollBehavior = "auto"; // 关闭 CSS smooth，逐帧手动缓动
+    const startY = window.scrollY;
+    const dist = target - startY;
+    const duration = Math.min(1150, 620 + Math.abs(dist) * 0.28);
+    const t0 = performance.now();
+    const ease = (p) => (p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2);
+    const step = (now) => {
+      const p = Math.min(1, (now - t0) / duration);
+      window.scrollTo(0, Math.round(startY + dist * ease(p)));
+      if (p < 1) {
+        window.requestAnimationFrame(step);
+      } else {
+        root.style.scrollBehavior = prevBehavior;
+        gliding = false;
+        lastGlideEnd = performance.now();
+        updateActiveScene();
+      }
+    };
+    window.requestAnimationFrame(step);
+  };
+  const tryAdvance = (dir) => {
+    const y = window.scrollY;
+    const vh = window.innerHeight;
+    const maxScroll = document.documentElement.scrollHeight - vh;
+    const list = measureStops();
+    let idx = 0;
+    for (let i = 0; i < list.length; i++) { if (list[i].top <= y + vh * 0.5) idx = i; else break; }
+    const cur = list[idx];
+    if (cur.height > vh * 1.22) {
+      // 高幕：内部先自由滚动，读到底/顶后再换幕
+      const innerBottom = cur.top + cur.height - vh;
+      if (dir > 0 && y < innerBottom - 4) return false;
+      if (dir < 0 && y > cur.top + 4) return false;
+    } else if (dir < 0 && y > cur.top + 4 && cur.height > vh * 0.85) {
+      return false; // 接近满屏的幕：向上先回到幕首
+    }
+    const nextIdx = idx + dir;
+    if (nextIdx < 0 || nextIdx >= list.length) return false;
+    let target = list[nextIdx].top;
+    if (list[nextIdx].height < vh * 0.6) target -= (vh - list[nextIdx].height) / 2; // 短过场居中呈现
+    target = Math.max(0, Math.min(maxScroll, target));
+    if ((dir > 0 && target <= y + 2) || (dir < 0 && target >= y - 2)) return false;
+    glideTo(target);
+    return true;
+  };
+  /* 输入：滚轮 / 键盘 / 触控 / 右侧章节 */
+  if (desktopLayout && finePointer) {
+    window.addEventListener("wheel", (event) => {
+      if (!narrativeReady()) return; // 入场动画期间不接管
+      if (event.ctrlKey || !event.deltaY) return;
+      if (gliding || performance.now() - lastGlideEnd < 100) { event.preventDefault(); return; }
+      if (tryAdvance(event.deltaY > 0 ? 1 : -1)) event.preventDefault();
+    }, { passive: false });
+    window.addEventListener("keydown", (event) => {
+      if (!narrativeReady() || gliding) return;
+      if (event.target.closest("input, textarea, select, [contenteditable]")) return;
+      const dir = event.key === "PageDown" || event.key === "ArrowDown" || event.key === " " ? 1
+        : event.key === "PageUp" || event.key === "ArrowUp" ? -1 : 0;
+      if (!dir) return;
+      if (tryAdvance(dir)) event.preventDefault();
+    });
+  }
+
+  /* ---------- 四、three.js 氛围长卷：随幕换调的淡墨云雾 ---------- */
+  const wind = { x: 0, y: 0 };
+  const pointerTarget = { x: 0, y: 0 };
+  const pointerLerp = { x: 0, y: 0 };
+  let pulse = 0;
+  let atmosphere = null;
+  if (typeof THREE !== "undefined") {
+    try {
+      const canvas = document.createElement("canvas");
+      canvas.className = "scene-atmosphere";
+      canvas.setAttribute("aria-hidden", "true");
+      body.appendChild(canvas);
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false, powerPreference: "low-power" });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+      renderer.setClearColor(0x000000, 0);
+      const scene = new THREE.Scene();
+      const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 10);
+      camera.position.z = 1;
+      const count = desktopLayout ? 260 : 120;
+      const positions = new Float32Array(count * 3);
+      const seeds = new Float32Array(count);
+      const scales = new Float32Array(count);
+      for (let i = 0; i < count; i++) {
+        positions[i * 3] = Math.random() * 2.2 - 1.1;
+        positions[i * 3 + 1] = Math.random() * 2.2 - 1.1;
+        positions[i * 3 + 2] = 0;
+        seeds[i] = Math.random();
+        scales[i] = i % 5 < 2 ? 0.5 + Math.random() * 0.5 : 0.06 + Math.random() * 0.34; // 四成云雾、六成细尘
+      }
+      const geometry = new THREE.BufferGeometry();
+      geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+      geometry.setAttribute("aSeed", new THREE.BufferAttribute(seeds, 1));
+      geometry.setAttribute("aScale", new THREE.BufferAttribute(scales, 1));
+      const uniforms = {
+        uTime: { value: 0 },
+        uWind: { value: new THREE.Vector2(0, 0) },
+        uPointer: { value: new THREE.Vector2(0, 0) },
+        uPulse: { value: 0 },
+        uColorA: { value: new THREE.Color(MOODS[0].a) },
+        uColorB: { value: new THREE.Color(MOODS[0].b) },
+        uOpacity: { value: MOODS[0].opacity },
+        uSpeed: { value: MOODS[0].speed },
+        uDirY: { value: MOODS[0].dirY },
+        uSizeMul: { value: MOODS[0].size },
+        uPix: { value: Math.min(window.devicePixelRatio || 1, 1.75) }
+      };
+      const material = new THREE.ShaderMaterial({
+        uniforms,
+        transparent: true,
+        depthTest: false,
+        depthWrite: false,
+        vertexShader: `
+          attribute float aSeed;
+          attribute float aScale;
+          uniform float uTime, uPulse, uSpeed, uDirY, uSizeMul, uPix;
+          uniform vec2 uWind, uPointer;
+          varying float vSeed, vScale, vTw;
+          void main() {
+            vSeed = aSeed; vScale = aScale;
+            vec2 p = position.xy;
+            float t = uTime * uSpeed;
+            p.x += sin(t * 0.11 + aSeed * 19.0) * 0.055;
+            p.y += cos(t * 0.08 + aSeed * 31.0) * 0.04;
+            p.y = mod(p.y + t * uDirY * 0.05 + 1.1, 2.2) - 1.1;
+            p.x = mod(p.x + t * 0.011 + 1.15, 2.3) - 1.15;
+            p += uWind * (0.25 + aScale * 0.9);
+            p += uPointer * (0.015 + aScale * 0.05);
+            vTw = 0.72 + 0.28 * sin(t * 0.6 + aSeed * 43.0);
+            gl_Position = vec4(p, 0.0, 1.0);
+            gl_PointSize = mix(14.0, 132.0, aScale) * uSizeMul * uPix * (1.0 + uPulse * 0.45);
+          }`,
+        fragmentShader: `
+          precision mediump float;
+          uniform vec3 uColorA, uColorB;
+          uniform float uOpacity, uPulse;
+          varying float vSeed, vScale, vTw;
+          void main() {
+            float d = length(gl_PointCoord - 0.5) * 2.0;
+            float a = smoothstep(1.0, 0.1, d);
+            a *= a;
+            float alpha = a * mix(0.05, 0.15, vScale) * vTw * uOpacity * (1.0 + uPulse * 0.5);
+            gl_FragColor = vec4(mix(uColorA, uColorB, vSeed), alpha);
+          }`
+      });
+      scene.add(new THREE.Points(geometry, material));
+      atmosphere = { renderer, scene, camera, uniforms };
+      const onResize = () => {
+        renderer.setSize(window.innerWidth, window.innerHeight, false);
+        uniforms.uPix.value = Math.min(window.devicePixelRatio || 1, 1.75);
+      };
+      window.addEventListener("resize", onResize);
+      onResize();
+    } catch (error) {
+      atmosphere = null; // WebGL 不可用时静默退回静态页面
+    }
+  }
+
+  /* ---------- 五、拖动墨痕（鼠标/触控笔按住拖动，留下渐淡的墨） ---------- */
+  const brush = document.createElement("canvas");
+  brush.className = "brush-trail";
+  brush.setAttribute("aria-hidden", "true");
+  body.appendChild(brush);
+  const brushCtx = brush.getContext("2d");
+  let drawing = false;
+  let lastX = 0;
+  let lastY = 0;
+  let brushUntil = 0;
+  const sizeBrush = () => {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    brush.width = Math.round(window.innerWidth * dpr);
+    brush.height = Math.round(window.innerHeight * dpr);
+    brushCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  };
+  window.addEventListener("resize", sizeBrush);
+  sizeBrush();
+  const brushStamp = (x, y, px, py) => {
+    const dx = x - px;
+    const dy = y - py;
+    const dist = Math.hypot(dx, dy);
+    const steps = Math.max(1, Math.floor(dist / 5));
+    for (let i = 1; i <= steps; i++) {
+      const sx = px + (dx * i) / steps;
+      const sy = py + (dy * i) / steps;
+      const r = Math.max(2.2, 8 - dist * 0.05) * (0.8 + Math.random() * 0.5);
+      brushCtx.fillStyle = "rgba(38,56,47,0.10)";
+      brushCtx.beginPath();
+      brushCtx.arc(sx, sy, r, 0, 6.2832);
+      brushCtx.fill();
+      if (Math.random() < 0.3) {
+        brushCtx.fillStyle = "rgba(30,45,38,0.13)";
+        brushCtx.beginPath();
+        brushCtx.arc(sx + (Math.random() - 0.5) * 7, sy + (Math.random() - 0.5) * 7, r * 0.4, 0, 6.2832);
+        brushCtx.fill();
+      }
+    }
+    brushUntil = performance.now() + 1800;
+  };
+  if (finePointer) {
+    window.addEventListener("pointerdown", (event) => {
+      if (!narrativeReady()) return;
+      if (event.target.closest("input, textarea, select, [contenteditable], a, button, img")) return;
+      drawing = true;
+      lastX = event.clientX;
+      lastY = event.clientY;
+    }, { passive: true });
+    window.addEventListener("pointerup", () => { drawing = false; }, { passive: true });
+    window.addEventListener("pointercancel", () => { drawing = false; }, { passive: true });
+  }
+  window.addEventListener("pointermove", (event) => {
+    pointerTarget.x = (event.clientX / window.innerWidth) * 2 - 1;
+    pointerTarget.y = -((event.clientY / window.innerHeight) * 2 - 1);
+    if (!drawing) return;
+    wind.x += (event.movementX || 0) * 0.0004;
+    wind.y += -(event.movementY || 0) * 0.0004;
+    brushStamp(event.clientX, event.clientY, lastX, lastY);
+    lastX = event.clientX;
+    lastY = event.clientY;
+  }, { passive: true });
+  // 点击时墨色一振：雾粒轻轻鼓起（DOM 侧的墨晕与字条由既有全局点击互动负责）
+  window.addEventListener("click", () => {
+    if (!narrativeReady()) return;
+    pulse = Math.min(1, pulse + 0.55);
+    wind.x += (Math.random() - 0.5) * 0.05;
+  }, { passive: true });
+
+  /* ---------- 六、主循环：风、脉冲、幕间色调全部缓动 ---------- */
+  const lerp = (from, to, k) => from + (to - from) * k;
+  const tick = (now) => {
+    window.requestAnimationFrame(tick);
+    if (document.hidden || !narrativeReady()) return;
+    wind.x *= 0.93;
+    wind.y *= 0.93;
+    pulse *= 0.94;
+    pointerLerp.x = lerp(pointerLerp.x, pointerTarget.x, 0.06);
+    pointerLerp.y = lerp(pointerLerp.y, pointerTarget.y, 0.06);
+    // 指针缓慢追随：插值平滑后写入 three.js 氛围着色器 uPointer，让雾粒光晕跟着鼠标轻轻游移
+    if (atmosphere) {
+      const u = atmosphere.uniforms;
+      const sizeBase = Math.min(1, 0.55 + window.innerWidth / 2400);
+      u.uTime.value = now * 0.001;
+      u.uWind.value.set(wind.x, wind.y);
+      u.uPointer.value.set(pointerLerp.x, pointerLerp.y);
+      u.uPulse.value = pulse;
+      u.uSpeed.value = lerp(u.uSpeed.value, moodTarget.speed, 0.045);
+      u.uDirY.value = lerp(u.uDirY.value, moodTarget.dirY, 0.045);
+      u.uOpacity.value = lerp(u.uOpacity.value, moodTarget.opacity, 0.045);
+      u.uSizeMul.value = lerp(u.uSizeMul.value, moodTarget.size * sizeBase, 0.045);
+      u.uColorA.value.lerp(new THREE.Color(moodTarget.a), 0.045);
+      u.uColorB.value.lerp(new THREE.Color(moodTarget.b), 0.045);
+      atmosphere.renderer.render(atmosphere.scene, atmosphere.camera);
+    }
+    if (now < brushUntil) {
+      brushCtx.globalCompositeOperation = "destination-out";
+      brushCtx.fillStyle = "rgba(0,0,0,0.05)";
+      brushCtx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+      brushCtx.globalCompositeOperation = "source-over";
+    }
+  };
+  window.requestAnimationFrame(tick);
 })();

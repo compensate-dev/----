@@ -12,21 +12,21 @@
   <meta property="og:type" content="website">
   <meta property="og:title" content="词容万象｜春水留痕·李煜词境">
   <meta property="og:description" content="从史实、词句和当代演绎等视角，探索李煜词作在后世读者心中的不同回响。">
-  <meta property="og:image" content="screen-world-background.jpg">
+  <meta property="og:image" content="../assets/image/screen-world-background.jpg">
   <meta property="og:locale" content="zh_CN">
   <title>词容万象｜春水留痕·李煜词境</title>
-  <link rel="stylesheet" href="../css/style.css?v=f59">
-  <script src="../js/script.js?v=f59" defer></script>
+  <link rel="stylesheet" href="../css/style.css?v=f74">
+  <script src="../js/script.js?v=f74" defer></script>
 </head>
 <body>
 <!-- 跳过导航：键盘用户按 Tab 时可直接跳入正文(#main-content) -->
   <a class="skip-link" href="#main-content">跳至主要内容</a>
 <!-- 页头：品牌标识 + 主导航(当前页高亮「词容万象」) + 背景音乐开关/音量 -->
   <header class="site-header">
-    <a class="brand" href="index.html"><span class="brand-seal">煜</span><span>一江春水<small>李煜词境 · 南唐旧梦</small></span></a>
+    <a class="brand" href="../index.html"><span class="brand-seal">煜</span><span>一江春水<small>李煜词境 · 南唐旧梦</small></span></a>
     <button class="menu-toggle" aria-label="打开导航" aria-expanded="false">☰</button>
     <nav class="main-nav" aria-label="主导航">
-      <a href="index.html">首页</a><a href="life.html">词人故事</a><a href="ci.html">词作笺赏</a><a class="active" href="wanxiang.html" aria-current="page">词容万象</a><a href="listen.html">听词入梦</a><a href="map.html">水墨行迹</a>
+      <a href="../index.html">首页</a><a href="life.html">词人故事</a><a href="ci.html">词作笺赏</a><a class="active" href="wanxiang.html" aria-current="page">词容万象</a><a href="listen.html">听词入梦</a>
     </nav>
     <div class="sound-controls"><button class="sound-toggle" type="button" aria-label="关闭背景音乐" aria-pressed="true"><span class="sound-icon">♫</span><span class="sound-status">音乐开启</span></button><label class="volume-control"><span class="visually-hidden">背景音乐音量</span><input class="volume-slider" type="range" min="0" max="1" step="0.01" value="0.32"></label></div>
   </header>
@@ -36,8 +36,8 @@
     <div class="subhero-stage">
 <!-- 首屏：背景视频(未就绪时以 poster 图占位) + 标题与导语 + 右侧「一词万象」竖印；吸顶期间 --hero-p 由脚本写入 -->
     <section class="subhero wanxiang-hero">
-      <video class="wanxiang-hero-video" autoplay muted loop playsinline preload="metadata" poster="../assets/image/screen-world-background.jpg" aria-hidden="true" tabindex="-1">
-        <source src="../assets/video/wanxiang-hero.mp4" type="video/mp4">
+      <video class="wanxiang-hero-video" autoplay muted loop playsinline preload="auto" poster="../assets/image/screen-world-background.jpg" aria-hidden="true" tabindex="-1">
+        <source src="../assets/video/wanxiang-hero.mp4?v=f68b" type="video/mp4">
       </video>
       <div class="subhero-copy">
         <p class="eyebrow">AFTERLIFE IN WORDS · 04</p>
@@ -140,8 +140,8 @@
     <dialog class="memory-story-dialog" aria-labelledby="memory-story-title"><button class="memory-story-close" type="button" aria-label="关闭详情">×</button><span class="memory-story-kicker"></span><h2 id="memory-story-title"></h2><img class="memory-story-image" alt="" hidden><div class="memory-story-content"></div><p class="memory-story-note">按 Esc 或点击右上角关闭详情。史实与后世艺术演绎请分别阅读。</p></dialog>
   </main>
 <!-- 页脚：品牌标识 + 标语 + 跳转链接 -->
-  <footer class="site-footer"><a class="brand" href="index.html"><span class="brand-seal">煜</span><span>一江春水<small>愿每个读词的人，都有一刻安宁。</small></span></a><span>词有尽时，春水长流。</span><a href="ci.html">再读一首 ↗</a></footer>
 <!-- 背景音乐：自动播放、循环；实际播放由 script.js 控制；preload="metadata" 只预取时长信息，不整段下载 -->
-  <audio class="background-audio" src="../assets/audio/background-music.mp3" autoplay loop preload="metadata"></audio>
+  <footer class="site-footer"><a class="brand" href="../index.html"><span class="brand-seal">煜</span><span>一江春水<small>愿每个读词的人，都有一刻安宁。</small></span></a><span>词有尽时，春水长流。</span><a href="ci.html">再读一首 ↗</a></footer>
+  <audio class="background-audio" src="../assets/audio/background-music.mp3" preload="metadata"></audio>
 </body>
 </html>

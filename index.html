@@ -15,8 +15,8 @@
   <meta property="og:description" content="走进南唐后主李煜的一生与词作，读写作背景、听词句回响，在一江春水间遇见千年前的悲欢。">
   <meta property="og:image" content="assets/image/home-hero-clean-v2.jpg">
   <meta property="og:locale" content="zh_CN">
-  <link rel="stylesheet" href="css/style.css?v=f62">
-  <script src="js/script.js?v=f59" defer></script>
+  <link rel="stylesheet" href="css/style.css?v=f70">
+  <script src="js/script.js?v=f69" defer></script>
 </head>
 <!-- body.home-page：首页专用类，供 CSS 区分首页与其他子页（开场未揭开前隐藏页头与正文） -->
 <body class="home-page">
@@ -177,8 +177,7 @@
 <!-- 跳过按钮：任意时刻均可直接进入首页 -->
       <button class="arrival-skip-button" type="button">跳过入场</button>
     </div>
-    <!-- 全屏下滑提示（f63）：入场约 1.1s 后由 script.js 弹出，滚动或点击空白处散去；
-         取代原先第一幕角落里的 arrival-scroll-cue 小字提示 -->
+    <!-- 全屏下滑提示：滚动或点击空白处散去 -->
     <div class="arrival-hint is-hidden" id="arrivalHint" aria-hidden="true">
       <i aria-hidden="true"></i>
       <b>向下滚动 · 走近词境</b>
@@ -190,7 +189,7 @@
     <a class="brand" href="index.html"><span class="brand-seal">煜</span><span>一江春水<small>李煜词境 · 南唐旧梦</small></span></a>
     <button class="menu-toggle" aria-label="打开导航" aria-expanded="false">☰</button>
     <nav class="main-nav" aria-label="主导航">
-      <a class="active" href="index.html" aria-current="page">首页</a><a href="pages/life.html">词人故事</a><a href="pages/ci.html">词作笺赏</a><a href="pages/wanxiang.html">词容万象</a><a href="pages/listen.html">听词入梦</a><a href="pages/map.html">水墨行迹</a>
+      <a class="active" href="index.html" aria-current="page">首页</a><a href="pages/life.html">词人故事</a><a href="pages/ci.html">词作笺赏</a><a href="pages/wanxiang.html">词容万象</a><a href="pages/listen.html">听词入梦</a>
     </nav>
     <div class="sound-controls"><button class="sound-toggle" type="button" aria-label="关闭背景音乐" aria-pressed="true"><span class="sound-icon">♫</span><span class="sound-status">音乐开启</span></button><label class="volume-control"><span class="visually-hidden">背景音乐音量</span><input class="volume-slider" type="range" min="0" max="1" step="0.01" value="0.32"></label></div>
   </header>
@@ -266,8 +265,8 @@
 <!-- 页脚：品牌 + 标语 + 跳转链接；开场未揭开时 inert -->
   <footer class="site-footer" inert><a class="brand" href="index.html"><span class="brand-seal">煜</span><span>一江春水<small>愿每个读词的人，都有一刻安宁。</small></span></a><span>词有尽时，春水长流。</span><a href="pages/ci.html">再读一首 ↗</a></footer>
 <!-- 背景音乐：循环；自动起播时机改由 script.js 控制（引子待播时先压住），inert 也随 autoplay 一并移除；preload="metadata" 只预取时长信息，不整段下载 -->
-  <audio class="background-audio" src="assets/audio/background-music.mp3" loop preload="metadata"></audio>
 <!-- 开场引子音频：翻开书封时播放的引子（intro-audio.aac），preload="auto" 预加载，播完由 script.js 接力背景音乐 -->
+  <audio class="background-audio" src="assets/audio/background-music.mp3" preload="metadata"></audio>
   <audio class="intro-audio" src="assets/audio/intro-audio.aac" preload="auto" aria-hidden="true"></audio>
 <!-- 金竹飘落画布：全屏固定层，由 script.js 绘制缓缓飘落的竹叶；mix-blend-mode 与页面底色柔融，pointer-events:none 不拦截点击；减弱动效时由 CSS 隐藏 -->
   <canvas class="bamboo-leaves" aria-hidden="true"></canvas>
