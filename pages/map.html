@@ -81,7 +81,7 @@
     <div class="veil-inner"><span class="brand-seal veil-seal">煜</span><p>水墨行迹</p><small>铺纸 · 研墨 · 起笔</small></div>
   </div>
 
-  <!-- 云游指南：首次进入自动展开，顶栏「？」可随时重看 -->
+  <!-- 云游指南：每次进入自动展开，顶栏「？」可随时重看 -->
   <div class="map-guide" id="mapGuide" role="dialog" aria-modal="true" aria-labelledby="mapGuideTitle" hidden>
     <div class="map-guide-mask" aria-hidden="true"></div>
     <div class="map-guide-card">
@@ -527,7 +527,7 @@
         u.fit();
       });
       hideVeil();
-      console.log("[水墨行迹] build f62 · 云游指南（首访自动展开 ×顶栏重看）" + (window.__reliefN || 0) + (postScene ? " · 后期开" : " · 后期退回"));
+      console.log("[水墨行迹] build f63 · 云游指南（每次进入自动展开 ×顶栏重看）" + (window.__reliefN || 0) + (postScene ? " · 后期开" : " · 后期退回"));
     };
     function shadowBlob(x, z, s) {
       var m = new THREE.Mesh(new THREE.PlaneGeometry(s, s * 0.36), new THREE.MeshBasicMaterial({ map: toTex(blobTex()), transparent: true, opacity: 0.45, depthWrite: false }));
@@ -981,39 +981,38 @@
     });
     tourSync(); // 初始态：未起卷时「上一站」禁用
 
-    /* ---------- 云游指南：首访自动展开，顶栏「？」随时重看 ---------- */
+    /* ---------- 云游指南：每次进入自动展开，顶栏「？」随时重看 ---------- */
+    // 与旧版区别：不再用 localStorage 记录"已看过"，每次进入页面都会重新弹出指南
     var guide = document.getElementById("mapGuide");
-    var GUIDE_KEY = "lyMapGuideSeen";
+    // 打开指南：先解除 hidden 让元素参与布局，再延时加 is-open 类触发淡入动画
     function openGuide() {
       if (!guide || !guide.hidden) return;
       guide.hidden = false;
       window.setTimeout(function () { guide.classList.add("is-open"); }, 30); // 计时器触发：rAF 在后台窗口会被冻结
     }
+    // 关闭指南：移除 is-open 播放淡出动画，340ms 后恢复 hidden
+    // andFly=true 时（点了「从金陵起笔」）顺带飞往金陵做一次镜头示范
     function closeGuide(andFly) {
       if (!guide || guide.hidden) return;
       guide.classList.remove("is-open");
-      try { localStorage.setItem(GUIDE_KEY, "1"); } catch (e) {}
       window.setTimeout(function () { guide.hidden = true; }, 340);
       if (andFly) { tourIdx = 0; go(TOUR[0]); tourSync(); } // 「从金陵起笔」：先飞一站做示范
     }
     if (guide) {
-      var guideBtn = document.getElementById("mapGuideBtn");
-      var guideSkip = document.getElementById("mapGuideSkip");
-      var guideMask = guide.querySelector(".map-guide-mask");
+      var guideBtn = document.getElementById("mapGuideBtn");   // 「知道了 · 从金陵起笔」：关闭并飞往第一站
+      var guideSkip = document.getElementById("mapGuideSkip"); // 「先自己随便看看」：仅关闭，留在全景
+      var guideMask = guide.querySelector(".map-guide-mask");  // 半透明遮罩：点击空白处等同于跳过
       if (guideBtn) guideBtn.addEventListener("click", function () { closeGuide(true); });
       if (guideSkip) guideSkip.addEventListener("click", function () { closeGuide(false); });
       if (guideMask) guideMask.addEventListener("click", function () { closeGuide(false); });
-      document.addEventListener("keydown", function (e) {
+      document.addEventListener("keydown", function (e) { // Esc 键也可以关闭指南
         if (e.key === "Escape" && !guide.hidden) closeGuide(false);
       });
-      var helpBtn = document.getElementById("mapHelp");
+      var helpBtn = document.getElementById("mapHelp"); // 顶栏「？」按钮：随时重看指南
       if (helpBtn) helpBtn.addEventListener("click", openGuide);
-      var guideSeen = false;
-      try { guideSeen = !!localStorage.getItem(GUIDE_KEY); } catch (e) {}
-      (function guideArm() { // 等入卷遮罩揭开后再展开，避免压在遮罩上
-        if (guideSeen) return;
+      (function guideArm() { // 每次进入都展开：等入卷遮罩揭开后再弹出
         if (veilDone) window.setTimeout(openGuide, 800);
-        else window.setTimeout(guideArm, 200);
+        else window.setTimeout(guideArm, 200); // 遮罩未揭开则每 200ms 再探一次
       })();
     }
 
