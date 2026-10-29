@@ -600,28 +600,28 @@
       });
     };
     const calligraphyAssets = [
-      "assets/image/calligraphy-flight-01.png",
-      "assets/image/calligraphy-flight-03.png",
-      "assets/image/calligraphy-flight-04.png",
-      "assets/image/calligraphy-flight-05.png",
-      "assets/image/calligraphy-flight-06.png",
-      "assets/image/calligraphy-flight-07.png",
-      "assets/image/calligraphy-flight-08.png",
-      "assets/image/calligraphy-flight-09.png",
-      "assets/image/calligraphy-flight-11.png",
-      "assets/image/calligraphy-flight-13.png",
-      "assets/image/calligraphy-flight-14.png",
-      "assets/image/calligraphy-flight-15.png",
-      "assets/image/calligraphy-flight-17.png",
-      "assets/image/calligraphy-flight-19.png",
-      "assets/image/calligraphy-added-01.png",
-      "assets/image/calligraphy-added-02.png",
-      "assets/image/calligraphy-added-03.png",
-      "assets/image/calligraphy-added-04.png",
-      "assets/image/calligraphy-added-06.png",
-      "assets/image/calligraphy-added-08.png",
-      "assets/image/calligraphy-added-09.png",
-      "assets/image/calligraphy-added-11.png"
+      ASSET_IMAGE + "calligraphy-flight-01.png",
+      ASSET_IMAGE + "calligraphy-flight-03.png",
+      ASSET_IMAGE + "calligraphy-flight-04.png",
+      ASSET_IMAGE + "calligraphy-flight-05.png",
+      ASSET_IMAGE + "calligraphy-flight-06.png",
+      ASSET_IMAGE + "calligraphy-flight-07.png",
+      ASSET_IMAGE + "calligraphy-flight-08.png",
+      ASSET_IMAGE + "calligraphy-flight-09.png",
+      ASSET_IMAGE + "calligraphy-flight-11.png",
+      ASSET_IMAGE + "calligraphy-flight-13.png",
+      ASSET_IMAGE + "calligraphy-flight-14.png",
+      ASSET_IMAGE + "calligraphy-flight-15.png",
+      ASSET_IMAGE + "calligraphy-flight-17.png",
+      ASSET_IMAGE + "calligraphy-flight-19.png",
+      ASSET_IMAGE + "calligraphy-added-01.png",
+      ASSET_IMAGE + "calligraphy-added-02.png",
+      ASSET_IMAGE + "calligraphy-added-03.png",
+      ASSET_IMAGE + "calligraphy-added-04.png",
+      ASSET_IMAGE + "calligraphy-added-06.png",
+      ASSET_IMAGE + "calligraphy-added-08.png",
+      ASSET_IMAGE + "calligraphy-added-09.png",
+      ASSET_IMAGE + "calligraphy-added-11.png"
     ];
     const preloadCalligraphy = () => Promise.all(calligraphyAssets.map((src) => new Promise((resolve, reject) => {
       const image = new Image();
@@ -763,7 +763,7 @@
         });
       });
       if (originPoints.length < 600) return Promise.resolve(false);
-      return loadImageSource("assets/image/home-hero.jpg").then((heroImage) => {
+      return loadImageSource(ASSET_IMAGE + "home-hero.jpg").then((heroImage) => {
         const targetPoints = sampleTargetPoints(heroImage, originPoints.length, viewportWidth, viewportHeight);
         const particles = originPoints.map((origin, index) => {
           const target = targetPoints[index] || targetPoints[targetPoints.length - 1];
@@ -1132,17 +1132,35 @@
       }
       let finished = false;
       let rafPending = false;
+      /* ---------- 全屏下滑提示：入场稳定 1.1s 后弹出，滚动/点击即散去 ---------- */
+      const arrivalHintVeil = arrivalInterlude.querySelector(".arrival-hint");
+      let hintVeilUp = false; // 提示当前是否已弹出
+      // 弹出提示：仅在用户尚未开始滚动（scrollTop≈0）且提示未显示时触发
+      const raiseHint = () => {
+        if (finished || hintVeilUp || !arrivalHintVeil) return;
+        if (arrivalScroller.scrollTop > 4) return; // 已开始滚动就不再打扰
+        hintVeilUp = true;
+        arrivalHintVeil.classList.remove("is-hidden");
+      };
+      // 收起提示：故事一旦推进（滚动/点击/跳过）就永久散去，不重复打扰
+      const dismissHint = () => {
+        if (!hintVeilUp || !arrivalHintVeil) return;
+        hintVeilUp = false;
+        arrivalHintVeil.classList.add("is-hidden");
+      };
       const onScroll = () => {
         if (rafPending) return;
         rafPending = true;
         window.requestAnimationFrame(() => {
           rafPending = false;
+          dismissHint(); // 故事一旦推进，全屏提示即散去
           updateArrivalProgress();
         });
       };
       const finish = () => {
         if (finished) return;
         finished = true;
+        dismissHint();
         removeListeners();
         exitArrivalScene(() => {
           arrivalInterlude.classList.add("is-leaving");
@@ -1187,6 +1205,16 @@
       document.body.classList.add("arrival-lock");
       arrivalScroller.addEventListener("scroll", onScroll, { passive: true });
       window.addEventListener("wheel", onWheel, { passive: false });
+      if (arrivalHintVeil) {
+        arrivalHintVeil.addEventListener("click", dismissHint); // 点击空白处关闭
+        arrivalHintVeil.addEventListener("wheel", (event) => { // 滚动即散去，手势直接推进故事
+          if (finished || event.deltaY <= 0) return;
+          event.preventDefault();
+          dismissHint();
+          arrivalScroller.scrollTop += event.deltaY;
+        }, { passive: false });
+      }
+      window.setTimeout(raiseHint, 1100); // 入场过渡稳住后再全屏提示下滑
       window.addEventListener("pointermove", updateArrivalPointer, { passive: true });
       arrivalEnterButton.addEventListener("click", enterOrAdvance);
       arrivalSkipButton.addEventListener("click", finish);
@@ -2382,12 +2410,12 @@
   (function initializeShopSidebar() {
     if (document.querySelector(".shop-tab")) return;
     const goods = [
-      { img: "assets/image/shop-paper.jpg", alt: "浣花春水笺概念图：带春水暗纹的宣纸信笺", meta: "文房信笺 · 灵感《虞美人》", name: "浣花春水笺", desc: "一套八张的仿古宣笺，以「一江春水」波纹作暗纹，落梅点缀纸角。提笔写信时，愁绪也化作了东流的水。" },
-      { img: "assets/image/shop-bookmark.jpg", alt: "月钩梧桐书签概念图：弯月梧桐造型的黄铜楠木书签", meta: "流苏书签 · 灵感《相见欢》", name: "月钩梧桐签", desc: "黄铜为钩月，楠木作梧桐，垂一缕墨色流苏。「无言独上西楼」的那夜月色，从此夹在正在读的那一页。" },
-      { img: "assets/image/shop-scroll.jpg", alt: "春水东流卷轴概念图：绘有江山孤舟的中式水墨挂轴", meta: "卷轴壁纸 · 灵感《虞美人》", name: "春水东流卷", desc: "一款可打印的数字长卷壁纸，亦可装裱为案头小挂轴。远山、孤舟与东流江水展开在屏幕上，愁有了形状，也有了归处。" },
-      { img: "assets/image/shop-postcard.jpg", alt: "春花秋月明信片概念图：四张一套的水墨词意明信片", meta: "词意明信片 · 灵感四阕代表作", name: "春花秋月帖", desc: "四阕词、四帧景：春水花月、深院梧桐、暮雨归梦、落梅春草。背面印词，正面入画，寄给此刻想念的人。" },
-      { img: "assets/image/shop-tape.jpg", alt: "落花流水胶带概念图：绘有落花春水纹样的三卷和纸胶带", meta: "和纸胶带 · 灵感《浪淘沙令》", name: "落花流水纹", desc: "「流水落花春去也」化作两卷手账胶带：一卷落花，一卷水纹。贴在日记边角，给普通的一天盖上词的落款。" },
-      { img: "assets/image/shop-seal.jpg", alt: "煜字朱砂闲章概念图：石质印章与朱砂拓印", meta: "朱砂闲章 · 灵感词帝之名", name: "「煜」字小印", desc: "一方朱文小印，刻他的名字，也刻「一江春水」四字作引首章。盖在书的扉页，像与千年前的词人同署了一页。" }
+      { img: ASSET_IMAGE + "shop-paper.jpg", alt: "浣花春水笺概念图：带春水暗纹的宣纸信笺", meta: "文房信笺 · 灵感《虞美人》", name: "浣花春水笺", desc: "一套八张的仿古宣笺，以「一江春水」波纹作暗纹，落梅点缀纸角。提笔写信时，愁绪也化作了东流的水。" },
+      { img: ASSET_IMAGE + "shop-bookmark.jpg", alt: "月钩梧桐书签概念图：弯月梧桐造型的黄铜楠木书签", meta: "流苏书签 · 灵感《相见欢》", name: "月钩梧桐签", desc: "黄铜为钩月，楠木作梧桐，垂一缕墨色流苏。「无言独上西楼」的那夜月色，从此夹在正在读的那一页。" },
+      { img: ASSET_IMAGE + "shop-scroll.jpg", alt: "春水东流卷轴概念图：绘有江山孤舟的中式水墨挂轴", meta: "卷轴壁纸 · 灵感《虞美人》", name: "春水东流卷", desc: "一款可打印的数字长卷壁纸，亦可装裱为案头小挂轴。远山、孤舟与东流江水展开在屏幕上，愁有了形状，也有了归处。" },
+      { img: ASSET_IMAGE + "shop-postcard.jpg", alt: "春花秋月明信片概念图：四张一套的水墨词意明信片", meta: "词意明信片 · 灵感四阕代表作", name: "春花秋月帖", desc: "四阕词、四帧景：春水花月、深院梧桐、暮雨归梦、落梅春草。背面印词，正面入画，寄给此刻想念的人。" },
+      { img: ASSET_IMAGE + "shop-tape.jpg", alt: "落花流水胶带概念图：绘有落花春水纹样的三卷和纸胶带", meta: "和纸胶带 · 灵感《浪淘沙令》", name: "落花流水纹", desc: "「流水落花春去也」化作两卷手账胶带：一卷落花，一卷水纹。贴在日记边角，给普通的一天盖上词的落款。" },
+      { img: ASSET_IMAGE + "shop-seal.jpg", alt: "煜字朱砂闲章概念图：石质印章与朱砂拓印", meta: "朱砂闲章 · 灵感词帝之名", name: "「煜」字小印", desc: "一方朱文小印，刻他的名字，也刻「一江春水」四字作引首章。盖在书的扉页，像与千年前的词人同署了一页。" }
     ];
     const cardsHtml = goods.map((item) => `
       <article class="shop-card">
