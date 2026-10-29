@@ -784,6 +784,7 @@
     const arrivalEnterButton = arrivalInterlude?.querySelector(".arrival-enter-button");
     const arrivalSkipButton = arrivalInterlude?.querySelector(".arrival-skip-button");
     const arrivalChapterButtons = arrivalInterlude?.querySelectorAll("[data-arrival-scene]");
+    const paperGate = document.querySelector(".paper-gate");
     const arrivalStage = arrivalInterlude?.querySelector(".arrival-stage");
     const arrivalInkWash = arrivalInterlude?.querySelector(".arrival-ink-wash");
     const inkCanvas = inkInterlude?.querySelector(".ink-canvas");
@@ -1380,6 +1381,55 @@
       arrivalInterlude.style.setProperty("--arrival-pointer-soft-x", `${(x * 12).toFixed(1)}px`);
       arrivalInterlude.style.setProperty("--arrival-pointer-soft-y", `${(y * 9).toFixed(1)}px`);
     };
+    /* 纸门：入场最后一层视觉替换——一叠纸页挡住，下滑即穿过去，穿的同时首页在纸后显影 */
+    const runPaperGate = (onEnter) => new Promise((resolve) => {
+      if (!paperGate || !paperGate.isConnected || reducedMotion) {
+        onEnter();
+        resolve();
+        return;
+      }
+      body.classList.add("paper-gate-open");
+      let done = false;
+      let armed = 0;
+      const cleanup = () => {
+        window.clearTimeout(armed);
+        window.removeEventListener("wheel", onWheel);
+        window.removeEventListener("touchmove", onMove);
+        window.removeEventListener("pointerdown", onMove);
+        window.removeEventListener("keydown", onKey);
+      };
+      const step = () => {
+        if (done) return;
+        done = true;
+        cleanup();
+        onEnter();
+        paperGate.classList.add("is-tearing");
+        window.setTimeout(() => {
+          paperGate.remove();
+          body.classList.remove("paper-gate-open");
+          resolve();
+        }, 1250);
+      };
+      const onWheel = (event) => {
+        if (event.deltaY <= 0) return;
+        event.preventDefault();
+        step();
+      };
+      const onMove = () => step();
+      const onKey = (event) => {
+        if (["ArrowDown", "PageDown", "Enter", " "].indexOf(event.key) < 0) return;
+        event.preventDefault();
+        step();
+      };
+      // 门先立稳再挂手势，免得入场最后一次滚轮把门一闪而过
+      armed = window.setTimeout(() => {
+        window.addEventListener("wheel", onWheel, { passive: false });
+        window.addEventListener("touchmove", onMove, { passive: true });
+        window.addEventListener("pointerdown", onMove);
+        window.addEventListener("keydown", onKey);
+      }, 380);
+      window.setTimeout(() => { if (!done) step(); }, 5400); // 久等也会自己开门，不把读者挡在外面
+    });
     const showArrivalInterlude = () => new Promise((resolve, reject) => {
       if (!arrivalInterlude || !arrivalTrack || !arrivalScroller || !arrivalEnterButton || !arrivalSkipButton) {
         reject(new Error("The parallax arrival interlude is incomplete."));
@@ -1419,11 +1469,17 @@
         removeListeners();
         exitArrivalScene(() => {
           arrivalInterlude.classList.add("is-leaving");
-          revealHome();
-          window.scrollTo({ top: 0, behavior: "auto" });
-          document.querySelector(".hero-actions a")?.focus({ preventScroll: true });
-          resolve();
+          runPaperGate(revealHome).then(() => {
+            window.scrollTo({ top: 0, behavior: "auto" });
+            document.querySelector(".hero-actions a")?.focus({ preventScroll: true });
+            resolve();
+          });
         });
+      };
+      const skipAll = () => { // 跳过入场＝连纸门一起跳过
+        paperGate?.remove();
+        body.classList.remove("paper-gate-open");
+        finish();
       };
       const onWheel = (event) => {
         if (finished || event.deltaY <= 0) return;
@@ -1472,7 +1528,7 @@
       window.setTimeout(raiseHint, 1100); // 入场过渡稳住后再全屏提示下滑
       window.addEventListener("pointermove", updateArrivalPointer, { passive: true });
       arrivalEnterButton.addEventListener("click", enterOrAdvance);
-      arrivalSkipButton.addEventListener("click", finish);
+      arrivalSkipButton.addEventListener("click", skipAll);
       arrivalChapterButtons?.forEach((button) => {
         button.addEventListener("click", () => {
           const chapter = Number(button.dataset.arrivalScene);
@@ -1591,6 +1647,8 @@
       calligraphySequence.remove();
       inkInterlude?.remove();
       arrivalInterlude?.remove();
+      paperGate?.remove();
+      document.body.classList.remove("paper-gate-open");
       document.querySelectorAll("header[inert], main[inert], footer[inert], audio[inert]").forEach((element) => element.removeAttribute("inert"));
       document.querySelector(".hero-actions a")?.focus({ preventScroll: true });
     } else {
@@ -3402,6 +3460,7 @@
   const railButtons = Array.from(main.querySelectorAll(".stage-rail button"));
   const stageCam = stage.querySelector(".stage-cam");
   const stageCut = stage.querySelector(".stage-cut");
+  const stageWash = stage.querySelector(".stage-wash");
   document.body.classList.add("stage-mode");
   // 入场（翻书/抵达序章）期间不接管任何叙事互动：书已翻开且抵达序章落幕才算就绪
   const narrativeReady = () => body.classList.contains("book-opened") && !body.classList.contains("arrival-lock");
@@ -3409,12 +3468,12 @@
   /* ---------- 二、氛围基调（每幕一种水色墨意） ---------- */
   // cam = 每一幕的摄影机机位（DCC 里的一台推轨）：x 横移、y 升降、z 推拉、roll 滚转、fov 焦段
   const MOODS = [
-    { a: 0xaebfb2, b: 0xe3e9de, speed: 0.8, dirY: 0.10, opacity: 0.75, size: 1.0, cam: { x: 0, y: 0, z: 0, roll: 0, fov: 46 } },       // 0 月色 · 静
-    { a: 0xc2ac8a, b: 0xe9dfc8, speed: 0.6, dirY: 0.06, opacity: 0.65, size: 0.9, cam: { x: -150, y: 58, z: -110, roll: -0.8, fov: 45 } },  // 1 识人 · 纸暖
-    { a: 0x7e9385, b: 0xd3dcd0, speed: 0.9, dirY: 0.12, opacity: 0.8, size: 1.0, cam: { x: 165, y: -44, z: -215, roll: 0.9, fov: 47 } },   // 2 读词 · 墨绿
-    { a: 0x8aa69e, b: 0xd2e1d9, speed: 1.2, dirY: -0.16, opacity: 0.85, size: 0.95, cam: { x: -78, y: 70, z: -300, roll: -0.6, fov: 45.5 } }, // 3 拾句 · 水流
-    { a: 0xc9a26f, b: 0xead9b6, speed: 0.7, dirY: 0.34, opacity: 0.8, size: 0.8, cam: { x: 132, y: -62, z: -380, roll: 0.85, fov: 47.5 } }, // 4 回响 · 灯上浮
-    { a: 0x93a5ad, b: 0xd9e0e1, speed: 1.05, dirY: -0.4, opacity: 0.85, size: 0.9, cam: { x: 6, y: 18, z: -450, roll: 0.15, fov: 46 } }    // 5 留笔 · 江下行
+    { a: 0xaebfb2, b: 0xe3e9de, speed: 0.8, dirY: 0.10, opacity: 0.75, size: 1.0, name: "月白", cam: { x: 0, y: 0, z: 0, roll: 0, fov: 46 } },       // 0 月色 · 静
+    { a: 0xc2ac8a, b: 0xe9dfc8, speed: 0.6, dirY: 0.06, opacity: 0.65, size: 0.9, name: "纸暖", cam: { x: -150, y: 58, z: -110, roll: -0.8, fov: 45 } },  // 1 识人 · 纸暖
+    { a: 0x7e9385, b: 0xd3dcd0, speed: 0.9, dirY: 0.12, opacity: 0.8, size: 1.0, name: "墨绿", cam: { x: 165, y: -44, z: -215, roll: 0.9, fov: 47 } },   // 2 读词 · 墨绿
+    { a: 0x8aa69e, b: 0xd2e1d9, speed: 1.2, dirY: -0.16, opacity: 0.85, size: 0.95, name: "水青", cam: { x: -78, y: 70, z: -300, roll: -0.6, fov: 45.5 } }, // 3 拾句 · 水流
+    { a: 0xc9a26f, b: 0xead9b6, speed: 0.7, dirY: 0.34, opacity: 0.8, size: 0.8, name: "灯金", cam: { x: 132, y: -62, z: -380, roll: 0.85, fov: 47.5 } }, // 4 回响 · 灯上浮
+    { a: 0x93a5ad, b: 0xd9e0e1, speed: 1.05, dirY: -0.4, opacity: 0.85, size: 0.9, name: "江灰", cam: { x: 6, y: 18, z: -450, roll: 0.15, fov: 46 } }    // 5 留笔 · 江下行
   ];
   let moodTarget = MOODS[0];
   /* ---------- 二之一、换幕导演：一幕一景，新幕自纵深飞来 ---------- */
@@ -3433,8 +3492,11 @@
   let settleTimer = 0;
   let staggerTimer = 0;
   let cutTimer = 0;
+  let washTimer = 0;
   let camKick = 0;
   let rollKick = 0;
+  let surgeFn = () => {}; // three.js 就绪后接管：换幕时把悬浮物像鼓风一样推过镜头
+  let foldItems = [];    // 折子目录里的六枚折角
 
   const updateRail = (idx) => {
     railButtons.forEach((btn, i) => {
@@ -3443,6 +3505,7 @@
       if (on) btn.setAttribute("aria-current", "step");
       else btn.removeAttribute("aria-current");
     });
+    foldItems.forEach((item, i) => item.classList.toggle("is-on", i === idx));
   };
   const clearStagger = () => {
     stage.querySelectorAll(".stg").forEach((node) => {
@@ -3471,14 +3534,22 @@
     window.clearTimeout(settleTimer);
     window.clearTimeout(staggerTimer);
     clearStagger();
-    // 镜头调度：换幕瞬间给摄影机一记推轨冲动（顺读前推、回读后拉），并压一下快门暗角
+    // 镜头调度：换幕瞬间给摄影机一记推轨冲动（顺读前推、回读后拉）
     camKick += dir > 0 ? -260 : 240;
     rollKick += dir > 0 ? 240 : -210;
-    if (stageCut) {
+    // 顺读＝洗白过曝（新幕从白里显影）；回读＝快门暗角收回，方向感分得清
+    if (dir > 0 && stageWash) {
+      window.clearTimeout(washTimer);
+      stageWash.classList.remove("is-on");
+      void stageWash.offsetWidth;
+      stageWash.classList.add("is-on");
+      washTimer = window.setTimeout(() => stageWash.classList.remove("is-on"), 1000);
+    } else if (stageCut) {
       window.clearTimeout(cutTimer);
       stageCut.classList.add("is-on");
       cutTimer = window.setTimeout(() => stageCut.classList.remove("is-on"), 230);
     }
+    surgeFn(dir); // 鼓风：悬浮物从纵深涌向镜头
     scenes.forEach((scene, i) => { scene.style.zIndex = i === next ? "3" : i === current ? "2" : ""; });
     to.classList.remove("fly-fwd", "fly-back", "is-settled", "is-depart-fwd", "is-depart-back");
     to.classList.add("is-live", dir > 0 ? "fly-fwd" : "fly-back");
@@ -3494,6 +3565,7 @@
     moodTarget = MOODS[next] || MOODS[0];
     body.dataset.act = String(next);
     updateRail(next);
+    hideHint();
     settleTimer = window.setTimeout(() => {
       from.classList.remove("is-live", "is-depart-fwd", "is-depart-back");
       from.style.zIndex = "";
@@ -3525,6 +3597,44 @@
   updateRail(0);
   body.dataset.act = "0";
   moodTarget = MOODS[0];
+
+  /* 折子引导：把六幕的折子抽成书脊目录，展开可跳幕；折叠时只剩一枚竖排"折" */
+  const toHex = (n) => "#" + ("000000" + n.toString(16)).slice(-6);
+  const foldGuide = main.querySelector(".fold-guide");
+  const stageHint = main.querySelector(".stage-hint");
+  if (foldGuide) {
+    const sheet = foldGuide.querySelector(".fg-sheet");
+    const toggle = foldGuide.querySelector(".fg-toggle");
+    scenes.forEach((scene, i) => {
+      const parts = (scene.dataset.chapter || "").split("·");
+      const mood = MOODS[i] || MOODS[0];
+      const item = document.createElement("button");
+      item.type = "button";
+      item.className = "fg-item";
+      item.innerHTML = "<b></b><i></i><span></span>";
+      item.querySelector("b").textContent = (parts[0] || "0" + (i + 1)).trim();
+      item.querySelector("span").textContent = (parts[1] || "").trim() || mood.name;
+      item.querySelector("i").style.background = toHex(mood.a);
+      item.addEventListener("click", () => { closeFold(); go(i); });
+      sheet.appendChild(item);
+      foldItems.push(item);
+    });
+    const openFold = () => { foldGuide.classList.add("is-open"); toggle.setAttribute("aria-expanded", "true"); };
+    const closeFold = () => { foldGuide.classList.remove("is-open"); toggle.setAttribute("aria-expanded", "false"); };
+    toggle.addEventListener("click", () => {
+      if (foldGuide.classList.contains("is-open")) closeFold(); else openFold();
+    });
+    foldGuide.addEventListener("pointerenter", () => { if (!matchMedia("(hover:none)").matches) openFold(); });
+    foldGuide.addEventListener("pointerleave", () => { if (!matchMedia("(hover:none)").matches) closeFold(); });
+    document.addEventListener("click", (event) => { if (!foldGuide.contains(event.target)) closeFold(); });
+    updateRail(current); // 目录建好后补一次高亮
+  }
+  const hideHint = () => stageHint?.classList.remove("is-on");
+  const hintTick = () => { // 只等入场真正结束、且仍停在首幕时才招手
+    if (narrativeReady() && current === 0) stageHint?.classList.add("is-on");
+    else window.setTimeout(hintTick, 900);
+  };
+  window.setTimeout(hintTick, 4200);
 
   /* 输入：滚轮 / 键盘 / 触控 / 右侧章节 */
   let lastWheelAt = 0;
@@ -3587,6 +3697,10 @@
   let pulse = 0;
   let atmosphere = null;
   const camNow = { x: 0, y: 0, z: 0, roll: 0, fov: 46 };
+  const surging = [];   // 换幕时被"鼓风"推过镜头的悬浮物
+  let surgeT = 1;
+  let pieceWhite = null;
+  let lastTick = 0;
   if (typeof THREE !== "undefined") {
     try {
       const canvas = document.createElement("canvas");
@@ -3685,7 +3799,7 @@
             gl_PointSize = mix(70.0, 340.0, aScale) * uSizeMul * uPix * (1.0 + uPulse * 0.45) * (900.0 / max(460.0, -mv.z));
           }`,
         fragmentShader: `
-          precision mediump float;
+          precision highp float;
           uniform vec3 uColorA, uColorB;
           uniform float uOpacity, uPulse;
           varying float vSeed, vScale, vTw;
@@ -3698,7 +3812,101 @@
           }`
       });
       scene.add(new THREE.Points(geometry, material));
-      atmosphere = { renderer, scene, camera, uniforms, fogLayers, fogColor: new THREE.Color(MOODS[0].a) };
+
+      /* 鼓风物件：纸笺 / 花瓣 / 墨点；换幕瞬间从纵深涌向镜头、从两侧掠过（风箱一鼓） */
+      pieceWhite = new THREE.Color(0xffffff);
+      const pieceTex = (kind, glyph) => {
+        const c = document.createElement("canvas");
+        c.width = c.height = 128;
+        const g = c.getContext("2d");
+        g.fillStyle = "#fff";
+        if (kind === 0) {
+          g.save(); g.translate(64, 64); g.rotate(-0.18);
+          g.beginPath();
+          if (g.roundRect) g.roundRect(-46, -32, 92, 64, 7); else g.rect(-46, -32, 92, 64);
+          g.fill(); g.restore();
+        } else if (kind === 1) {
+          g.save(); g.translate(64, 64);
+          g.beginPath(); g.moveTo(0, -48);
+          g.bezierCurveTo(36, -30, 30, 28, 0, 48);
+          g.bezierCurveTo(-30, 28, -36, -30, 0, -48);
+          g.fill(); g.restore();
+        } else if (kind === 2) {
+          const rg = g.createRadialGradient(64, 64, 2, 64, 64, 60);
+          rg.addColorStop(0, "rgba(255,255,255,.95)");
+          rg.addColorStop(.5, "rgba(255,255,255,.6)");
+          rg.addColorStop(1, "rgba(255,255,255,0)");
+          g.fillStyle = rg; g.beginPath(); g.arc(64, 64, 60, 0, 6.2832); g.fill();
+        } else { // 诗字：一枚单字飘在雾里
+          g.textAlign = "center"; g.textBaseline = "middle";
+          g.font = "600 92px Georgia, 'Songti SC', serif";
+          g.fillText(glyph, 64, 68);
+        }
+        const tex = new THREE.CanvasTexture(c);
+        tex.minFilter = THREE.LinearFilter;
+        return tex;
+      };
+      const pieceTexes = [pieceTex(0), pieceTex(1), pieceTex(2), pieceTex(3, "春"), pieceTex(3, "水"), pieceTex(3, "月")];
+      const PIECE_COUNT = desktopLayout ? 48 : 26;
+      for (let i = 0; i < PIECE_COUNT; i++) {
+        const kind = i % 4; // 纸笺 / 花瓣 / 墨点 / 诗字
+        const mesh = new THREE.Mesh(
+          new THREE.PlaneGeometry(1, 1),
+          new THREE.MeshBasicMaterial({ map: pieceTexes[kind === 3 ? 3 + (i % 3) : kind], transparent: true, opacity: 0, depthWrite: false, depthTest: false, color: 0xf3f0e6 })
+        );
+        mesh.userData = { kind, seed: Math.random() * 6.283, op: 0.3 + Math.random() * 0.42, z0: 0, x0: 0, y0: 0, delay: 0, spin: 0, rot: 0, travel: 1, rx: 0, ry: 0, rvx: 0, rvy: 0, drift: 20 };
+        mesh.visible = false;
+        scene.add(mesh);
+        surging.push(mesh);
+      }
+      // 常态漂浮：每幕都有的活物，慢慢向镜头漂；指针靠近会被拂开再弹回
+      const spawnAmbient = (mesh) => {
+        const d = mesh.userData;
+        const z = -430 - Math.random() * 3200;
+        d.x0 = (Math.random() - 0.5) * Math.abs(z) * 0.95;
+        d.y0 = (Math.random() - 0.5) * Math.abs(z) * 0.6;
+        d.rot = Math.random() * 6.283;
+        d.spin = (Math.random() - 0.5) * 0.7;
+        d.drift = 16 + Math.random() * 48;
+        d.rx = d.ry = d.rvx = d.rvy = 0;
+        d.delay = 0;
+        mesh.position.set(d.x0, d.y0, z);
+        mesh.rotation.z = d.rot;
+        const s = 95 + Math.random() * 300;
+        mesh.scale.set(
+          s * (d.kind === 0 ? 1.15 : d.kind === 1 ? 0.72 : d.kind === 3 ? 0.9 : 0.5),
+          s * (d.kind === 0 ? 0.64 : d.kind === 3 ? 0.9 : 1),
+          1
+        );
+        mesh.material.opacity = d.op;
+        mesh.visible = true;
+      };
+      surging.forEach(spawnAmbient);
+      surgeFn = () => {
+        surgeT = 0;
+        for (let i = 0; i < surging.length; i++) {
+          const mesh = surging[i];
+          const d = mesh.userData;
+          const far = 950 + Math.random() * 3000;
+          d.z0 = -far;
+          d.x0 = (Math.random() - 0.5) * far * 0.95;
+          d.y0 = (Math.random() - 0.5) * far * 0.58;
+          d.delay = Math.random() * 0.28;
+          d.spin = (Math.random() - 0.5) * 3.6;
+          d.rot = Math.random() * 6.283;
+          d.travel = far + 700;
+          d.rx = d.ry = d.rvx = d.rvy = 0;
+          const s = 130 + Math.random() * 360;
+          mesh.scale.set(
+            s * (d.kind === 0 ? 1.2 : d.kind === 1 ? 0.66 : d.kind === 3 ? 0.92 : 0.5),
+            s * (d.kind === 0 ? 0.66 : d.kind === 3 ? 0.92 : 1),
+            1
+          );
+          mesh.material.opacity = 0;
+          mesh.visible = true;
+        }
+      };
+      atmosphere = { renderer, scene, camera, uniforms, fogLayers, fogColor: new THREE.Color(MOODS[0].a), pieceColor: new THREE.Color(MOODS[0].a) };
       const onResize = () => {
         renderer.setSize(window.innerWidth, window.innerHeight, false);
         camera.aspect = window.innerWidth / window.innerHeight;
@@ -3785,6 +3993,8 @@
   const tick = (now) => {
     window.requestAnimationFrame(tick);
     if (document.hidden || !narrativeReady()) return;
+    const dt = Math.min(0.05, lastTick ? (now - lastTick) / 1000 : 0.016);
+    lastTick = now;
     wind.x *= 0.93;
     wind.y *= 0.93;
     pulse *= 0.94;
@@ -3796,7 +4006,7 @@
     stage.style.setProperty("--px", (-pointerLerp.x).toFixed(3));
     stage.style.setProperty("--py", pointerLerp.y.toFixed(3));
     if (stageCam) {
-      stageCam.style.transform = "translate3d(" + (-pointerLerp.x * 11).toFixed(2) + "px," + (pointerLerp.y * 8).toFixed(2) + "px,0) rotateZ(" + (-rollKick * 0.0055).toFixed(3) + "deg) scale(1.02)";
+      stageCam.style.transform = "translate3d(" + (-pointerLerp.x * 20).toFixed(2) + "px," + (pointerLerp.y * 14).toFixed(2) + "px,0) rotateZ(" + (-rollKick * 0.0055).toFixed(3) + "deg) scale(1.02)";
     }
     if (atmosphere) {
       const u = atmosphere.uniforms;
@@ -3829,6 +4039,66 @@
         mesh.material.color.copy(atmosphere.fogColor);
         mesh.position.y = mesh.userData.y + Math.sin(now * 0.00016 + mesh.userData.bob) * 120;
       });
+      // 鼓风：纸笺/花瓣/墨点带着自转掠过镜头，越近越大、末端淡出
+      if (surgeT < 1) {
+        surgeT = Math.min(1, surgeT + dt * 0.8);
+        atmosphere.pieceColor.copy(atmosphere.fogColor).lerp(pieceWhite, 0.4);
+        for (let i = 0; i < surging.length; i++) {
+          const mesh = surging[i];
+          const d = mesh.userData;
+          const local = Math.max(0, Math.min(1, (surgeT - d.delay) / 0.58));
+          const spread = 1 + local * 0.62;
+          mesh.position.set(
+            d.x0 * spread + Math.sin(now * 0.0005 + d.seed) * 26,
+            d.y0 * spread + Math.cos(now * 0.0004 + d.seed) * 22,
+            d.z0 + local * d.travel
+          );
+          mesh.rotation.z = d.rot + local * d.spin;
+          const fade = local < 0.08 ? local / 0.08 : local > 0.86 ? Math.max(0, (1 - local) / 0.14) : 1;
+          mesh.material.opacity = fade * d.op;
+          mesh.material.color.copy(atmosphere.pieceColor);
+        }
+      } else {
+        // 常态：四十八件漂浮物慢慢向镜头漂，指针靠近便拂开、点击一振
+        for (let i = 0; i < surging.length; i++) {
+          const mesh = surging[i];
+          const d = mesh.userData;
+          let z = mesh.position.z + d.drift * dt;
+          if (z > -320) { // 飘到镜头前就回到最深处，循环成一片不会空的雾
+            z = -430 - Math.random() * 3200;
+            d.x0 = (Math.random() - 0.5) * Math.abs(z) * 0.95;
+            d.y0 = (Math.random() - 0.5) * Math.abs(z) * 0.6;
+            d.rot = Math.random() * 6.283;
+            d.rx = d.ry = d.rvx = d.rvy = 0;
+          }
+          const depth = Math.abs(z);
+          const px = pointerLerp.x * depth * 0.78;
+          const py = pointerLerp.y * depth * 0.5;
+          const dx = d.x0 + d.rx - px;
+          const dy = d.y0 + d.ry - py;
+          const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+          const reach = 780;
+          if (dist < reach) {
+            const force = (1 - dist / reach) * 190 * dt;
+            d.rvx += (dx / dist) * force;
+            d.rvy += (dy / dist) * force;
+          }
+          d.rvx *= 0.94; d.rvy *= 0.94;
+          d.rx = d.rx * 0.966 + d.rvx * dt * 14;
+          d.ry = d.ry * 0.966 + d.rvy * dt * 14;
+          d.rot += d.spin * dt;
+          mesh.position.set(
+            d.x0 + d.rx + Math.sin(now * 0.00042 + d.seed) * 22,
+            d.y0 + d.ry + Math.cos(now * 0.00036 + d.seed * 1.7) * 18,
+            z
+          );
+          mesh.rotation.z = d.rot;
+          const near = Math.min(1, Math.max(0, (-z - 430) / 1200));
+          mesh.material.opacity = d.op * (0.38 + 0.62 * near) * (0.85 + pulse * 0.3);
+          mesh.material.color.copy(atmosphere.pieceColor).lerp(pieceWhite, 0.34 + pulse * 0.4);
+          if (!mesh.visible) mesh.visible = true;
+        }
+      }
       atmosphere.renderer.render(atmosphere.scene, atmosphere.camera);
     }
     if (now < brushUntil) {
