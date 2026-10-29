@@ -3400,18 +3400,21 @@
   const scenes = Array.from(stage.querySelectorAll(".scene"));
   if (scenes.length < 3) return;
   const railButtons = Array.from(main.querySelectorAll(".stage-rail button"));
+  const stageCam = stage.querySelector(".stage-cam");
+  const stageCut = stage.querySelector(".stage-cut");
   document.body.classList.add("stage-mode");
   // 入场（翻书/抵达序章）期间不接管任何叙事互动：书已翻开且抵达序章落幕才算就绪
   const narrativeReady = () => body.classList.contains("book-opened") && !body.classList.contains("arrival-lock");
 
   /* ---------- 二、氛围基调（每幕一种水色墨意） ---------- */
+  // cam = 每一幕的摄影机机位（DCC 里的一台推轨）：x 横移、y 升降、z 推拉、roll 滚转、fov 焦段
   const MOODS = [
-    { a: 0xaebfb2, b: 0xe3e9de, speed: 0.8, dirY: 0.10, opacity: 0.75, size: 1.0 },   // 0 月色 · 静
-    { a: 0xc2ac8a, b: 0xe9dfc8, speed: 0.6, dirY: 0.06, opacity: 0.65, size: 0.9 },   // 1 识人 · 纸暖
-    { a: 0x7e9385, b: 0xd3dcd0, speed: 0.9, dirY: 0.12, opacity: 0.8, size: 1.0 },    // 2 读词 · 墨绿
-    { a: 0x8aa69e, b: 0xd2e1d9, speed: 1.2, dirY: -0.16, opacity: 0.85, size: 0.95 }, // 3 拾句 · 水流
-    { a: 0xc9a26f, b: 0xead9b6, speed: 0.7, dirY: 0.34, opacity: 0.8, size: 0.8 },    // 4 回响 · 灯上浮
-    { a: 0x93a5ad, b: 0xd9e0e1, speed: 1.05, dirY: -0.4, opacity: 0.85, size: 0.9 }   // 5 留笔 · 江下行
+    { a: 0xaebfb2, b: 0xe3e9de, speed: 0.8, dirY: 0.10, opacity: 0.75, size: 1.0, cam: { x: 0, y: 0, z: 0, roll: 0, fov: 46 } },       // 0 月色 · 静
+    { a: 0xc2ac8a, b: 0xe9dfc8, speed: 0.6, dirY: 0.06, opacity: 0.65, size: 0.9, cam: { x: -150, y: 58, z: -110, roll: -0.8, fov: 45 } },  // 1 识人 · 纸暖
+    { a: 0x7e9385, b: 0xd3dcd0, speed: 0.9, dirY: 0.12, opacity: 0.8, size: 1.0, cam: { x: 165, y: -44, z: -215, roll: 0.9, fov: 47 } },   // 2 读词 · 墨绿
+    { a: 0x8aa69e, b: 0xd2e1d9, speed: 1.2, dirY: -0.16, opacity: 0.85, size: 0.95, cam: { x: -78, y: 70, z: -300, roll: -0.6, fov: 45.5 } }, // 3 拾句 · 水流
+    { a: 0xc9a26f, b: 0xead9b6, speed: 0.7, dirY: 0.34, opacity: 0.8, size: 0.8, cam: { x: 132, y: -62, z: -380, roll: 0.85, fov: 47.5 } }, // 4 回响 · 灯上浮
+    { a: 0x93a5ad, b: 0xd9e0e1, speed: 1.05, dirY: -0.4, opacity: 0.85, size: 0.9, cam: { x: 6, y: 18, z: -450, roll: 0.15, fov: 46 } }    // 5 留笔 · 江下行
   ];
   let moodTarget = MOODS[0];
   /* ---------- 二之一、换幕导演：一幕一景，新幕自纵深飞来 ---------- */
@@ -3429,6 +3432,9 @@
   let busy = false;
   let settleTimer = 0;
   let staggerTimer = 0;
+  let cutTimer = 0;
+  let camKick = 0;
+  let rollKick = 0;
 
   const updateRail = (idx) => {
     railButtons.forEach((btn, i) => {
@@ -3448,6 +3454,7 @@
   };
   const prepStagger = (scene) => {
     Array.from(scene.querySelectorAll(STAGGER_SEL)).forEach((node, i) => {
+      node.style.transform = ""; // 清掉词卡的悬停倾斜，交还给 stagger
       node.classList.add("stg");
       node.style.setProperty("--i", String(i));
       if (node.classList.contains("poem-card")) node.style.setProperty("--sx", i % 2 ? "90px" : "-90px");
@@ -3464,6 +3471,14 @@
     window.clearTimeout(settleTimer);
     window.clearTimeout(staggerTimer);
     clearStagger();
+    // 镜头调度：换幕瞬间给摄影机一记推轨冲动（顺读前推、回读后拉），并压一下快门暗角
+    camKick += dir > 0 ? -260 : 240;
+    rollKick += dir > 0 ? 240 : -210;
+    if (stageCut) {
+      window.clearTimeout(cutTimer);
+      stageCut.classList.add("is-on");
+      cutTimer = window.setTimeout(() => stageCut.classList.remove("is-on"), 230);
+    }
     scenes.forEach((scene, i) => { scene.style.zIndex = i === next ? "3" : i === current ? "2" : ""; });
     to.classList.remove("fly-fwd", "fly-back", "is-settled", "is-depart-fwd", "is-depart-back");
     to.classList.add("is-live", dir > 0 ? "fly-fwd" : "fly-back");
@@ -3552,13 +3567,26 @@
   railButtons.forEach((btn) => {
     btn.addEventListener("click", () => go(Number(btn.dataset.go)));
   });
+  /* 微互动：词卡随光标轻倾（桌面端）——位移交给 CSS translate，倾斜写在这层 transform 上 */
+  if (finePointer) {
+    stage.querySelectorAll(".poem-card").forEach((card) => {
+      card.addEventListener("pointermove", (event) => {
+        const rect = card.getBoundingClientRect();
+        const dx = (event.clientX - rect.left) / rect.width - 0.5;
+        const dy = (event.clientY - rect.top) / rect.height - 0.5;
+        card.style.transform = "perspective(760px) rotateX(" + (-dy * 6).toFixed(2) + "deg) rotateY(" + (dx * 8).toFixed(2) + "deg) scale(1.025)";
+      });
+      card.addEventListener("pointerleave", () => { card.style.transform = ""; });
+    });
+  }
 
-  /* ---------- 四、three.js 氛围长卷：随幕换调的淡墨云雾 ---------- */
+  /* ---------- 四、three.js 立体雾场：一台摄影机在雾里推轨，六幕各有机位 ---------- */
   const wind = { x: 0, y: 0 };
   const pointerTarget = { x: 0, y: 0 };
   const pointerLerp = { x: 0, y: 0 };
   let pulse = 0;
   let atmosphere = null;
+  const camNow = { x: 0, y: 0, z: 0, roll: 0, fov: 46 };
   if (typeof THREE !== "undefined") {
     try {
       const canvas = document.createElement("canvas");
@@ -3569,18 +3597,49 @@
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
       renderer.setClearColor(0x000000, 0);
       const scene = new THREE.Scene();
-      const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 10);
-      camera.position.z = 1;
-      const count = desktopLayout ? 260 : 120;
+      const camera = new THREE.PerspectiveCamera(46, window.innerWidth / window.innerHeight, 20, 40000);
+      camera.position.set(0, 0, 0);
+
+      /* 雾团：径向渐变软斑按深度散开；摄影机一横一推，近雾走得快、远雾走得慢，视差便出来了 */
+      const blobCanvas = document.createElement("canvas");
+      blobCanvas.width = blobCanvas.height = 256;
+      const blobCtx = blobCanvas.getContext("2d");
+      const blobGrad = blobCtx.createRadialGradient(128, 128, 0, 128, 128, 128);
+      blobGrad.addColorStop(0, "rgba(255,255,255,.62)");
+      blobGrad.addColorStop(.42, "rgba(255,255,255,.24)");
+      blobGrad.addColorStop(1, "rgba(255,255,255,0)");
+      blobCtx.fillStyle = blobGrad;
+      blobCtx.fillRect(0, 0, 256, 256);
+      const blobTex = new THREE.CanvasTexture(blobCanvas);
+      blobTex.minFilter = THREE.LinearFilter;
+      const fogLayers = [];
+      for (let i = 0; i < 16; i++) {
+        const mesh = new THREE.Mesh(
+          new THREE.PlaneGeometry(1, 1),
+          new THREE.MeshBasicMaterial({ map: blobTex, color: 0xeef0e8, transparent: true, opacity: 0.05 + Math.random() * 0.05, depthWrite: false, depthTest: false })
+        );
+        const z = -900 - Math.random() * 4200;
+        const dist = Math.abs(z);
+        mesh.position.set((Math.random() - .5) * dist * 0.85, (Math.random() - .5) * dist * 0.42, z);
+        const s = 900 + Math.random() * 1900;
+        mesh.scale.set(s, s * .62, 1);
+        mesh.userData.bob = Math.random() * 6.283;
+        mesh.userData.y = mesh.position.y;
+        scene.add(mesh);
+        fogLayers.push(mesh);
+      }
+      const count = desktopLayout ? 240 : 110;
       const positions = new Float32Array(count * 3);
       const seeds = new Float32Array(count);
       const scales = new Float32Array(count);
       for (let i = 0; i < count; i++) {
-        positions[i * 3] = Math.random() * 2.2 - 1.1;
-        positions[i * 3 + 1] = Math.random() * 2.2 - 1.1;
-        positions[i * 3 + 2] = 0;
+        const z = -520 - Math.random() * 3900;          // 深度分层：近处成虚化光斑，远处成细尘
+        const dist = Math.abs(z);
+        positions[i * 3] = (Math.random() - .5) * dist * 1.45;
+        positions[i * 3 + 1] = (Math.random() - .5) * dist * 0.95;
+        positions[i * 3 + 2] = z;
         seeds[i] = Math.random();
-        scales[i] = i % 5 < 2 ? 0.5 + Math.random() * 0.5 : 0.06 + Math.random() * 0.34; // 四成云雾、六成细尘
+        scales[i] = i % 5 < 2 ? 0.55 + Math.random() * 0.45 : 0.05 + Math.random() * 0.34; // 四成雾斑、六成细尘
       }
       const geometry = new THREE.BufferGeometry();
       geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
@@ -3612,17 +3671,18 @@
           varying float vSeed, vScale, vTw;
           void main() {
             vSeed = aSeed; vScale = aScale;
-            vec2 p = position.xy;
+            vec3 p = position;
             float t = uTime * uSpeed;
-            p.x += sin(t * 0.11 + aSeed * 19.0) * 0.055;
-            p.y += cos(t * 0.08 + aSeed * 31.0) * 0.04;
-            p.y = mod(p.y + t * uDirY * 0.05 + 1.1, 2.2) - 1.1;
-            p.x = mod(p.x + t * 0.011 + 1.15, 2.3) - 1.15;
-            p += uWind * (0.25 + aScale * 0.9);
-            p += uPointer * (0.015 + aScale * 0.05);
+            p.x += sin(t * 0.11 + aSeed * 19.0) * 62.0;
+            p.y += cos(t * 0.08 + aSeed * 31.0) * 46.0;
+            p.y = mod(p.y + t * uDirY * 26.0 + 2600.0, 5200.0) - 2600.0;
+            p.x += uWind.x * (70.0 + aScale * 280.0);
+            p.y += uWind.y * (50.0 + aScale * 210.0);
+            p.xy += uPointer * (24.0 + aScale * 86.0);
+            vec4 mv = modelViewMatrix * vec4(p, 1.0);
             vTw = 0.72 + 0.28 * sin(t * 0.6 + aSeed * 43.0);
-            gl_Position = vec4(p, 0.0, 1.0);
-            gl_PointSize = mix(14.0, 132.0, aScale) * uSizeMul * uPix * (1.0 + uPulse * 0.45);
+            gl_Position = projectionMatrix * mv;
+            gl_PointSize = mix(70.0, 340.0, aScale) * uSizeMul * uPix * (1.0 + uPulse * 0.45) * (900.0 / max(460.0, -mv.z));
           }`,
         fragmentShader: `
           precision mediump float;
@@ -3638,9 +3698,11 @@
           }`
       });
       scene.add(new THREE.Points(geometry, material));
-      atmosphere = { renderer, scene, camera, uniforms };
+      atmosphere = { renderer, scene, camera, uniforms, fogLayers, fogColor: new THREE.Color(MOODS[0].a) };
       const onResize = () => {
         renderer.setSize(window.innerWidth, window.innerHeight, false);
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
         uniforms.uPix.value = Math.min(window.devicePixelRatio || 1, 1.75);
       };
       window.addEventListener("resize", onResize);
@@ -3726,11 +3788,31 @@
     wind.x *= 0.93;
     wind.y *= 0.93;
     pulse *= 0.94;
+    camKick *= 0.9;
+    rollKick *= 0.9;
     pointerLerp.x = lerp(pointerLerp.x, pointerTarget.x, 0.06);
     pointerLerp.y = lerp(pointerLerp.y, pointerTarget.y, 0.06);
-    // 指针缓慢追随：插值平滑后写入 three.js 氛围着色器 uPointer，让雾粒光晕跟着鼠标轻轻游移
+    // 指针推动镜头：整组幕轻微横移/滚转，与 three.js 摄影机同向，才像同一台机器
+    stage.style.setProperty("--px", (-pointerLerp.x).toFixed(3));
+    stage.style.setProperty("--py", pointerLerp.y.toFixed(3));
+    if (stageCam) {
+      stageCam.style.transform = "translate3d(" + (-pointerLerp.x * 11).toFixed(2) + "px," + (pointerLerp.y * 8).toFixed(2) + "px,0) rotateZ(" + (-rollKick * 0.0055).toFixed(3) + "deg) scale(1.02)";
+    }
     if (atmosphere) {
       const u = atmosphere.uniforms;
+      const cam = moodTarget.cam;
+      camNow.x = lerp(camNow.x, cam.x + pointerLerp.x * 46, 0.055);
+      camNow.y = lerp(camNow.y, cam.y - pointerLerp.y * 34, 0.055);
+      camNow.z = lerp(camNow.z, cam.z + camKick, 0.055);
+      camNow.roll = lerp(camNow.roll, cam.roll - pointerLerp.x * 0.5, 0.055);
+      camNow.fov = lerp(camNow.fov, cam.fov, 0.055);
+      const cam3 = atmosphere.camera;
+      cam3.position.set(camNow.x, camNow.y, camNow.z);
+      cam3.rotation.z = camNow.roll * Math.PI / 180;
+      if (Math.abs(cam3.fov - camNow.fov) > 0.03) {
+        cam3.fov = camNow.fov;
+        cam3.updateProjectionMatrix();
+      }
       const sizeBase = Math.min(1, 0.55 + window.innerWidth / 2400);
       u.uTime.value = now * 0.001;
       u.uWind.value.set(wind.x, wind.y);
@@ -3742,6 +3824,11 @@
       u.uSizeMul.value = lerp(u.uSizeMul.value, moodTarget.size * sizeBase, 0.045);
       u.uColorA.value.lerp(new THREE.Color(moodTarget.a), 0.045);
       u.uColorB.value.lerp(new THREE.Color(moodTarget.b), 0.045);
+      atmosphere.fogColor.lerp(new THREE.Color(moodTarget.a), 0.03);
+      atmosphere.fogLayers.forEach((mesh) => {
+        mesh.material.color.copy(atmosphere.fogColor);
+        mesh.position.y = mesh.userData.y + Math.sin(now * 0.00016 + mesh.userData.bob) * 120;
+      });
       atmosphere.renderer.render(atmosphere.scene, atmosphere.camera);
     }
     if (now < brushUntil) {

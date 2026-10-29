@@ -15,8 +15,9 @@
   <meta property="og:description" content="走进南唐后主李煜的一生与词作，读写作背景、听词句回响，在一江春水间遇见千年前的悲欢。">
   <meta property="og:image" content="assets/image/home-hero-clean-v2.jpg">
   <meta property="og:locale" content="zh_CN">
-  <link rel="stylesheet" href="css/style.css?v=f70">
-  <script src="js/script.js?v=f69" defer></script>
+  <link rel="stylesheet" href="css/style.css?v=f76">
+  <script src="js/three.min.js" defer></script>
+  <script src="js/script.js?v=f76" defer></script>
 </head>
 <!-- body.home-page：首页专用类，供 CSS 区分首页与其他子页（开场未揭开前隐藏页头与正文） -->
 <body class="home-page">
@@ -189,15 +190,22 @@
     <a class="brand" href="index.html"><span class="brand-seal">煜</span><span>一江春水<small>李煜词境 · 南唐旧梦</small></span></a>
     <button class="menu-toggle" aria-label="打开导航" aria-expanded="false">☰</button>
     <nav class="main-nav" aria-label="主导航">
-      <a class="active" href="index.html" aria-current="page">首页</a><a href="pages/life.html">词人故事</a><a href="pages/ci.html">词作笺赏</a><a href="pages/wanxiang.html">词容万象</a><a href="pages/listen.html">听词入梦</a>
+      <a class="active" href="index.html" aria-current="page">首页</a><a href="pages/life.html">词人故事</a><a href="pages/ci.html">词作笺赏</a><a href="pages/wanxiang.html">词容万象</a><a href="pages/listen.html">听词入梦</a><a href="pages/map.html">水墨行迹</a>
     </nav>
     <div class="sound-controls"><button class="sound-toggle" type="button" aria-label="关闭背景音乐" aria-pressed="true"><span class="sound-icon">♫</span><span class="sound-status">音乐开启</span></button><label class="volume-control"><span class="visually-hidden">背景音乐音量</span><input class="volume-slider" type="range" min="0" max="1" step="0.01" value="0.32"></label></div>
   </header>
 <!-- 主体：id="main-content" 供顶部「跳至主要内容」链接定位；tabindex="-1" 使其可被程序聚焦；开场未揭开时 inert -->
   <main id="main-content" tabindex="-1" inert>
-<!-- 云气舞台：把「首屏 + 词人介绍 + 左右两团云气」收进同一个容器，作为云气绝对定位的参照系
-         （云气按脚本量出的 --hero-h 贴在首屏下缘之外，滚动时飘到词人介绍之上） -->
-    <div class="cloud-stage">
+<!-- 首页整屏舞台（f76）：home-stage 收纳 6 幕场景同屏叠放，由 script.js 换幕导演切幕；stage-ambience 承托两团氛围云气（纯装饰） -->
+    <div class="home-stage" id="homeStage">
+      <div class="stage-ambience" aria-hidden="true">
+        <div class="hero-cloud hero-cloud-left"><img src="assets/image/hero-mist-cloud.png" alt="" decoding="async"></div>
+        <div class="hero-cloud hero-cloud-right"><img src="assets/image/hero-mist-cloud.png" alt="" decoding="async"></div>
+      </div>
+      <div class="stage-cam">
+      <section class="scene is-live" data-scene="0" data-chapter="壹 · 月下故园" aria-label="第一章 月下故园">
+        <div class="scene-wrap">
+          <div class="scene-content">
 <!-- 首屏 Hero：左侧文案(主标题 + 引言 + 按钮 + 名句) + 右侧月下古画图 + 底部滚动提示 -->
     <section class="hero">
       <div class="hero-copy">
@@ -228,22 +236,45 @@
         <img class="hero-lantern hl-b" src="assets/image/hero-lantern-6.png" alt="" loading="lazy" decoding="async">
         <img class="hero-lantern hl-c" src="assets/image/hero-lantern-7.png" alt="" loading="lazy" decoding="async">
       </div>
+      <span class="hero-moon" aria-hidden="true"></span>
+      <span class="hero-side-poem" aria-hidden="true">无言独上西楼<i>月如钩</i></span>
+      <div class="hero-petals" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
       <div class="hero-bottom"><span>SCROLL TO WANDER</span><span class="scroll-line"></span><span>01 / 04</span></div>
     </section>
+          </div>
+        </div>
+      </section>
 
 <!-- 词人介绍：左侧李煜画像 + 中间文字 + 右侧《虞美人》名句卡 -->
+      <section class="scene" data-scene="1" data-chapter="贰 · 识其人" aria-label="第二章 识其人">
+        <div class="scene-wrap">
+    <aside class="narrative-thread" aria-hidden="true">
+      <span class="nt-kicker">第一折 · 识其人</span>
+      <span class="nt-line">他从金陵的月色里走来</span>
+      <b class="nt-glyph">人</b>
+      <svg class="nt-stroke" viewBox="0 0 220 18"><path pathLength="1" d="M2 12 C42 4 73 16 112 9 S178 4 218 8"/></svg>
+    </aside>
+    <div class="scene-content">
     <section class="intro section-wrap">
       <div class="intro-poet"><div class="section-kicker">01 <span>THE POET</span></div><div class="portrait-frame"><img class="poet-portrait" src="assets/image/li-yu-portrait.jpg" alt="李煜人物画像" loading="lazy" decoding="async"></div></div>
       <div class="intro-heading"><h2>他把无常，<br>写成了永恒。</h2><p>李煜，南唐最后一位君主，也是中国词史上极具感染力的抒情者。前期词写宫廷生活与男女情思，后期词则沉入故国之思、身世之痛；词风由绮丽转为深沉，开拓了词的表达境界。</p><a class="under-link" href="pages/life.html">走近李煜 <span>↗</span></a></div>
       <div class="intro-card"><span class="card-index">A LIFE IN VERSE</span><p>“春花秋月何时了，<br>往事知多少。”</p><span class="card-caption">《虞美人》 · 绝唱</span><span class="card-orbit"></span></div>
     </section>
-<!-- 首屏云气（左）：贴在云气舞台里首屏下缘之外，随滚动进度向左下外侧飘散并淡出（纯装饰） -->
-      <div class="hero-cloud hero-cloud-left" aria-hidden="true"><img src="assets/image/hero-mist-cloud.png" alt="" decoding="async"></div>
-<!-- 首屏云气（右）：同一张雾云镜像后贴右侧，与左侧对称散开（纯装饰） -->
-      <div class="hero-cloud hero-cloud-right" aria-hidden="true"><img src="assets/image/hero-mist-cloud.png" alt="" decoding="async"></div>
     </div>
+        </div>
+      </section>
+
+      <section class="scene" data-scene="2" data-chapter="叁 · 读其词" aria-label="第三章 读其词">
+        <div class="scene-wrap">
 
 <!-- 精选词作：四张词卡(配图 + 编号 + 题材 + 词名 + 句选)，点击进入词作笺赏页锚点 -->
+    <aside class="narrative-thread nt-alt" aria-hidden="true">
+      <span class="nt-kicker">第二折 · 读其词</span>
+      <span class="nt-line">他把心事，写进词里</span>
+      <b class="nt-glyph">词</b>
+      <svg class="nt-stroke" viewBox="0 0 220 18"><path pathLength="1" d="M2 12 C42 4 73 16 112 9 S178 4 218 8"/></svg>
+    </aside>
+    <div class="scene-content">
     <section class="feature-section">
 <!-- 两山开合（左/右）：区块底层的山影装饰，随区块进出视口进度向两侧退开、渐隐消散（--part-p 由脚本写入，纯装饰） -->
       <span class="works-mountain works-mountain-left" aria-hidden="true"></span><span class="works-mountain works-mountain-right" aria-hidden="true"></span>
@@ -255,12 +286,88 @@
         <a class="poem-card card-four" href="pages/ci.html#清平乐"><img class="poem-card-image" src="assets/image/poem-qingpingle.jpg" alt="" aria-hidden="true" loading="lazy" decoding="async"><span class="poem-number">04 / 04</span><span class="poem-tag">相思之苦</span><h3>清平乐</h3><p>离恨恰如春草，<br>更行更远还生。</p><span class="poem-arrow">↗</span></a>
       </div>
     </section>
+    </div>
+        </div>
+      </section>
 
 <!-- 词外余韵：引导进入「词容万象」页 -->
+      <section class="scene" data-scene="3" data-chapter="肆 · 拾其句" aria-label="第四章 拾其句">
+        <div class="scene-wrap">
+    <aside class="narrative-thread" aria-hidden="true">
+      <span class="nt-kicker">第三折 · 拾其句</span>
+      <span class="nt-line">词散作水中字，等你拾回</span>
+      <b class="nt-glyph">拾</b>
+      <svg class="nt-stroke" viewBox="0 0 220 18"><path pathLength="1" d="M2 12 C42 4 73 16 112 9 S178 4 218 8"/></svg>
+    </aside>
+    <div class="scene-content">
+    <section class="verse-game section-wrap" aria-labelledby="verse-game-title">
+      <span class="verse-game-seal" aria-hidden="true">戏</span>
+      <div class="verse-game-head">
+        <div class="section-kicker">戏 <span>A PLAYFUL INTERLUDE</span></div>
+        <h2 id="verse-game-title">词间一戏，<em>拾字</em>成句。</h2>
+        <p>他的词句散作水面浮字。按原来的次序拾回字笺，便还他一阕完整的春天。</p>
+      </div>
+      <div class="verse-game-body">
+        <div class="verse-stage">
+          <div class="verse-round-meta"><span class="verse-round-name">虞美人 · 其一</span><span class="verse-round-dots" aria-hidden="true"><i class="is-on"></i><i></i><i></i></span></div>
+          <div class="verse-assemble" aria-live="polite" aria-label="已拾得的字笺"></div>
+          <div class="verse-pool" role="group" aria-label="水面浮字，点击拾取"></div>
+          <div class="verse-game-actions">
+            <button type="button" class="verse-shuffle">重洗字笺</button>
+            <button type="button" class="verse-restart">从首阕重来</button>
+          </div>
+          <p class="verse-feedback" aria-live="polite"></p>
+        </div>
+        <aside class="verse-scroll" aria-label="拾得录">
+          <span class="verse-scroll-title">拾得录</span>
+          <ol class="verse-done"></ol>
+          <a class="under-link verse-game-link" href="pages/ci.html" hidden>去读完整的词 <span>↗</span></a>
+        </aside>
+      </div>
+    </section>
+    </div>
+        </div>
+      </section>
+
+      <section class="scene" data-scene="4" data-chapter="伍 · 听回响" aria-label="第五章 听回响">
+        <div class="scene-wrap">
+    <aside class="narrative-thread nt-alt" aria-hidden="true">
+      <span class="nt-kicker">第四折 · 听回响</span>
+      <span class="nt-line">千年之后，词还在被读</span>
+      <b class="nt-glyph">响</b>
+      <svg class="nt-stroke" viewBox="0 0 220 18"><path pathLength="1" d="M2 12 C42 4 73 16 112 9 S178 4 218 8"/></svg>
+    </aside>
+    <div class="scene-content">
     <section class="afterlife-section section-wrap"><div class="section-kicker">03 <span>BEYOND HIS TIME</span></div><div class="afterlife-copy"><div><h2>李煜已远去，<br><em>词中的他</em>仍在此刻。</h2><p>千年之后，人们仍在诗词、舞台与自己的阅读里重新看见李煜。走进不同的目光，看看同一个名字如何映出万千心境。</p></div><a class="button button-dark" href="pages/wanxiang.html">走进词容万象 <span>↗</span></a></div></section>
+    </div>
+        </div>
+      </section>
 
 <!-- 结语：留心情表单 + 引导进入「听词入梦」页 -->
-    <section class="closing section-wrap"><div class="closing-pine">松<br>影</div><div><div class="section-kicker">04 <span>MAKE A MOMENT</span></div><h2>此刻，你心中<br>也有一江春水吗？</h2><p>留下一句此刻的心情，让千年前的词与你相遇。</p><a class="button button-dark" href="pages/listen.html">进入听词小院 <span>↗</span></a></div><form class="mood-form"><label for="mood">把心情写在这里</label><textarea id="mood" maxlength="80" placeholder="例如：今夜月色很好……"></textarea><div class="form-bottom"><span id="mood-count">0 / 80</span><button type="submit">投进春水　↗</button></div><p class="mood-feedback" aria-live="polite"></p></form></section>
+      <section class="scene" data-scene="5" data-chapter="陆 · 留一笔" aria-label="第六章 留一笔">
+        <div class="scene-wrap">
+    <aside class="narrative-thread" aria-hidden="true">
+      <span class="nt-kicker">第五折 · 留一笔</span>
+      <span class="nt-line">现在，轮到你了</span>
+      <b class="nt-glyph">留</b>
+      <svg class="nt-stroke" viewBox="0 0 220 18"><path pathLength="1" d="M2 12 C42 4 73 16 112 9 S178 4 218 8"/></svg>
+    </aside>
+    <div class="scene-content">
+    <section class="closing section-wrap"><div class="closing-pine">松<br>影</div><div><div class="section-kicker">04 <span>MAKE A MOMENT</span></div><h2>此刻，你心中<br>也有一江春水吗？</h2><p>留下一句此刻的心情，让千年前的词与你相遇。</p><a class="button button-dark" href="pages/listen.html">进入听词小院 <span>↗</span></a></div><form class="mood-form"><label for="mood">把心情写在这里</label><textarea id="mood" maxlength="80" placeholder="例如：今夜月色很好……"></textarea><div class="form-bottom"><span id="mood-count">0 / 80</span><button type="submit">投进春水　↗</button></div><p class="mood-feedback" aria-live="polite"></p></form><div class="closing-river" aria-hidden="true"><i></i><i></i></div></section>
+    </div>
+        </div>
+      </section>
+      </div>
+      <div class="stage-cut" aria-hidden="true"></div>
+    </div>
+    <nav class="stage-rail" aria-label="首页章节">
+      <button type="button" data-go="0" aria-label="第一章 月下故园" aria-current="step"><i></i></button>
+      <button type="button" data-go="1" aria-label="第二章 识其人"><i></i></button>
+      <button type="button" data-go="2" aria-label="第三章 读其词"><i></i></button>
+      <button type="button" data-go="3" aria-label="第四章 拾其句"><i></i></button>
+      <button type="button" data-go="4" aria-label="第五章 听回响"><i></i></button>
+      <button type="button" data-go="5" aria-label="第六章 留一笔"><i></i></button>
+    </nav>
   </main>
 <!-- 页脚：品牌 + 标语 + 跳转链接；开场未揭开时 inert -->
   <footer class="site-footer" inert><a class="brand" href="index.html"><span class="brand-seal">煜</span><span>一江春水<small>愿每个读词的人，都有一刻安宁。</small></span></a><span>词有尽时，春水长流。</span><a href="pages/ci.html">再读一首 ↗</a></footer>

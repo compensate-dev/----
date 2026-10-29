@@ -1801,7 +1801,9 @@ body.home-page.stage-mode>.site-footer .brand small{font-size:10px}
 body.home-page.stage-mode>.site-footer>span{font-size:11px;letter-spacing:.14em;color:#6f7d72}
 body.home-page.stage-mode>.site-footer>a{font-size:11px;letter-spacing:.14em}
 
-body.home-page.stage-mode .home-stage{position:absolute;inset:0;perspective:1700px;transform-style:preserve-3d;overflow:hidden}
+body.home-page.stage-mode .home-stage{position:absolute;inset:0;perspective:2100px;perspective-origin:50% 46%;transform-style:preserve-3d;overflow:hidden;--px:0;--py:0}
+/* 摄影机机架：整组幕共用一个 3D 空间，JS 每帧写入轻微晃机（平移/滚转），换幕时叠加推镜冲动 */
+body.home-page.stage-mode .stage-cam{position:absolute;inset:0;z-index:1;transform-style:preserve-3d;transform:scale(1.02);will-change:transform}
 body.home-page.stage-mode .stage-ambience{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
 body.home-page.stage-mode .stage-ambience .hero-cloud{top:auto;bottom:-10%;opacity:.42}
 
@@ -1821,11 +1823,11 @@ body.home-page.stage-mode .scene[data-scene="4"]{background:#f3f3ed}
 body.home-page.stage-mode .scene[data-scene="5"]{background:#eef0e8}
 
 /* 飞入（顺读自深处）/ 落回（回读自近处）/ 旧幕向前掠过 */
-body.home-page.stage-mode .scene.fly-fwd{opacity:0;transform:perspective(1700px) translate3d(0,9vh,-1300px) rotateX(11deg) scale(.85);filter:blur(16px)}
-body.home-page.stage-mode .scene.fly-back{opacity:0;transform:perspective(1700px) translate3d(0,-6vh,540px) rotateX(-6deg) scale(1.06);filter:blur(12px)}
-body.home-page.stage-mode .scene.is-settled{opacity:1;transform:perspective(1700px) translate3d(0,0,0) rotateX(0deg) scale(1);filter:blur(0);transition:transform 1.18s cubic-bezier(.22,1,.36,1),opacity .72s ease,filter .95s ease}
-body.home-page.stage-mode .scene.is-depart-fwd{opacity:0;transform:perspective(1700px) translate3d(0,-15vh,620px) rotateX(-8deg) scale(1.09);filter:blur(16px);pointer-events:none;transition:transform 1.04s cubic-bezier(.3,.7,.3,1),opacity .72s ease .05s,filter .9s ease}
-body.home-page.stage-mode .scene.is-depart-back{opacity:0;transform:perspective(1700px) translate3d(0,12vh,-1150px) rotateX(9deg) scale(.9);filter:blur(15px);pointer-events:none;transition:transform 1.04s cubic-bezier(.3,.7,.3,1),opacity .72s ease .05s,filter .9s ease}
+body.home-page.stage-mode .scene.fly-fwd{opacity:0;transform:translate3d(0,8vh,-1800px) rotateX(10deg) rotateZ(-1.6deg) scale(.66);filter:blur(26px) saturate(.72) brightness(.96)}
+body.home-page.stage-mode .scene.fly-back{opacity:0;transform:translate3d(0,-5vh,520px) rotateX(-7deg) rotateZ(1.5deg) scale(1.3);filter:blur(24px) saturate(.78)}
+body.home-page.stage-mode .scene.is-settled{opacity:1;transform:translate3d(0,0,0) rotateX(0deg) rotateZ(0deg) scale(1);filter:blur(0) saturate(1) brightness(1);transition:transform 1.12s cubic-bezier(.16,.86,.24,1),opacity .62s ease .06s,filter .9s ease}
+body.home-page.stage-mode .scene.is-depart-fwd{opacity:0;transform:translate3d(0,-20vh,560px) rotateX(-11deg) rotateZ(2.4deg) scale(1.34);filter:blur(26px) brightness(1.08);pointer-events:none;transition:transform .98s cubic-bezier(.3,.5,.24,1),opacity .58s ease,filter .8s ease}
+body.home-page.stage-mode .scene.is-depart-back{opacity:0;transform:translate3d(0,10vh,-1600px) rotateX(8deg) rotateZ(-1.8deg) scale(.64);filter:blur(24px);pointer-events:none;transition:transform .98s cubic-bezier(.3,.5,.24,1),opacity .58s ease,filter .8s ease}
 
 /* 幕内字句错落（视频二：卡片按位置左右分流，标题逐行落定） */
 body.home-page.stage-mode .scene .stg{opacity:0;transform:translate3d(var(--sx,0px),46px,-150px) rotateX(22deg);transform-origin:50% 64%;filter:blur(7px)}
@@ -1847,22 +1849,68 @@ body.home-page.stage-mode .scene[data-scene="0"] .hero{margin:0}
 
 /* 右侧章节侧栏 */
 body.home-page.stage-mode .stage-rail{position:fixed;right:24px;top:50%;transform:translateY(-50%);z-index:16;display:flex;flex-direction:column;gap:11px;align-items:center}
-body.home-page.stage-mode .stage-rail button{width:30px;height:20px;padding:0;border:0;background:none;cursor:pointer;display:grid;place-items:center}
+body.home-page.stage-mode .stage-rail button{position:relative;width:30px;height:20px;padding:0;border:0;background:none;cursor:pointer;display:grid;place-items:center}
 body.home-page.stage-mode .stage-rail button i{display:block;width:1px;height:11px;background:rgba(48,77,63,.32);transition:height .55s cubic-bezier(.22,1,.36,1),width .55s,background .55s}
 body.home-page.stage-mode .stage-rail button.is-on i{width:2px;height:24px;background:#24362e}
 body.home-page.stage-mode .stage-rail button:hover i{background:#24362e}
 body.home-page.stage-mode .stage-rail button:focus-visible{outline:1px solid #8b9d8e;outline-offset:2px}
+/* 侧栏悬停展开章名（微互动） */
+body.home-page.stage-mode .stage-rail button:after{content:attr(aria-label);position:absolute;right:100%;top:50%;margin-right:16px;white-space:nowrap;font:10px var(--sans);letter-spacing:.18em;color:#3c5045;opacity:0;transform:translateY(-50%) translateX(7px);transition:opacity .3s ease,transform .45s cubic-bezier(.22,1,.36,1);pointer-events:none}
+body.home-page.stage-mode .stage-rail button:hover:after,
+body.home-page.stage-mode .stage-rail button:focus-visible:after{opacity:1;transform:translateY(-50%) translateX(0)}
+body.home-page.stage-mode .stage-rail button:active i{height:30px}
+
+/* 换幕快门：镜头切换时暗角轻轻收一下再放开 */
+body.home-page.stage-mode .stage-cut{position:absolute;inset:0;z-index:9;pointer-events:none;opacity:0;background:radial-gradient(118% 92% at 50% 47%,rgba(26,40,33,0) 36%,rgba(26,40,33,.3) 100%);transition:opacity .62s ease}
+body.home-page.stage-mode .stage-cut.is-on{opacity:1;transition:opacity .16s ease}
+
+/* 视差：镜头随指针微移，各层按深度差速位移（translate 独立于 stagger 的 transform） */
+body.home-page.stage-mode .hero-copy,
+body.home-page.stage-mode .hero-art,
+body.home-page.stage-mode .narrative-thread,
+body.home-page.stage-mode .intro-poet,
+body.home-page.stage-mode .intro-heading,
+body.home-page.stage-mode .intro-card,
+body.home-page.stage-mode .feature-head,
+body.home-page.stage-mode .poem-card,
+body.home-page.stage-mode .verse-game-head,
+body.home-page.stage-mode .verse-stage,
+body.home-page.stage-mode .verse-scroll,
+body.home-page.stage-mode .afterlife-copy,
+body.home-page.stage-mode .closing>div,
+body.home-page.stage-mode .mood-form{translate:calc(var(--px,0) * var(--d,.6) * var(--pd,6px)) calc(var(--py,0) * var(--d,.6) * var(--pd,6px))}
+body.home-page.stage-mode .hero-copy{--d:.5}
+body.home-page.stage-mode .hero-art{--d:2.8}
+body.home-page.stage-mode .narrative-thread{--d:1.9}
+body.home-page.stage-mode .intro-poet{--d:1.8}
+body.home-page.stage-mode .intro-heading{--d:.5}
+body.home-page.stage-mode .intro-card{--d:2.3}
+body.home-page.stage-mode .feature-head{--d:.6}
+body.home-page.stage-mode .poem-card{--d:1.4}
+body.home-page.stage-mode .verse-game-head{--d:.5}
+body.home-page.stage-mode .verse-stage{--d:.7}
+body.home-page.stage-mode .verse-scroll{--d:1.7}
+body.home-page.stage-mode .afterlife-copy{--d:.6}
+body.home-page.stage-mode .closing>div{--d:1.1}
+body.home-page.stage-mode .mood-form{--d:1.5}
+
+/* 词卡微倾斜（光标驱动，JS 写 transform；位移交给 translate，两者互不干扰） */
+body.home-page.stage-mode .poem-card{transform-origin:50% 50%;transition:filter .5s ease,transform .55s cubic-bezier(.16,.86,.24,1)}
+body.home-page.stage-mode .poem-card:hover{filter:brightness(1.06) saturate(1.06)}
+body.home-page.stage-mode .poem-card:hover .poem-arrow{transform:translate(3px,-3px)}
 
 @media(max-width:760px){
   body.home-page.stage-mode .stage-rail{right:8px;gap:8px}
   body.home-page.stage-mode .stage-rail button{width:20px}
+  body.home-page.stage-mode .home-stage{perspective:1400px;--pd:3px}
   body.home-page.stage-mode .home-stage .hero{padding:18px 7% 14px}
   body.home-page.stage-mode .home-stage .narrative-thread{padding:12px 7% 10px}
-  body.home-page.stage-mode .scene.fly-fwd{transform:perspective(1200px) translate3d(0,6vh,-820px) rotateX(8deg) scale(.88)}
-  body.home-page.stage-mode .scene.fly-back{transform:perspective(1200px) translate3d(0,-4vh,320px) rotateX(-5deg) scale(1.04)}
-  body.home-page.stage-mode .scene.is-settled{transform:perspective(1200px) translate3d(0,0,0) rotateX(0deg) scale(1)}
+  body.home-page.stage-mode .scene.fly-fwd{transform:translate3d(0,6vh,-1150px) rotateX(8deg) rotateZ(-1.2deg) scale(.74)}
+  body.home-page.stage-mode .scene.fly-back{transform:translate3d(0,-4vh,360px) rotateX(-5deg) rotateZ(1deg) scale(1.22)}
+  body.home-page.stage-mode .scene.is-settled{transform:translate3d(0,0,0) rotateX(0deg) rotateZ(0deg) scale(1)}
   body.home-page.stage-mode .scene-wrap{padding:70px 0 58px}
 }
+@media(hover:none){body.home-page.stage-mode .stage-rail button:after{display:none}}
 @media(prefers-reduced-motion:reduce){
   body.home-page.stage-mode .scene{transition:none!important;filter:none!important;transform:none!important}
   body.home-page.stage-mode .scene .stg{opacity:1!important;transform:none!important;filter:none!important;transition:none!important}
