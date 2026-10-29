@@ -1,5 +1,9 @@
+/* 全站共用样式表：引入 Google 网络字体（思源宋体 Noto Serif SC + 无衬线 Manrope） */
 @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap');
 
+/* 五款本地书法/楷体字体声明（注意：字体目录为单数 assets/font，写成 fonts 会全部失效回退宋体）
+   HongLei=鸿雷行书(标题) / ZhongQi=钟齐志莽(大字) / Xuandong=暄洞楷书(小字)
+   Liyu Xingkai=李煜行楷(词句) / Liyu Xingkai UI=李煜行楷界面版(导航品牌) */
 @font-face{font-family:"HongLei Calligraphy";src:url("../assets/font/honglei-calligraphy.otf") format("opentype");font-style:normal;font-weight:400;font-display:swap}
 @font-face{font-family:"ZhongQi ZhiMang";src:url("../assets/font/zhongqi-zhimang-calligraphy.ttf") format("truetype");font-style:normal;font-weight:400;font-display:swap}
 @font-face{font-family:"Xuandong Kaishu";src:url("../assets/font/xuandong-kaishu.ttf") format("truetype");font-style:normal;font-weight:400;font-display:swap}
@@ -21,12 +25,13 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
 .site-header .brand,.site-footer .brand{font-family:"Liyu Xingkai UI",var(--serif);font-weight:400;font-size:19px;letter-spacing:.08em}
 .brand{display:flex;align-items:center;gap:12px;font-weight:600;letter-spacing:.12em;font-size:15px;line-height:1.25;white-space:nowrap}
 .brand small{display:block;font-family:var(--sans);font-size:9px;color:var(--muted);font-weight:400;letter-spacing:.13em;margin-top:5px}
-.site-header .brand small,.site-footer .brand small{font-family:"Liyu Xingkai UI",var(--serif);font-size:13px;letter-spacing:.08em}
+.site-header .brand small,.site-footer .brand small{font-family:"Xuandong Kaishu",var(--serif);font-size:13px;letter-spacing:.08em}
 .brand-seal{display:grid;place-items:center;width:39px;height:39px;border:1px solid var(--rust);color:var(--rust);font-size:19px;font-weight:500;transform:rotate(-5deg)}
 .main-nav{display:flex;align-items:center;gap:42px;height:100%;font-family:"Liyu Xingkai UI",var(--serif);font-size:16px;letter-spacing:.04em;color:#657166}
-.main-nav a{height:100%;display:flex;align-items:center;position:relative;transition:color .2s}
+.main-nav a{height:100%;display:flex;align-items:center;position:relative;transition:color .25s ease,transform .25s cubic-bezier(.2,.7,.25,1)}
+.main-nav a:hover,.main-nav a:focus-visible{transform:translateY(-2px)}
 .main-nav a:hover,.main-nav a.active{color:var(--pine)}
-.main-nav a.active:after{content:"";position:absolute;height:2px;width:19px;bottom:23px;left:calc(50% - 9px);background:var(--rust)}
+.main-nav a.active:after{content:"";position:absolute;height:2px;width:19px;bottom:23px;left:calc(50% - 9px)}
 .sound-toggle{background:none;border:1px solid #cfd5ca;border-radius:99px;padding:9px 15px;display:flex;align-items:center;gap:7px;font-family:"Liyu Xingkai UI",var(--serif);font-size:14px;cursor:pointer;transition:.2s}
 .sound-toggle:hover{background:var(--pine);border-color:var(--pine);color:#fff}
 .sound-icon{color:var(--rust);font-size:15px}
@@ -60,8 +65,10 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}
 .button-dark:hover span{transform:translate(3px,-3px);color:#a9684c}
 .button-dark:focus-visible,.book-open-button:focus-visible{outline:2px solid rgba(199,170,119,.85);outline-offset:3px}
 .button span{font-size:16px;color:#d2b990}
-.text-link,.under-link{font-family:var(--sans);font-size:11px;letter-spacing:.06em;color:var(--pine);border-bottom:1px solid #bac4b9;padding-bottom:5px}
-.text-link span,.under-link span{color:var(--rust);margin-left:8px}
+.text-link,.under-link{font-family:var(--sans);font-size:15px;font-weight:500;letter-spacing:.1em;color:#26402f;border-bottom:1.5px solid rgba(146,111,84,.55);padding-bottom:6px}
+.text-link span,.under-link span{color:var(--rust);margin-left:9px;font-size:16px;animation:link-arrow-nudge 2.8s ease-in-out infinite}
+.text-link:hover span,.text-link:focus-visible span,.under-link:hover span,.under-link:focus-visible span{animation:none}
+@keyframes link-arrow-nudge{0%,100%{translate:0 0}50%{translate:5px 0}}
 .hero-verse{display:flex;align-items:center;gap:14px;color:#304638;font-size:16px;letter-spacing:.07em;margin-top:42px;text-shadow:0 1px 0 rgba(243,243,237,.78)}
 .verse-rule{height:1px;width:35px;background:var(--rust)}
 .hero-art{position:absolute;width:min(44vw,570px);height:min(48vw,570px);right:10%;top:48%;transform:translateY(-49%);overflow:hidden;background:#273a48;border:1px solid rgba(199,170,119,.72);border-radius:48% 48% 5px 5px;box-shadow:0 0 0 5px rgba(243,243,237,.68),0 0 0 6px rgba(169,104,76,.38),0 28px 65px rgba(35,54,46,.18)}
@@ -548,12 +555,12 @@ html.page-transitioning main{opacity:.08;transform:translateY(8px) scale(.995);f
 .book-cover-front:before{content:"";position:absolute;inset:18px;border:1px solid rgba(169,104,76,.46);background:linear-gradient(90deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) left top/22px 22px no-repeat,linear-gradient(180deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) left top/22px 22px no-repeat,linear-gradient(270deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) right top/22px 22px no-repeat,linear-gradient(180deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) right top/22px 22px no-repeat,linear-gradient(90deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) left bottom/22px 22px no-repeat,linear-gradient(0deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) left bottom/22px 22px no-repeat,linear-gradient(270deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) right bottom/22px 22px no-repeat,linear-gradient(0deg,rgba(169,104,76,.52) 0 1px,transparent 1px 100%) right bottom/22px 22px no-repeat;pointer-events:none}
 .book-cover-front:after{content:"";position:absolute;inset:25px;border:1px solid rgba(48,77,63,.16);pointer-events:none}
 .book-cover-kicker,.book-cover-foot{position:absolute;font:9px var(--sans);letter-spacing:.2em;color:#69766a}
-.book-cover-kicker{top:13%;left:50%;transform:translateX(-50%);white-space:nowrap}
+.book-cover-kicker{top:13%;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:11px}
 .book-cover-foot{bottom:12%;left:50%;transform:translateX(-50%);white-space:nowrap;color:#85887b}
 .book-cover-title{position:relative;z-index:1;width:100%;display:flex;flex-direction:column;align-items:center;gap:16px;transform:translateY(-72px)}
 .book-cover-title img{display:block;width:clamp(210px,54vw,560px);max-width:78%;height:auto;filter:drop-shadow(0 2px 2px rgba(36,39,32,.16))}
 .book-cover-title i{width:52px;height:1px;background:linear-gradient(90deg,transparent,#a9684c,transparent)}
-.book-cover-title small{font:10px var(--sans);letter-spacing:.2em;color:#737d70}
+.book-cover-title small{font:16px var(--sans);font-weight:500;letter-spacing:.26em;color:#3f4439;text-shadow:0 1px 0 rgba(255,253,246,.55)}
 .book-cover-corner{position:absolute;z-index:2;color:#a9684c;font:27px/1 Georgia,serif;opacity:.78;pointer-events:none;text-shadow:0 1px 0 rgba(255,255,255,.48)}
 .book-cover-corner-tl{top:12px;left:12px;transform:rotate(-45deg)}
 .book-cover-corner-tr{top:12px;right:12px;transform:rotate(45deg) scaleX(-1)}
@@ -581,7 +588,7 @@ body.home-page.book-opened>.site-header,body.home-page.book-opened>main,body.hom
   .book-cover{width:84vw;height:min(70vh,620px);min-height:430px}
   .book-cover-front:before{inset:13px}
   .book-cover-front:after{inset:19px}
-  .book-cover-kicker{top:16%;font-size:8px}
+  .book-cover-kicker{top:16%;font-size:10px}
   .book-cover-seal{right:11%;top:17%;width:34px;height:34px}
   .book-cover-title{transform:translateY(-48px)}
   .book-open-button{top:70%;white-space:nowrap}
@@ -918,8 +925,8 @@ body.arrival-lock{overflow:hidden}
 .hero h1 em,.subhero h1 em,.intro-heading h2 em,.feature-head h2 em,.afterlife-copy h2 em,.memory-lead h2 em,.screen-world-heading h2 em{display:inline-block;animation:ink-word-breathe 6s ease-in-out 1s infinite}
 .hero-verse{animation:verse-line-breathe 7s ease-in-out infinite}
 .floating-verse,.sound-orbit{animation:orbit-breathe 7s ease-in-out infinite}
-.main-nav a:after{transition:width .24s ease}
-.main-nav a:hover:after,.main-nav a:focus-visible:after{width:19px}
+.main-nav a:after{content:"";transition:transform .28s cubic-bezier(.2,.7,.25,1);transform:scaleX(0);transform-origin:center;background:linear-gradient(90deg,transparent,var(--rust) 22%,var(--rust) 78%,transparent)}
+.main-nav a:hover:after,.main-nav a:focus-visible:after,.main-nav a.active:after{transform:scaleX(1)}
 button:not(.book-open-button):active,.button:active{translate:0 1px}
 @keyframes verse-title-arrive{from{opacity:0;transform:translateY(12px);letter-spacing:.16em}to{opacity:1;transform:translateY(0);letter-spacing:.08em}}
 @keyframes ink-word-breathe{0%,100%{filter:drop-shadow(0 0 0 rgba(199,170,119,0));opacity:.94}50%{filter:drop-shadow(0 0 8px rgba(199,170,119,.3));opacity:1}}
@@ -1475,3 +1482,48 @@ body.map-page .map-tab{display:none}
 .dot-btn-overview.is-active{box-shadow:0 0 0 4px rgba(160,58,36,.3)}
 .dot-btn-overview .dot-tip{opacity:1}
 .dot-btn-overview + .dot-btn::after{content:"";position:absolute;left:50%;top:-14px;transform:translateX(-50%);width:1px;height:10px;background:rgba(122,84,58,.4)}
+
+/* —— 云游指南浮层（f62）：每次进入自动展开，顶栏「？」随时重看 ——
+   .map-guide 全屏居中定位；.is-open 控制淡入 + 卡片上浮弹入；[hidden] 直接不占位
+   .map-guide-mask 半透明压暗 + 模糊背景，点击等于「先自己随便看看」
+   .map-guide-card 米黄宣纸底卡片，三步指南 + 朱砂主按钮 + 虚线跳过小字 */
+.map-guide{position:fixed;inset:0;z-index:60;display:grid;place-items:center;opacity:0;transition:opacity .32s ease}
+.map-guide.is-open{opacity:1}
+.map-guide[hidden]{display:none}
+.map-guide-mask{position:absolute;inset:0;background:rgba(38,40,36,.46);backdrop-filter:blur(3px)}
+.map-guide-card{position:relative;width:min(432px,88vw);max-height:84vh;overflow:auto;background:linear-gradient(168deg,#f6f2e6,#efe9d8 78%,#eae3cf);border:1px solid rgba(48,77,63,.24);box-shadow:0 24px 70px rgba(30,32,28,.42),0 0 0 6px rgba(246,242,230,.14);padding:36px 34px 24px;transform:translateY(16px) scale(.97);transition:transform .34s cubic-bezier(.22,.9,.3,1.18)}
+.map-guide.is-open .map-guide-card{transform:none}
+.map-guide-seal{position:absolute;top:-17px;left:50%;transform:translateX(-50%) rotate(-5deg);display:grid;place-items:center;width:38px;height:38px;background:#a9452c;color:#f6f2e6;font-family:"Xuandong Kaishu",var(--serif);font-size:19px;box-shadow:0 4px 10px rgba(120,40,22,.35)}
+.map-guide-card h3{margin:2px 0 4px;text-align:center;font-family:"Liyu Xingkai UI",var(--serif);font-weight:400;font-size:27px;letter-spacing:.16em;color:#3f4439}
+.map-guide-sub{margin:0 0 18px;text-align:center;font-size:12px;letter-spacing:.14em;color:#7d8172}
+.map-guide-steps{list-style:none;margin:0 0 20px;padding:0;display:grid;gap:12px}
+.map-guide-steps li{display:flex;gap:12px;align-items:flex-start;background:rgba(255,253,246,.62);border:1px solid rgba(48,77,63,.15);padding:12px 14px}
+.map-guide-steps i{flex:none;display:grid;place-items:center;width:27px;height:27px;font-style:normal;font-family:"Xuandong Kaishu",var(--serif);font-size:14px;color:#a9452c;border:1px solid rgba(169,69,44,.55);background:rgba(169,69,44,.06)}
+.map-guide-steps b{display:block;font-size:14px;letter-spacing:.04em;color:#3f4439}
+.map-guide-steps span{display:block;margin-top:3px;font-size:12px;line-height:1.6;color:#7d8172}
+.map-guide-btn{display:block;width:100%;padding:12px 0 11px;background:linear-gradient(160deg,#a9452c,#96381f);color:#f6f2e6;border:none;cursor:pointer;font-family:"Xuandong Kaishu",var(--serif);font-size:17px;letter-spacing:.22em;text-indent:.22em;transition:filter .2s,transform .2s}
+.map-guide-btn:hover{filter:brightness(1.09);transform:translateY(-1px)}
+.map-guide-skip{display:block;margin:10px auto 0;background:none;border:none;cursor:pointer;font-size:12px;letter-spacing:.14em;color:#8a8d7e;text-decoration:underline dotted}
+
+/* —— f65 导航栏交互增强：印章摆正 / 音符轻转 ——
+   brand-seal：悬停时印章从 -5deg 摆正并轻微放大 + 朱砂晕影
+   sound-icon：悬停音乐按钮时音符右转 16deg 放大，呼应「音乐开启」状态
+   新版导航下划线：改由渐变朱砂条 scaleX(0→1) 从中心展开（见下方 :after 规则） */
+.brand-seal{transition:transform .35s cubic-bezier(.2,.7,.25,1),background .3s ease,box-shadow .3s ease}
+.site-header .brand:hover .brand-seal,.site-header .brand:focus-visible .brand-seal,.site-footer .brand:hover .brand-seal{transform:rotate(0deg) scale(1.07);background:rgba(169,104,76,.09);box-shadow:0 3px 10px rgba(169,104,76,.22)}
+.sound-icon{transition:transform .3s cubic-bezier(.2,.7,.25,1)}
+.sound-toggle:hover .sound-icon{transform:rotate(16deg) scale(1.08)}
+.map-guide-skip:hover{color:#5d6152}
+.map-help{flex:none;width:34px;height:34px;border:1px solid rgba(48,77,63,.38);background:rgba(246,242,230,.85);color:#4a5146;cursor:pointer;font-family:"Xuandong Kaishu",var(--serif);font-size:17px;line-height:1;transition:background .2s,color .2s,border-color .2s}
+.map-help:hover{background:#a9452c;border-color:#a9452c;color:#f6f2e6}
+
+/* —— 入词境 · 全屏下滑提示（f63）：替代原角落滚动小标，滚动或点击空白处散去 ——
+   全屏半透明压暗层，居中放鼠标滚轮示意 i（上下浮动 + 内部小点下滑动画）+ 大字标题 + 英文小字
+   .is-hidden 时 opacity/visibility 双清零并关闭指针事件，避免残留遮挡点击 */
+.arrival-hint{position:fixed;inset:0;z-index:9;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;text-align:center;cursor:pointer;background:radial-gradient(ellipse at 50% 42%,rgba(10,20,17,.34),rgba(10,20,17,.64) 80%);backdrop-filter:blur(2px);transition:opacity .5s ease,visibility .5s}
+.arrival-hint.is-hidden{opacity:0;visibility:hidden;pointer-events:none}
+.arrival-hint i{position:relative;width:30px;height:48px;border:1px solid rgba(230,211,177,.8);border-radius:16px;animation:arrival-hint-bob 2.2s ease-in-out infinite} /* 鼠标外形：整体上下轻浮 */
+.arrival-hint i:after{content:"";position:absolute;top:9px;left:14px;width:2px;height:9px;border-radius:2px;background:#e6d3b1;animation:arrival-scroll-hint 1.6s ease-in-out infinite} /* 滚轮小点：循环下滑示意 */
+.arrival-hint b{font-family:"ZhongQi ZhiMang","HongLei Calligraphy",var(--serif);font-weight:400;font-size:clamp(30px,4.6vw,52px);letter-spacing:.14em;color:#f7f2e7;text-shadow:0 8px 36px rgba(9,18,16,.42)} /* 主标题大字（钟齐志莽） */
+.arrival-hint span{font:12px var(--sans);letter-spacing:.22em;color:rgba(241,231,210,.68)} /* 底部英文小字提示 */
+@keyframes arrival-hint-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(9px)}}
