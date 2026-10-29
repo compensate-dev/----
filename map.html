@@ -1,13 +1,14 @@
 <!doctype html>
+<!-- 一江春水 · 李煜词境 — 水墨行迹页 / map.html -->
 <html lang="zh-CN">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#d9d2c1"><meta name="description" content="全屏沉浸式纸片 3D 水墨云游：云海之上，金陵宫阙、钟山林泉、洪州城郭、采石矶崖、一叶江舟、汴京小楼、北邙松柏。拖拽旋转，朱砂点为引，飞往李煜人生的每一站。"><title>水墨行迹｜春水留痕·李煜词境</title><link rel="stylesheet" href="style.css?v=f37"><script src="script.js?v=f37" defer></script><style>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#d9d2c1"><meta name="description" content="全屏沉浸式纸片 3D 水墨云游：云海之上，金陵宫阙、钟山林泉、洪州城郭、采石矶崖、一叶江舟、汴京小楼、北邙松柏。拖拽旋转，朱砂点为引，飞往李煜人生的每一站。"><title>水墨行迹｜春水留痕·李煜词境</title><link rel="stylesheet" href="style.css?v=f52"><script src="script.js?v=f52" defer></script><style>
   /* 渲染质感层：水墨夜空（淡墨晕染三叠）+ 画面色调 + 纸纹/暗角叠层 */
   .stage3d{background:
     radial-gradient(52% 36% at 24% 16%,rgba(56,62,58,.22),rgba(56,62,58,0) 70%),
     radial-gradient(46% 30% at 72% 9%,rgba(46,52,50,.18),rgba(46,52,50,0) 72%),
     radial-gradient(64% 34% at 52% 28%,rgba(88,94,86,.14),rgba(88,94,86,0) 75%),
     linear-gradient(180deg,#454b47 0%,#5d635b 22%,#7f8276 44%,#a8a695 62%,#c6c0ad 72%,#ccc5b3 76%,#d3ccba 100%)}
-  .stage3d canvas{filter:contrast(1.035) saturate(1.06) sepia(.03)}
+  .stage3d canvas{filter:contrast(1.07) saturate(1.1) sepia(.03)}
   #paperGrain,#paperVign{position:absolute;inset:0;pointer-events:none}
   #paperGrain{mix-blend-mode:multiply;opacity:.55;z-index:6;background-repeat:repeat}
   #paperVign{z-index:6;background:radial-gradient(ellipse at 50% 44%, rgba(46,46,42,0) 58%, rgba(46,46,42,.15) 100%)}
@@ -18,12 +19,15 @@
   <a class="skip-link" href="#main-content">跳至主要内容</a>
 
   <!-- 全屏 3D 舞台 -->
-  <div class="stage3d" id="stage3d" aria-label="纸片式水墨山水三维场景，可拖拽旋转、滚轮缩放">
+  <div class="stage3d" id="stage3d" aria-label="纸片式水墨山水三维场景，点击朱砂点、站点名或下方时间指引即可飞往对应站点">
+    <!-- 墨韵收笔闪光层：镜头飞抵落定时短暂泛起再退去（Web Animations 由脚本触发，此后常驻透明） -->
     <span id="inkPulse" aria-hidden="true" style="position:absolute;inset:0;pointer-events:none;opacity:0;background:radial-gradient(ellipse at 50% 42%, rgba(46,46,42,0) 46%, rgba(46,46,42,0.65) 100%);"></span>
+    <!-- 宣纸颗粒层（multiply 叠细噪）与暗角层：纯装饰，压在最上层不接管指针 -->
     <span id="paperGrain" aria-hidden="true"></span>
     <span id="paperVign" aria-hidden="true"></span>
-    <!-- 右侧朱砂站点导航：七个站点圆点 + 全景钮，点按飞往对应机位并同步笺卡 -->
+    <!-- 右侧朱砂站点导航：全景钮置顶 + 七个站点圆点，点按飞往对应机位并同步笺卡 -->
     <nav class="dot-nav" aria-label="云游站点">
+      <button class="dot-btn dot-btn-overview" type="button" data-go="overview" aria-label="回到全景"><span class="dot-tip">全景 · 疆域</span></button>
       <button class="dot-btn" type="button" data-go="jinling" aria-label="飞往金陵：南唐都城"><span class="dot-tip">金陵 · 都城</span></button>
       <button class="dot-btn" type="button" data-go="zhongshan" aria-label="飞往钟山：少年隐读"><span class="dot-tip">钟山 · 少隐</span></button>
       <button class="dot-btn" type="button" data-go="hongzhou" aria-label="飞往洪州：南唐南都"><span class="dot-tip">洪州 · 南都</span></button>
@@ -31,7 +35,25 @@
       <button class="dot-btn" type="button" data-go="jiangzhou" aria-label="飞往江舟：辞庙北上"><span class="dot-tip">江舟 · 北迁</span></button>
       <button class="dot-btn" type="button" data-go="bianjing" aria-label="飞往汴京：违命侯岁月"><span class="dot-tip">汴京 · 囚居</span></button>
       <button class="dot-btn" type="button" data-go="beimang" aria-label="飞往北邙山：长眠之所"><span class="dot-tip">北邙山 · 归处</span></button>
-      <button class="dot-btn dot-btn-overview" type="button" data-go="overview" aria-label="回到全景"><span class="dot-tip">全景 · 疆域</span></button>
+    </nav>
+
+    <!-- 时间指引：按年顺游，提示下一步该看哪里的故事 -->
+    <!-- 按年顺游条：七个年份节点（937→978）串成一条时间轴，当前站高亮、已过站点标记已读；下方「上一站 / 下一站」推进，走到末端变「再游一遍」 -->
+    <nav class="tour-guide" id="tourGuide" aria-label="按时间顺序云游指引">
+      <span class="tour-cap" aria-hidden="true">按年顺游</span>
+      <div class="tour-track">
+        <button class="tour-node" type="button" data-go="jinling"><i>937</i><em>金陵</em></button>
+        <button class="tour-node" type="button" data-go="zhongshan"><i>约953</i><em>钟山</em></button>
+        <button class="tour-node" type="button" data-go="hongzhou"><i>961</i><em>洪州</em></button>
+        <button class="tour-node" type="button" data-go="caishi"><i>973</i><em>采石矶</em></button>
+        <button class="tour-node" type="button" data-go="jiangzhou"><i>975</i><em>江舟</em></button>
+        <button class="tour-node" type="button" data-go="bianjing"><i>976</i><em>汴京</em></button>
+        <button class="tour-node" type="button" data-go="beimang"><i>978</i><em>北邙山</em></button>
+      </div>
+      <div class="tour-ctrl">
+        <button class="tour-prev" type="button">⟵ 上一站</button>
+        <button class="tour-next" type="button">下一站 ⟶</button>
+      </div>
     </nav>
 
     <!-- 笺卡面板：未选点时显示引导文案(data-popup-default)，选中站点后由脚本填充(data-popup-detail) -->
@@ -49,8 +71,8 @@
       </article>
     </aside>
 
-    <!-- 操作提示：用户首次拖拽/缩放后由脚本加 is-hidden 隐去 -->
-    <span class="stage-hint" id="stageHint">拖拽旋转 · 滚轮缩放 · 右键平移</span>
+    <!-- 操作提示：用户首次拖拽/点按时由脚本加 is-hidden 隐去 -->
+    <span class="stage-hint" id="stageHint">点击朱砂点 · 或沿下方时间指引云游</span>
     <!-- 页脚注：写意声明与词作选配说明（全屏模式下定位右下角） -->
     <p class="map-footnote">纸片式三维水墨写意 · 山川城邑不作历史地理考据<br>所配词作为与该站词心相映的代表之作</p>
   </div>
@@ -72,7 +94,7 @@
   <!-- Three.js 本地库：缺失时下方场景 IIFE 检测 THREE 未定义即整段跳过 -->
   <script src="three.min.js"></script>
   <!-- 内嵌纹理表(WebP dataURI)：须在 three.min.js 之后、场景脚本之前加载，file:// 直开不受跨域限制 -->
-  <script src="map-textures.js?v=f37"></script>
+  <script src="map-textures.js?v=f52"></script>
   <script>
   (function () {
     "use strict";
@@ -150,7 +172,8 @@
     if (!stage) return;
     var scene = new THREE.Scene();
     // 天空改由 CSS 宣纸天光渐变承载，画布透明透出（雾色仍与地平线段一致）
-    scene.fog = new THREE.Fog(0xccc5b3, 40, 180);
+    // 雾起止 55~260：疆界远山环在 ±84~94，雾若只到 180 会把外圈山屏整片吃掉
+    scene.fog = new THREE.Fog(0xccc5b3, 55, 260);
     var camera = new THREE.PerspectiveCamera(46, 1, 0.1, 420);
     var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -286,8 +309,8 @@
       "  vec3 nrm = normalize(vec3(-grad.x, 1.0, -grad.y));",
       "  vec3 vdir = normalize(cameraPosition - vWorld);",
       "  float fres = pow(1.0 - max(dot(nrm, vdir), 0.0), 3.0);",
-      "  vec3 deep = vec3(0.569, 0.561, 0.502);",
-      "  vec3 sky  = vec3(0.867, 0.839, 0.761);",
+      "  vec3 deep = vec3(0.204, 0.227, 0.216);",
+      "  vec3 sky  = vec3(0.416, 0.431, 0.404);",
       "  vec3 col = mix(deep, sky, clamp(0.08 + fres * 0.92, 0.0, 1.0));",
       "  vec3 L = normalize(vec3(0.35, 0.72, 0.5));",
       "  float spec = pow(max(dot(nrm, normalize(L + vdir)), 0.0), 90.0);",
@@ -299,13 +322,13 @@
       "  gl_FragColor = vec4(col, 0.96);",
       "}"
     ].join("\n");
-    var fogUni = { uFogColor: { value: new THREE.Color(0xccc5b3) }, uFogNear: { value: 40 }, uFogFar: { value: 180 } };
+    var fogUni = { uFogColor: { value: new THREE.Color(0xccc5b3) }, uFogNear: { value: 55 }, uFogFar: { value: 260 } };
     var seaMat = new THREE.ShaderMaterial({
       uniforms: { uTime: { value: 0 }, uFogColor: fogUni.uFogColor, uFogNear: fogUni.uFogNear, uFogFar: fogUni.uFogFar },
       vertexShader: waterVert, fragmentShader: waterFrag,
       transparent: true, depthWrite: false
     });
-    var seaGeo = new THREE.PlaneGeometry(460, 460);
+    var seaGeo = new THREE.PlaneGeometry(172, 172); // 水面收在疆界远山环（±84）以内
     var sea = new THREE.Mesh(seaGeo, seaMat);
     sea.rotation.x = -Math.PI / 2; sea.renderOrder = -1; scene.add(sea);
 
@@ -346,7 +369,7 @@
       "  float g = fbm(vUv * 12.0 + uSeed * 2.3 + 41.7);", // 细碎苔点
       "  vec3 paper = vec3(0.838, 0.816, 0.748);",        // 宣纸底（略深于雾色）
       "  vec3 paleInk = vec3(0.665, 0.652, 0.612);",      // 淡墨
-      "  vec3 deepInk = vec3(0.472, 0.464, 0.440);",      // 重墨
+      "  vec3 deepInk = vec3(0.357, 0.352, 0.332);",      // 重墨
       "  vec3 inkLine = vec3(0.315, 0.308, 0.290);",      // 海岸笔描浓墨
       "  vec3 col = paper;",
       "  col = mix(col, paleInk, smoothstep(0.40, 0.80, t) * 0.5);",   // 淡墨晕染块面
@@ -430,11 +453,16 @@
       // 墨形浮雕：按 α 鼓出体量（深度表 0 = 平面；opts.relief 可覆盖/false 关闭）
       var reliefF = 0;
       if (isInk && opts.relief !== false && inkName.get(tex)) reliefF = opts.relief !== undefined ? opts.relief : (inkDepth[inkName.get(tex)] !== undefined ? inkDepth[inkName.get(tex)] : 0.12);
-      var mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, side: THREE.DoubleSide, depthWrite: false, opacity: opts.opacity || 1 });
+      // 材质：fogless 为真的片不受雾影响（疆界山屏靠它保持边框浓度常在）
+      var mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, side: THREE.DoubleSide, depthWrite: false, opacity: opts.opacity || 1, fog: !opts.fogless });
       if (reliefF && !inkSoft[inkName.get(tex)]) { mat.depthWrite = true; mat.alphaTest = 0.03; }
-      // 光影：光自西北来，东侧山体/汀州稍暗（静态烘焙受光差）
+      // 光影：光自西北来，东侧山体/汀州稍暗（静态烘焙受光差）；山形/汀洲/崖壁压深一档，opts.darken 可覆盖
       var lb = 1 - 0.06 * THREE.MathUtils.clamp((x + 70) / 140, 0, 1);
-      if (inkList.indexOf(tex) >= 0) mat.color.setScalar(lb);
+      if (inkList.indexOf(tex) >= 0) {
+        var nm = inkName.get(tex) || "";
+        var dk = opts.darken !== undefined ? opts.darken : ((/^mtn/.test(nm) || /^isle/.test(nm) || nm === "cliff.jpg") ? 0.65 : 1);
+        mat.color.setScalar(lb * dk);
+      }
       var mesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), mat);
       function fit() {
         var img = tex.image;
@@ -495,7 +523,7 @@
         u.fit();
       });
       hideVeil();
-      console.log("[水墨行迹] build f37 · 雨场跟随 ×水墨夜空 ×正面机位 ×朱砂点" + (window.__reliefN || 0) + (postScene ? " · 后期开" : " · 后期退回"));
+      console.log("[水墨行迹] build f52 · 侧签仅词人故事页 ×跳出动画 ×山屏收敛 ×时间指引" + (window.__reliefN || 0) + (postScene ? " · 后期开" : " · 后期退回"));
     };
     function shadowBlob(x, z, s) {
       var m = new THREE.Mesh(new THREE.PlaneGeometry(s, s * 0.36), new THREE.MeshBasicMaterial({ map: toTex(blobTex()), transparent: true, opacity: 0.45, depthWrite: false }));
@@ -503,7 +531,7 @@
     }
 
     /* ---------- 七处景致（山峦用真抠图素材） ---------- */
-    // 远山底幕：远景层与云带交替环绕，底边沉入云海
+    // 远山底幕：远景层与云带交替环绕，底边沉入云海（mtn-far-faint 为淡墨远景，云带用谷中雾云、横向压扁成带状）
     imagePlane(inkTex["mtn-far-faint.png"], 66, -34, -58, { y: -11 });
     imagePlane(cloudTexB, 70, 12, -64, { y: -7, ry: 0.12, stretch: 0.42, opacity: 0.85 });
     imagePlane(inkTex["mtn-far-faint.png"], 62, 46, -30, { y: -10, ry: 0.5, opacity: 0.85 });
@@ -538,6 +566,23 @@
     shadowBlob(20, -8, 10);
     // 江防要塞（采石矶）：真素材 + 十字交叉面片，横向构图加宽落位
     imagePlane(inkTex["cliff.jpg"], 13, 20, -8, null);
+    // 疆界山屏：两排远山叠合——薄一档、矮一档，浓度介于内山与纸底之间（不受雾以保持边框常在）
+    // 做法：绕场四周（北/南/东/西各 7 段）按两种山形错缝铺满，前排贴水缘、后排错开半格补缝，围成一圈「山做的边框」
+    (function () {
+      function wall(dist, off, texA, texB, tw, ts, dk, yb) {
+        [-84, -56, -28, 0, 28, 56, 84].forEach(function (t, i) {
+          var tn = i % 2 ? texA : texB;
+          var o = { y: yb + (i % 2) * 2, stretch: ts, relief: false, opacity: 1, darken: dk, fogless: true };
+          var w = tw + (i % 3) * 8;
+          imagePlane(inkTex[tn], w, t + off, -dist, o);                                       // 北
+          imagePlane(inkTex[tn], w, -t - off, dist, Object.assign({ ry: Math.PI }, o));       // 南
+          imagePlane(inkTex[tn], w, dist, t - off, Object.assign({ ry: -Math.PI / 2 }, o));   // 东
+          imagePlane(inkTex[tn], w, -dist, -t + off, Object.assign({ ry: Math.PI / 2 }, o));  // 西
+        });
+      }
+      wall(84, 0, "mtn-peak-dense.png", "mtn-dome-dark.png", 44, 1.22, 0.56, -13);    // 前排：贴水缘
+      wall(94, 14, "mtn-dome-dark.png", "mtn-peak-dense.png", 40, 1.42, 0.52, -14);   // 后排：错缝补缝
+    })();
     imagePlane(texFar, 30, 38, -30, { ry: -0.25, opacity: 0.85 });
     imagePlane(inkTex["isle-far.jpg"], 34, 30, -20, { y: -4.7, ry: -0.25, opacity: 0.9 });
     // 5 江舟：孤舟（主峰群在望）
@@ -724,7 +769,7 @@
       jiangzhou: { pos: [34, 4.0, 13],   tgt: [34, 2, 1] },
       bianjing:  { pos: [-58, 5.2, -33], tgt: [-58, 3.2, -46] },
       beimang:   { pos: [45.5, 5.2, 25], tgt: [45.5, 3.2, 38] },
-      overview:  { pos: [44, 48, 80],    tgt: [-2, 1, -4] }
+      overview:  { pos: [69, 74, 126],   tgt: [-2, 1, -4] }
     };
 
     /* ---------- 自制轨道控制 + 镜头飞行 ---------- */
@@ -784,20 +829,7 @@
         if (!dragging && !fly) dom.style.cursor = (curKey === "overview" && pickMarker(e)) ? "pointer" : "";
         return;
       }
-      var dx = e.clientX - lastX, dy = e.clientY - lastY; lastX = e.clientX; lastY = e.clientY;
-      if (dragging === 1) {
-        ctl.dTheta -= dx * 0.005;
-        ctl.dPhi = THREE.MathUtils.clamp(ctl.dPhi - dy * 0.004, 0.12, 1.42);
-      } else {
-        var panScale = ctl.r * 0.0012;
-        var right = new THREE.Vector3().setFromSphericalCoords(1, Math.PI / 2, ctl.dTheta + Math.PI / 2);
-        ctl.dTgt.addScaledVector(right, -dx * panScale);
-        ctl.dTgt.y = 0;
-        var fwd = new THREE.Vector3().subVectors(ctl.dTgt, camera.position).setY(0).normalize();
-        ctl.dTgt.addScaledVector(fwd, dy * panScale);
-        ctl.dTgt.x = THREE.MathUtils.clamp(ctl.dTgt.x, -90, 90);
-        ctl.dTgt.z = THREE.MathUtils.clamp(ctl.dTgt.z, -90, 90);
-      }
+      // 已禁用手动旋转/平移：拖拽仅作点击判定（位移小于 6px 视为一次点按），镜头只随点位 / 时间指引切换
     });
     function endDrag(e) {
       if (dragging === 1 && tapOk && e && Math.abs(e.clientX - downX) < 6 && Math.abs(e.clientY - downY) < 6) {
@@ -818,37 +850,63 @@
     }
     dom.addEventListener("pointerup", endDrag);
     dom.addEventListener("pointercancel", endDrag);
-    dom.addEventListener("wheel", function (e) {
-      e.preventDefault(); if (fly) return;
-      ctl.dR = THREE.MathUtils.clamp(ctl.dR * (1 + e.deltaY * 0.001), 5, 130);
-      hideHint();
-    }, { passive: false });
 
     /* ---------- 点位与笺卡 ---------- */
     var SPOTS = {
       jinling: { name: "金陵", tag: "南唐都城", now: "今 · 江苏南京",
-        events: [["937", "七夕生于金陵宫苑，丰额骈齿、一目重瞳，宫中视为奇相"], ["961", "中主李璟病逝，二十五岁的李煜在金陵柩前即位"], ["975", "宋军围城日久，城破辞庙北上，「最是仓皇辞庙日」"]],
+        events: [
+          ["937", "七夕之夜生于金陵宫苑，初名从嘉——丰额骈齿、一目重瞳，宫中以为奇相；数月后祖父受禅开国，他便生在江南最锦绣的岁月里"],
+          ["954", "十八岁迎娶周宗长女娥皇；她通书史、善音律，夫妇重订《霓裳羽衣》残谱，雪夜宴饮、红袖添香——词里尽是「烂嚼红茸」的明快"],
+          ["959", "长兄太子弘冀鸩杀叔父景遂，数月后惊惧暴卒；储位之疑一夜消散，最无意争位的第六子，被命运推向台前"],
+          ["961", "中主迁都洪州后忧愤病逝；二十五岁的李煜留金陵监国，旋即柩前即位——接过的却是岁贡称臣、北面而事的江南残局"],
+          ["975", "曹彬大军围城经年，城中斗米千金；十一月城破，肉袒出降——辞太庙、别宫娥，四十年来家国一朝画上句点"]],
         word: "《破阵子》 四十年来家国，三千里地山河。" },
       zhongshan: { name: "钟山", tag: "少年隐读", now: "金陵城北 · 今紫金山",
-        events: [["约955—959", "长兄弘冀性猜忌，李煜自号「钟隐」，志在山水，隐读经籍以避锋芒"]],
+        events: [
+          ["约953—959", "长兄太子弘冀性严猜忌，为避锋芒自号「钟隐」「莲峰居士」，隐读钟山经籍、不预政事——翰墨诗酒之间，反得几年安稳"],
+          ["约957", "山林舟楫之间作《渔父》二首：「浪花有意千里雪，桃李无言一队春」——一壶酒、一竿身，快活之愿写于尚可快活的年纪"],
+          ["975", "宋军破城，宫苑付之一炬；当年避世的钟山林泉，从此只在一个囚徒的梦里重现"]],
         word: "《渔父》 一壶酒，一竿身，快活如侬有几人。" },
       hongzhou: { name: "洪州", tag: "南唐南都", now: "今 · 江西南昌",
-        events: [["961", "中主迁都洪州未几病逝；李煜自金陵入继大统，而国势已如累卵"]],
+        events: [
+          ["959", "后周世宗三征淮南，江北十四州尽没；金陵临江无险可守，中主议迁都以避兵锋"],
+          ["961", "二月中主率六军溯江迁都；至则城邑迫陋、宫室湫隘，君臣悔叹，六月忧愤病逝于此——太子煜留金陵监国"],
+          ["961", "李煜即位仍以洪州为南都，后改南昌府；然北廷日强、贡赋日重，江南国势已如累卵"],
+          ["975", "金陵城破、国主北迁，洪州终未成南唐的避风之港——「南都」二字，随之一起写入旧史"]],
         word: "《浣溪沙》 欲寻陈迹怅人非，天教心愿与身违。" },
       caishi: { name: "采石矶", tag: "江防要冲", now: "今 · 安徽马鞍山",
-        events: [["974", "宋人于采石矶江面架设浮桥，宋军由此渡江，金陵遂成孤城"], ["975", "围城经年，城中愁思日深，终至城破"]],
+        events: [
+          ["973", "宋使屡促入朝，李煜称疾固辞、卑辞厚贡以缓兵期；暗增水军、沿江戒备——两头都抓，两头都迟"],
+          ["974", "落第书生樊若水献策宋廷，假托钓鱼、以丝绳往返测得矶前江面宽度——「天险可越」自此有了图纸"],
+          ["974", "冬，宋军大举渡江，巨舰相连、铺竹为筏，浮桥横跨采石江面；曹彬、潘美大军踏桥而过，如履平地"],
+          ["975", "天险既失，金陵顿成孤城；围城一载、援绝粮尽，终以城破国灭收场"]],
         word: "《乌夜啼》 世事漫随流水，算来一梦浮生。" },
       jiangzhou: { name: "江舟", tag: "辞庙北上", now: "长江 · 975 年冬",
-        events: [["975", "城破，登舟北上。教坊乐工送别，「最是仓皇辞庙日，垂泪对宫娥」"]],
+        events: [
+          ["975", "十一月廿七日城破，率百官肉袒出降；立国三十九年的南唐，就此谢幕"],
+          ["975", "十二月辞庙登舟北上，教坊犹奏别离歌、宫娥挥泪相送——一叶囚舟载着四十年家国的记忆，驶向未知的北方"],
+          ["976", "正月，囚舟抵汴京；江南的春水烟雨自此只在梦里——「梦里不知身是客，一晌贪欢」"]],
         word: "《浪淘沙令》 梦里不知身是客，一晌贪欢。" },
       bianjing: { name: "汴京", tag: "违命侯岁月", now: "今 · 河南开封",
-        events: [["975", "被押北上，受封「违命侯」，自言「此中日夕，只以眼泪洗面」"], ["978", "七夕四十二岁生日，作《虞美人》，是夜被赐牵机药，词成而人逝"]],
+        events: [
+          ["976", "正月抵汴，太祖赦而不杀，封「违命侯」、赐居汴城——一生风雅的江南国主，终以「违命」二字名世"],
+          ["976", "十月太祖崩、太宗即位；次年去恶号、改封陇西公——名分稍改，囚居之实未变"],
+          ["977—978", "深院梧桐、秋月如钩，故国山川只在梦中重现；与旧臣书自言「此中日夕，只以眼泪洗面」——而词，恰于泪中登峰造极"],
+          ["978", "七夕四十二岁生辰，与故臣小酌、命歌伎奏新词《虞美人》，「一江春水」声闻于外；是夜暴卒，世传赐牵机药——词成而人逝"]],
         word: "《虞美人》 问君能有几多愁？恰似一江春水向东流。" },
       beimang: { name: "北邙山", tag: "词心不朽", now: "洛阳之北 · 长眠之所",
-        events: [["978", "葬于北邙山，江南旧臣设奠相送。词人已逝，词心自此不朽"]],
+        events: [
+          ["978", "太宗辍朝三日，追封吴王，以王礼葬于洛阳北邙山——四十二年的浮沉，归于一抔北邙黄土"],
+          ["978", "小周后扶柩恸哭、哀毁骨立，未几亦逝，相继归葬北邙——夫妻同穴，国恨同眠"],
+          ["978", "江南旧臣设奠遥祭，徐铉奉诏撰墓志；生于七夕、死于七夕——词的句读与人生的句读，同时画上"],
+          ["后世", "千年之下词名愈盛：王国维谓其「变伶工之词而为士大夫之词」，又叹「后主之词，真所谓以血书者也」——北邙土冷，词心不冷"]],
         word: "《浪淘沙令》 流水落花春去也，天上人间。" },
       overview: { name: "全景", tag: "三千里地山河", now: "南唐疆域 · 写意",
-        events: [["937—978", "四十一年，从金陵宫苑到北邙孤冢。一卷水墨，走完一生"]],
+        events: [
+          ["937—961", "从金陵宫苑的锦衣重瞳，到柩前仓促即位的江南国主——才华与江山，自此同负一身"],
+          ["961—975", "十四年称臣纳贡、卑辞厚币，去号降仪也换不来一纸平安；三千里地山河，终究挡不住一道浮桥"],
+          ["975—978", "北迁囚居、以泪洗面，却把花间的伶工之词，淬成「以血书者」的千古绝唱"],
+          ["937—978", "生于七夕、死于七夕，四十一年走完从帝王到词宗的一生——「国家不幸诗家幸」，他是最痛的注脚"]],
         word: "《破阵子》 四十年来家国，三千里地山河。" }
     };
     var curKey = "overview"; // 当前站点：朱砂点只在全景浮现
@@ -875,8 +933,10 @@
     function go(key) {
       curKey = key;
       dotBtns.forEach(function (d) { d.classList.toggle("is-active", d.dataset.go === key); });
+      var ti = TOUR.indexOf(key); if (ti >= 0) tourIdx = ti; // 时间指引同步（TOUR 在下方初始化，点击时必已就绪）
       flyTo(key);
       showSpot(key);
+      tourSync();
     }
     dotBtns.forEach(function (d) { d.addEventListener("click", function () { go(d.dataset.go); }); });
     popup.querySelector(".popup-close").addEventListener("click", function () {
@@ -889,6 +949,36 @@
         popup.hidden = true; popupDefault.hidden = false; popupDetail.hidden = true;
       }
     });
+    /* ---------- 时间指引：按年顺游（下一步看哪里的故事） ---------- */
+    // 年份顺序与右栏站点键一一对应；tourIdx 记当前进度（-1 表示还在全景、尚未起卷）
+    var TOUR = ["jinling", "zhongshan", "hongzhou", "caishi", "jiangzhou", "bianjing", "beimang"];
+    var tourBox = document.getElementById("tourGuide");
+    var tourNodes = tourBox ? Array.prototype.slice.call(tourBox.querySelectorAll(".tour-node")) : [];
+    var tourPrev = tourBox ? tourBox.querySelector(".tour-prev") : null;
+    var tourNext = tourBox ? tourBox.querySelector(".tour-next") : null;
+    var tourIdx = -1; // -1 = 尚未起卷（全景）
+    function tourSync() {
+      if (!tourBox) return;
+      tourNodes.forEach(function (n, i) {
+        n.classList.toggle("is-active", i === tourIdx);
+        n.classList.toggle("is-done", tourIdx >= 0 && i < tourIdx);
+      });
+      if (tourPrev) tourPrev.disabled = tourIdx <= 0;
+      if (tourNext) tourNext.innerHTML = tourIdx >= TOUR.length - 1 ? "再游一遍 ⟶" : "下一站 ⟶";
+    }
+    tourNodes.forEach(function (n) {
+      n.addEventListener("click", function () { tourIdx = TOUR.indexOf(n.dataset.go); go(n.dataset.go); tourSync(); });
+    });
+    if (tourPrev) tourPrev.addEventListener("click", function () {
+      if (tourIdx > 0) { tourIdx--; go(TOUR[tourIdx]); tourSync(); }
+    });
+    if (tourNext) tourNext.addEventListener("click", function () {
+      if (tourIdx >= TOUR.length - 1) { tourIdx = 0; go(TOUR[0]); tourSync(); return; }
+      if (tourIdx < 0) tourIdx = 0; else tourIdx++;
+      go(TOUR[tourIdx]); tourSync();
+    });
+    tourSync(); // 初始态：未起卷时「上一站」禁用
+
     var hint = document.getElementById("stageHint");
     function hideHint() { if (!hinted && hint) { hinted = true; hint.classList.add("is-hidden"); } }
 
@@ -932,7 +1022,7 @@
         });
         cshadows.forEach(function (cs) {
           cs.position.x += cs.userData.v * dt;
-          if (cs.position.x > 95) cs.position.x = -95;
+          if (cs.position.x > 62) cs.position.x = -62; // 水面收边后，云影同步收在水面内
         });
         var mp = moteGeo.attributes.position.array;
         for (var mi2 = 0; mi2 < mN; mi2++) {

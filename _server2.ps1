@@ -36,7 +36,7 @@ public static class InkServer {
     }
 
     static void OnContext(IAsyncResult ar) {
-        HttpListener ctx = null;
+        HttpListenerContext ctx = null;
         try { ctx = listener.EndGetContext(ar); } catch (Exception) { }
         Loop();
         if (ctx != null) {
@@ -45,7 +45,7 @@ public static class InkServer {
         }
     }
 
-    static void Serve(HttpListener ctx) {
+    static void Serve(HttpListenerContext ctx) {
         string rel = Uri.UnescapeDataString(ctx.Request.Url.AbsolutePath.TrimStart('/'));
         if (string.IsNullOrEmpty(rel)) rel = "index.html";
         string file = Path.Combine(rootDir, rel.Replace('/', Path.DirectorySeparatorChar));

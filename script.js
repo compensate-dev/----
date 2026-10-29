@@ -1,15 +1,7 @@
-/*
- * 一江春水 · 李煜词境 — 全站交互脚本
- * 统一接管：开场动画 / 背景音乐 / 无刷新翻页 /
- * 时间线·记忆弹窗 / 滚动渐显 / 各类微交互。
- */
 (() => {
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  // 读取系统“减弱动效”偏好；开启后跳过粒子/水墨/视差等重动画，仅保留必要过渡
   document.addEventListener("click", (event) => {
-    /* —— 全局点击涟漪：在点击处生成一圈扩散水波（.click-ripple） —— */
-    // 跳过表单控件与媒体，避免干扰输入/播放
     if (reducedMotion || event.target.closest("input, textarea, select, audio, video")) return;
     const link = event.target.closest("a[href]");
     if (link) {
@@ -17,7 +9,6 @@
       if (url.origin === location.origin && url.pathname.endsWith(".html")
         && (url.pathname !== location.pathname || url.search !== location.search)) return;
     }
-    // 生成 .click-ripple 元素并交由 CSS 动画自行消散
     const ripple = document.createElement("span");
     ripple.className = "click-ripple";
     ripple.setAttribute("aria-hidden", "true");
@@ -27,7 +18,6 @@
     window.setTimeout(() => ripple.remove(), 1100);
   });
 
-  /* —— 顶部导航：汉堡菜单开合 —— */
   const menuButton = document.querySelector(".menu-toggle");
   const nav = document.querySelector(".main-nav");
   if (menuButton && nav) {
@@ -38,14 +28,11 @@
     });
   }
 
-  /* —— 背景音乐：自动播放策略 + sessionStorage 记忆 —— */
   const audio = document.querySelector(".background-audio");
-  // 开场引子音频：翻开书封时播放的引子（intro-audio.aac），播完自动接力背景音乐
   const introAudio = document.querySelector(".intro-audio");
   const soundButtons = document.querySelectorAll(".sound-toggle");
   const volumeSlider = document.querySelector(".volume-slider");
   let audioEnabled = sessionStorage.getItem("liyu-audio-enabled") !== "false";
-  // 默认开启；若用户曾关闭则记为 false
   // 封面入场尚未完成时，背景音乐不自动播放，等待音频一（intro-audio）结束后接续
   const coverIntroPending = Boolean(document.querySelector(".book-opening")) && sessionStorage.getItem("liyu-home-intro-completed-v2") !== "true";
   const updateSoundControls = (playing, message) => {
@@ -56,7 +43,6 @@
       if (status) status.textContent = message || (playing ? "音乐开启" : "开启音乐");
     });
   };
-  // 尝试播放背景音乐；失败则提示“点击开启”
   const playBackgroundMusic = () => {
     if (!audio || !audioEnabled) return;
     audio.play().then(() => {
@@ -66,7 +52,6 @@
     });
   };
   if (audio) {
-    // 引子待播期间不自动开背景音乐（HTML 的 autoplay/inert 已移除，改由这里控制起播时机）
     audio.autoplay = audioEnabled && !coverIntroPending;
     if (!audioEnabled || coverIntroPending) audio.pause();
     const savedVolume = sessionStorage.getItem("liyu-audio-volume");
@@ -83,7 +68,6 @@
         sessionStorage.setItem("liyu-audio-volume", volumeSlider.value);
       });
     }
-    // 重新进入页面时恢复上次播放进度
     const restoreAudioPosition = () => {
       const savedTime = Number(sessionStorage.getItem("liyu-audio-time") || 0);
       if (savedTime > 0 && savedTime < audio.duration - 1) audio.currentTime = savedTime;
@@ -109,29 +93,22 @@
         }
       });
     });
-    // 首次交互（点击）时若音乐被暂停则尝试续播（书封内的点击除外，避免打断引子音频）
     document.addEventListener("pointerdown", (event) => {
       if (audioEnabled && audio.paused && !event.target.closest(".sound-toggle") && !event.target.closest(".book-opening")) playBackgroundMusic();
     }, { once: true });
     document.addEventListener("keydown", (event) => {
-      // 键盘首次交互也尝试续播（排除输入/按钮/链接）
       if (audioEnabled && audio.paused && !event.target.closest("input, textarea, button, a")) playBackgroundMusic();
     }, { once: true });
   }
-
-  /* —— 开场引子音频：翻开书封时播放，播完无缝接力背景音乐 —— */
   // 音频一：封面点击后立即播放，播放结束后自动接续原有背景音乐
   const startIntroAudio = () => {
-    // 无引子音频元素时（其他子页），直接进入背景音乐
     if (!introAudio) {
       playBackgroundMusic();
       return;
     }
-    // 引子音量在背景音乐音量基础上略放大（上限 1），保证开场听感清晰
     introAudio.volume = Math.min(1, (audio ? audio.volume : Number(volumeSlider?.value || 0.32)) * 1.4);
     try {
       const playPromise = introAudio.play();
-      // 被浏览器拦截时降级为直接播放背景音乐
       if (playPromise && typeof playPromise.catch === "function") {
         playPromise.catch(() => playBackgroundMusic());
       }
@@ -139,7 +116,6 @@
       playBackgroundMusic();
     }
   };
-  // 引子播完自动接上背景音乐；dataset.introBound 防重复绑定
   if (introAudio && !introAudio.dataset.introBound) {
     introAudio.dataset.introBound = "1";
     introAudio.addEventListener("ended", () => playBackgroundMusic());
@@ -147,16 +123,12 @@
 
   // 首页 hero 云雾：脱离首屏裁剪，以半速慢移越过边界，飘入第二部分（他把无常，写成了永恒）后消散
   (() => {
-    // .cloud-stage 是首屏与云气的共同定位参照系；缺任一节点则整套跳过
     const stage = document.querySelector(".cloud-stage");
     const hero = document.querySelector(".hero");
     const intro = document.querySelector(".intro");
     if (!stage || !hero) return;
-    // 减弱动效偏好：云雾改为静态贴底，随文档正常滚走
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    // ticking 节流标记：滚动事件高频触发，合并到每帧只算一次
     let ticking = false;
-    // 量取首屏实际高度写入 --hero-h，供 CSS 把云气定位到首屏下缘之外（不依赖硬编码高度）
     const measure = () => {
       stage.style.setProperty("--hero-h", `${hero.offsetHeight}px`);
     };
@@ -164,7 +136,6 @@
       ticking = false;
       const heroH = hero.offsetHeight;
       const introH = intro ? intro.offsetHeight : 0;
-      // 已滚动距离：把「首屏高度 + 介绍区高度」作为上限，避免滚过整段后仍在累加
       const scroll = Math.min(heroH + introH, Math.max(0, -hero.getBoundingClientRect().top));
       if (reduce) {
         // 降级：云雾静止在首屏底部，随页面文档正常滚走，不做慢移与消散
@@ -178,9 +149,8 @@
       // 消散区间：首屏滚过 62% 开始变淡，进入 intro 后散尽（窄屏区间更长）
       const fadeStart = heroH * 0.62;
       const fadeEnd = heroH + introH * (window.innerWidth <= 700 ? 0.55 : 0.42);
-      // 夹取到 0～1，防止弹性回滚或短页面时溢出
       const fadeRaw = Math.min(1, Math.max(0, (scroll - fadeStart) / Math.max(1, fadeEnd - fadeStart)));
-      const fade = fadeRaw * fadeRaw * (3 - 2 * fadeRaw); // smoothstep，后段加速消散
+      const fade = fadeRaw * fadeRaw * (3 - 2 * fadeRaw); // smoothstep
       // 行进中持续向两侧外飘，消散时再散开一些
       const travel = Math.min(1, scroll / heroH);
       const tx = travel * 34 + fade * 30;
@@ -188,16 +158,13 @@
       stage.style.setProperty("--cloud-tx", `${tx.toFixed(1)}px`);
       stage.style.setProperty("--cloud-fade", fade.toFixed(3));
     };
-    // 用 requestAnimationFrame 合并同帧内的多次滚动触发
     const requestUpdate = () => {
       if (ticking) return;
       ticking = true;
       window.requestAnimationFrame(updateClouds);
     };
     window.addEventListener("scroll", requestUpdate, { passive: true });
-    // 尺寸变化会改变首屏高度，需先重新量取再重算
     window.addEventListener("resize", () => { measure(); requestUpdate(); });
-    // 初始化时先量一次、算一次，保证刷新后停在页面中部时云气状态正确
     measure();
     updateClouds();
   })();
@@ -214,10 +181,8 @@
       const vh = window.innerHeight || 1;
       stages.forEach((stage) => {
         const hero = stage.querySelector(".subhero");
-        // 紧跟首屏之后的那个区块即「覆盖面板」
         const cover = hero?.nextElementSibling;
         if (!hero || !cover) return;
-        // 覆盖面板顶部从视口底（p=0）升到视口顶（p=1）
         const top = cover.getBoundingClientRect().top;
         const p = Math.min(1, Math.max(0, 1 - top / vh));
         hero.style.setProperty("--hero-p", p.toFixed(4));
@@ -239,14 +204,12 @@
   (() => {
     const carousel = document.querySelector(".media-carousel");
     if (!carousel) return;
-    // 卡组、四张卡、四段说明、页码、详情弹窗，均在本段内取用，缺任何一项都不会影响其他页面
     const deck = carousel.querySelector(".media-deck");
     const slides = Array.from(deck.querySelectorAll(".media-slide"));
     const caps = Array.from(carousel.querySelectorAll(".media-carousel-info .media-caption"));
     const counter = carousel.querySelector(".media-carousel-count b");
     const storyDialog = document.querySelector(".memory-story-dialog");
     const n = slides.length;
-    // 减弱动效：不启用 3D，直接把四段说明全部点亮（CSS 那边退回静态网格）
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       caps.forEach((cap) => cap.classList.add("is-active"));
       return;
@@ -255,12 +218,10 @@
     deck.classList.add("media-deck-3d");
     let cur = 0;
     let started = false;
-    // 核心排布：按「与当前卡的相对位次 t」算位移、纵深、角度与缩放，再把说明与页码同步到 cur
     const layout = (p) => {
       p = p || 0; // p 为拖拽跟手的连续偏移量（约 -1~1），0 即静止吸附态
       const w = slides[0].offsetWidth || 250; // 未变换布局宽度：getBoundingClientRect 会带 3D 投影，导致不同卡居中时铺开形态不一
       slides.forEach((slide, i) => {
-        // 环形取最短距离：把 -n/2 ~ n/2 之外的值折回来，末张与首张之间不会绕远路
         let d = ((i - cur) % n + n) % n;
         if (d > n / 2) d -= n;
         const t = d - p;
@@ -289,7 +250,6 @@
     // 切换仪式：一句词自中心卡右侧竖排升起飘散，几粒淡墨朝翻页方向迸落（词与四图意境对应）
     const VERSES = ["往事已成空 还如一梦中", "寻春须是先春早 看花莫待花枝老", "帘外雨潺潺 春意阑珊", "世事漫随流水 算来一梦浮生"];
     const ritual = (dir) => {
-      // 词句节点只建一次，之后复用；重新触发动画靠「摘类名 → 强制回流 → 加类名」
       let verse = deck.querySelector(".media-verse-float");
       if (!verse) {
         verse = document.createElement("span");
@@ -301,7 +261,6 @@
       void verse.offsetWidth;
       verse.textContent = VERSES[cur] || "";
       verse.classList.add("is-rising");
-      // 墨点：九粒随机散开，横向按翻页方向（右翻往左、左翻往右）铺，纵向上下随机
       const burst = document.createElement("span");
       burst.className = "media-ink-burst is-bursting";
       burst.setAttribute("aria-hidden", "true");
@@ -324,7 +283,6 @@
     const revealIO = new IntersectionObserver((entries) => {
       if (!entries.some((entry) => entry.isIntersecting)) return;
       revealIO.disconnect();
-      // 连等两帧再铺开，保证浏览器已完成首帧布局，过渡才不会被跳过
       requestAnimationFrame(() => requestAnimationFrame(() => {
         started = true;
         layout();
@@ -345,10 +303,8 @@
       if (!dragging || !event.isPrimary) return;
       const dx = event.clientX - dragX;
       const now = performance.now();
-      // 甩动速度：用相邻两次移动的位移/时间差估算，松手时参与判页
       if (now > lastT) vel = (event.clientX - lastX) / (now - lastT);
       lastX = event.clientX; lastT = now;
-      // 超过 6px 才算「真的在拖」，避免误触把点击当拖拽
       if (!dragged && Math.abs(dx) > 6) {
         dragged = true;
         deck.classList.add("is-dragging");
@@ -363,7 +319,6 @@
       dragging = false;
       if (!dragged) return;
       deck.classList.remove("is-dragging");
-      // 判页阈值：拖过 0.32 张即翻；或拖过 0.08 张且甩得够快（< -0.45 / > 0.45）也翻
       const flip = dragP > 0.32 || (dragP > 0.08 && vel < -0.45) ? 1 : dragP < -0.32 || (dragP < -0.08 && vel > 0.45) ? -1 : 0;
       if (flip) {
         cur = (cur + flip + n) % n;
@@ -374,7 +329,6 @@
     };
     deck.addEventListener("pointerup", endDrag);
     deck.addEventListener("pointercancel", endDrag);
-    // 拖拽结束时拦下这次 click，免得松开手顺带触发卡片上的大图弹窗
     deck.addEventListener("click", (event) => {
       if (dragged) { event.stopPropagation(); event.preventDefault(); }
     }, true);
@@ -383,7 +337,6 @@
       if (event.key === "ArrowLeft") { event.preventDefault(); go(-1); bumpAuto(); }
       else if (event.key === "ArrowRight") { event.preventDefault(); go(1); bumpAuto(); }
     });
-    // 点两侧卡片即翻到那张（用捕获阶段先拦下，避免顺带打开大图）；点中心卡不拦，交给弹窗
     slides.forEach((slide, i) => {
       slide.addEventListener("click", (event) => {
         if (i === cur) return;
@@ -403,13 +356,11 @@
       };
       deck.addEventListener("pointermove", (event) => {
         if (event.pointerType !== "mouse") return;
-        // 指针在卡组里的归一化坐标（0~1），用视口矩形换算，同帧只算一次
         const rect = deck.getBoundingClientRect();
         px = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
         py = Math.min(1, Math.max(0, (event.clientY - rect.top) / rect.height));
         if (!tiltRaf) tiltRaf = requestAnimationFrame(applyTilt);
       });
-      // 指针离开：清掉内联倾斜，并临时挂 tilt-return 让回位带缓动
       deck.addEventListener("pointerleave", (event) => {
         if (event.pointerType !== "mouse") return;
         deck.classList.add("tilt-return");
@@ -431,7 +382,6 @@
     if (!zone) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     let raf = 0;
-    // 进度 =（视口底 - 区块顶）/（视口高 + 区块高），区块完全进入时为 0.5 左右
     const update = () => {
       raf = 0;
       const rect = zone.getBoundingClientRect();
@@ -445,16 +395,14 @@
     update();
   })();
 
-  // 两山开合：按各区块（ci 词作笺赏 / index 词牌卡 / wanxiang 记忆卡 / listen 终幕引子）进出视口进度
-  // 各自写 --part-p（0=刚进，1=将出），驱动山影向两侧退开、渐隐消散；终幕引子用它驱动逐层晕开；
-  // 同时挂 part-js 并在精确指针设备写 --part-px/--part-py（-1~1）供引子巨字/雾团视差；
+  // 两山开合：按各区块（ci 词作笺赏 / index 词牌卡 / wanxiang 记忆卡）进出视口进度
+  // 各自写 --part-p（0=刚进，1=将出），驱动山影向两侧退开、渐隐消散；
   // reduced-motion 不启用，山影保持静态
   (() => {
     const zones = Array.from(document.querySelectorAll(".works, .feature-section, .memory-section, .finale-gate"));
     if (!zones.length) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     document.documentElement.classList.add("part-js");
-    // 指针视差：光标位置归一到 -1~1 → --part-px/--part-py（rAF 节流，挂在 html 上全局共用）
     if (window.matchMedia("(pointer: fine)").matches) {
       let pRaf = 0, gx = 0, gy = 0;
       const writeG = () => {
@@ -469,7 +417,6 @@
       }, { passive: true });
     }
     let raf = 0;
-    // 进度 =（视口底 - 区块顶）/（视口高 + 区块高），与 --glide-p 同一套公式
     const update = () => {
       raf = 0;
       const vh = window.innerHeight || 1;
@@ -485,29 +432,20 @@
     update();
   })();
 
-  /* ============================================================
-   * 开场链路：翻书封面 → 书法飞落序列 → 水墨间奏 → 抵达视差
-   * ============================================================ */
   const bookOpening = document.querySelector(".book-opening");
   const bookOpenButton = document.querySelector(".book-open-button");
   const calligraphySequence = document.querySelector(".calligraphy-sequence");
-  // 书法幕墨点：用 canvas 逐帧绘制上浮的墨珠（带拖尾与左右旋绕），替代原先由 CSS 变量驱动的 <i> 列表
   (() => {
-    // 墨点容器：HTML 里只留一个空壳 div，画布在运行时插入，避免手写 30 个节点
     const host = document.querySelector(".calligraphy-inkmotes");
-    // 容器不存在或已绑定过（防重复初始化）就直接退出
     if (!host || host.dataset.motesBound) return;
     host.dataset.motesBound = "1";
     const canvas = document.createElement("canvas");
     host.appendChild(canvas);
     const context = canvas.getContext("2d");
-    // 拿不到 2D 上下文（极旧浏览器）则放弃绘制
     if (!context) return;
-    // 设备像素比上限压到 2，兼顾高分屏清晰度与绘制开销
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     let width = 0;
     let height = 0;
-    // 尺寸同步：CSS 尺寸决定逻辑坐标，画布像素按 dpr 放大后再整体缩放坐标系
     const resize = () => {
       width = host.clientWidth;
       height = host.clientHeight;
@@ -518,10 +456,8 @@
     resize();
     window.addEventListener("resize", resize);
     const motes = [];
-    // 移动端减少数量：窄屏 16 粒，桌面 30 粒
     const moteCount = window.innerWidth < 700 ? 16 : 30;
     for (let i = 0; i < moteCount; i++) {
-      // 每粒墨点：x 用 0-1 归一化坐标；y 从 1~2.4 起步（屏幕下方），画布内随尺寸缩放
       motes.push({
         x: Math.random(),
         y: 1 + Math.random() * 1.4,
@@ -529,26 +465,20 @@
         drift: (Math.random() < 0.5 ? -1 : 1) * (0.035 + Math.random() * 0.075),
         swirl: 0.35 + Math.random() * 0.85,
         phase: Math.random() * Math.PI * 2,
-        // size 为墨珠半径（整体比上版更细小），约 12% 概率放大到 1.9 倍，做出大小错落
         size: (1.2 + Math.random() * 1.9) * (Math.random() < 0.12 ? 1.9 : 1),
-        // trail 存最近若干帧的坐标，用来画拖尾
         trail: []
       });
     }
     let last = performance.now();
     let frameIndex = 0;
-    // 逐帧循环：先排下一帧，再推进当前帧，保证长时间运行不中断
     const stepInkMotes = (now) => {
       requestAnimationFrame(stepInkMotes);
-      // dt 截断到 0.05s，避免切回标签页时因超大时间差导致墨点瞬移
       const dt = Math.min((now - last) / 1000, 0.05);
       last = now;
       frameIndex += 1;
-      // 只有书法幕处于激活态才绘制，其余时间空转省性能
       if (!calligraphySequence.classList.contains("is-active")) return;
       context.clearRect(0, 0, width, height);
       motes.forEach((mote) => {
-        // 上浮：y 递减；越过顶部后回到画面底部并重新随机横向位置
         mote.y -= mote.speed * dt;
         mote.phase += mote.swirl * dt;
         if (mote.y < -0.06) {
@@ -556,16 +486,13 @@
           mote.x = Math.random();
           mote.trail.length = 0;
         }
-        // 横向位置 = 基准 x + 正弦摆动，形成左右旋绕的飘移感
         const px = (mote.x + Math.sin(mote.phase) * mote.drift) * width;
         const py = mote.y * height;
-        // 隔帧采样一次轨迹，最多保留 44 个点
         if (frameIndex % 2 === 0) {
           mote.trail.push([px, py]);
           if (mote.trail.length > 44) mote.trail.shift();
         }
         context.lineCap = "round";
-        // 拖尾：从旧到新逐段连线，越靠近墨珠越粗越浓（k 的平方衰减）
         for (let t = 1; t < mote.trail.length; t++) {
           const k = t / mote.trail.length;
           context.beginPath();
@@ -575,7 +502,6 @@
           context.lineWidth = Math.max(mote.size * 0.9 * k, 0.4);
           context.stroke();
         }
-        // 墨珠本体：径向渐变（左上高光 → 中心浓墨 → 边缘渐透），模拟纸上的墨点
         const gradient = context.createRadialGradient(px - mote.size * 0.2, py - mote.size * 0.25, mote.size * 0.15, px, py, mote.size);
         gradient.addColorStop(0, "rgba(50,66,56,.95)");
         gradient.addColorStop(0.62, "rgba(12,20,16,.94)");
@@ -590,13 +516,10 @@
   })();
   if (bookOpening && bookOpenButton && calligraphySequence) {
     const introStorageKey = "liyu-home-intro-completed-v2";
-    // 是否已看过开场动画的本地标记，避免每次刷新重播
     const calligraphyBackground = calligraphySequence.querySelector(".calligraphy-background");
     const inkInterlude = document.querySelector(".ink-interlude");
     const arrivalInterlude = document.querySelector(".arrival-interlude");
-    // 行程轨道：滚动内容总高约 390svh，用其高度与容器可视高度换算进度
     const arrivalTrack = arrivalInterlude?.querySelector(".arrival-track");
-    // 内层滚动容器：抵达幕回到「固定层 + 内部滚动」模型，行程在 .arrival-scroller 内推进
     const arrivalScroller = arrivalInterlude?.querySelector(".arrival-scroller");
     const arrivalEnterButton = arrivalInterlude?.querySelector(".arrival-enter-button");
     const arrivalSkipButton = arrivalInterlude?.querySelector(".arrival-skip-button");
@@ -605,7 +528,6 @@
     const arrivalInkWash = arrivalInterlude?.querySelector(".arrival-ink-wash");
     const inkCanvas = inkInterlude?.querySelector(".ink-canvas");
     const inkContext = inkCanvas?.getContext("2d");
-    /* 抵达幕：把文案逐字拆为 .arrival-glyph，供逐字显现 */
     const prepareArrivalCopy = () => {
       arrivalInterlude?.querySelectorAll(".arrival-copy h1, .arrival-copy h2, .arrival-copy p, .arrival-whisper").forEach((element) => {
         if (element.dataset.glyphsPrepared === "true") return;
@@ -633,33 +555,24 @@
         element.dataset.glyphsPrepared = "true";
       });
     };
-    // 浮尘：向 .arrival-motes 注入若干光点，位置/大小/时长/延迟/横向漂移/透明度全部随机
-    // 具体运动交给 CSS 的 arrival-mote-rise 动画，脚本只负责「撒点」
     const spawnArrivalMotes = () => {
       const motesLayer = arrivalInterlude?.querySelector(".arrival-motes");
-      // 没有容器或用户要求减弱动效时直接不撒
       if (!motesLayer || reducedMotion) return;
-      // 移动端减半，避免小屏上光点过密
       const count = window.matchMedia("(max-width:700px)").matches ? 26 : 52;
-      // 用片段批量插入，只触发一次重排
       const frag = document.createDocumentFragment();
       for (let i = 0; i < count; i += 1) {
         const mote = document.createElement("i");
         const size = 2 + Math.random() * 5;
-        // --mote-x：横向落点（百分比）；--mote-size：光点直径
         mote.style.setProperty("--mote-x", `${Math.random() * 100}%`);
         mote.style.setProperty("--mote-size", `${size}px`);
-        // --mote-duration：上升一轮耗时；--mote-delay 取负值，让首帧就已错落分布
         mote.style.setProperty("--mote-duration", `${9 + Math.random() * 14}s`);
         mote.style.setProperty("--mote-delay", `${-Math.random() * 20}s`);
-        // --mote-drift：横向漂移量；--mote-opacity：该粒的峰值透明度
         mote.style.setProperty("--mote-drift", `${(Math.random() - 0.5) * 120}`);
         mote.style.setProperty("--mote-opacity", `${(0.35 + Math.random() * 0.5).toFixed(2)}`);
         frag.append(mote);
       }
       motesLayer.append(frag);
     };
-    // 依据滚动进度计算每幕文案的逐字显现比例
     const updateArrivalGlyphs = (progress) => {
       arrivalInterlude?.querySelectorAll(".arrival-copy").forEach((copy, index) => {
         let sceneProgress = Math.min(1, Math.max(0, progress * 3 - index));
@@ -681,7 +594,6 @@
         if (stroke) stroke.style.strokeDashoffset = String(1 - sceneProgress);
       });
     };
-    // 书法飞落所用字稿图片清单（按文件名预加载）
     const calligraphyAssets = [
       "calligraphy-flight-01.png",
       "calligraphy-flight-03.png",
@@ -706,14 +618,12 @@
       "calligraphy-added-09.png",
       "calligraphy-added-11.png"
     ];
-    // 预加载全部书法字稿，全部成功才进入序列
     const preloadCalligraphy = () => Promise.all(calligraphyAssets.map((src) => new Promise((resolve, reject) => {
       const image = new Image();
       image.onload = () => resolve(src);
       image.onerror = () => reject(new Error(`Unable to load calligraphy image: ${src}`));
       image.src = src;
     })));
-    // Fisher–Yates 洗牌：随机打乱数组顺序
     const shuffle = (items) => {
       const shuffled = [...items];
       for (let index = shuffled.length - 1; index > 0; index -= 1) {
@@ -722,14 +632,12 @@
       }
       return shuffled;
     };
-    // 通用：以 Promise 形式加载一张图片
     const loadImageSource = (src) => new Promise((resolve, reject) => {
       const image = new Image();
       image.onload = () => resolve(image);
       image.onerror = () => reject(new Error(`Unable to load image: ${src}`));
       image.src = src;
     });
-    // 采样书法字稿的“墨色”像素作为粒子起点（越深越重越易选中）
     const sampleOriginPoints = (image, targetCount) => {
       const maxSide = 260;
       const scale = Math.min(maxSide / image.naturalWidth, maxSide / image.naturalHeight, 1);
@@ -773,7 +681,6 @@
       }
       return { points, width: sampleCanvas.width, height: sampleCanvas.height };
     };
-    // 采样“月下人”主图像素作为粒子终点（按亮度分桶取色）
     const sampleTargetPoints = (image, targetCount, viewportWidth, viewportHeight) => {
       const coverScale = Math.max(viewportWidth / image.naturalWidth, viewportHeight / image.naturalHeight);
       const offsetX = (viewportWidth - image.naturalWidth * coverScale) / 2;
@@ -820,11 +727,9 @@
       }
       return points;
     };
-    /* 字化飞墨：把飞落字稿的像素化为粒子，聚成月下人主图 */
     const runGlyphParticleTransform = () => {
       const particleCanvas = calligraphySequence.querySelector(".calligraphy-particle-canvas");
       if (!particleCanvas) return Promise.resolve(false);
-      // file: 协议下无法读取 canvas 像素，直接跳过粒子动画
       if (location.protocol === "file:") return Promise.resolve(false);
       const context = particleCanvas.getContext("2d");
       if (!context) return Promise.resolve(false);
@@ -945,7 +850,6 @@
         });
       }).catch(() => false);
     };
-    /* 离场收场：以水墨晕染(.arrival-ink-wash)柔和收束入场场景，替代早先的碎裂层；若水墨动画仍在进行则稍候再揭示主页 */
     const exitArrivalScene = (onComplete) => {
       const inkWash = arrivalStage?.querySelector(".arrival-ink-wash");
       const reveal = () => {
@@ -962,7 +866,6 @@
       if (inkWashRunning) window.setTimeout(reveal, 320);
       else reveal();
     };
-    /* 水墨间奏：canvas 上的墨点 + 墨痕粒子场 */
     const startInkAnimation = () => {
       if (!inkCanvas || !inkContext) throw new Error("The ink interlude canvas is unavailable.");
       const context = inkContext;
@@ -988,7 +891,6 @@
         + Math.cos(y * 0.0035 - t * 0.3)
         + Math.sin((x + y) * 0.002 + t * 0.15)
       ) / 3;
-      // 生成单个墨点粒子（初值与再生时复用）
       const makeParticle = (initial = false) => {
         const maxLife = random(300, 900);
         return {
@@ -1063,7 +965,6 @@
         context.restore();
       };
       const render = (now) => {
-        // 每帧绘制：先淡出旧帧，再更新并绘制墨点/墨痕
         const frameScale = previousFrame ? Math.min((now - previousFrame) / 16.67, 2) : 1;
         previousFrame = now;
         time += 0.01 * frameScale;
@@ -1118,10 +1019,8 @@
         window.removeEventListener("pointermove", onPointerMove);
       };
     };
-    /* 抵达幕进度：滚动驱动的视差、逐字显现与指针视差 */
     let arrivalSceneIndex = -1;
     let inkWashRunning = false;
-    // 场景切换时短暂铺一层水墨晕染（.arrival-ink-wash）
     const playArrivalInkWash = () => {
       if (reducedMotion || !arrivalInkWash || inkWashRunning) return Promise.resolve();
       inkWashRunning = true;
@@ -1145,16 +1044,11 @@
         window.setTimeout(settle, 1900);
       });
     };
-    // 根据抵达幕内层滚动容器的滚动位置计算整体进度与各图层位移
     const updateArrivalProgress = () => {
       if (!arrivalInterlude || !arrivalTrack) return;
-      // 可视高度：轨道被撑到约 390svh，多出来的部分才是真正的行程
       const viewportH = window.innerHeight;
-      // 兼容取内层滚动容器；缺失时回退为页面滚动模型
       const scroller = arrivalScroller || null;
-      // 行程总长 = 轨道高度 - 可视高度（有内层容器用容器高，否则用一屏高）
       const scrollRange = arrivalTrack.offsetHeight - (scroller ? scroller.clientHeight : viewportH);
-      // 已滚过的行程：内层容器直接读 scrollTop，页面滚动则用轨道顶边位移
       const scrolled = scroller ? scroller.scrollTop : 0;
       const progress = scrollRange > 0 ? Math.min(1, Math.max(0, scrolled / scrollRange)) : 1;
       const sceneIndex = Math.min(2, Math.floor(progress * 3));
@@ -1170,28 +1064,19 @@
       arrivalInterlude.style.setProperty("--arrival-world-x", `${-progress * 48}px`);
       arrivalInterlude.style.setProperty("--arrival-bloom", String(Math.sin(progress * Math.PI)));
       arrivalInterlude.style.setProperty("--arrival-river-y", `${progress * 110}px`);
-      // 雾气横移取正弦（1.4 个周期，来回起伏而非单向直线），纵向下压；两者共同撑开纵深
       arrivalInterlude.style.setProperty("--arrival-mist-x", `${Math.sin(progress * Math.PI * 1.4) * 38}px`);
       arrivalInterlude.style.setProperty("--arrival-mist-y", `${progress * 56}px`);
-      // 远景山峦：横向慢移（90px）+ 纵向缓升（34px），最远层视差
       arrivalInterlude.style.setProperty("--arrival-hill-far-x", `${(-progress * 90).toFixed(1)}px`);
       arrivalInterlude.style.setProperty("--arrival-hill-far-y", `${(-progress * 34).toFixed(1)}px`);
-      // 中景山峦：横移更快（190px），与远山拉开层次
       arrivalInterlude.style.setProperty("--arrival-hill-mid-x", `${(-progress * 190).toFixed(1)}px`);
-      // 江岸：横移量再加大（280px），承接山与水面，形成第三层纵深
       arrivalInterlude.style.setProperty("--arrival-shore-x", `${(-progress * 280).toFixed(1)}px`);
-      // 垂柳：前景框景，横移最快（330px），左右两条柳枝共用同一变量
       arrivalInterlude.style.setProperty("--arrival-willow-x", `${(-progress * 330).toFixed(1)}px`);
-      // 孤舟：横移（150px）叠加正弦漂浮（±10px 横向、±7px 纵向），并按余弦轻微倾斜（±2.4°）
       arrivalInterlude.style.setProperty("--arrival-boat-x", `${(-progress * 150 + Math.sin(progress * Math.PI * 2) * 10).toFixed(1)}px`);
       arrivalInterlude.style.setProperty("--arrival-boat-y", `${(Math.sin(progress * Math.PI * 3) * 7).toFixed(1)}px`);
       arrivalInterlude.style.setProperty("--arrival-boat-tilt", `${(Math.cos(progress * Math.PI * 2.4) * 2.4).toFixed(2)}deg`);
-      // 芦苇：向右横移（230px），与向左的山峦形成反向视差
       arrivalInterlude.style.setProperty("--arrival-reed-x", `${(progress * 230).toFixed(1)}px`);
-      // 雁阵：随进度斜向掠过（横 420px、纵 120px）
       arrivalInterlude.style.setProperty("--arrival-geese-x", `${(-progress * 420).toFixed(1)}px`);
       arrivalInterlude.style.setProperty("--arrival-geese-y", `${(-progress * 120).toFixed(1)}px`);
-      // 推镜：舞台整体由 1 缓慢放大到 1.07，模拟镜头向前
       arrivalInterlude.style.setProperty("--arrival-dolly", String(1 + progress * 0.07));
       arrivalChapterButtons?.forEach((button, index) => {
         button.setAttribute("aria-pressed", String(index === sceneIndex));
@@ -1205,13 +1090,10 @@
       });
       const progressCount = arrivalInterlude.querySelector(".arrival-progress-label b");
       if (progressCount) progressCount.textContent = `${String(sceneIndex + 1).padStart(2, "0")} / 03`;
-      // 进入按钮不做「进度到 90% 才解禁」的设卡：始终可点，点击即走收场流程进入首页
       if (arrivalEnterButton) arrivalEnterButton.disabled = false;
       if (arrivalSceneIndex !== -1 && sceneIndex !== arrivalSceneIndex && !reducedMotion && !inkWashRunning) playArrivalInkWash();
       arrivalSceneIndex = sceneIndex;
     };
-    // 撒一层落花：向 .arrival-petals 注入若干花瓣 <i>（窄屏 10 粒 / 桌面 18 粒），
-    // 已有花瓣则跳过；各粒随机写 --petal-x/size/duration/delay/drift/opacity，飘落节奏全由 CSS 动画驱动
     const spawnArrivalPetals = () => {
       const holder = arrivalInterlude?.querySelector(".arrival-petals");
       if (!holder || holder.childElementCount) return;
@@ -1227,7 +1109,6 @@
         holder.appendChild(petal);
       }
     };
-    // 指针视差：把鼠标位置映射为 soft / deep / 基础 三档位移变量
     const updateArrivalPointer = (event) => {
       if (reducedMotion || event.pointerType === "touch") return;
       const x = event.clientX / window.innerWidth - 0.5;
@@ -1239,17 +1120,12 @@
       arrivalInterlude.style.setProperty("--arrival-pointer-soft-x", `${(x * 12).toFixed(1)}px`);
       arrivalInterlude.style.setProperty("--arrival-pointer-soft-y", `${(y * 9).toFixed(1)}px`);
     };
-    /* 展示抵达幕：全屏固定层 + 内层滚动容器模型。滚动在容器内推进进度，
-       滚到底后继续下滚（wheel 判底）即触发水墨收场并进入首页 */
     const showArrivalInterlude = () => new Promise((resolve, reject) => {
-      // 固定层模型下内层容器是必需的，缺失即视为结构不完整
       if (!arrivalInterlude || !arrivalTrack || !arrivalScroller || !arrivalEnterButton || !arrivalSkipButton) {
         reject(new Error("The parallax arrival interlude is incomplete."));
         return;
       }
-      // 收场标记：保证 finish 只执行一次（滚到底 / 点按钮都可能触发）
       let finished = false;
-      // 滚动合并到一帧处理（rAF 节流）：滚动事件很密，避免每个像素都重算图层与逐字显现
       let rafPending = false;
       const onScroll = () => {
         if (rafPending) return;
@@ -1259,7 +1135,6 @@
           updateArrivalProgress();
         });
       };
-      // 统一出口：先播水墨收场，再淡出抵达幕、揭开首页并回到顶端
       const finish = () => {
         if (finished) return;
         finished = true;
@@ -1272,7 +1147,6 @@
           resolve();
         });
       };
-      // 滚轮判底：行程已滚满还继续下滚时，拦截本次滚动并直接收场
       const onWheel = (event) => {
         if (finished || event.deltaY <= 0) return;
         const scrollRange = arrivalTrack.offsetHeight - arrivalScroller.clientHeight;
@@ -1281,16 +1155,11 @@
           finish();
         }
       };
-      // 「继续」按钮：按当前幕位分两步走 —— 未到末幕就平滑滚入下一幕，已在第三幕才真正收场
       const enterOrAdvance = () => {
         if (finished) return;
-        // 行程可滚动距离：内层容器高度减去可视高度（与滚动监听同一套换算式）
         const scrollRange = arrivalTrack.offsetHeight - arrivalScroller.clientHeight;
-        // 当前进度 0～1：行程为空时按满进度处理
         const progress = scrollRange > 0 ? arrivalScroller.scrollTop / scrollRange : 1;
-        // 进度切成三幕：0 / 1 / 2（上限夹到 2，防止浮点误差越界）
         const currentScene = Math.min(2, Math.floor(progress * 3));
-        // 已在末幕：无需再滚，直接走统一出口收场
         if (currentScene >= 2) {
           finish();
           return;
@@ -1299,24 +1168,19 @@
         const target = (scrollRange * (currentScene + 1)) / 3 + 6;
         arrivalScroller.scrollTo({ top: target, behavior: "smooth" });
       };
-      // 解绑全部监听并解除页面滚动锁
       const removeListeners = () => {
         arrivalScroller.removeEventListener("scroll", onScroll);
         window.removeEventListener("wheel", onWheel);
         document.body.classList.remove("arrival-lock");
       };
       prepareArrivalCopy();
-      // 撒一层浮尘光点（只做一次，后续靠 CSS 动画循环）
       spawnArrivalMotes();
-      // 再撒一层落花花瓣（同样只做一次）
       spawnArrivalPetals();
       arrivalInterlude.removeAttribute("aria-hidden");
       arrivalInterlude.removeAttribute("inert");
       arrivalInterlude.classList.add("is-visible");
-      // 锁住页面本身滚动：行程只在内层容器里推进
       document.body.classList.add("arrival-lock");
       arrivalScroller.addEventListener("scroll", onScroll, { passive: true });
-      // wheel 用非 passive，才能在判底时 preventDefault 拦下这次滚动
       window.addEventListener("wheel", onWheel, { passive: false });
       window.addEventListener("pointermove", updateArrivalPointer, { passive: true });
       arrivalEnterButton.addEventListener("click", enterOrAdvance);
@@ -1325,16 +1189,13 @@
         button.addEventListener("click", () => {
           const chapter = Number(button.dataset.arrivalScene);
           const scrollRange = arrivalTrack.offsetHeight - arrivalScroller.clientHeight;
-          // 末幕直接取 1：内层容器 scrollTo 贴边不会再差半格
           const chapterProgress = chapter === 2 ? 1 : (chapter + 0.5) / 3;
           arrivalScroller.scrollTo({ top: scrollRange * chapterProgress, behavior: reducedMotion ? "auto" : "smooth" });
         });
       });
-      // 先按当前滚动位置算一次，避免首帧无进度导致文案不亮
       updateArrivalProgress();
       resolve();
     });
-    /* 书法序列主流程：等视频结束 → 字化飞墨 → 水墨间奏 → 抵达幕 */
     const runCalligraphySequence = async (assetsReady, revealHome) => {
       const assets = await assetsReady;
       let backgroundVideoHasEnded = Boolean(calligraphyBackground?.ended);
@@ -1363,7 +1224,6 @@
           return margin + index * (spread / (assets.length - 1));
         })
       );
-      // 循环从底部飞落书法字稿，直到背景视频播完
       const displayCalligraphy = async () => {
         let index = 0;
         const shuffledAssets = shuffle(assets);
@@ -1391,7 +1251,6 @@
           await new Promise((resolve) => window.setTimeout(resolve, flightInterval));
         }
       };
-      // 视频结束后：字化飞墨 → 水墨间奏 → 抵达幕 → 揭幕
       const showInterludeAfterCalligraphy = async () => {
         await backgroundVideoEnded;
         await Promise.race([
@@ -1402,7 +1261,7 @@
         await new Promise((resolve) => window.setTimeout(resolve, 400));
         calligraphySequence.remove();
         await displayCalligraphyPromise;
-        const interludeDuration = 7000; // 墨迹插页展示时长（ms）：拉长到 7 秒，给水墨晕染更多停留
+        const interludeDuration = 7000;
         const interludeFadeDuration = 600;
         const interludeStartedAt = performance.now();
         const stopInkAnimation = startInkAnimation();
@@ -1415,15 +1274,12 @@
         if (untilTransition > 0) await new Promise((resolve) => window.setTimeout(resolve, untilTransition));
         stopInkAnimation();
         inkInterlude.remove();
-        // 进入首页的动作（revealHome / 聚焦）已移入抵达幕的 finish() 收场回调
         await showArrivalInterlude();
       };
       const displayCalligraphyPromise = displayCalligraphy();
       await showInterludeAfterCalligraphy();
     };
-    /* 揭幕：移除开场层、解锁 header/main/footer，进入首页 */
     let homeRevealPromise;
-    // 标记开场已完成；解锁页面；延迟后清理各开场层
     const revealHome = () => {
       if (homeRevealPromise) return homeRevealPromise;
       sessionStorage.setItem(introStorageKey, "true");
@@ -1441,7 +1297,6 @@
       });
       return homeRevealPromise;
     };
-    // 已看过开场：直接显示首页，跳过动画
     if (sessionStorage.getItem(introStorageKey) === "true") {
       document.body.classList.add("book-opened");
       bookOpening.remove();
@@ -1451,10 +1306,8 @@
       document.querySelectorAll("header[inert], main[inert], footer[inert], audio[inert]").forEach((element) => element.removeAttribute("inert"));
       document.querySelector(".hero-actions a")?.focus({ preventScroll: true });
     } else {
-      // 点击“翻开词境”后启动开场动画
       bookOpenButton.addEventListener("click", () => {
         bookOpenButton.disabled = true;
-        // 翻开书封即启动引子音频，铺满开场动画的前半程
         startIntroAudio();
         if (reducedMotion) {
           revealHome();
@@ -1485,12 +1338,8 @@
     }
   }
 
-  /* ============================================================
-   * 无刷新翻页（SPA）：fetch + 替换 main，配水波过渡
-   * ============================================================ */
   let navigationVersion = 0;
   let activePageRipple = null;
-  // 创建一次页面级水波（.page-ripple）并锁定过渡状态
   const startPageRipple = (origin = {}) => {
     if (reducedMotion) return { ready: Promise.resolve(), finish: () => {} };
     document.querySelectorAll(".page-ripple").forEach((ripple) => ripple.remove());
@@ -1516,7 +1365,6 @@
     };
   };
   if (location.protocol === "file:") {
-    // file: 协议下无法 fetch，退化为整页跳转并用 sessionStorage 还原水波原点
     const savedOrigin = sessionStorage.getItem("liyu-page-ripple-origin");
     if (savedOrigin) {
       sessionStorage.removeItem("liyu-page-ripple-origin");
@@ -1528,7 +1376,6 @@
       window.setTimeout(ripple.finish, 240);
     }
   }
-  // 高亮当前页面对应的导航项
   const updateActiveNavigation = (url) => {
     document.querySelectorAll(".main-nav a").forEach((link) => {
       const active = new URL(link.href, location.href).pathname === url.pathname;
@@ -1537,12 +1384,10 @@
       else link.removeAttribute("aria-current");
     });
   };
-  /* 核心：拉取目标页 → 替换 main → 更新标题/导航/历史 → 定位 */
   const navigateTo = async (url, addHistory = true, origin) => {
     const version = ++navigationVersion;
     let ripple;
     try {
-      // 以 fetch 拉取目标页 HTML（带自定义头，便于后端区分）
       const response = await fetch(url.href, { headers: { "X-Requested-With": "fetch" } });
       if (!response.ok) throw new Error(`Navigation failed: ${response.status}`);
       const nextPage = new DOMParser().parseFromString(await response.text(), "text/html");
@@ -1556,7 +1401,6 @@
         ripple.finish();
         return;
       }
-      // 用新页面的 <main> 就地替换，无需整页刷新
       currentMain.replaceWith(nextMain);
       document.title = nextPage.title;
       document.body.classList.toggle("home-page", nextPage.body.classList.contains("home-page"));
@@ -1582,7 +1426,6 @@
   };
   document.addEventListener("click", (event) => {
     const link = event.target.closest("a[href]");
-    /* 拦截站内 .html 链接改为无刷新跳转；其余放行 */
     if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     if (link.target && link.target !== "_self" || link.hasAttribute("download")) return;
     const url = new URL(link.href, location.href);
@@ -1598,16 +1441,11 @@
     }
     navigateTo(url, true, origin);
   });
-  // 浏览器前进/后退时同步无刷新切换页面
   window.addEventListener("popstate", () => {
     if (location.protocol !== "file:" && location.pathname.endsWith(".html")) navigateTo(new URL(location.href), false);
   });
 
-  /* ============================================================
-   * 生平时间线：滚动驱动的叙述进度条 + 场景联动
-   * ============================================================ */
   let timelineScrollTicking = false;
-  // 计算滚动位置对应时间线的“阅读线”，更新进度与场景文案
   const updateTimelineNarrative = () => {
     const timeline = document.querySelector(".timeline");
     if (!timeline) return;
@@ -1641,7 +1479,6 @@
     scene.dataset.chapter = String(activeIndex + 1);
     const activeItem = items[activeIndex];
     const year = activeItem.querySelector(".timeline-year")?.textContent.trim();
-    // 按当前章节年份切换对应场景背景图：给匹配 data-year 的层加 is-active，其余移除（实现旧图渐隐、新图渐显）
     scene.querySelectorAll(".timeline-scene-bg").forEach((bg) => bg.classList.toggle("is-active", bg.dataset.year === year));
     const label = activeItem.querySelector(".timeline-label")?.textContent.trim();
     const title = activeItem.querySelector(".timeline-card h3")?.textContent.trim();
@@ -1664,7 +1501,6 @@
       copy?.classList.remove("is-changing");
     }, 120);
   };
-  // 以 rAF 节流滚动更新，避免频繁重排
   const scheduleTimelineNarrativeUpdate = () => {
     if (timelineScrollTicking) return;
     timelineScrollTicking = true;
@@ -1678,13 +1514,10 @@
 
   let revealObserver;
   let scrollUiInitialized = false;
-  /* 滚动视差元素集合：由 initializeScrollInteractions 在初始化时填充，updateScrollUi 据此写入 --scroll-y */
   let parallaxElements = [];
-  /* 词作笺赏(poem-gallery)叙事状态：各词卡、顶部标签与交叉观察器，随滚动高亮当前词并联动标签 */
   let ciEntries = [];
   let ciTabs = [];
   let ciObserver;
-  /* 阅读进度条 + 返回顶部按钮（缺失时自动创建）+ 滚动渐显 */
   const initializeScrollInteractions = () => {
     let progress = document.querySelector(".reading-progress");
     let topButton = document.querySelector(".back-to-top");
@@ -1719,35 +1552,23 @@
           const speed = parseFloat(el.dataset.parallaxSpeed || "1");
           el.style.setProperty("--scroll-y", `${(delta * speed * 0.12).toFixed(1)}px`);
         });
-        // 词作笺赏：按视口中心位置计算每首词的阅读进度，写入 --entry-progress 供 CSS 联动高亮
         ciEntries.forEach((entry) => {
           const rect = entry.getBoundingClientRect();
           const entryProgress = Math.min(1, Math.max(0, (viewportCenter - rect.top) / rect.height));
           entry.style.setProperty("--entry-progress", entryProgress.toFixed(3));
-          // 词句逐行浮现：把每首词的正文各句按阅读进度依次点亮（--line-reveal 0→1）
           const lines = entry.querySelectorAll(".poem-line");
-          // 句数即分母，决定每句分到的进度区间长度
           const total = lines.length;
-          // 若无分行（纯文本结构）则跳过，保持原样
           if (total > 0) {
             lines.forEach((line, i) => {
-              // 当前句的显现比例：进度越靠后，越靠后的句子依次浮现；
-              // 1.6 为相邻句之间的错开量，使整首词呈波浪式浮现而非同时亮起
               const reveal = Math.min(1, Math.max(0, (entryProgress * (total + 1.6) - i) / 1.6));
-              // 写入 CSS 变量，交由 style.css 的 .poem-line 消费（透明度 / 位移）
               line.style.setProperty("--line-reveal", reveal.toFixed(3));
             });
           }
         });
-        // 词作长廊整体视差：随长廊相对视口的位置做低速位移（--gallery-parallax）
         const gallery = document.querySelector(".poem-gallery");
         if (gallery) {
-          // 长廊外框：用于计算它相对视口中心的推进比例
           const gRect = gallery.getBoundingClientRect();
-          // 推进比例可小于 0 或大于 1（尚未进入 / 已越过），越界部分交由 CSS 自行吸收
-          // 该值只在 updateScrollUi 内使用，不写回全局状态
           const gProgress = (viewportCenter - gRect.top) / gRect.height;
-          // 最多 60px 的缓慢位移，让长廊与逐行显现形成轻微纵深差
           gallery.style.setProperty("--gallery-parallax", `${(gProgress * 60).toFixed(1)}px`);
         }
         scrollTicking = false;
@@ -1766,16 +1587,13 @@
     revealObserver?.disconnect();
     // 首页词卡：在 reveal 绑定前包裹独立视差层，避免与卡片入场/hover 的 transform 冲突
     document.querySelectorAll(".poem-grid > .poem-card").forEach((card) => {
-      // 已包过层的（重复初始化）直接跳过
       if (card.parentElement?.classList.contains("poem-card-layer")) return;
-      // 新建 .poem-card-layer 包住卡片，滚动视差只作用于外层
       const layer = document.createElement("div");
       layer.className = "poem-card-layer";
       card.parentNode.insertBefore(layer, card);
       layer.appendChild(card);
     });
     const revealTargets = document.querySelectorAll(".timeline-item, .poem-card, .recite-card, .media-card, .memory-line article, .work-entry, .intro-card");
-    // 减弱动效或不支持 IntersectionObserver 时直接全部显示
     if (reducedMotion || !("IntersectionObserver" in window)) {
       revealTargets.forEach((element) => element.classList.add("is-visible"));
       return;
@@ -1799,26 +1617,17 @@
       const parallaxSelector = ".hero h1, .hero .eyebrow, .hero-art, .section-wrap h2, .section-kicker, .closing h2, .memory-lead h2, .work-number, .work-side, .work-main h3, .bg-parallax, .timeline-narrative .timeline, .timeline-scene, .intro, .story, .afterlife-section, .closing, .listen-content, .listen-interactive, .screen-world, .poet-portrait, .note-ornament, .echo-quote, .closing-pine, .recite-art";
       parallaxElements = Array.from(document.querySelectorAll(parallaxSelector)).map((el) => {
         let speed = "1";
-        // 默认归入标准视差档；各特殊元素按各自速度/类名分流
         let cls = "scroll-parallax";
         if (el.classList.contains("work-side")) { speed = "0.32"; cls = "scroll-parallax-slow"; }
         else if (el.classList.contains("work-number")) { speed = "0.55"; cls = "scroll-parallax-slow"; }
         else if (el.matches(".work-main h3")) { speed = "0.7"; cls = "scroll-parallax-slow"; }
-        // 独立背景视差层：慢速漂移
         else if (el.classList.contains("bg-parallax")) { speed = "0.35"; cls = "scroll-parallax-bg"; }
-        // 整块区块（含其 ::before 背景层）：统一 0.35 的轻微背景漂移
         else if (el.matches(".intro, .story, .afterlife-section, .closing, .listen-content, .listen-interactive, .screen-world, .recite-art")) { speed = "0.35"; cls = "bg-drift"; }
-        // 区块内的配图：半速下沉，与文字拉开层次
         else if (el.matches(".poet-portrait")) { speed = "0.5"; cls = "img-parallax"; }
-        // 细碎装饰：轻缓半速，避免抢主体视线
         else if (el.matches(".note-ornament, .echo-quote")) { speed = "0.4"; cls = "scroll-parallax-slow"; }
-        // 结尾松枝：中速位移，营造风过枝摇
         else if (el.classList.contains("closing-pine")) { speed = "0.6"; cls = "scroll-parallax"; }
-        // 首页主视觉配图框：换成专属 hero-art-scroll 档（在居中位移上叠加滚动量）
         else if (el.classList.contains("hero-art")) { speed = "0.55"; cls = "hero-art-scroll"; }
-        // life 页时间线场景框：反向视差（-0.5，比滚动慢半拍制造纵深）
         else if (el.classList.contains("timeline-scene")) { speed = "-0.5"; }
-        // life 页时间线列表：轻速正向视差
         else if (el.classList.contains("timeline")) { speed = "0.8"; }
         el.classList.add(cls);
         el.dataset.parallaxSpeed = speed;
@@ -1841,11 +1650,10 @@
     } else {
       parallaxElements = [];
     }
-    // 初始化词作笺赏的滚动叙事（当前词高亮 + 标签联动）
     initializeCiNarrative();
   };
 
-  /* 首页 hero：指针驱动多层视差（底景最慢、人物中速、灯笼前景最快） */
+  // 首页 hero：指针驱动多层视差（底景最慢、人物中速、灯笼前景最快）
   const initializeHeroPointerParallax = () => {
     const hero = document.querySelector(".hero");
     if (!hero) return;
@@ -1854,7 +1662,6 @@
     const figureLayer = hero.querySelector(".hero-figure-layer");
     if (base && figureLayer) {
       let layoutPending = false;
-      // 按底图 cover 后的缩放比，把人物在白底图里的原始矩形换算成屏幕像素并写回
       const placeFigure = () => {
         layoutPending = false;
         const frame = figureLayer.parentElement.getBoundingClientRect();
@@ -1863,7 +1670,6 @@
         const scale = Math.max(frame.width / natW, frame.height / natH);
         const renderedW = natW * scale;
         const renderedH = natH * scale;
-        // cover 居中留白偏移：底图超出容器的部分左右/上下均分
         const x0 = (frame.width - renderedW) / 2;
         const y0 = (frame.height - renderedH) / 2;
         figureLayer.style.left = `${(x0 + 130 * scale).toFixed(1)}px`;
@@ -1871,30 +1677,25 @@
         figureLayer.style.width = `${(545 * scale).toFixed(1)}px`;
         figureLayer.style.height = `${(660 * scale).toFixed(1)}px`;
       };
-      // 同一帧内只排一次布局计算，避免连续 resize 造成抖动
       const schedulePlace = () => {
         if (!layoutPending) {
           layoutPending = true;
           window.requestAnimationFrame(placeFigure);
         }
       };
-      // 底图已缓存则立即定位，否则等 load 后再算一次真实尺寸
       if (base.complete) schedulePlace();
       else base.addEventListener("load", schedulePlace, { once: true });
       window.addEventListener("resize", schedulePlace);
     }
-    // 减弱动效偏好或触屏（指针不精确）时，不再绑定位移，静止即最优
     if (reducedMotion || window.matchMedia("(pointer:coarse)").matches) return;
     let rafPending = false;
     let targetX = 0;
     let targetY = 0;
-    // 把 -1~1 的指针位置写入 CSS 变量，各层用 calc() 自行换算位移量
     const apply = () => {
       rafPending = false;
       hero.style.setProperty("--hero-px", targetX.toFixed(3));
       hero.style.setProperty("--hero-py", targetY.toFixed(3));
     };
-    // 指针移动频繁，合并到每帧只写一次，减少样式重算
     const schedule = () => {
       if (!rafPending) {
         rafPending = true;
@@ -1902,14 +1703,12 @@
       }
     };
     hero.addEventListener("pointermove", (event) => {
-      // 触摸/触控笔不参与指针视差，避免与滚动冲突
       if (event.pointerType === "touch" || event.pointerType === "pen") return;
       const rect = hero.getBoundingClientRect();
       targetX = Math.min(1, Math.max(-1, ((event.clientX - rect.left) / rect.width) * 2 - 1));
       targetY = Math.min(1, Math.max(-1, ((event.clientY - rect.top) / rect.height) * 2 - 1));
       schedule();
     });
-    // 指针离开首屏：各层回到原位
     hero.addEventListener("pointerleave", () => {
       targetX = 0;
       targetY = 0;
@@ -1917,45 +1716,31 @@
     });
   };
 
-  /* 词作笺赏叙事：用交叉观察器高亮当前可见词卡，并让顶部标签与之联动；点击标签平滑滚动到对应词 */
   const initializeCiNarrative = () => {
     const gallery = document.querySelector(".poem-gallery");
     if (!gallery) { ciEntries = []; ciTabs = []; ciObserver?.disconnect(); return; }
     ciEntries = Array.from(gallery.querySelectorAll(".work-entry"));
     ciTabs = Array.from(gallery.querySelectorAll(".poem-tabs a"));
-    // 标记词作叙事已就绪，CSS 可据此启用分层、水印等增强样式
     gallery.dataset.ciReady = "true";
     // 给条目编号水印，并把词作正文按句拆成独立行，便于逐行浮现；注入词牌大水印
     ciEntries.forEach((entry, idx) => {
-      // 01 / 02 / 03… 序号，供 CSS 的装饰性编号使用
       entry.dataset.index = String(idx + 1).padStart(2, "0");
-      // 词作正文容器；页面结构不同则跳过拆句
       const poemText = entry.querySelector(".poem-text");
-      // 已拆过就不再处理，避免翻页回访时二次包裹
       if (poemText && !poemText.dataset.linesReady) {
-        // 取原 innerHTML，以 <br> 为界切分到“句”级
         const raw = poemText.innerHTML;
-        // trim + 过滤空片段（连续 <br> 或首尾换行会产生空串）
         const segments = raw.split(/<br\s*\/?>/i).map((s) => s.trim()).filter((s) => s.length > 0);
-        // 每句包一层 .poem-line 并按序编号，供逐行显现使用
         poemText.innerHTML = segments.map((seg, i) => {
           if (seg === "") return `<span class="poem-line-gap"></span>`;
           return `<span class="poem-line" data-line="${i}">${seg}</span>`;
         }).join("");
-        // 记录已拆句，防止重复进入时再次包裹
         poemText.dataset.linesReady = "true";
       }
-      // 首次进入时注入词牌大水印（.work-watermark），作背景大字装饰
       if (!entry.querySelector(".work-watermark")) {
-        // 取标题节点，作为水印文案来源
         const h3 = entry.querySelector(".work-main h3");
-        // 优先取 <h3> 首个文本节点（即词牌名），否则退回元素 id
         const title = (h3 ? h3.childNodes[0]?.textContent?.trim() : entry.id) || entry.id;
-        // 用 span 而非伪元素，便于复用同一份词牌文本
         const wm = document.createElement("span");
         wm.className = "work-watermark";
         wm.textContent = title;
-        // 追加到词卡末尾，由 CSS 绝对定位到背景层
         entry.appendChild(wm);
       }
     });
@@ -1969,7 +1754,6 @@
       });
     };
     ciObserver?.disconnect();
-    // 当前词判定：词卡有 30% / 50% / 70% 进入“视口中段”即视为正在阅读；rootMargin 上下各收缩，避免边缘词抢占
     ciObserver = new IntersectionObserver((entries) => {
       const visible = entries
         .filter((e) => e.isIntersecting)
@@ -1989,59 +1773,132 @@
     });
   };
 
-  /* ============================================================
-   * 生平故事弹窗：四条生平（937→978）数据 + 原生 <dialog>
-   * ============================================================ */
+  /* 生平故事数据：每条对应一个年份节点，period 作弹窗眉题（年份 · 地点），
+     paragraphs 是正文段落数组，poem / poemNote 是配在段末的一句词与出处 */
   const timelineStories = [
     {
       period: "937 · 金陵",
       title: "生于南唐，长于宫苑",
       paragraphs: [
-        "李煜生于南唐都城金陵，初名从嘉。南唐承接江南文脉，宫廷中诗书、音乐、书画相互滋养；他自幼浸润其中，逐渐显露出对文学与艺术的敏锐感受。",
-        "他并非以治国抱负闻名的储君形象。后世记述常以温和、好学、多才来描绘他，但其少年生活的具体细节并不都能确证。可以确定的是，南唐宫廷的审美经验，为他早期词作提供了熟悉的场景与声色。",
-        "《玉楼春》等作品写宫廷宴乐、妆饰与春夜，语言明丽，意象细密。读这些词，可以看到一位熟悉宫廷生活的创作者；也能看出他后来转向故国之思之前，词艺已相当成熟。"
+        "李煜生于南唐都城金陵，初名从嘉，七夕之夜降于宫苑。祖父李昪代吴建唐，父李璟是为中主；南唐承接江南文脉，宫廷中诗书、音乐、书画相互滋养，烈祖、中主两代皆好文翰。",
+        "他生得丰额骈齿、一目重瞳——史书称之为奇相，却也因这份「帝王之相」，招来长兄太子弘冀的猜忌。他因而自号「钟隐」「莲峰居士」，志在山水经籍，远离权力之侧。",
+        "少年李煜的教养是全方位的：诗文、音律、书画、鉴赏无所不工。这份艺术修养之深，后来既成就了他的词，也常常被史家看作他不谙政事的注脚——才华与江山，从他出生起便同负一身。",
+        "读他早期描写宫廷夜宴的词作，语言明丽、意象细密，声色光影如在目前。那些词不只是繁华的装饰，也保存了南唐宫廷审美的最后一段好时光。"
+      ],
+      poem: "红日已高三丈透，金炉次第添香兽。",
+      poemNote: "《浣溪沙》"
+    },
+    {
+      period: "954 · 金陵",
+      title: "娥皇入府，丝竹正欢",
+      paragraphs: [
+        "十八岁那年，李煜迎娶周宗长女周娥皇。她通书史、善歌舞、尤工琵琶，史载中主曾赐焦桐琵琶以为贺——这桩婚姻起初是政治联姻，结局却成了难得的知音相守。",
+        "两人最著名的一段佳话，是重订《霓裳羽衣曲》。这支盛唐大曲至南唐仅存残谱，娥皇凭残谱以琵琶弹奏补缀，使开元遗音复闻于世。宫中夜宴因此有了盛唐气象的余响。",
+        "这一时期的词，几乎句句有光：晚妆、明肌、春殿、鱼贯的嫔娥，嚼碎了红茸笑向檀郎的闺中憨态。语言轻倩婉丽，情致旖旎而不失分寸。",
+        "后世论者常以「艳科」轻视这些早期作品。但正是在这段安稳欢愉的岁月里，他把词的音律打磨得纯熟、把意象锤炼得精准——没有这份技艺的储蓄，便没有亡国后那些血泪之作。"
+      ],
+      poem: "烂嚼红茸，笑向檀郎唾。",
+      poemNote: "《一斛珠》"
+    },
+    {
+      period: "961 · 金陵",
+      title: "仓促登上帝位",
+      paragraphs: [
+        "变故接连而至：959年，太子弘冀暴卒——他数月前刚刚毒杀叔父景遂，旋即病亡，史书多以为疑。储位之争烟消云散，李煜被改封吴王、居东宫，反而成了事实上的长子。",
+        "961年二月，中主李璟迫于后周兵锋迁都洪州，立李煜为太子、留金陵监国；六月，中主病逝于洪州。二十五岁的李煜在金陵柩前即位，史称后主。",
+        "他接手的南唐，已是去帝号、奉正朔、岁贡不绝的属国之局：北方的宋刚刚代周而立，兵锋所指，天下侧目。新君的一切举措，都在这架夹缝中的天平上称量。",
+        "即位初期的词仍见宴游与柔美——春殿嫔娥、雪夜焚香。这不是不知愁，而是江南宫廷最后的从容。纸面越华丽，纸下的愁云便越值得细看。"
       ],
       poem: "晚妆初了明肌雪，春殿嫔娥鱼贯列。",
       poemNote: "《玉楼春》"
     },
     {
-      period: "961 · 南唐",
-      title: "仓促登上帝位",
+      period: "964 · 金陵",
+      title: "大周后逝，仲宣夭折",
       paragraphs: [
-        "961年，李煜继位，成为南唐后主。此时北方宋朝日益强盛，南唐处境受到挤压。新君面对的不只是宫廷事务，也包括如何在强邻压力下维持政权。",
-        "李煜在位期间，南唐对宋采取称臣、纳贡等方式求取喘息空间。关于他的政治决断，后世评价不一；若回到当时局势，便能看见一个文化气息浓厚的江南政权，正处在不断收缩的时代夹缝中。",
-        "早期词作多写宴饮、歌舞、离情与宫廷生活，风格婉丽。《玉楼春》中的春殿与嫔娥，并非单纯的繁华装饰，也保存了南唐宫廷日常审美的一角。"
+        "964年，与他词曲相和十年的昭惠周后病重。相传病中她曾见小周后入宫，深受刺激；同年冬，次子仲宣——那个传说中五岁能诵《孝经》的神童——受惊夭折。雪上加霜，昭惠后于十一月病逝。",
+        "李煜哀悼骨立，亲自撰写诔文，题为《昭惠周后诔》，洋洋数千言，落款不称帝号，自署「鳏夫煜」。一个国君以「鳏夫」自名，这是他一生最私人的哀恸。",
+        "失去了音律上的知音与生活里的伴侣，他的词从此多了一层追忆与空凉。先前词中的欢愉是「进行时」的，此后却渐渐变成「回忆时」的——这个语感的变化，是理解他词风演进的关键。",
+        "数年之后，其妹小周后入宫继立为后。宫中再次有了丝竹，但国势日蹙、旧痛未消，那点光亮照不进越来越紧的时代夹缝里。"
       ],
-      poem: "晚妆初了明肌雪，春殿嫔娥鱼贯列。",
-      poemNote: "《玉楼春》"
+      poem: "别来春半，触目愁肠断。",
+      poemNote: "《清平乐》"
+    },
+    {
+      period: "971 · 金陵",
+      title: "去唐号，称江南国主",
+      paragraphs: [
+        "971年，弟弟郑王李从善入贡汴京，被宋太祖扣留不归。这是明确的信号：宋已把南唐视作囊中之物，只待时日。",
+        "李煜的反应是退让：上表削去「唐」国号，改称「江南国主」；贬损仪制、改易官名，宫殿去除鸱吻以示不敢僭越，岁贡规模只增不减。他几乎把一个政权能自我矮化的部分都做了。",
+        "这些姿态换不来安全。宋的方针早已定下——「卧榻之侧，岂容他人鼾睡」。李煜的每一次退让，在宋的日程表里只是延缓了统一战争的日期，却改变不了结局。",
+        "梦境成了唯一的还乡路：梦里的上苑车如流水马如龙，醒来却是对宋称臣的江南国主。梦里梦外的落差，后来成为他词中最动人的结构之一。"
+      ],
+      poem: "还似旧时游上苑，车如流水马如龙。",
+      poemNote: "《忆江南》"
+    },
+    {
+      period: "974 · 采石矶",
+      title: "大军踏江，金陵成孤岛",
+      paragraphs: [
+        "宋人樊若水（后赐名知古）早年在南唐不得志，暗中以丝绳度江，精确测得采石矶江面宽度，随后入宋献策：于此处架浮桥，大军可如履平地渡江。",
+        "974年冬，曹彬、潘美率军十万，战船相连、上铺竹筏，三日之内于采石矶江面架成浮桥。大军踏桥而渡，如履坦途——长江天险，一夜之间成了通途。",
+        "采石矶一破，金陵顿成孤城。南唐君臣尚在议和、纳贡、乞延缓之间徘徊，而宋军的部署步步收紧。天险既失，所谓「三千里地山河」，在军事地图上只剩下一个被围困的圆点。",
+        "后来李煜在词里追写这个王朝的底账：四十年的国祚、三千里的山河、凤阁龙楼的旧日——所有这些，都终结在一道浮桥踏江的冬天。"
+      ],
+      poem: "四十年来家国，三千里地山河。",
+      poemNote: "《破阵子》"
     },
     {
       period: "975 · 金陵",
       title: "故国山河，一朝易主",
       paragraphs: [
-        "975年，宋军攻取金陵，南唐灭亡。李煜出降后被带往北方，结束了作为一国之君的生活。对于宫城、宗庙与旧日臣民而言，这是政权更替；对李煜个人而言，则是身份、居所与生活秩序同时断裂。",
-        "后来的词作把这种巨变写成可以感知的细节：离开宗庙时的仓皇、梦中不知身为客、凭栏时望不尽的江山。作品并不是史书式的战事记录，而是把失去之后的记忆与情绪留在词句中。",
-        "《破阵子》追写离开金陵的场景，短短数句让告别的仓促与哀痛凝在一起。读者由此听见的，不只是一个君主的失国，也是一个人回望故园时无从挽回的怅惘。"
+        "围城自974年冬持续到975年冬，城中渐至米尽、愁思日深。975年十一月廿七，金陵城破；李煜肉袒出降——这是献俘之礼：袒露上身、口衔玉璧，以示自缚请罪。",
+        "离宫之际，教坊乐工奏起别离的曲子，宫娥啼泣相送。他后来在《破阵子》里追写这一幕，几乎不作修饰，只把「仓皇」二字留给四十年家国的落幕。",
+        "「垂泪对宫娥」历来聚讼纷纭：论者或责其不哭宗庙社稷、独对宫娥。但细读便知——宗庙、社稷在词人那里化作宫娥与教坊的具体面孔，国亡于是有了体温。这正是他作为词人与作为君主的不同。",
+        "金陵的宫阙、钟山的林泉、秦淮的灯影，从此都只能出现在梦里。一叶舟载着他顺江而下、转道北上——那是他第一次以囚徒的身份看这条江。"
       ],
-      poem: "最是仓皇辞庙日，教坊犹奏别离歌。",
+      poem: "最是仓皇辞庙日，教坊犹奏别离歌，垂泪对宫娥。",
       poemNote: "《破阵子·四十年来家国》"
     },
     {
-      period: "978 · 汴京",
-      title: "春水东流，词心不朽",
+      period: "976 · 汴京",
+      title: "违命侯，泪洗面",
       paragraphs: [
-        "被俘之后，李煜居于汴京。远离金陵的日子里，故国不再是眼前的疆土，而成为记忆、梦境与词中的意象。后期作品因此呈现出更深的身世之感，也将个人愁绪写成读者能够共感的生命经验。",
-        "《虞美人》以春花秋月起兴，从追问往事写到故国不堪回首，最后把愁绪比作东流春水。它没有铺陈繁复典故，而用日常可见的季节、月色与流水，形成绵延不尽的情感力量。",
-        "李煜于978年在汴京去世，年四十二（传统虚岁说法）。关于其生命终结的具体经过，史籍记载与后世叙述并不完全一致；不宜把传闻当作定论。可以确定的是，他的词作跨越了南唐兴亡，持续影响后世词体与读者。"
+        "976年正月，李煜被押至汴京，宋太祖封他为「违命侯」——这个封号本身就是羞辱：一生文雅，终以「违命」名世。同年十月，太祖崩，晋王赵光义即位，是为太宗。",
+        "太宗即位后去其「违命侯」之号，改封陇西公。名分稍正，处境未改：府第有司看守，行动不获自由，与旧臣往来皆成禁忌。",
+        "他在给金陵旧宫人的信里写道：「此中日夕，只以眼泪洗面。」昔日一国之主，如今以泪度日——这不是修辞，是他留给后世的实况自述。",
+        "正是在这样的日子里，词成了他唯一的疆土。《相见欢》里无言独上西楼，月如弯钩，梧桐深院锁住的不只是清秋，也是一个失去了所有去处的灵魂。"
+      ],
+      poem: "无言独上西楼，月如钩。寂寞梧桐深院锁清秋。",
+      poemNote: "《相见欢》"
+    },
+    {
+      period: "978 · 汴京",
+      title: "一江春水，词成人逝",
+      paragraphs: [
+        "978年七夕，是李煜四十二岁生日。囚居的生辰，他让故妓在府中作乐，写下《虞美人》：春花秋月何时了——以问句起头，以一江春水收束，把无尽的愁绪第一次写成了有方向、有流量的实体。",
+        "词声闻于外，传到宋太宗耳中。史载是夜李煜暴卒，后世多传为太宗赐牵机药所致——牵机药发时，人头足相就如牵机状，其状至惨。此说细节或有传闻成分，但他的死与这首词直接相关，是历代史家的共识。",
+        "《虞美人》因此被称作他的绝命词。六个字一句、九个字一句的往复，像不肯停下的追问；问君能有几多愁，问的哪里是愁，问的是一生。",
+        "他死后，这个曾在江南设宗庙社稷的词人，只剩下一卷词集流传。而那卷词里最重的一页，恰恰写于生命最后一夜。"
       ],
       poem: "问君能有几多愁？恰似一江春水向东流。",
       poemNote: "《虞美人·春花秋月何时了》"
+    },
+    {
+      period: "978 · 北邙",
+      title: "王礼归葬，词心不朽",
+      paragraphs: [
+        "李煜死后，宋廷追封吴王，以王礼葬于洛阳北邙山——生于七夕，死于七夕，葬于北邙，他的一生在符号意义上都像一首词的结构。",
+        "小周后哀毁骨立，不久亦逝，与后主相继归葬。江南旧臣有设奠相送者，旧宫人闻讯恸哭——他们送别的不只是故主，也是那个再也回不去的江南。",
+        "千年来，他的词名愈盛：王国维《人间词话》说「词至李后主而眼界始大，感慨遂深，遂变伶工之词而为士大夫之词」，又说他的词「真所谓以血书者也」。一个亡国之君，最终以词在文学史上获得了另一种「国祚」。",
+        "流水落花春去也，天上人间。北邙的孤冢挡不住这些句子——它们越过千年，仍在每一个春水东流的时刻，抵达新的读者。"
+      ],
+      poem: "流水落花春去也，天上人间。",
+      poemNote: "《浪淘沙令》"
     }
   ];
 
-  // 记录打开弹窗前的焦点元素，关闭后归还（可访问性）
   let timelineReturnFocus = null;
-  // 绑定时间线卡片（role=button）→ 打开对应生平故事弹窗
   const initializeTimelineStories = () => {
     const dialog = document.querySelector(".timeline-story-dialog");
     if (!dialog) return;
@@ -2100,9 +1957,6 @@
     });
   };
 
-  /* ============================================================
-   * 记忆/当代叙事弹窗：史实 · 词境 · 今人 三重叙述
-   * ============================================================ */
   const memoryStories = [
     {
       kicker: "HISTORY · SOUTHERN TANG",
@@ -2133,7 +1987,6 @@
     }
   ];
 
-  // 同时支持 .memory-line 卡片与 .media-art 作品卡打开弹窗
   const initializeMemoryStories = () => {
     const dialog = document.querySelector(".memory-story-dialog");
     if (!dialog) return;
@@ -2237,7 +2090,6 @@
     });
   };
 
-  /* 写词互动：把提交的一句词化作随风飘散的字（.wind-release）*/
   const animateWrittenLineAway = (form, text) => {
     if (reducedMotion) return;
     form.querySelector(".wind-release")?.remove();
@@ -2268,7 +2120,6 @@
     window.setTimeout(() => effect.remove(), 1800);
   };
 
-  /* 金竹飘落：在 .bamboo-leaves 画布上绘制缓缓飘落的竹叶，含 DPR 适配、resize 重建、页面隐藏时暂停；减弱动效时不启动 */
   const initializeBambooLeaves = () => {
     const canvas = document.querySelector(".bamboo-leaves");
     if (!canvas || reducedMotion || canvas.dataset.initialized === "true") return;
@@ -2377,7 +2228,6 @@
     });
   };
 
-  /* 3D 倾斜：指针悬停时让卡片随指针轻微立体偏转 */
   const initializeDepthInteractions = () => {
     if (reducedMotion || window.innerWidth <= 700 || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
     document.querySelectorAll(".poem-card, .timeline-card, .memory-line article, .intro-card, .hero-art, .floating-verse, .sound-orbit, .recite-art").forEach((surface) => {
@@ -2406,24 +2256,17 @@
     });
   };
 
-  /* ============================================================
-   * 磁吸按钮：深色主按钮 / 封面翻开按钮随指针轻微吸附
-   * 触屏设备与「减弱动效」用户直接跳过；效果通过写入
-   * --mag-x / --mag-y 两个 CSS 变量驱动 translate，松手即归位
-   * ============================================================ */
   const initializeMagneticButtons = () => {
     if (reducedMotion || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
     document.querySelectorAll(".button-dark, .book-open-button").forEach((button) => {
       if (button.dataset.magnetReady === "true") return;
       button.dataset.magnetReady = "true";
-      // 指针离开/取消时移除变量，按钮回到原位
       const reset = () => {
         button.style.removeProperty("--mag-x");
         button.style.removeProperty("--mag-y");
       };
       button.addEventListener("pointermove", (event) => {
         if (event.pointerType === "touch") return;
-        // 把指针在按钮内的位置归一化到 [-1,1]，再按比例换算吸附位移
         const bounds = button.getBoundingClientRect();
         const dx = ((event.clientX - bounds.left) / bounds.width - 0.5) * 2;
         const dy = ((event.clientY - bounds.top) / bounds.height - 0.5) * 2;
@@ -2435,12 +2278,8 @@
     });
   };
 
-  /* ============================================================
-   * 页面内容初始化（每次翻页后重调）：渐显/弹窗/诵读/收藏/表单
-   * ============================================================ */
   function initializePageContent() {
   initializeScrollInteractions();
-  // 首屏指针视差（底景 / 人物 / 灯笼三层随鼠标微动）
   initializeHeroPointerParallax();
   updateTimelineNarrative();
   initializeBambooLeaves();
@@ -2449,7 +2288,6 @@
   initializeTimelineStories();
   initializeMemoryStories();
   let speaking = false;
-  // 为我诵读：调用 SpeechSynthesis 朗读 data-poem
   document.querySelectorAll(".read-aloud").forEach((button) => {
     button.addEventListener("click", () => {
       if (!("speechSynthesis" in window)) {
@@ -2476,7 +2314,6 @@
     });
   });
 
-  // 收藏：以 localStorage 记忆每首词的收藏状态
   document.querySelectorAll(".favorite-button").forEach((button, index) => {
     const key = `liyu-favorite-${index}`;
     const saved = localStorage.getItem(key) === "true";
@@ -2490,7 +2327,6 @@
     });
   });
 
-  // 字数计数器：实时显示“已输入 / 上限”
   const setupCounter = (fieldId, countId, max) => {
     const field = document.getElementById(fieldId);
     const count = document.getElementById(countId);
@@ -2502,7 +2338,6 @@
   setupCounter("mood", "mood-count", 80);
   setupCounter("my-line", "line-count", 100);
 
-  // 心情表单：提交后清空并给出温柔反馈
   document.querySelector(".mood-form")?.addEventListener("submit", (event) => {
     event.preventDefault();
     const field = document.getElementById("mood");
@@ -2516,7 +2351,6 @@
     field.value = "";
     document.getElementById("mood-count").textContent = "0 / 80";
   });
-  // 填词提示词：点击把预设词缀接到输入框
   document.querySelectorAll(".prompt-words button").forEach((button) => {
     button.addEventListener("click", () => {
       const field = document.getElementById("my-line");
@@ -2525,7 +2359,6 @@
       field.dispatchEvent(new Event("input", { bubbles: true }));
     });
   });
-  // 写词表单：提交后触发“随风飘散”动效并反馈
   document.querySelector(".poem-form")?.addEventListener("submit", (event) => {
     event.preventDefault();
     const field = document.getElementById("my-line");
@@ -2544,9 +2377,7 @@
 
   // 文创笺铺：全站右侧滑出抽屉（概念展示，不存在任何真实下单/支付链路）
   (function initializeShopSidebar() {
-    // 已注入过则不重复挂载（防重复初始化）
     if (document.querySelector(".shop-tab")) return;
-    // 概念文创清单：每件取一阕词的核心意象转译为器物
     const goods = [
       { img: "shop-paper.jpg", alt: "浣花春水笺概念图：带春水暗纹的宣纸信笺", meta: "文房信笺 · 灵感《虞美人》", name: "浣花春水笺", desc: "一套八张的仿古宣笺，以「一江春水」波纹作暗纹，落梅点缀纸角。提笔写信时，愁绪也化作了东流的水。" },
       { img: "shop-bookmark.jpg", alt: "月钩梧桐书签概念图：弯月梧桐造型的黄铜楠木书签", meta: "流苏书签 · 灵感《相见欢》", name: "月钩梧桐签", desc: "黄铜为钩月，楠木作梧桐，垂一缕墨色流苏。「无言独上西楼」的那夜月色，从此夹在正在读的那一页。" },
@@ -2555,7 +2386,6 @@
       { img: "shop-tape.jpg", alt: "落花流水胶带概念图：绘有落花春水纹样的三卷和纸胶带", meta: "和纸胶带 · 灵感《浪淘沙令》", name: "落花流水纹", desc: "「流水落花春去也」化作两卷手账胶带：一卷落花，一卷水纹。贴在日记边角，给普通的一天盖上词的落款。" },
       { img: "shop-seal.jpg", alt: "煜字朱砂闲章概念图：石质印章与朱砂拓印", meta: "朱砂闲章 · 灵感词帝之名", name: "「煜」字小印", desc: "一方朱文小印，刻他的名字，也刻「一江春水」四字作引首章。盖在书的扉页，像与千年前的词人同署了一页。" }
     ];
-    // 商品卡 HTML 片段：左图 + 角标 + 右文（元信息/名/描述/概念按钮）
     const cardsHtml = goods.map((item) => `
       <article class="shop-card">
         <div class="shop-art"><img src="${item.img}" alt="${item.alt}" loading="lazy" decoding="async"><span class="shop-ribbon">概念 · 非卖</span></div>
@@ -2567,7 +2397,6 @@
         </div>
       </article>`).join("");
 
-    // 侧缘竖排小签（入口按钮）
     const tab = document.createElement("button");
     tab.type = "button";
     tab.className = "shop-tab";
@@ -2575,12 +2404,10 @@
     tab.setAttribute("aria-expanded", "false");
     tab.innerHTML = "文创笺铺<small>概念展示</small>";
 
-    // 遮罩层
     const mask = document.createElement("div");
     mask.className = "shop-mask";
     mask.setAttribute("aria-hidden", "true");
 
-    // 抽屉本体（role=dialog + aria-modal，开启时焦点进入）
     const drawer = document.createElement("aside");
     drawer.className = "shop-drawer";
     drawer.setAttribute("role", "dialog");
@@ -2609,7 +2436,6 @@
         <p class="shop-drawer-foot">图稿为设计意向示意 · 不代表真实在售商品</p>
       </div>`;
 
-    // 概念说明弹窗（点「立即选购」只此提示，不产生交易）
     const dialog = document.createElement("dialog");
     dialog.className = "shop-notice-dialog";
     dialog.setAttribute("aria-labelledby", "shop-notice-title");
@@ -2626,7 +2452,6 @@
 
     let drawerOpen = false;
     let lastFocused = null;
-    // 开抽屉：记下原焦点、锁 body 滚动、焦点移到关闭键
     const openDrawer = () => {
       drawerOpen = true;
       lastFocused = document.activeElement;
@@ -2635,10 +2460,8 @@
       tab.setAttribute("aria-expanded", "true");
       document.body.style.overflow = "hidden";
       drawer.querySelector(".shop-drawer-close").focus();
-      // 广播「文创笺铺抽屉已打开」事件，供笺语留言抽屉联动互斥
       document.dispatchEvent(new Event("shop-drawer-open"));
     };
-    // 关抽屉：复原状态与滚动，焦点还给原元素
     const closeDrawer = () => {
       if (!drawerOpen) return;
       drawerOpen = false;
@@ -2648,23 +2471,16 @@
       document.body.style.overflow = "";
       if (lastFocused && typeof lastFocused.focus === "function") lastFocused.focus();
     };
-    // 入口键切换开合
     tab.addEventListener("click", () => (drawerOpen ? closeDrawer() : openDrawer()));
-    // 点遮罩关闭
     mask.addEventListener("click", closeDrawer);
-    // 点关闭键关闭
     drawer.querySelector(".shop-drawer-close").addEventListener("click", closeDrawer);
-    // Esc 关闭抽屉（但概念弹窗打开时交给弹窗自己处理）
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape" && drawerOpen && !dialog.open) closeDrawer();
     });
-    // 笺语留言抽屉打开时，联动关闭文创笺铺抽屉（两抽屉互斥）
     document.addEventListener("jy-drawer-open", closeDrawer);
-    // 分享词境抽屉打开时，联动关闭文创笺铺抽屉（三抽屉互斥）
     document.addEventListener("share-drawer-open", closeDrawer);
 
     const nameSlot = dialog.querySelector("[data-shop-name]");
-    // 每张卡片的「立即选购」：把商品名填进弹窗标题并弹出
     drawer.querySelectorAll(".concept-buy").forEach((button) => {
       button.addEventListener("click", () => {
         nameSlot.textContent = button.dataset.name ? `「${button.dataset.name}」` : "";
@@ -2672,16 +2488,13 @@
         else dialog.setAttribute("open", "");
       });
     });
-    // 关弹窗（兼容不支持 showModal 的降级 open 属性）
     const closeDialog = () => {
       if (dialog.open) dialog.close();
       else dialog.removeAttribute("open");
     };
-    // 关闭键 / 「我知道了」都关弹窗
     dialog.querySelectorAll(".shop-notice-close, .shop-notice-ok").forEach((button) => {
       button.addEventListener("click", closeDialog);
     });
-    // 点弹窗外的 backdrop 区域也关
     dialog.addEventListener("click", (event) => {
       if (event.target === dialog) closeDialog();
     });
@@ -2692,14 +2505,12 @@
   (function initializeJianyuSidebar() {
     if (document.querySelector(".jy-tab")) return;
     const STORAGE_KEY = "liyu-jianyu-v1";
-        // 三条示范笺语：预置展示内容，让面板不空场
-const presets = [
+    const presets = [
       { name: "金陵访客", time: "示范笺语", text: "读到「一江春水向东流」，才知愁绪也可以这样浩浩荡荡，流过千年仍不歇。" },
       { name: "西楼听雨", time: "示范笺语", text: "无言独上西楼，月如钩。今夜案头重读，恍与词人同看一钩残月。" },
       { name: "江南旧客", time: "示范笺语", text: "流水落花春去也，天上人间。愿每个读词的人，都有一刻安宁。" }
     ];
-        // 本地笺筒读写与 HTML 转义（防注入）
-const loadMine = () => {
+    const loadMine = () => {
       try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
       catch { return []; }
     };
@@ -2708,8 +2519,7 @@ const loadMine = () => {
     };
     const escapeHtml = (value) => value.replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
 
-        // 注入四节点：竖签 / 遮罩 / 抽屉 / 轻提示
-const tab = document.createElement("button");
+    const tab = document.createElement("button");
     tab.type = "button";
     tab.className = "shop-tab jy-tab";
     tab.setAttribute("aria-label", "打开笺语留言侧边栏（本地存储，不公开发布）");
@@ -2754,8 +2564,7 @@ const tab = document.createElement("button");
 
     document.body.append(tab, mask, drawer, toast);
 
-        // 渲染留言列表：我的留言置顶，示范笺语垫底
-const listEl = drawer.querySelector(".jy-list");
+    const listEl = drawer.querySelector(".jy-list");
     const renderList = () => {
       const mine = loadMine();
       const mineHtml = mine.map((item) => `
@@ -2772,8 +2581,7 @@ const listEl = drawer.querySelector(".jy-list");
     };
     renderList();
 
-        // 开合状态：锁 body 滚动、焦点返还、Esc/遮罩关闭
-let drawerOpen = false;
+    let drawerOpen = false;
     let lastFocused = null;
     let toastTimer = null;
     const openDrawer = () => {
@@ -2802,11 +2610,9 @@ let drawerOpen = false;
       if (event.key === "Escape" && drawerOpen) closeDrawer();
     });
     document.addEventListener("shop-drawer-open", closeDrawer);
-    // 分享词境抽屉打开时，联动关闭笺语留言抽屉
     document.addEventListener("share-drawer-open", closeDrawer);
 
-        // 输入计数与提交：留言仅存本机 localStorage
-const textarea = drawer.querySelector("#jy-input");
+    const textarea = drawer.querySelector("#jy-input");
     const counter = drawer.querySelector(".jy-count");
     textarea.addEventListener("input", () => {
       counter.textContent = `${textarea.value.length} / 100 · 仅存本机`;
@@ -2836,22 +2642,19 @@ const textarea = drawer.querySelector("#jy-input");
   // QQ空间动态、QQ好友、微博使用官方分享页，另提供复制链接与系统分享。
   (function initializeShareSidebar() {
     if (document.querySelector(".share-tab")) return;
-        // 分享参数：当前页地址、标题、描述与配图
-const pageUrl = location.href.split("#")[0];
+    const pageUrl = location.href.split("#")[0];
     const pageTitle = "春水留痕·李煜词境";
     const pageDesc = "以一江春水为引，走进南唐后主的词境：读词人故事，赏四阕词笺，听一段诵读，留一句笺语。";
     const isHttp = location.protocol === "http:" || location.protocol === "https:";
     const pagePic = isHttp ? location.origin + "/plum-blossom.jpg" : "";
     const enc = encodeURIComponent;
-        // 各平台官方一键分享链接（微信无网页直连接口，走扫码）
-const shareLinks = {
+    const shareLinks = {
       qzone: "https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=" + enc(pageUrl) + "&title=" + enc(pageTitle) + "&summary=" + enc(pageDesc) + (pagePic ? "&pics=" + enc(pagePic) : ""),
       qqFriend: "https://connect.qq.com/widget/shareqq/index.html?url=" + enc(pageUrl) + "&title=" + enc(pageTitle) + "&summary=" + enc(pageDesc),
       weibo: "https://service.weibo.com/share/share.php?url=" + enc(pageUrl) + "&title=" + enc(pageTitle) + (pagePic ? "&pic=" + enc(pagePic) : "")
     };
 
-        // 注入四节点：竖签 / 遮罩 / 抽屉 / 轻提示
-const tab = document.createElement("button");
+    const tab = document.createElement("button");
     tab.type = "button";
     tab.className = "shop-tab share-tab";
     tab.setAttribute("aria-label", "打开分享词境侧边栏（分享到微信、QQ 或复制链接）");
@@ -2862,8 +2665,7 @@ const tab = document.createElement("button");
     mask.className = "shop-mask";
     mask.setAttribute("aria-hidden", "true");
 
-        // 微信二维码：HTTP(S) 下用 qrserver 生成，本地预览降级为文字提示
-const qrHtml = isHttp
+    const qrHtml = isHttp
       ? `<div class="share-qr-img"><img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=0&data=${enc(pageUrl)}" alt="当前页面地址二维码" loading="lazy" decoding="async"></div>
          <div class="share-qr-copy"><b>微信 · 扫码分享</b><p>手机微信扫码打开本站，点击右上角「…」即可转发到朋友圈或送给朋友。</p></div>`
       : `<div class="share-qr-copy" style="flex:1"><b>微信 · 扫码分享</b><p>当前为本地预览，暂无法生成二维码。通过本地服务器或部署上线后，这里会显示页面二维码。</p></div>`;
@@ -2901,8 +2703,7 @@ const qrHtml = isHttp
 
     document.body.append(tab, mask, drawer, toast);
 
-        // 开合状态：锁 body 滚动、焦点返还、Esc/遮罩关闭
-let drawerOpen = false;
+    let drawerOpen = false;
     let lastFocused = null;
     let toastTimer = null;
     const showToast = (message) => {
@@ -2939,8 +2740,7 @@ let drawerOpen = false;
     document.addEventListener("shop-drawer-open", closeDrawer);
     document.addEventListener("jy-drawer-open", closeDrawer);
 
-        // 复制链接：clipboard API 失败时降级 execCommand
-const copyLink = async () => {
+    const copyLink = async () => {
       try {
         await navigator.clipboard.writeText(pageUrl);
         showToast("词境链接已复制");
@@ -2956,8 +2756,7 @@ const copyLink = async () => {
         helper.remove();
       }
     };
-        // 分发点击：复制 / 系统分享 / 各平台新窗口打开
-drawer.querySelectorAll(".share-btn").forEach((button) => {
+    drawer.querySelectorAll(".share-btn").forEach((button) => {
       button.addEventListener("click", () => {
         const kind = button.dataset.share;
         if (kind === "copy") { copyLink(); return; }
@@ -2969,12 +2768,23 @@ drawer.querySelectorAll(".share-btn").forEach((button) => {
         if (target) window.open(target, "_blank", "noopener,width=720,height=640");
       });
     });
-        // 支持系统分享时显示「更多分享方式」按钮
-if (navigator.share) drawer.querySelector(".share-btn-sys").hidden = false;
+    if (navigator.share) drawer.querySelector(".share-btn-sys").hidden = false;
+  })();
+
+  // 水墨行迹：词人故事页专属侧签。点击直接进入 map.html 新页面，加载后从右缘弹出。
+  (function initializeMapTab() {
+    if (!document.body.classList.contains("life-page")) return; // 仅词人故事页出现
+    const mapTab = document.createElement("button");
+    mapTab.type = "button";
+    mapTab.className = "shop-tab map-tab";
+    mapTab.setAttribute("aria-label", "词人故事专属板块：进入水墨行迹，云游李煜生平地图");
+    mapTab.innerHTML = "<span class=\"map-tab-seal\" aria-hidden=\"true\">迹</span>词人故事<small>水墨行迹 · 云游生平</small>";
+    mapTab.addEventListener("click", () => { location.href = "map.html?v=f52"; });
+    document.body.appendChild(mapTab);
+    setTimeout(() => mapTab.classList.add("is-in"), 150); // 跳出动画
   })();
   }
   initializePageContent();
-// 首屏：初始化页面内容
 })();
 
 // 终幕页 finale.html：滚动叙事进度 + 指针视差
@@ -2982,11 +2792,9 @@ if (navigator.share) drawer.querySelector(".share-btn-sys").hidden = false;
 // 精确指针设备上写 --px/--py（-1~1，驱动雾层/巨字/月亮视差）。reduced-motion 不启用。
 (() => {
   const scrollBox = document.querySelector(".finale-scroll");
-  // 非终幕页（无 .finale-scroll）或减弱动效时不启用
   if (!scrollBox) return;
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   let raf = 0;
-  // 滚动进度：页面滚动占比 → --finale-p
   const update = () => {
     raf = 0;
     const doc = document.documentElement;
@@ -2998,7 +2806,6 @@ if (navigator.share) drawer.querySelector(".share-btn-sys").hidden = false;
   window.addEventListener("scroll", onScroll, { passive: true });
   window.addEventListener("resize", onScroll);
   update();
-  // 指针视差：光标位置归一到 -1~1 → --px/--py（rAF 节流）
   if (window.matchMedia("(pointer: fine)").matches) {
     let pRaf = 0, px = 0, py = 0;
     const writeP = () => {
@@ -3020,13 +2827,10 @@ if (navigator.share) drawer.querySelector(".share-btn-sys").hidden = false;
 // 返回首页后原曲仍从上次进度接续。浏览器自动播放策略拦截时由首次点击/按键兜底触发。
 (() => {
   const finaleAudio = document.querySelector(".finale-audio");
-  // 非终幕页（无 .finale-audio）不启用
   if (!finaleAudio) return;
   const finaleButtons = document.querySelectorAll(".sound-toggle");
   const finaleSlider = document.querySelector(".volume-slider");
-  // 读取全局静音标记（false = 用户上次主动关掉了声音）
   const finaleEnabled = sessionStorage.getItem("liyu-audio-enabled") !== "false";
-  // 同步页头开关状态与文案（aria-pressed / aria-label / 状态字）
   const updateFinale = (playing, message) => {
     finaleButtons.forEach((button) => {
       button.setAttribute("aria-pressed", String(playing));
@@ -3035,29 +2839,24 @@ if (navigator.share) drawer.querySelector(".share-btn-sys").hidden = false;
       if (status) status.textContent = message || (playing ? "音乐开启" : "音乐关闭");
     });
   };
-  // 恢复上次音量并赋给尾声曲（未存过则用默认 0.32）
   const savedFinaleVolume = sessionStorage.getItem("liyu-audio-volume");
   if (finaleSlider && savedFinaleVolume !== null) finaleSlider.value = savedFinaleVolume;
   finaleAudio.volume = Number(finaleSlider?.value || 0.32);
   const playFinale = () => {
-    // 播放成功→更新为开启态；被自动播放策略拦截→显示「点击开启」待兜底
     finaleAudio.play().then(() => updateFinale(true)).catch(() => updateFinale(false, "点击开启"));
   };
   if (finaleEnabled) playFinale();
   else updateFinale(false, "点击开启");
-  // 兜底：自动播放被拦截时，首次点击 / 按键即补播
   document.addEventListener("pointerdown", () => {
     if (finaleEnabled && finaleAudio.paused) playFinale();
   }, { once: true });
   document.addEventListener("keydown", (event) => {
     if (finaleEnabled && finaleAudio.paused && !event.target.closest("input, textarea, button, a")) playFinale();
   }, { once: true });
-  // 音量滑杆：实时调音量并写入会话存储
   if (finaleSlider) finaleSlider.addEventListener("input", () => {
     finaleAudio.volume = Number(finaleSlider.value);
     sessionStorage.setItem("liyu-audio-volume", finaleSlider.value);
   });
-  // 页头开关：暂停/续播并记录到会话存储（跨页记忆）
   finaleButtons.forEach((button) => button.addEventListener("click", () => {
     const enabled = finaleAudio.paused;
     sessionStorage.setItem("liyu-audio-enabled", String(enabled));

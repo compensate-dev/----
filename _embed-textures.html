@@ -1,69 +1,125 @@
-<!doctype html><html><head><meta charset="utf-8"><title>embed-textures</title></head><body><pre id="out">WORKING</pre>
+<!doctype html>
+<!-- 素材贴图转码页：把本目录下的水墨图片批量转成 WebP dataURI，汇总产出 map-textures.js（供 map.html 的三维场景贴图使用）。此页仅作本地工具，不参与站点访问。 -->
+<html lang="zh-CN">
+<!-- 文档头部：只做字符集与标题声明，无样式表、无外部脚本 -->
+<head><meta charset="utf-8"><title>embed-textures</title></head>
+<body>
+<!-- 结果输出区：转码完成后在此写入「EMBED_OK ...」统计行，并以 @@@START@@@ / @@@END@@@ 包裹可直接复制的 JS 全文 -->
+<pre id="out">WORKING</pre>
+<!-- 图片隐藏容器：转码前把 FILES 里的素材逐个以 <img> 标签塞进来，界面上不显示 -->
+<div id="imgs" style="display:none"></div>
 <script>
 (function () {
   "use strict";
   /* 把下列图片用 canvas 转成 WebP dataURI，汇总成 map-textures.js 的内容。
-     以后新增素材：把文件放进本目录并在 FILES 里加一行“文件名: 最大宽度”即可重跑。 */
-  // 素材清单：键为图片文件名（与本页放同一目录），值为内嵌时的最大宽度(px)，原图超宽会等比缩小
+     以后新增素材：把文件放进本目录并在 FILES 里加一行即可重跑。
+     值格式：最大宽度 或 [最大宽度, α伽马]——γ<1 提实墨色（0.6 常规 / 0.8 远山淡墨），云雾层不传 γ 保持轻透。
+     图片以 <img> 标签静态加载：window load 事件即全部就绪，headless --dump-dom 也能稳定拿到结果。 */
+  // 待转码清单：键为文件名，值为转码规格——单个数字＝只限最大宽度；[宽, α伽马]＝限宽并把 α 提实；[宽, "white", γ]＝限宽后先按白底抠图再提实 α
   var FILES = {
-    "hero-mist-cloud.png": 1600,
+    "mist-wisp.jpg": [1600, "white", 0.7],
     "parallax-far.png": 1600,
     "parallax-shore.png": 1600,
     "parallax-boat-v2.png": 1100,
     "parallax-willow.png": 1600,
     "parallax-reed.png": 1600,
-    "mtn-sharp-focal-a.png": 1280,
-    "mtn-peak-dense-a.png": 1280,
-    "mtn-dome-dark-a.png": 1280,
-    "mtn-range-mist-a.png": 1280,
-    "mtn-triple-a.png": 1280,
-    "mtn-dome-ochre-a.png": 1280,
-    "mtn-far-faint-a.png": 1280,
-    "mtn-bg-mist-a.png": 1280,
-    "isle-front-a.png": 1280,
-    "isle-mid-a.png": 1280,
-    "isle-far-a.png": 1280,
-    "palace-a.png": 1280,
-    "citywall-a.png": 1280,
-    "tower-a.png": 1280,
-    "cliff-a.png": 1280,
-    "pine-1-a.png": 1024,
-    "pine-2-a.png": 1024,
-    "pine-3-a.png": 1024
+    "mtn-sharp-focal-a.png": [1280, 0.6],
+    "mtn-peak-dense-a.png": [1280, 0.6],
+    "mtn-dome-dark-a.png": [1280, 0.6],
+    "mtn-range-mist-a.png": [1280, 0.6],
+    "mtn-triple-a.png": [1280, 0.6],
+    "mtn-dome-ochre-a.png": [1280, 0.6],
+    "mtn-far-faint-a.png": [1280, 0.8],
+    "mist-mtn.jpg": [1280, "white", 0.7],
+    "isle-front-a.png": [1280, 0.6],
+    "isle-mid-a.png": [1280, 0.6],
+    "isle-far-a.png": [1280, 0.6],
+    "palace-a.png": [1280, 0.6],
+    "citywall-a.png": [1280, 0.6],
+    "tower-a.png": [1280, 0.6],
+    "cliff-a.png": [1280, 0.6],
+    "pine-1-a.png": [1024, 0.6],
+    "pine-2-a.png": [1024, 0.6],
+    "pine-3-a.png": [1024, 0.6]
   };
   // WebP 编码质量(0~1)；若浏览器不支持 toDataURL("image/webp") 会自动降级为 PNG
   var Q = 0.82;
-  var out = document.getElementById("out");
-  var names = Object.keys(FILES);
-  var done = 0, res = {};
-  var testC = document.createElement("canvas"); testC.width = testC.height = 2;
-  var webp = testC.toDataURL("image/webp").indexOf("data:image/webp") === 0;
-  var mime = webp ? "image/webp" : "image/png";
-  // 逐张加载：等比缩放后画到 canvas 再转 dataURI；加载失败记空串，最后以 missed 列出
-  names.forEach(function (n) {
-    var img = new Image();
-    img.onload = function () {
-      var mw = FILES[n], sc = Math.min(1, mw / img.naturalWidth);
+  // alpha 提实查找表生成：把 0~255 的 α 按 i/255 的 γ 次幂重映射，γ 小于 1 时半透明墨色会变实
+  function lut(g) { var t = new Uint8Array(256); for (var i = 0; i < 256; i++) t[i] = Math.round(255 * Math.pow(i / 255, g)); return t; }
+  // 预生成两张常规查找表：0.6 用于近景山石，0.8 用于远山淡墨
+  var LUT6 = lut(0.6), LUT8 = lut(0.8);
+  // 通用 α 提实：按 γ 选表，把画布内每个像素的 α 通道逐点重映射（γ 小于 0.7 用 0.6 的表，否则用 0.8 的表）
+  function boostAlpha(c, g) {
+    var x = c.getContext("2d");
+    var im = x.getImageData(0, 0, c.width, c.height), d = im.data;
+    var T = g < 0.7 ? LUT6 : LUT8;
+    for (var i = 3; i < d.length; i += 4) d[i] = T[d[i]];
+    x.putImageData(im, 0, 0);
+  }
+  // 白底抠图：α = 255 − min(R,G,B)，α<20 噪底归零，γ 提实（云雾 0.7 保轻透）
+  function whiteCut(c, g) {
+    var x = c.getContext("2d");
+    var im = x.getImageData(0, 0, c.width, c.height), d = im.data;
+    // 专用查找表：先按 20 砍掉接近纯白的噪底，再把剩余灰度按 ((v-20)/235) 的 γ 次幂还原并封顶 255
+    var T = new Uint8Array(256);
+    for (var v = 0; v < 256; v++) T[v] = v < 20 ? 0 : Math.min(255, Math.round(255 * Math.pow((v - 20) / 235, g)));
+    // 逐像素：以三通道最小值（越接近白越小）的补数作透明依据，查表后写回 α
+    for (var i = 0; i < d.length; i += 4) d[i + 3] = T[255 - Math.min(d[i], d[i + 1], d[i + 2])];
+    x.putImageData(im, 0, 0);
+  }
+  // 取隐藏容器与全部文件名，供下面逐个装载
+  var box = document.getElementById("imgs"), names = Object.keys(FILES);
+  // 逐张生成 <img> 挂进容器：以序号作 id，转码阶段再按序取回
+  names.forEach(function (n, idx) {
+    var im = new Image();
+    im.id = "i" + idx; im.src = n;
+    box.appendChild(im);
+  });
+  // 全部 <img> 就绪后统一转码：逐张等比缩放画到 canvas，按 spec 做白底抠图或 α 提实，再转 dataURI
+  window.addEventListener("load", function () {
+    // 用 2×2 小画布探测是否支持 WebP 导出，决定了下面 mime 取 WebP 还是降级 PNG
+    var testC = document.createElement("canvas"); testC.width = testC.height = 2;
+    var webp = testC.toDataURL("image/webp").indexOf("data:image/webp") === 0;
+    var mime = webp ? "image/webp" : "image/png";
+    // res 收各文件的 dataURI，miss 记加载失败的素材名（便于事后补齐）
+    var res = {}, miss = [];
+    names.forEach(function (n, idx) {
+      var img = document.getElementById("i" + idx);
+      // 自然宽度为 0 说明图片没找到或未解码成功，记为缺失后跳过
+      if (!img || !img.naturalWidth) { miss.push(n); return; }
+      // 拆规格：mw 是最大宽度（兼容只写一个数字的简写），g 是 α 伽马
+      var spec = FILES[n], mw = spec[0] || spec, g = spec[1];
+      // 等比缩放比例（绝不放大），并据此算出画布尺寸
+      var sc = Math.min(1, mw / img.naturalWidth);
       var w = Math.max(1, Math.round(img.naturalWidth * sc)), h = Math.max(1, Math.round(img.naturalHeight * sc));
       var c = document.createElement("canvas"); c.width = w; c.height = h;
       c.getContext("2d").drawImage(img, 0, 0, w, h);
+      // 三元组规格先走白底抠图；二元组带伽马则只做 α 提实；完全不传则原样保留透明通道
+      if (spec[1] === "white") whiteCut(c, spec[2]);
+      else if (g) boostAlpha(c, g);
+      // 按选定 mime 与质量导出 dataURI，存进结果表
       res[n] = c.toDataURL(mime, Q);
-      done++; if (done === names.length) finish();
-    };
-    img.onerror = function () { res[n] = ""; done++; if (done === names.length) finish(); };
-    img.src = n;
-  });
-  // 汇总输出：把转换成功的项拼成 window.MAP_TEXTURES 赋值，夹在 @@@START@@@/@@@END@@@ 标记之间——复制中间那段保存为 map-textures.js 即可
-  function finish() {
-    var parts = [], total = 0, miss = [];
+    });
+    // 汇总：拼成 "文件名": "dataURI" 的键值串，同时累计总字符数用于体积估算
+    var parts = [], total = 0;
     names.forEach(function (n) {
       if (res[n]) { parts.push(JSON.stringify(n) + ":" + JSON.stringify(res[n])); total += res[n].length; }
-      else miss.push(n);
     });
+    // 包成一句可直接引用的全局赋值，写入结果区；@@@START@@@ / @@@END@@@ 之间即待复制全文
     var js = "window.MAP_TEXTURES={" + parts.join(",") + "};";
-    out.textContent = "EMBED_OK webp=" + webp + " count=" + parts.length +
+    document.getElementById("out").textContent = "EMBED_OK webp=" + webp + " count=" + parts.length +
       " total=" + (total / 1048576).toFixed(2) + "MB missed=" + miss.join(",") +
       "\n@@@START@@@" + js + "@@@END@@@";
-  }
+    // 后备通道 1：POST 给本地接收服务器（_save.ps1 @8199）直接落盘
+    try { fetch("http://127.0.0.1:8199/save", { method: "POST", body: js }).catch(function (e) { }); } catch (e) { }
+    // 后备通道 2：作为下载文件吐出
+    try {
+      var blob = new Blob([js], { type: "text/javascript" });
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(blob); a.download = "map-textures.js";
+      document.body.appendChild(a); a.click();
+    } catch (e) { }
+  });
 })();
-</script></body></html>
+</script>
+</body></html>

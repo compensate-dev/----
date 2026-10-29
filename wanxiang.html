@@ -15,8 +15,8 @@
   <meta property="og:image" content="screen-world-background.jpg">
   <meta property="og:locale" content="zh_CN">
   <title>词容万象｜春水留痕·李煜词境</title>
-  <link rel="stylesheet" href="style.css?v=f37">
-  <script src="script.js?v=f37" defer></script>
+  <link rel="stylesheet" href="style.css?v=f52">
+  <script src="script.js?v=f52" defer></script>
 </head>
 <body>
 <!-- 跳过导航：键盘用户按 Tab 时可直接跳入正文(#main-content) -->
@@ -60,6 +60,7 @@
         <p>公元978年，李煜走完了四十二年的人生。留下来的不只是一位南唐君主的身世，还有一颗敏感、真切的词心。后来的读者透过词句望向他，也不断把自己的时代经验映照其中。</p>
       </div>
 <!-- 三张记忆卡：历史中的他 / 词句中的他 / 今人心中的他；点击由脚本打开详情弹窗 -->
+<!-- 每张卡都是 article 扮作按钮（role="button" + tabindex + aria-haspopup="dialog"）：整卡可点开弹窗，卡内链接仍能单独跳页 -->
       <div class="memory-line">
         <article tabindex="0" role="button" aria-haspopup="dialog" aria-label="展开李煜作为南唐末主的历史故事"><span>历史中的他</span><h3>南唐末主</h3><p>从金陵宫阙到汴京囚居，命运的骤变成为理解其后期词作的一把钥匙。</p><a href="life.html">沿时间读他的故事 <span>↗</span></a><span class="memory-open-hint">点击了解更多 <span aria-hidden="true">↗</span></span></article>
         <article tabindex="0" role="button" aria-haspopup="dialog" aria-label="展开李煜词作意象与表达的故事"><span>词句中的他</span><h3>把愁写成江水</h3><p>春花秋月、深院梧桐、流水落花，让难以言说的情绪有了可以触摸的形状。</p><a href="ci.html">读他的词与笺注 <span>↗</span></a><span class="memory-open-hint">点击了解更多 <span aria-hidden="true">↗</span></span></article>
@@ -100,6 +101,7 @@
           </article>
         </div>
 <!-- 翻页条：左右箭头 + 页码（页码里的 b 由脚本改写为当前页） -->
+<!-- 两张箭头按钮用 data-dir 标示方向（-1 上一张 / 1 下一张），脚本只读该属性循环切换卡组 -->
         <div class="media-carousel-nav">
           <button type="button" class="media-nav" data-dir="-1" aria-label="上一张">&#8249;</button>
           <span class="media-carousel-count" aria-hidden="true"><b>01</b>&#8201;/&#8201;04</span>
@@ -134,6 +136,7 @@
       <a class="button button-dark" href="listen.html">去听词入梦 <span>↗</span></a>
     </section>
 <!-- 详情弹窗：点记忆卡或书影大图后由脚本填充标题、配图与正文，再以原生模态方式打开 -->
+<!-- 弹窗内部各节点留空：kicker / 标题 / 配图 / 正文均由脚本按被点卡片的数据填充；配图默认 hidden，无图时才露出 -->
     <dialog class="memory-story-dialog" aria-labelledby="memory-story-title"><button class="memory-story-close" type="button" aria-label="关闭详情">×</button><span class="memory-story-kicker"></span><h2 id="memory-story-title"></h2><img class="memory-story-image" alt="" hidden><div class="memory-story-content"></div><p class="memory-story-note">按 Esc 或点击右上角关闭详情。史实与后世艺术演绎请分别阅读。</p></dialog>
   </main>
 <!-- 页脚：品牌标识 + 标语 + 跳转链接 -->

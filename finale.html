@@ -1,3 +1,4 @@
+<!-- 一江春水 · 李煜词境 — 终幕页 / finale.html -->
 <!doctype html>
 <html lang="zh-CN">
 <head>
@@ -15,11 +16,11 @@
   <meta property="og:locale" content="zh_CN">
   <title>终幕｜春水留痕·李煜词境</title>
 <!-- 全站样式 -->
-  <link rel="stylesheet" href="style.css?v=f37">
+  <link rel="stylesheet" href="style.css?v=f52">
 <!-- 尽早给 <html> 挂 finale-js：CSS 靠它启用滚动叙事；无 JS 时不加，内容直接可见 -->
   <script>document.documentElement.classList.add("finale-js");</script>
 <!-- 全站脚本 -->
-  <script src="script.js?v=f37" defer></script>
+  <script src="script.js?v=f52" defer></script>
 </head>
 <!-- body 挂 finale-page：CSS 换暗色整页底色与顶栏 -->
 <body class="finale-page">
@@ -37,6 +38,7 @@
 <!-- 主内容 -->
   <main id="main-content" tabindex="-1">
 <!-- 终幕滚动叙事：320vh 轨道内吸顶一幕；--finale-p 进度 / --px、--py 指针视差由 script.js 末尾 IIFE 写入 -->
+<!-- 滚动轨道与吸顶舞台的关系：外层拉出约三屏的滚动长度，内层 sticky 钉住整屏，滚动进度换算成 --finale-p 驱动各装饰层进退 -->
     <div class="finale-scroll">
 <!-- 吸顶舞台 -->
       <section class="finale-stage" aria-label="终幕">
