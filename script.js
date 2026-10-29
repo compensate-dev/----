@@ -1,5 +1,10 @@
+// 全站交互总入口：整体包在一个立即执行函数里，避免向全局暴露变量。
+// 各功能块按需自检元素是否存在，同一份脚本可被所有页面共用而互不打扰。
 (() => {
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // 资源基址：script.js 位于 js/，会被根页面与 pages/ 子页共同引用；
+  // 动态图片路径按脚本自身 URL 推导，避免相对页面 URL 在子页里解析失败（file:// 同样适用）
+  const ASSET_IMAGE = new URL("../assets/image/", document.currentScript.src).href;
 
   document.addEventListener("click", (event) => {
     if (reducedMotion || event.target.closest("input, textarea, select, audio, video")) return;
@@ -595,28 +600,28 @@
       });
     };
     const calligraphyAssets = [
-      "calligraphy-flight-01.png",
-      "calligraphy-flight-03.png",
-      "calligraphy-flight-04.png",
-      "calligraphy-flight-05.png",
-      "calligraphy-flight-06.png",
-      "calligraphy-flight-07.png",
-      "calligraphy-flight-08.png",
-      "calligraphy-flight-09.png",
-      "calligraphy-flight-11.png",
-      "calligraphy-flight-13.png",
-      "calligraphy-flight-14.png",
-      "calligraphy-flight-15.png",
-      "calligraphy-flight-17.png",
-      "calligraphy-flight-19.png",
-      "calligraphy-added-01.png",
-      "calligraphy-added-02.png",
-      "calligraphy-added-03.png",
-      "calligraphy-added-04.png",
-      "calligraphy-added-06.png",
-      "calligraphy-added-08.png",
-      "calligraphy-added-09.png",
-      "calligraphy-added-11.png"
+      "assets/image/calligraphy-flight-01.png",
+      "assets/image/calligraphy-flight-03.png",
+      "assets/image/calligraphy-flight-04.png",
+      "assets/image/calligraphy-flight-05.png",
+      "assets/image/calligraphy-flight-06.png",
+      "assets/image/calligraphy-flight-07.png",
+      "assets/image/calligraphy-flight-08.png",
+      "assets/image/calligraphy-flight-09.png",
+      "assets/image/calligraphy-flight-11.png",
+      "assets/image/calligraphy-flight-13.png",
+      "assets/image/calligraphy-flight-14.png",
+      "assets/image/calligraphy-flight-15.png",
+      "assets/image/calligraphy-flight-17.png",
+      "assets/image/calligraphy-flight-19.png",
+      "assets/image/calligraphy-added-01.png",
+      "assets/image/calligraphy-added-02.png",
+      "assets/image/calligraphy-added-03.png",
+      "assets/image/calligraphy-added-04.png",
+      "assets/image/calligraphy-added-06.png",
+      "assets/image/calligraphy-added-08.png",
+      "assets/image/calligraphy-added-09.png",
+      "assets/image/calligraphy-added-11.png"
     ];
     const preloadCalligraphy = () => Promise.all(calligraphyAssets.map((src) => new Promise((resolve, reject) => {
       const image = new Image();
@@ -758,7 +763,7 @@
         });
       });
       if (originPoints.length < 600) return Promise.resolve(false);
-      return loadImageSource("home-hero.jpg").then((heroImage) => {
+      return loadImageSource("assets/image/home-hero.jpg").then((heroImage) => {
         const targetPoints = sampleTargetPoints(heroImage, originPoints.length, viewportWidth, viewportHeight);
         const particles = originPoints.map((origin, index) => {
           const target = targetPoints[index] || targetPoints[targetPoints.length - 1];
@@ -1773,8 +1778,6 @@
     });
   };
 
-  /* 生平故事数据：每条对应一个年份节点，period 作弹窗眉题（年份 · 地点），
-     paragraphs 是正文段落数组，poem / poemNote 是配在段末的一句词与出处 */
   const timelineStories = [
     {
       period: "937 · 金陵",
@@ -2379,12 +2382,12 @@
   (function initializeShopSidebar() {
     if (document.querySelector(".shop-tab")) return;
     const goods = [
-      { img: "shop-paper.jpg", alt: "浣花春水笺概念图：带春水暗纹的宣纸信笺", meta: "文房信笺 · 灵感《虞美人》", name: "浣花春水笺", desc: "一套八张的仿古宣笺，以「一江春水」波纹作暗纹，落梅点缀纸角。提笔写信时，愁绪也化作了东流的水。" },
-      { img: "shop-bookmark.jpg", alt: "月钩梧桐书签概念图：弯月梧桐造型的黄铜楠木书签", meta: "流苏书签 · 灵感《相见欢》", name: "月钩梧桐签", desc: "黄铜为钩月，楠木作梧桐，垂一缕墨色流苏。「无言独上西楼」的那夜月色，从此夹在正在读的那一页。" },
-      { img: "shop-scroll.jpg", alt: "春水东流卷轴概念图：绘有江山孤舟的中式水墨挂轴", meta: "卷轴壁纸 · 灵感《虞美人》", name: "春水东流卷", desc: "一款可打印的数字长卷壁纸，亦可装裱为案头小挂轴。远山、孤舟与东流江水展开在屏幕上，愁有了形状，也有了归处。" },
-      { img: "shop-postcard.jpg", alt: "春花秋月明信片概念图：四张一套的水墨词意明信片", meta: "词意明信片 · 灵感四阕代表作", name: "春花秋月帖", desc: "四阕词、四帧景：春水花月、深院梧桐、暮雨归梦、落梅春草。背面印词，正面入画，寄给此刻想念的人。" },
-      { img: "shop-tape.jpg", alt: "落花流水胶带概念图：绘有落花春水纹样的三卷和纸胶带", meta: "和纸胶带 · 灵感《浪淘沙令》", name: "落花流水纹", desc: "「流水落花春去也」化作两卷手账胶带：一卷落花，一卷水纹。贴在日记边角，给普通的一天盖上词的落款。" },
-      { img: "shop-seal.jpg", alt: "煜字朱砂闲章概念图：石质印章与朱砂拓印", meta: "朱砂闲章 · 灵感词帝之名", name: "「煜」字小印", desc: "一方朱文小印，刻他的名字，也刻「一江春水」四字作引首章。盖在书的扉页，像与千年前的词人同署了一页。" }
+      { img: "assets/image/shop-paper.jpg", alt: "浣花春水笺概念图：带春水暗纹的宣纸信笺", meta: "文房信笺 · 灵感《虞美人》", name: "浣花春水笺", desc: "一套八张的仿古宣笺，以「一江春水」波纹作暗纹，落梅点缀纸角。提笔写信时，愁绪也化作了东流的水。" },
+      { img: "assets/image/shop-bookmark.jpg", alt: "月钩梧桐书签概念图：弯月梧桐造型的黄铜楠木书签", meta: "流苏书签 · 灵感《相见欢》", name: "月钩梧桐签", desc: "黄铜为钩月，楠木作梧桐，垂一缕墨色流苏。「无言独上西楼」的那夜月色，从此夹在正在读的那一页。" },
+      { img: "assets/image/shop-scroll.jpg", alt: "春水东流卷轴概念图：绘有江山孤舟的中式水墨挂轴", meta: "卷轴壁纸 · 灵感《虞美人》", name: "春水东流卷", desc: "一款可打印的数字长卷壁纸，亦可装裱为案头小挂轴。远山、孤舟与东流江水展开在屏幕上，愁有了形状，也有了归处。" },
+      { img: "assets/image/shop-postcard.jpg", alt: "春花秋月明信片概念图：四张一套的水墨词意明信片", meta: "词意明信片 · 灵感四阕代表作", name: "春花秋月帖", desc: "四阕词、四帧景：春水花月、深院梧桐、暮雨归梦、落梅春草。背面印词，正面入画，寄给此刻想念的人。" },
+      { img: "assets/image/shop-tape.jpg", alt: "落花流水胶带概念图：绘有落花春水纹样的三卷和纸胶带", meta: "和纸胶带 · 灵感《浪淘沙令》", name: "落花流水纹", desc: "「流水落花春去也」化作两卷手账胶带：一卷落花，一卷水纹。贴在日记边角，给普通的一天盖上词的落款。" },
+      { img: "assets/image/shop-seal.jpg", alt: "煜字朱砂闲章概念图：石质印章与朱砂拓印", meta: "朱砂闲章 · 灵感词帝之名", name: "「煜」字小印", desc: "一方朱文小印，刻他的名字，也刻「一江春水」四字作引首章。盖在书的扉页，像与千年前的词人同署了一页。" }
     ];
     const cardsHtml = goods.map((item) => `
       <article class="shop-card">
@@ -2646,7 +2649,7 @@
     const pageTitle = "春水留痕·李煜词境";
     const pageDesc = "以一江春水为引，走进南唐后主的词境：读词人故事，赏四阕词笺，听一段诵读，留一句笺语。";
     const isHttp = location.protocol === "http:" || location.protocol === "https:";
-    const pagePic = isHttp ? location.origin + "/plum-blossom.jpg" : "";
+    const pagePic = isHttp ? location.origin + "/assets/image/plum-blossom.jpg" : "";
     const enc = encodeURIComponent;
     const shareLinks = {
       qzone: "https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=" + enc(pageUrl) + "&title=" + enc(pageTitle) + "&summary=" + enc(pageDesc) + (pagePic ? "&pics=" + enc(pagePic) : ""),
@@ -2779,7 +2782,7 @@
     mapTab.className = "shop-tab map-tab";
     mapTab.setAttribute("aria-label", "词人故事专属板块：进入水墨行迹，云游李煜生平地图");
     mapTab.innerHTML = "<span class=\"map-tab-seal\" aria-hidden=\"true\">迹</span>词人故事<small>水墨行迹 · 云游生平</small>";
-    mapTab.addEventListener("click", () => { location.href = "map.html?v=f52"; });
+    mapTab.addEventListener("click", () => { location.href = "map.html?v=f58"; });
     document.body.appendChild(mapTab);
     setTimeout(() => mapTab.classList.add("is-in"), 150); // 跳出动画
   })();

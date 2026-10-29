@@ -70,9 +70,10 @@
   // 取隐藏容器与全部文件名，供下面逐个装载
   var box = document.getElementById("imgs"), names = Object.keys(FILES);
   // 逐张生成 <img> 挂进容器：以序号作 id，转码阶段再按序取回
+  // 素材统一从上级目录 assets/image/ 取（本页在 tool/ 下）
   names.forEach(function (n, idx) {
     var im = new Image();
-    im.id = "i" + idx; im.src = n;
+    im.id = "i" + idx; im.src = "../assets/image/" + n;
     box.appendChild(im);
   });
   // 全部 <img> 就绪后统一转码：逐张等比缩放画到 canvas，按 spec 做白底抠图或 α 提实，再转 dataURI
@@ -110,7 +111,7 @@
     document.getElementById("out").textContent = "EMBED_OK webp=" + webp + " count=" + parts.length +
       " total=" + (total / 1048576).toFixed(2) + "MB missed=" + miss.join(",") +
       "\n@@@START@@@" + js + "@@@END@@@";
-    // 后备通道 1：POST 给本地接收服务器（_save.ps1 @8199）直接落盘
+    // 后备通道 1：POST 给本地接收服务器（tool/_save2.ps1 编译版，监听 8199）直接写入 js/map-textures.js
     try { fetch("http://127.0.0.1:8199/save", { method: "POST", body: js }).catch(function (e) { }); } catch (e) { }
     // 后备通道 2：作为下载文件吐出
     try {

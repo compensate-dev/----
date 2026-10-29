@@ -1,7 +1,6 @@
 <!doctype html>
-<!-- 一江春水 · 李煜词境 — 水墨行迹页 / map.html -->
 <html lang="zh-CN">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#d9d2c1"><meta name="description" content="全屏沉浸式纸片 3D 水墨云游：云海之上，金陵宫阙、钟山林泉、洪州城郭、采石矶崖、一叶江舟、汴京小楼、北邙松柏。拖拽旋转，朱砂点为引，飞往李煜人生的每一站。"><title>水墨行迹｜春水留痕·李煜词境</title><link rel="stylesheet" href="style.css?v=f52"><script src="script.js?v=f52" defer></script><style>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#d9d2c1"><meta name="description" content="全屏沉浸式纸片 3D 水墨云游：云海之上，金陵宫阙、钟山林泉、洪州城郭、采石矶崖、一叶江舟、汴京小楼、北邙松柏。拖拽旋转，朱砂点为引，飞往李煜人生的每一站。"><title>水墨行迹｜春水留痕·李煜词境</title><link rel="stylesheet" href="../css/style.css?v=f59"><script src="../js/script.js?v=f59" defer></script><style>
   /* 渲染质感层：水墨夜空（淡墨晕染三叠）+ 画面色调 + 纸纹/暗角叠层 */
   .stage3d{background:
     radial-gradient(52% 36% at 24% 16%,rgba(56,62,58,.22),rgba(56,62,58,0) 70%),
@@ -15,17 +14,13 @@
   #inkPulse{z-index:7}
 </style></head>
 <body class="map-page map-full">
-  <!-- 键盘跳转链接：全屏版无 #main-content 容器，点击不会滚动（沿用站点惯例保留） -->
   <a class="skip-link" href="#main-content">跳至主要内容</a>
 
   <!-- 全屏 3D 舞台 -->
   <div class="stage3d" id="stage3d" aria-label="纸片式水墨山水三维场景，点击朱砂点、站点名或下方时间指引即可飞往对应站点">
-    <!-- 墨韵收笔闪光层：镜头飞抵落定时短暂泛起再退去（Web Animations 由脚本触发，此后常驻透明） -->
     <span id="inkPulse" aria-hidden="true" style="position:absolute;inset:0;pointer-events:none;opacity:0;background:radial-gradient(ellipse at 50% 42%, rgba(46,46,42,0) 46%, rgba(46,46,42,0.65) 100%);"></span>
-    <!-- 宣纸颗粒层（multiply 叠细噪）与暗角层：纯装饰，压在最上层不接管指针 -->
     <span id="paperGrain" aria-hidden="true"></span>
     <span id="paperVign" aria-hidden="true"></span>
-    <!-- 右侧朱砂站点导航：全景钮置顶 + 七个站点圆点，点按飞往对应机位并同步笺卡 -->
     <nav class="dot-nav" aria-label="云游站点">
       <button class="dot-btn dot-btn-overview" type="button" data-go="overview" aria-label="回到全景"><span class="dot-tip">全景 · 疆域</span></button>
       <button class="dot-btn" type="button" data-go="jinling" aria-label="飞往金陵：南唐都城"><span class="dot-tip">金陵 · 都城</span></button>
@@ -38,7 +33,6 @@
     </nav>
 
     <!-- 时间指引：按年顺游，提示下一步该看哪里的故事 -->
-    <!-- 按年顺游条：七个年份节点（937→978）串成一条时间轴，当前站高亮、已过站点标记已读；下方「上一站 / 下一站」推进，走到末端变「再游一遍」 -->
     <nav class="tour-guide" id="tourGuide" aria-label="按时间顺序云游指引">
       <span class="tour-cap" aria-hidden="true">按年顺游</span>
       <div class="tour-track">
@@ -56,7 +50,6 @@
       </div>
     </nav>
 
-    <!-- 笺卡面板：未选点时显示引导文案(data-popup-default)，选中站点后由脚本填充(data-popup-detail) -->
     <aside class="map-panel ink-popup" id="inkPopup" aria-live="polite">
       <button class="popup-close" type="button" aria-label="收起笺卡">×</button>
       <div class="map-panel-empty" data-popup-default>
@@ -71,16 +64,14 @@
       </article>
     </aside>
 
-    <!-- 操作提示：用户首次拖拽/点按时由脚本加 is-hidden 隐去 -->
     <span class="stage-hint" id="stageHint">点击朱砂点 · 或沿下方时间指引云游</span>
-    <!-- 页脚注：写意声明与词作选配说明（全屏模式下定位右下角） -->
     <p class="map-footnote">纸片式三维水墨写意 · 山川城邑不作历史地理考据<br>所配词作为与该站词心相映的代表之作</p>
   </div>
 
   <!-- 顶部浮层：品牌 + 返回 + 音乐 -->
   <div class="map-topbar">
     <span class="brand"><span class="brand-seal">煜</span><span class="map-title">水墨行迹<small>春水留痕 · 李煜词境</small></span></span>
-    <a class="map-back" href="index.html">⟵ 返回词境</a>
+    <a class="map-back" href="../index.html">⟵ 返回词境</a>
     <button class="map-sound sound-toggle" type="button" aria-label="关闭背景音乐" aria-pressed="true"><span class="sound-icon">♫</span></button>
   </div>
 
@@ -89,13 +80,12 @@
     <div class="veil-inner"><span class="brand-seal veil-seal">煜</span><p>水墨行迹</p><small>铺纸 · 研墨 · 起笔</small></div>
   </div>
 
-  <!-- 背景音乐：实际播放/静音由 script.js 的声音开关控制 -->
-  <audio class="background-audio" src="background-music.mp3" autoplay loop preload="metadata"></audio>
-  <!-- Three.js 本地库：缺失时下方场景 IIFE 检测 THREE 未定义即整段跳过 -->
-  <script src="three.min.js"></script>
-  <!-- 内嵌纹理表(WebP dataURI)：须在 three.min.js 之后、场景脚本之前加载，file:// 直开不受跨域限制 -->
-  <script src="map-textures.js?v=f52"></script>
+  <audio class="background-audio" src="../assets/audio/background-music.mp3" autoplay loop preload="metadata"></audio>
+  <script src="../js/three.min.js"></script>
+  <script src="../js/map-textures.js?v=f59"></script>
   <script>
+  /* 全屏水墨行迹场景：贴图生成 → 地形/水面 → 站点标记 → 镜头飞行 → 渲染循环。
+     three.min.js 缺失时整段静默跳过，页面只保留静态底图与浮层。 */
   (function () {
     "use strict";
     if (typeof THREE === "undefined") return;
@@ -172,7 +162,6 @@
     if (!stage) return;
     var scene = new THREE.Scene();
     // 天空改由 CSS 宣纸天光渐变承载，画布透明透出（雾色仍与地平线段一致）
-    // 雾起止 55~260：疆界远山环在 ±84~94，雾若只到 180 会把外圈山屏整片吃掉
     scene.fog = new THREE.Fog(0xccc5b3, 55, 260);
     var camera = new THREE.PerspectiveCamera(46, 1, 0.1, 420);
     var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -250,7 +239,8 @@
 
     // 内嵌纹理（map-textures.js 里的 WebP dataURI）：data: 不受跨域限制，file:// 双击直开也能进 WebGL
     var EMB = window.MAP_TEXTURES || {};
-    function srcOf(n) { return EMB[n] || n; }
+    // 资源兜底：内嵌表缺失时才回落到 assets/image/（本页在 pages/ 下，故上一级）
+    function srcOf(n) { return EMB[n] || ("../assets/image/" + n); }
     var cloudTexA = imgLoader.load(srcOf("mist-wisp.jpg")); // 白云缕（黑底抠图）
     var cloudTexB = imgLoader.load(srcOf("mist-mtn.jpg")); // 谷中雾云（黑底抠图）
     var texFar = imgLoader.load(srcOf("parallax-far.png"));
@@ -280,805 +270,804 @@
       "  gl_Position = projectionMatrix * viewMatrix * wp;",
       "}"
     ].join("\n");
-    var waterFrag = [
-      "uniform float uTime;",
-      "uniform vec3 uFogColor;",
-      "uniform float uFogNear;",
-      "uniform float uFogFar;",
-      "varying vec3 vWorld;",
-      "float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }",
-      "float noise(vec2 p){",
-      "  vec2 i = floor(p); vec2 f = fract(p);",
-      "  f = f * f * (3.0 - 2.0 * f);",
-      "  return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x),",
-      "             mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x), f.y);",
-      "}",
-      "float field(vec2 p){",
-      "  return noise(p) * 0.6 + noise(p * 2.3) * 0.3 + noise(p * 4.9) * 0.1;",
-      "}",
-      "void main(){",
-      "  float t = uTime;",
-      "  vec2 o1 = vWorld.xz * 0.32 + vec2(t * 0.055, t * 0.021);",
-      "  vec2 o2 = vWorld.xz * 0.85 + vec2(-t * 0.042, t * 0.028);",
-      "  float e = 0.14;",
-      "  float w0 = field(o1);",
-      "  vec2 g1 = vec2(field(o1 + vec2(e, 0.0)) - w0, field(o1 + vec2(0.0, e)) - w0) / e;",
-      "  float w2 = field(o2);",
-      "  vec2 g2 = vec2(field(o2 + vec2(e, 0.0)) - w2, field(o2 + vec2(0.0, e)) - w2) / e;",
-      "  vec2 grad = g1 * 0.32 + g2 * 0.10;",
-      "  vec3 nrm = normalize(vec3(-grad.x, 1.0, -grad.y));",
-      "  vec3 vdir = normalize(cameraPosition - vWorld);",
-      "  float fres = pow(1.0 - max(dot(nrm, vdir), 0.0), 3.0);",
-      "  vec3 deep = vec3(0.204, 0.227, 0.216);",
-      "  vec3 sky  = vec3(0.416, 0.431, 0.404);",
-      "  vec3 col = mix(deep, sky, clamp(0.08 + fres * 0.92, 0.0, 1.0));",
-      "  vec3 L = normalize(vec3(0.35, 0.72, 0.5));",
-      "  float spec = pow(max(dot(nrm, normalize(L + vdir)), 0.0), 90.0);",
-      "  col += vec3(0.96, 0.94, 0.87) * spec * 0.5;",
-      "  float inkF = field(vWorld.xz * 0.045 + vec2(t * 0.012, -t * 0.009) + 7.3);",  // 大尺度缓移墨流
-      "  col = mix(col, col * vec3(0.86, 0.87, 0.88), smoothstep(0.52, 0.85, inkF) * 0.45);",
-      "  float fog = smoothstep(uFogNear, uFogFar, distance(cameraPosition, vWorld));",
-      "  col = mix(col, uFogColor, fog);",
-      "  gl_FragColor = vec4(col, 0.96);",
-      "}"
-    ].join("\n");
-    var fogUni = { uFogColor: { value: new THREE.Color(0xccc5b3) }, uFogNear: { value: 55 }, uFogFar: { value: 260 } };
-    var seaMat = new THREE.ShaderMaterial({
-      uniforms: { uTime: { value: 0 }, uFogColor: fogUni.uFogColor, uFogNear: fogUni.uFogNear, uFogFar: fogUni.uFogFar },
-      vertexShader: waterVert, fragmentShader: waterFrag,
-      transparent: true, depthWrite: false
-    });
-    var seaGeo = new THREE.PlaneGeometry(172, 172); // 水面收在疆界远山环（±84）以内
-    var sea = new THREE.Mesh(seaGeo, seaMat);
-    sea.rotation.x = -Math.PI / 2; sea.renderOrder = -1; scene.add(sea);
-
-    // ---------- 陆地：水墨渲染着色器（宣纸底 + 淡墨晕染 + 干笔皴纹 + 海岸浓墨笔描 + 雾） ----------
-    var landVert = [
-      "varying vec3 vWorld;",
-      "varying vec2 vUv;",
-      "void main(){",
-      "  vec4 wp = modelMatrix * vec4(position, 1.0);",
-      "  vWorld = wp.xyz; vUv = uv;",
-      "  gl_Position = projectionMatrix * viewMatrix * wp;",
-      "}"
-    ].join("\n");
-    var landFrag = [
-      "uniform vec3 uFogColor;",
-      "uniform float uFogNear;",
-      "uniform float uFogFar;",
-      "uniform float uSeed;",
-      "varying vec3 vWorld;",
-      "varying vec2 vUv;",
-      "float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }",
-      "float noise(vec2 p){",
-      "  vec2 i = floor(p); vec2 f = fract(p);",
-      "  f = f * f * (3.0 - 2.0 * f);",
-      "  return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x),",
-      "             mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x), f.y);",
-      "}",
-      "float fbm(vec2 p){",
-      "  return noise(p) * 0.5 + noise(p * 2.1) * 0.3 + noise(p * 4.3) * 0.2;",
-      "}",
-      "void main(){",
-      "  vec2 q = (vUv - 0.5) * 2.0;",
-      "  float n = fbm(vUv * 3.2 + uSeed);",
-      "  float r = length(q) * (1.0 + (n - 0.5) * 0.75);",  // 噪声扰动的不规则海岸线
-      "  float mask = smoothstep(1.0, 0.9, r);",
-      "  if (mask < 0.01) discard;",
-      "  float t = fbm(vUv * 5.0 + uSeed * 1.7 + 13.1);",  // 大块墨韵
-      "  float g = fbm(vUv * 12.0 + uSeed * 2.3 + 41.7);", // 细碎苔点
-      "  vec3 paper = vec3(0.838, 0.816, 0.748);",        // 宣纸底（略深于雾色）
-      "  vec3 paleInk = vec3(0.665, 0.652, 0.612);",      // 淡墨
-      "  vec3 deepInk = vec3(0.357, 0.352, 0.332);",      // 重墨
-      "  vec3 inkLine = vec3(0.315, 0.308, 0.290);",      // 海岸笔描浓墨
-      "  vec3 col = paper;",
-      "  col = mix(col, paleInk, smoothstep(0.40, 0.80, t) * 0.5);",   // 淡墨晕染块面
-      "  col = mix(col, deepInk, smoothstep(0.66, 0.92, g) * 0.16);",  // 苔点皴擦
-      "  float streak = fbm(vec2(vUv.x * 26.0, vUv.y * 8.0) + uSeed * 4.7);",
-      "  col = mix(col, paleInk, smoothstep(0.58, 0.88, streak) * 0.12);", // 干笔横向皴纹
-      "  float wash = smoothstep(0.68, 0.92, r);",        // 海岸内侧墨色浸染
-      "  col = mix(col, paleInk * 0.9, wash * 0.4);",
-      "  float wob = (fbm(vUv * 9.0 + uSeed * 3.1) - 0.5) * 0.09;", // 笔锋抖动
-      "  float rr = r + wob;",
-      "  float lineBand = smoothstep(0.83, 0.90, rr) * smoothstep(1.0, 0.94, rr);",
-      "  col = mix(col, inkLine, lineBand * 0.7);",       // 海岸浓墨笔描，随雾渐散
-      "  float fog = smoothstep(uFogNear, uFogFar, distance(cameraPosition, vWorld));",
-      "  col = mix(col, uFogColor, fog);",
-      "  gl_FragColor = vec4(col, mask * 0.94);",
-      "}"
-    ].join("\n");
-    function landmass(x, z, w, d, seed) {
-      var m = new THREE.Mesh(new THREE.PlaneGeometry(w, d), new THREE.ShaderMaterial({
-        uniforms: { uFogColor: fogUni.uFogColor, uFogNear: fogUni.uFogNear, uFogFar: fogUni.uFogFar, uSeed: { value: seed } },
-        vertexShader: landVert, fragmentShader: landFrag,
-        transparent: true, depthWrite: false
-      }));
-      m.rotation.x = -Math.PI / 2; m.position.set(x, 0.02, z); scene.add(m);
-    }
-    // 九块陆地：托住景致与前景岸坡（孤舟、汀州与江防要塞仍在水面）
-    landmass(-16, -30, 66, 46, 3.1);   // 金陵 · 钟山
-    landmass(-48, 27, 44, 28, 7.7);    // 洪州
-    landmass(-59, -52, 26, 20, 17.9);  // 汴京
-    landmass(45, 39, 38, 24, 23.3);    // 北邙山
-    landmass(24, 9, 18, 10, 31.7);     // 前景 · 岸坡柳一
-    landmass(-20, 11, 18, 10, 37.3);   // 前景 · 岸坡柳二
-    landmass(8, 10, 13, 8, 41.9);      // 前景 · 芦苇滩
-    landmass(-64, 7, 15, 9, 47.1);     // 前景 · 西芦滩
-    landmass(58, -3, 15, 9, 53.7);     // 前景 · 东芦滩
-
-    // 面片：真素材按原始宽高比立起
-    var upright = [];
-    var sway = []; // 风物摇曳：松涛/芦苇/柳/舟楫
-    // 墨形浮雕几何：把纹理 α 高度场转成单位平面上的正向鼓包（z 以"面宽比例"计，随 mesh.scale.z 缩放）
-    function reliefGeo(img, depthFrac) {
-      try {
-        var gw = 64, gh = Math.max(20, Math.round(64 * img.height / img.width));
-        var c = cnv(gw, gh), x = c.getContext("2d");
-        x.drawImage(img, 0, 0, gw, gh);
-        var d = x.getImageData(0, 0, gw, gh).data;
-        var a = new Float32Array(gw * gh);
-        for (var i = 0; i < gw * gh; i++) a[i] = d[i * 4 + 3] / 255;
-        for (var p = 0; p < 2; p++) { // 两轮 3×3 平滑，防噪点尖刺
-          var b = new Float32Array(gw * gh);
-          for (var yy = 0; yy < gh; yy++) for (var xx = 0; xx < gw; xx++) {
-            var s = 0, n = 0;
-            for (var dy = -1; dy <= 1; dy++) for (var dx = -1; dx <= 1; dx++) {
-              var nx = xx + dx, ny = yy + dy;
-              if (nx < 0 || ny < 0 || nx >= gw || ny >= gh) continue;
-              s += a[ny * gw + nx]; n++;
-            }
-            b[yy * gw + xx] = s / n;
-          }
-          a = b;
-        }
-        function alphaAt(u, v) { // 双线性采样（v 自下而上，画布行 0 在顶）
-          var fx = Math.min(gw - 1.001, Math.max(0, u * (gw - 1)));
-          var fy = Math.min(gh - 1.001, Math.max(0, (1 - v) * (gh - 1)));
-          var x0 = Math.floor(fx), y0 = Math.floor(fy), tx = fx - x0, ty = fy - y0;
-          var t = a[y0 * gw + x0] * (1 - tx) + a[y0 * gw + x0 + 1] * tx;
-          var b2 = a[(y0 + 1) * gw + x0] * (1 - tx) + a[(y0 + 1) * gw + x0 + 1] * tx;
-          return t * (1 - ty) + b2 * ty;
-        }
-        var geo = new THREE.PlaneGeometry(1, 1, 72, 52);
-        var pos = geo.attributes.position;
-        for (var vi = 0; vi < pos.count; vi++) pos.setZ(vi, alphaAt(pos.getX(vi) + 0.5, pos.getY(vi) + 0.5) * depthFrac);
-        pos.needsUpdate = true;
-        window.__reliefN = (window.__reliefN || 0) + 1;
-        return geo;
-      } catch (e) { return null; } // file:// 图片进不了 canvas 时退回平面
-    }
-    function imagePlane(tex, w, x, z, opts) {
-      opts = opts || {};
-      var isInk = inkList.indexOf(tex) >= 0;
-      // 墨形浮雕：按 α 鼓出体量（深度表 0 = 平面；opts.relief 可覆盖/false 关闭）
-      var reliefF = 0;
-      if (isInk && opts.relief !== false && inkName.get(tex)) reliefF = opts.relief !== undefined ? opts.relief : (inkDepth[inkName.get(tex)] !== undefined ? inkDepth[inkName.get(tex)] : 0.12);
-      // 材质：fogless 为真的片不受雾影响（疆界山屏靠它保持边框浓度常在）
-      var mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, side: THREE.DoubleSide, depthWrite: false, opacity: opts.opacity || 1, fog: !opts.fogless });
-      if (reliefF && !inkSoft[inkName.get(tex)]) { mat.depthWrite = true; mat.alphaTest = 0.03; }
-      // 光影：光自西北来，东侧山体/汀州稍暗（静态烘焙受光差）；山形/汀洲/崖壁压深一档，opts.darken 可覆盖
-      var lb = 1 - 0.06 * THREE.MathUtils.clamp((x + 70) / 140, 0, 1);
-      if (inkList.indexOf(tex) >= 0) {
-        var nm = inkName.get(tex) || "";
-        var dk = opts.darken !== undefined ? opts.darken : ((/^mtn/.test(nm) || /^isle/.test(nm) || nm === "cliff.jpg") ? 0.65 : 1);
-        mat.color.setScalar(lb * dk);
-      }
-      var mesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), mat);
-      function fit() {
-        var img = tex.image;
-        var asp = img && img.height ? img.height / img.width : 0.3;
-        mesh.scale.set(w, w * asp * (opts.stretch || 1), reliefF ? w : 1);
-        mesh.position.set(x, (opts.y || 0) + mesh.scale.y / 2, z);
-        mesh.userData.baseY = mesh.position.y;
-        if (reliefF && !mesh.userData.reliefDone && img && img.width) {
-          mesh.userData.reliefDone = true;
-          var g = reliefGeo(img, reliefF);
-          if (g) { mesh.geometry.dispose(); mesh.geometry = g; }
-        }
-      }
-      if (opts.ry) mesh.rotation.y = opts.ry;
-      scene.add(mesh); upright.push({ mesh: mesh, fit: fit, tex: tex });
-      // 风物摇曳登记：芦苇最摆、柳次之、松微颤（舟楫起伏由 boat 既有逻辑负责）
-      var swAmp = tex === texReed ? 0.03 : tex === texWillow ? 0.018 : (inkName.get(tex) && /^pine/.test(inkName.get(tex))) ? 0.009 : 0;
-      if (swAmp) sway.push({ m: mesh, a: swAmp, p: Math.random() * 6.283 });
-      // 纸背厚度（水墨拆片为透明底，无纸边，不带纸背）
-      if (inkList.indexOf(tex) < 0) {
-        var back = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: tex, transparent: true, side: THREE.DoubleSide, depthWrite: false, color: 0x8b8b84, opacity: 0.5 }));
-        function fitBack() { back.scale.copy(mesh.scale); back.position.set(x, mesh.position.y, z - 0.24); back.rotation.y = opts.ry || 0; }
-        scene.add(back); upright.push({ mesh: back, fit: fitBack, tex: tex });
-      }
-      // 水面倒影：垂直镜像 + 低透明度 + 水色混合（模糊在 onLoad 统一处理）
-      if (opts.reflect) {
-        var refl = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: tex, transparent: true, side: THREE.DoubleSide, depthWrite: false, opacity: 0.1, color: 0xd4cdb8 }));
-        refl.userData.isRefl = true;
-        function fitRefl() {
-          refl.scale.set(mesh.scale.x, -mesh.scale.y, 1);
-          refl.position.set(x, (opts.y || 0) - mesh.scale.y / 2 + 0.05, z);
-          refl.rotation.y = opts.ry || 0;
-        }
-        scene.add(refl); upright.push({ mesh: refl, fit: fitRefl, tex: tex });
-      }
-      if (tex.image && tex.image.width) fit(); else tex.addEventListener("load", fit);
-      return mesh;
-    }
-    // 轻模糊纹理：用于水面倒影（canvas filter blur；file:// 下先探测画布可用性）
-    function blurredTex(tex, r) {
-      var img = tex.image; if (!img || !img.width) return tex;
-      var c = cnv(img.width, img.height), x = c.getContext("2d");
-      x.filter = "blur(" + r + "px)"; x.drawImage(img, 0, 0); x.filter = "none";
-      var t = new THREE.CanvasTexture(c); t.needsUpdate = true; return t;
-    }
-    function canvasUsable(img) {
-      try {
-        var t = document.createElement("canvas"); t.width = t.height = 2;
-        var g = t.getContext("2d"); g.drawImage(img, 0, 0, 2, 2); g.getImageData(0, 0, 1, 1);
-        return true;
-      } catch (e) { return false; }
-    }
-    manager.onLoad = function () {
-      upright.forEach(function (u) {
-        if (u.mesh.userData && u.mesh.userData.isRefl && u.mesh.material.map.image && canvasUsable(u.mesh.material.map.image)) {
-          u.mesh.material.map = blurredTex(u.mesh.material.map, 3);
-        }
-        u.fit();
-      });
-      hideVeil();
-      console.log("[水墨行迹] build f52 · 侧签仅词人故事页 ×跳出动画 ×山屏收敛 ×时间指引" + (window.__reliefN || 0) + (postScene ? " · 后期开" : " · 后期退回"));
-    };
-    function shadowBlob(x, z, s) {
-      var m = new THREE.Mesh(new THREE.PlaneGeometry(s, s * 0.36), new THREE.MeshBasicMaterial({ map: toTex(blobTex()), transparent: true, opacity: 0.45, depthWrite: false }));
-      m.rotation.x = -Math.PI / 2; m.position.set(x, 0.03, z); scene.add(m);
-    }
-
-    /* ---------- 七处景致（山峦用真抠图素材） ---------- */
-    // 远山底幕：远景层与云带交替环绕，底边沉入云海（mtn-far-faint 为淡墨远景，云带用谷中雾云、横向压扁成带状）
-    imagePlane(inkTex["mtn-far-faint.png"], 66, -34, -58, { y: -11 });
-    imagePlane(cloudTexB, 70, 12, -64, { y: -7, ry: 0.12, stretch: 0.42, opacity: 0.85 });
-    imagePlane(inkTex["mtn-far-faint.png"], 62, 46, -30, { y: -10, ry: 0.5, opacity: 0.85 });
-    imagePlane(cloudTexB, 66, -62, 26, { y: -6, ry: -0.5, stretch: 0.42, opacity: 0.85 });
-    imagePlane(inkTex["mtn-far-faint.png"], 64, 34, 52, { y: -10, ry: -0.3, opacity: 0.85 });
-    imagePlane(cloudTexB, 68, -30, 54, { y: -7, ry: -0.7, stretch: 0.42, opacity: 0.85 });
-    // 最外侧天际云幕
-    imagePlane(cloudTexB, 130, -8, -92, { y: -18, stretch: 0.4, opacity: 0.8 });
-    imagePlane(cloudTexB, 110, 66, -66, { y: -15, ry: 0.5, stretch: 0.4, opacity: 0.75 });
-    // 1·2 主峰拆片群（金陵·钟山共享）：六片由近及远叠出纵深
-    shadowBlob(-30, -14, 18);
-    shadowBlob(-12, -40, 15);
-    // 宫阙（金陵·都城）：真素材 + 十字交叉面片
-    imagePlane(inkTex["palace.jpg"], 15, -30, -14, null);
-    // 松柏（钟山林泉）：真素材单株 + 十字交叉面片
-    imagePlane(inkTex["pine-2.jpg"], 4.5, -8, -22, null);
-    imagePlane(inkTex["isle-front.jpg"], 30, -44, -22, { y: -5.3, ry: 0.3, opacity: 0.95 });
-    imagePlane(inkTex["isle-mid.jpg"], 22, 6, -34, { y: -3.8, ry: -0.2, opacity: 0.85 });
-    imagePlane(inkTex["mtn-dome-dark.png"], 36, 0, -17, { ry: 0.12, stretch: 0.6 });
-    imagePlane(inkTex["mtn-peak-dense.png"], 52, -26, -30, { reflect: true });
-    imagePlane(inkTex["mtn-sharp-focal.png"], 46, -4, -34, { reflect: true });
-    imagePlane(inkTex["mtn-triple.png"], 38, 14, -42, { ry: -0.2, opacity: 0.95 });
-    imagePlane(inkTex["mtn-range-mist.png"], 60, -22, -46, { opacity: 0.85 });
-    imagePlane(inkTex["mtn-dome-ochre.png"], 40, -44, -50, { ry: 0.25, opacity: 0.8 });
-    // 3 洪州：城郭 + 岸山
-    shadowBlob(-46, 20, 16);
-    // 城郭（洪州·南都）：真素材 + 十字交叉面片
-    imagePlane(inkTex["citywall.jpg"], 16, -46, 20, null);
-    imagePlane(inkTex["isle-front.jpg"], 32, -46, 32, { y: -5.7, opacity: 0.95 });
-    imagePlane(texFar, 40, -52, 40, { ry: -0.4, opacity: 0.85 });
-    // 4 采石矶：陡崖 + 浓墨辅助山
-    shadowBlob(20, -8, 10);
-    // 江防要塞（采石矶）：真素材 + 十字交叉面片，横向构图加宽落位
-    imagePlane(inkTex["cliff.jpg"], 13, 20, -8, null);
-    // 疆界山屏：两排远山叠合——薄一档、矮一档，浓度介于内山与纸底之间（不受雾以保持边框常在）
-    // 做法：绕场四周（北/南/东/西各 7 段）按两种山形错缝铺满，前排贴水缘、后排错开半格补缝，围成一圈「山做的边框」
-    (function () {
-      function wall(dist, off, texA, texB, tw, ts, dk, yb) {
-        [-84, -56, -28, 0, 28, 56, 84].forEach(function (t, i) {
-          var tn = i % 2 ? texA : texB;
-          var o = { y: yb + (i % 2) * 2, stretch: ts, relief: false, opacity: 1, darken: dk, fogless: true };
-          var w = tw + (i % 3) * 8;
-          imagePlane(inkTex[tn], w, t + off, -dist, o);                                       // 北
-          imagePlane(inkTex[tn], w, -t - off, dist, Object.assign({ ry: Math.PI }, o));       // 南
-          imagePlane(inkTex[tn], w, dist, t - off, Object.assign({ ry: -Math.PI / 2 }, o));   // 东
-          imagePlane(inkTex[tn], w, -dist, -t + off, Object.assign({ ry: Math.PI / 2 }, o));  // 西
-        });
-      }
-      wall(84, 0, "mtn-peak-dense.png", "mtn-dome-dark.png", 44, 1.22, 0.56, -13);    // 前排：贴水缘
-      wall(94, 14, "mtn-dome-dark.png", "mtn-peak-dense.png", 40, 1.42, 0.52, -14);   // 后排：错缝补缝
-    })();
-    imagePlane(texFar, 30, 38, -30, { ry: -0.25, opacity: 0.85 });
-    imagePlane(inkTex["isle-far.jpg"], 34, 30, -20, { y: -4.7, ry: -0.25, opacity: 0.9 });
-    // 5 江舟：孤舟（主峰群在望）
-    var boat = imagePlane(texBoat, 4.6, 34, 1, { y: 0.06 });
-    imagePlane(inkTex["isle-mid.jpg"], 26, 40, -24, { y: -4.5, opacity: 0.9 });
-    imagePlane(inkTex["isle-front.jpg"], 24, 44, 20, { y: -4.3, ry: -0.2, opacity: 0.9 });
-    imagePlane(texFar, 40, 30, -34, { opacity: 0.9 });
-    // 6 汴京：小楼庭院（周围大片留白）
-    shadowBlob(-58, -46, 7);
-    // 囚居小院（汴京·违命侯）：真素材 + 十字交叉面片
-    imagePlane(inkTex["tower.jpg"], 5, -58, -46, null);
-    imagePlane(texFar, 34, -60, -62, { opacity: 0.8 });
-    // 7 北邙山：赭石圆顶丘陵 + 松柏（倒影）
-    shadowBlob(50, 40, 13);
-    imagePlane(inkTex["mtn-dome-ochre.png"], 38, 50, 44, { stretch: 0.75, reflect: true });
-    imagePlane(texShore, 24, 38, 34, { ry: 0.3, stretch: 0.7, opacity: 0.85 });
-    // 北邙松柏：苍虬老松 + 虬曲松 环侍圆丘（真素材 + 十字交叉面片）
-    imagePlane(inkTex["pine-3.jpg"], 5.5, 50, 36, null);
-    imagePlane(inkTex["pine-1.jpg"], 4, 41, 40, null);
-    // 岸芷汀兰：柳与芦苇（真素材）
-    imagePlane(texWillow, 7, 24, 8, { ry: 0.4 });
-    imagePlane(texWillow, 6, -20, 10, { ry: -0.5 });
-    imagePlane(texReed, 5, 8, 9, { opacity: 0.9 });
-    imagePlane(texReed, 4.5, -64, 6, { ry: 0.3 });
-    imagePlane(texReed, 4.5, 58, -4, { ry: -0.3 });
-    // 月与雁
-    var moon = new THREE.Sprite(new THREE.SpriteMaterial({ map: toTex(moonTex()), transparent: true, opacity: 0.75, depthWrite: false }));
-    moon.scale.set(9, 9, 1); moon.position.set(-26, 26, -52); scene.add(moon);
-    var birds = new THREE.Sprite(new THREE.SpriteMaterial({ map: toTex(birdsTex()), transparent: true, opacity: 0.6, depthWrite: false }));
-    birds.scale.set(5, 2.5, 1); birds.position.set(12, 18, -20); scene.add(birds);
-    // 月光水路：海面月影，随波明灭
-    var moonColTex = toTex((function () {
-      var c = cnv(128, 256), x = c.getContext("2d");
-      x.save(); x.translate(64, 128); x.scale(1, 2.2);
-      var g = x.createRadialGradient(0, 0, 2, 0, 0, 60);
-      g.addColorStop(0, "rgba(240,234,208,0.55)"); g.addColorStop(0.5, "rgba(240,234,208,0.18)"); g.addColorStop(1, "rgba(240,234,208,0)");
-      x.fillStyle = g; x.beginPath(); x.arc(0, 0, 60, 0, 6.283); x.fill(); x.restore();
-      return c;
-    })());
-    var moonCol = new THREE.Mesh(new THREE.PlaneGeometry(6.5, 24), new THREE.MeshBasicMaterial({ map: moonColTex, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0.5 }));
-    moonCol.rotation.x = -Math.PI / 2; moonCol.position.set(-26, 0.07, -38); moonCol.renderOrder = 1; scene.add(moonCol);
-
-    // 江面波纹（云海之间的水面暗示）
-    var waterTexA = toTex(rippleTex(true));
-    waterTexA.wrapS = waterTexA.wrapT = THREE.RepeatWrapping; waterTexA.repeat.set(5, 1);
-    var waterTexB = toTex(rippleTex(true));
-    waterTexB.wrapS = waterTexB.wrapT = THREE.RepeatWrapping; waterTexB.repeat.set(3, 1);
-    var waterA = new THREE.Mesh(new THREE.PlaneGeometry(150, 14), new THREE.MeshBasicMaterial({ map: waterTexA, transparent: true, opacity: 0.3, depthWrite: false }));
-    waterA.rotation.x = -Math.PI / 2; waterA.position.set(6, 0.06, 0); scene.add(waterA);
-    var waterB = new THREE.Mesh(new THREE.PlaneGeometry(110, 18), new THREE.MeshBasicMaterial({ map: waterTexB, transparent: true, opacity: 0.2, depthWrite: false }));
-    waterB.rotation.x = -Math.PI / 2; waterB.position.set(-10, 0.05, 5); scene.add(waterB);
-    // 云影：大片淡墨影子掠过水面（光影呼吸感）
-    var cshadows = [];
-    [[-52, -16, 40, 24, 1.0], [-8, 18, 46, 26, 1.35], [26, -34, 38, 22, 0.8], [58, 8, 42, 24, 1.1]].forEach(function (s) {
-      var cs = new THREE.Mesh(new THREE.PlaneGeometry(s[2], s[3]), new THREE.MeshBasicMaterial({ map: toTex(blobTex()), transparent: true, opacity: 0.075, color: 0x57503e, depthWrite: false }));
-      cs.rotation.x = -Math.PI / 2;
-      cs.position.set(s[0], 0.04, s[1]);
-      cs.userData.v = s[4];
-      scene.add(cs); cshadows.push(cs);
-    });
-
-    // 浮墨微尘：空气中漂浮的淡墨颗粒（呼吸感）
-    var moteGeo = new THREE.BufferGeometry();
-    var mN = 90, mPos = new Float32Array(mN * 3), mSeed = new Float32Array(mN);
-    for (var mi = 0; mi < mN; mi++) {
-      mPos[mi * 3] = -85 + Math.random() * 170;
-      mPos[mi * 3 + 1] = 0.6 + Math.random() * 15;
-      mPos[mi * 3 + 2] = -85 + Math.random() * 170;
-      mSeed[mi] = Math.random() * 6.283;
-    }
-    moteGeo.setAttribute("position", new THREE.BufferAttribute(mPos, 3));
-    var motes = new THREE.Points(moteGeo, new THREE.PointsMaterial({
-      map: toTex((function () {
-        var c = cnv(32, 32), x = c.getContext("2d");
-        var g = x.createRadialGradient(16, 16, 1, 16, 16, 15);
-        g.addColorStop(0, "rgba(87,80,62,0.95)"); g.addColorStop(1, "rgba(87,80,62,0)");
-        x.fillStyle = g; x.fillRect(0, 0, 32, 32); return c;
-      })()),
-      transparent: true, opacity: 0.16, size: 0.55, sizeAttenuation: true, depthWrite: false, color: 0x57503e
-    }));
-    scene.add(motes);
-
-    // 疏雨：细雨丝斜落（雨场跟随相机回绕，近观也保持密度）
-    var rain = null;
-    if (!reduced) {
-      var rN = 900, rPos = new Float32Array(rN * 6), rData = [], rSpd = new Float32Array(rN);
-      for (var ri = 0; ri < rN; ri++) {
-        rData.push({ x: -95 + Math.random() * 190, y: Math.random() * 46, z: -95 + Math.random() * 190, len: 1.5 + Math.random() * 1.2 });
-        rSpd[ri] = 24 + Math.random() * 8;
-      }
-      var rainGeo = new THREE.BufferGeometry();
-      rainGeo.setAttribute("position", new THREE.BufferAttribute(rPos, 3));
-      rain = new THREE.LineSegments(rainGeo, new THREE.LineBasicMaterial({ color: 0x8a8170, transparent: true, opacity: 0.26, depthWrite: false }));
-      rain.renderOrder = 2;
-      rain.userData = { data: rData, spd: rSpd };
-      scene.add(rain);
-    }
-
-    // 全景朱砂点：全景机位下浮现的场景内互动点，点按飞往各站
-    var markTex = toTex((function () {
-      var c = cnv(64, 64), x = c.getContext("2d");
-      var g = x.createRadialGradient(32, 32, 2, 32, 32, 30);
-      g.addColorStop(0, "rgba(176,64,46,0.95)"); g.addColorStop(0.38, "rgba(158,52,38,0.85)");
-      g.addColorStop(0.55, "rgba(158,52,38,0.28)"); g.addColorStop(1, "rgba(158,52,38,0)");
-      x.fillStyle = g; x.beginPath(); x.arc(32, 32, 30, 0, 6.283); x.fill();
-      x.strokeStyle = "rgba(94,30,22,0.9)"; x.lineWidth = 2.5;
-      x.beginPath(); x.arc(32, 32, 12.5, 0, 6.283); x.stroke();
-      x.fillStyle = "rgba(216,124,102,0.95)"; x.beginPath(); x.arc(29, 29, 4, 0, 6.283); x.fill();
-      return c;
-    })());
-    var markers = [], nameSprites = [];
-    [["jinling", -26, -24, "金陵"], ["zhongshan", -10, -28, "钟山"], ["hongzhou", -46, 20, "洪州"], ["caishi", 20, -9, "采石矶"],
-     ["jiangzhou", 34, 1, "江舟"], ["bianjing", -58, -46, "汴京"], ["beimang", 50, 40, "北邙山"]].forEach(function (s) {
-      var sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: markTex, transparent: true, opacity: 0, depthWrite: false, fog: false }));
-      sp.position.set(s[1], 1.0, s[2]);
-      sp.scale.set(2.3, 2.3, 1);
-      sp.userData.key = s[0]; sp.userData.ph = Math.random() * 6.283;
-      scene.add(sp); markers.push(sp);
-      // 站名（鸿雷行书）：悬于朱砂点上方，随点同现同隐；字体就绪后重绘避免回退字形
-      var nc = cnv(256, 80);
-      var nsp = new THREE.Sprite(new THREE.SpriteMaterial({ transparent: true, opacity: 0, depthWrite: false, fog: false }));
-      function drawName() {
-        var nx = nc.getContext("2d");
-        nx.clearRect(0, 0, 256, 80);
-        nx.font = "52px 'HongLei Calligraphy', serif";
-        nx.textAlign = "center"; nx.textBaseline = "middle";
-        nx.shadowColor = "rgba(233,227,203,0.85)"; nx.shadowBlur = 5;
-        nx.fillStyle = "rgba(142,50,38,0.95)";
-        nx.fillText(s[3], 128, 44);
-        nsp.material.map = new THREE.CanvasTexture(nc);
-        nsp.material.needsUpdate = true;
-      }
-      drawName();
-      nsp.userData.key = s[0]; nsp.userData.redraw = drawName;
-      nsp.position.set(s[1], 2.75, s[2]);
-      nsp.scale.set(3.0, 0.94, 1);
-      scene.add(nsp); nameSprites.push(nsp);
-    });
-    if (document.fonts && document.fonts.load) {
-      document.fonts.load("52px 'HongLei Calligraphy'").then(function () {
-        nameSprites.forEach(function (n) { n.userData.redraw(); });
-      }).catch(function () { });
-    }
-    window.__mapDebug = { camera: camera, markers: markers, nameSprites: nameSprites }; // 供自动化测试定位点击
-
-    // 宣纸颗粒层：multiply 叠加细噪（纸本质感，静态一次生成）
-    (function () {
-      var gEl = document.getElementById("paperGrain");
-      if (!gEl) return;
-      var c = cnv(160, 160), x = c.getContext("2d"), im = x.createImageData(160, 160), d = im.data;
-      for (var i = 0; i < d.length; i += 4) {
-        var v = 232 + Math.random() * 23;
-        d[i] = v; d[i + 1] = v - 3; d[i + 2] = v - 9;
-        d[i + 3] = 12 + Math.random() * 28;
-      }
-      x.putImageData(im, 0, 0);
-      gEl.style.backgroundImage = "url(" + c.toDataURL() + ")";
-    })();
-
-    // 云海：低层铺谷白云 + 高层薄纱（黑底云素材拆片，向东缓漂）
-    var mists = [];
-    [[16, -62, -20, 0.3, 0.8, 0], [13, -30, 6, 0.6, 0.75, 1], [18, 6, -30, 0.4, 0.85, 0],
-     [12, 30, 10, 0.7, 0.7, 1], [15, 58, -14, 0.5, 0.8, 0], [14, -10, 24, 0.8, 0.75, 0],
-     [17, 44, 26, 0.6, 0.8, 1], [12, -48, 34, 0.9, 0.7, 0], [16, 20, -52, 0.5, 0.75, 0],
-     [13, -20, -56, 0.7, 0.7, 1], [15, 68, 18, 0.6, 0.75, 0], [14, -66, -44, 0.5, 0.7, 0],
-     [12, 2, 40, 0.8, 0.65, 1], [13, -38, -6, 0.5, 0.8, 0]].forEach(function (s, i) {
-      var m = imagePlane(s[5] ? cloudTexB : cloudTexA, s[0], s[1], s[2], { y: s[3], ry: (i % 5 - 2) * 0.09, opacity: s[4] });
-      m.userData.v = 0.35 + (i % 5) * 0.16;
-      mists.push(m);
-    });
-    // 高空薄纱云
-    [[-40, -60, 9], [0, -80, 12], [44, -40, 10], [-20, 60, 11], [30, 48, 9], [62, -8, 13]].forEach(function (s, i) {
-      var m = imagePlane(cloudTexB, 22 + (i % 3) * 5, s[0], s[1], { y: s[2], opacity: 0.32 });
-      m.userData.v = 0.25 + (i % 4) * 0.1;
-      mists.push(m);
-    });
-
-    /* ---------- 八组相机镜头坐标 ---------- */
-    var VIEWS = {
-      jinling:   { pos: [-30, 6.8, -1],  tgt: [-30, 4.8, -14] },
-      zhongshan: { pos: [-8, 7.1, -6],   tgt: [-8, 5, -24] },
-      hongzhou:  { pos: [-39, 3.6, 8],   tgt: [-46, 4, 20] },
-      caishi:    { pos: [20, 6.5, 4],    tgt: [20, 4.5, -9] },
-      jiangzhou: { pos: [34, 4.0, 13],   tgt: [34, 2, 1] },
-      bianjing:  { pos: [-58, 5.2, -33], tgt: [-58, 3.2, -46] },
-      beimang:   { pos: [45.5, 5.2, 25], tgt: [45.5, 3.2, 38] },
-      overview:  { pos: [69, 74, 126],   tgt: [-2, 1, -4] }
-    };
-
-    /* ---------- 自制轨道控制 + 镜头飞行 ---------- */
-    var ctl = { tgt: new THREE.Vector3(), r: 60, theta: 0, phi: 0.9, dTgt: new THREE.Vector3(), dR: 60, dTheta: 0, dPhi: 0.9 };
-    var fly = null;
-    function applyCamera() {
-      var sph = new THREE.Spherical(ctl.r, THREE.MathUtils.clamp(ctl.phi, 0.12, 1.42), ctl.theta);
-      var off = new THREE.Vector3().setFromSpherical(sph);
-      camera.position.copy(ctl.tgt).add(off);
-      camera.lookAt(ctl.tgt);
-    }
-    function setFromView(v) {
-      ctl.dTgt.set(v.tgt[0], v.tgt[1], v.tgt[2]);
-      var off = new THREE.Vector3(v.pos[0] - v.tgt[0], v.pos[1] - v.tgt[1], v.pos[2] - v.tgt[2]);
-      var sph = new THREE.Spherical().setFromVector3(off);
-      ctl.dR = sph.radius; ctl.dTheta = sph.theta; ctl.dPhi = sph.phi;
-      ctl.tgt.copy(ctl.dTgt); ctl.r = ctl.dR; ctl.theta = ctl.dTheta; ctl.phi = ctl.dPhi;
-      applyCamera();
-    }
-    setFromView(VIEWS.overview);
-    var inkPulse = document.getElementById("inkPulse");
-    function flyTo(key, dur) {
-      var v = VIEWS[key]; if (!v) return;
-      var tgt1 = new THREE.Vector3(v.tgt[0], v.tgt[1], v.tgt[2]);
-      var sph1 = new THREE.Spherical().setFromVector3(new THREE.Vector3(v.pos[0] - v.tgt[0], v.pos[1] - v.tgt[1], v.pos[2] - v.tgt[2]));
-      // 电影化运镜：距离/方位/俯仰/目标点全程球面插值（theta 走最短弧），
-      // 中段叠加吊臂升摇（升高 + 拉远）与广角呼吸——钟形包络起落两端为零，落定仍是固定机位、无跳变
-      var dTh = sph1.theta - ctl.theta;
-      dTh = ((dTh + Math.PI) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2) - Math.PI;
-      var dist = ctl.tgt.distanceTo(tgt1) + Math.abs(sph1.radius - ctl.r);
-      fly = {
-        t0: ctl.tgt.clone(), t1: tgt1,
-        r0: ctl.r, r1: sph1.radius,
-        th0: ctl.theta, dTh: dTh,
-        ph0: THREE.MathUtils.clamp(ctl.phi, 0.12, 1.42), ph1: THREE.MathUtils.clamp(sph1.phi, 0.12, 1.42),
-        lift: Math.min(0.3, 0.07 + dist * 0.004),   // 中段吊臂升高（phi 减小 = 机位抬升）
-        sweep: Math.min(16, dist * 0.18),           // 中段拉远横扫
-        fovAmp: Math.min(6, 2 + dist * 0.035),      // 中段广角呼吸（眩晕感）
-        start: performance.now(), dur: reduced ? 0 : (dur || THREE.MathUtils.clamp(1400 + dist * 30, 1800, 3400))
-      };
-    }
-    function ease(k) { return k < 0.5 ? 16 * k * k * k * k * k : 1 - Math.pow(-2 * k + 2, 5) / 2; }
-    var dragging = 0, lastX = 0, lastY = 0, hinted = false, downX = 0, downY = 0, tapOk = false;
-    var dom = renderer.domElement;
-    dom.addEventListener("contextmenu", function (e) { e.preventDefault(); });
-    dom.addEventListener("pointerdown", function (e) {
-      downX = e.clientX; downY = e.clientY; tapOk = !fly;
-      if (fly) return;
-      dragging = e.button === 2 || e.shiftKey ? 2 : 1;
-      lastX = e.clientX; lastY = e.clientY;
-      try { dom.setPointerCapture(e.pointerId); } catch (err) { }
-      hideHint();
-    });
-    dom.addEventListener("pointermove", function (e) {
-      if (!dragging || fly) {
-        // 悬停朱砂点：指针示意可点
-        if (!dragging && !fly) dom.style.cursor = (curKey === "overview" && pickMarker(e)) ? "pointer" : "";
-        return;
-      }
-      // 已禁用手动旋转/平移：拖拽仅作点击判定（位移小于 6px 视为一次点按），镜头只随点位 / 时间指引切换
-    });
-    function endDrag(e) {
-      if (dragging === 1 && tapOk && e && Math.abs(e.clientX - downX) < 6 && Math.abs(e.clientY - downY) < 6) {
-        var m = pickMarker(e);
-        if (m) go(m.userData.key); // 全景里点朱砂点 → 飞往该站
-      }
-      dragging = 0;
-    }
-    var ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
-    function pickMarker(e) {
-      if (!markers.length) return null;
-      var r = dom.getBoundingClientRect();
-      if (!r.width || !r.height) return null;
-      ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
-      ray.setFromCamera(ndc, camera);
-      var hits = ray.intersectObjects(markers.concat(nameSprites).filter(function (m) { return m.material.opacity > 0.25; }));
-      return hits.length ? hits[0].object : null;
-    }
-    dom.addEventListener("pointerup", endDrag);
-    dom.addEventListener("pointercancel", endDrag);
-
-    /* ---------- 点位与笺卡 ---------- */
-    var SPOTS = {
-      jinling: { name: "金陵", tag: "南唐都城", now: "今 · 江苏南京",
-        events: [
-          ["937", "七夕之夜生于金陵宫苑，初名从嘉——丰额骈齿、一目重瞳，宫中以为奇相；数月后祖父受禅开国，他便生在江南最锦绣的岁月里"],
-          ["954", "十八岁迎娶周宗长女娥皇；她通书史、善音律，夫妇重订《霓裳羽衣》残谱，雪夜宴饮、红袖添香——词里尽是「烂嚼红茸」的明快"],
-          ["959", "长兄太子弘冀鸩杀叔父景遂，数月后惊惧暴卒；储位之疑一夜消散，最无意争位的第六子，被命运推向台前"],
-          ["961", "中主迁都洪州后忧愤病逝；二十五岁的李煜留金陵监国，旋即柩前即位——接过的却是岁贡称臣、北面而事的江南残局"],
-          ["975", "曹彬大军围城经年，城中斗米千金；十一月城破，肉袒出降——辞太庙、别宫娥，四十年来家国一朝画上句点"]],
-        word: "《破阵子》 四十年来家国，三千里地山河。" },
-      zhongshan: { name: "钟山", tag: "少年隐读", now: "金陵城北 · 今紫金山",
-        events: [
-          ["约953—959", "长兄太子弘冀性严猜忌，为避锋芒自号「钟隐」「莲峰居士」，隐读钟山经籍、不预政事——翰墨诗酒之间，反得几年安稳"],
-          ["约957", "山林舟楫之间作《渔父》二首：「浪花有意千里雪，桃李无言一队春」——一壶酒、一竿身，快活之愿写于尚可快活的年纪"],
-          ["975", "宋军破城，宫苑付之一炬；当年避世的钟山林泉，从此只在一个囚徒的梦里重现"]],
-        word: "《渔父》 一壶酒，一竿身，快活如侬有几人。" },
-      hongzhou: { name: "洪州", tag: "南唐南都", now: "今 · 江西南昌",
-        events: [
-          ["959", "后周世宗三征淮南，江北十四州尽没；金陵临江无险可守，中主议迁都以避兵锋"],
-          ["961", "二月中主率六军溯江迁都；至则城邑迫陋、宫室湫隘，君臣悔叹，六月忧愤病逝于此——太子煜留金陵监国"],
-          ["961", "李煜即位仍以洪州为南都，后改南昌府；然北廷日强、贡赋日重，江南国势已如累卵"],
-          ["975", "金陵城破、国主北迁，洪州终未成南唐的避风之港——「南都」二字，随之一起写入旧史"]],
-        word: "《浣溪沙》 欲寻陈迹怅人非，天教心愿与身违。" },
-      caishi: { name: "采石矶", tag: "江防要冲", now: "今 · 安徽马鞍山",
-        events: [
-          ["973", "宋使屡促入朝，李煜称疾固辞、卑辞厚贡以缓兵期；暗增水军、沿江戒备——两头都抓，两头都迟"],
-          ["974", "落第书生樊若水献策宋廷，假托钓鱼、以丝绳往返测得矶前江面宽度——「天险可越」自此有了图纸"],
-          ["974", "冬，宋军大举渡江，巨舰相连、铺竹为筏，浮桥横跨采石江面；曹彬、潘美大军踏桥而过，如履平地"],
-          ["975", "天险既失，金陵顿成孤城；围城一载、援绝粮尽，终以城破国灭收场"]],
-        word: "《乌夜啼》 世事漫随流水，算来一梦浮生。" },
-      jiangzhou: { name: "江舟", tag: "辞庙北上", now: "长江 · 975 年冬",
-        events: [
-          ["975", "十一月廿七日城破，率百官肉袒出降；立国三十九年的南唐，就此谢幕"],
-          ["975", "十二月辞庙登舟北上，教坊犹奏别离歌、宫娥挥泪相送——一叶囚舟载着四十年家国的记忆，驶向未知的北方"],
-          ["976", "正月，囚舟抵汴京；江南的春水烟雨自此只在梦里——「梦里不知身是客，一晌贪欢」"]],
-        word: "《浪淘沙令》 梦里不知身是客，一晌贪欢。" },
-      bianjing: { name: "汴京", tag: "违命侯岁月", now: "今 · 河南开封",
-        events: [
-          ["976", "正月抵汴，太祖赦而不杀，封「违命侯」、赐居汴城——一生风雅的江南国主，终以「违命」二字名世"],
-          ["976", "十月太祖崩、太宗即位；次年去恶号、改封陇西公——名分稍改，囚居之实未变"],
-          ["977—978", "深院梧桐、秋月如钩，故国山川只在梦中重现；与旧臣书自言「此中日夕，只以眼泪洗面」——而词，恰于泪中登峰造极"],
-          ["978", "七夕四十二岁生辰，与故臣小酌、命歌伎奏新词《虞美人》，「一江春水」声闻于外；是夜暴卒，世传赐牵机药——词成而人逝"]],
-        word: "《虞美人》 问君能有几多愁？恰似一江春水向东流。" },
-      beimang: { name: "北邙山", tag: "词心不朽", now: "洛阳之北 · 长眠之所",
-        events: [
-          ["978", "太宗辍朝三日，追封吴王，以王礼葬于洛阳北邙山——四十二年的浮沉，归于一抔北邙黄土"],
-          ["978", "小周后扶柩恸哭、哀毁骨立，未几亦逝，相继归葬北邙——夫妻同穴，国恨同眠"],
-          ["978", "江南旧臣设奠遥祭，徐铉奉诏撰墓志；生于七夕、死于七夕——词的句读与人生的句读，同时画上"],
-          ["后世", "千年之下词名愈盛：王国维谓其「变伶工之词而为士大夫之词」，又叹「后主之词，真所谓以血书者也」——北邙土冷，词心不冷"]],
-        word: "《浪淘沙令》 流水落花春去也，天上人间。" },
-      overview: { name: "全景", tag: "三千里地山河", now: "南唐疆域 · 写意",
-        events: [
-          ["937—961", "从金陵宫苑的锦衣重瞳，到柩前仓促即位的江南国主——才华与江山，自此同负一身"],
-          ["961—975", "十四年称臣纳贡、卑辞厚币，去号降仪也换不来一纸平安；三千里地山河，终究挡不住一道浮桥"],
-          ["975—978", "北迁囚居、以泪洗面，却把花间的伶工之词，淬成「以血书者」的千古绝唱"],
-          ["937—978", "生于七夕、死于七夕，四十一年走完从帝王到词宗的一生——「国家不幸诗家幸」，他是最痛的注脚"]],
-        word: "《破阵子》 四十年来家国，三千里地山河。" }
-    };
-    var curKey = "overview"; // 当前站点：朱砂点只在全景浮现
-    var popup = document.getElementById("inkPopup");
-    var popupDefault = popup.querySelector("[data-popup-default]");
-    var popupDetail = popup.querySelector("[data-popup-detail]");
-    var dotBtns = Array.prototype.slice.call(document.querySelectorAll(".dot-btn"));
-    function showSpot(key) {
-      var spot = SPOTS[key]; if (!spot) return;
-      popupDefault.hidden = true; popupDetail.hidden = false; popup.hidden = false;
-      popupDetail.querySelector("[data-spot-era]").textContent = spot.tag;
-      popupDetail.querySelector("[data-spot-name]").textContent = spot.name;
-      popupDetail.querySelector("[data-spot-now]").textContent = spot.now;
-      var list = popupDetail.querySelector("[data-spot-events]");
-      list.innerHTML = "";
-      spot.events.forEach(function (ev) {
-        var li = document.createElement("li");
-        var b = document.createElement("b"); b.textContent = ev[0];
-        li.appendChild(b); li.appendChild(document.createTextNode(ev[1]));
-        list.appendChild(li);
-      });
-      popupDetail.querySelector("[data-spot-word]").textContent = spot.word;
-    }
-    function go(key) {
-      curKey = key;
-      dotBtns.forEach(function (d) { d.classList.toggle("is-active", d.dataset.go === key); });
-      var ti = TOUR.indexOf(key); if (ti >= 0) tourIdx = ti; // 时间指引同步（TOUR 在下方初始化，点击时必已就绪）
-      flyTo(key);
-      showSpot(key);
-      tourSync();
-    }
-    dotBtns.forEach(function (d) { d.addEventListener("click", function () { go(d.dataset.go); }); });
-    popup.querySelector(".popup-close").addEventListener("click", function () {
-      popup.hidden = true;
-      popupDefault.hidden = false; popupDetail.hidden = true;
-      dotBtns.forEach(function (d) { d.classList.remove("is-active"); });
-    });
-    document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape" && !popup.hidden) {
-        popup.hidden = true; popupDefault.hidden = false; popupDetail.hidden = true;
-      }
-    });
-    /* ---------- 时间指引：按年顺游（下一步看哪里的故事） ---------- */
-    // 年份顺序与右栏站点键一一对应；tourIdx 记当前进度（-1 表示还在全景、尚未起卷）
-    var TOUR = ["jinling", "zhongshan", "hongzhou", "caishi", "jiangzhou", "bianjing", "beimang"];
-    var tourBox = document.getElementById("tourGuide");
-    var tourNodes = tourBox ? Array.prototype.slice.call(tourBox.querySelectorAll(".tour-node")) : [];
-    var tourPrev = tourBox ? tourBox.querySelector(".tour-prev") : null;
-    var tourNext = tourBox ? tourBox.querySelector(".tour-next") : null;
-    var tourIdx = -1; // -1 = 尚未起卷（全景）
-    function tourSync() {
-      if (!tourBox) return;
-      tourNodes.forEach(function (n, i) {
-        n.classList.toggle("is-active", i === tourIdx);
-        n.classList.toggle("is-done", tourIdx >= 0 && i < tourIdx);
-      });
-      if (tourPrev) tourPrev.disabled = tourIdx <= 0;
-      if (tourNext) tourNext.innerHTML = tourIdx >= TOUR.length - 1 ? "再游一遍 ⟶" : "下一站 ⟶";
-    }
-    tourNodes.forEach(function (n) {
-      n.addEventListener("click", function () { tourIdx = TOUR.indexOf(n.dataset.go); go(n.dataset.go); tourSync(); });
-    });
-    if (tourPrev) tourPrev.addEventListener("click", function () {
-      if (tourIdx > 0) { tourIdx--; go(TOUR[tourIdx]); tourSync(); }
-    });
-    if (tourNext) tourNext.addEventListener("click", function () {
-      if (tourIdx >= TOUR.length - 1) { tourIdx = 0; go(TOUR[0]); tourSync(); return; }
-      if (tourIdx < 0) tourIdx = 0; else tourIdx++;
-      go(TOUR[tourIdx]); tourSync();
-    });
-    tourSync(); // 初始态：未起卷时「上一站」禁用
-
-    var hint = document.getElementById("stageHint");
-    function hideHint() { if (!hinted && hint) { hinted = true; hint.classList.add("is-hidden"); } }
-
-    /* ---------- 渲染循环 ---------- */
-    var clock = new THREE.Clock();
-    function animate() {
-      requestAnimationFrame(animate);
-      var dt = Math.min(clock.getDelta(), 0.05);
-      var t = clock.elapsedTime;
-      try {
-      if (fly) {
-        var k = fly.dur ? Math.min((performance.now() - fly.start) / fly.dur, 1) : 1;
-        var ek = ease(k);
-        var bell = Math.sin(Math.PI * k); bell *= bell; // 钟形包络：中段满幅，起落两端归零
-        ctl.tgt.lerpVectors(fly.t0, fly.t1, ek);
-        ctl.r = fly.r0 + (fly.r1 - fly.r0) * ek + fly.sweep * bell;
-        ctl.theta = fly.th0 + fly.dTh * ek;
-        ctl.phi = THREE.MathUtils.clamp(fly.ph0 + (fly.ph1 - fly.ph0) * ek - fly.lift * bell, 0.12, 1.42);
-        camera.fov = 46 + fly.fovAmp * bell; camera.updateProjectionMatrix();
-        applyCamera();
-        if (k >= 1) {
-          ctl.dR = ctl.r; ctl.dTheta = ctl.theta; ctl.dPhi = ctl.phi; ctl.dTgt.copy(ctl.tgt);
-          camera.fov = 46; camera.updateProjectionMatrix();
-          fly = null;
-          if (inkPulse && inkPulse.animate) inkPulse.animate([{ opacity: 0.16 }, { opacity: 0 }], { duration: 700, easing: "ease-out" }); // 墨韵收笔
-        }
-      } else {
-        ctl.tgt.lerp(ctl.dTgt, 0.1);
-        ctl.r += (ctl.dR - ctl.r) * 0.1;
-        ctl.theta += (ctl.dTheta - ctl.theta) * 0.12;
-        ctl.phi += (ctl.dPhi - ctl.phi) * 0.12;
-        applyCamera();
-      }
-      if (!reduced) {
-        seaMat.uniforms.uTime.value = t;
-        waterTexA.offset.x += dt * 0.02;
-        waterTexB.offset.x -= dt * 0.012;
-        mists.forEach(function (sp) {
-          sp.position.x += sp.userData.v * dt;
-          if (sp.position.x > 82) sp.position.x = -82;
-        });
-        cshadows.forEach(function (cs) {
-          cs.position.x += cs.userData.v * dt;
-          if (cs.position.x > 62) cs.position.x = -62; // 水面收边后，云影同步收在水面内
-        });
-        var mp = moteGeo.attributes.position.array;
-        for (var mi2 = 0; mi2 < mN; mi2++) {
-          mp[mi2 * 3] += dt * (0.45 + (mi2 % 5) * 0.15);
-          mp[mi2 * 3 + 1] += Math.sin(t * 0.5 + mSeed[mi2]) * dt * 0.2;
-          if (mp[mi2 * 3] > 88) mp[mi2 * 3] = -88;
-        }
-        moteGeo.attributes.position.needsUpdate = true;
-        sway.forEach(function (s) {
-          s.m.rotation.z = Math.sin(t * 0.6 + s.p) * s.a;
-        });
-        if (moonCol) moonCol.material.opacity = 0.42 + Math.sin(t * 1.3) * 0.1 + Math.sin(t * 3.7) * 0.05;
-        if (boat.userData.baseY !== undefined) boat.position.y = boat.userData.baseY + Math.sin(t * 1.4) * 0.06;
-      }
-      // 疏雨：雨丝下落 + 侧风斜飘；雨场随相机回绕（相机周围 ±60 内常驻 900 条，近观不稀）
-      if (rain) {
-        var rp = rain.geometry.attributes.position.array, rd = rain.userData.data, rs = rain.userData.spd;
-        var rcx = camera.position.x, rcz = camera.position.z, RB = 60, RB2 = 120;
-        for (var ri2 = 0; ri2 < rd.length; ri2++) {
-          var rd0 = rd[ri2];
-          rd0.y -= rs[ri2] * dt;
-          if (rd0.y < 0) { rd0.y += 46; rd0.x = rcx - RB + Math.random() * RB2; rd0.z = rcz - RB + Math.random() * RB2; }
-          if (rd0.x < rcx - RB) rd0.x += RB2; else if (rd0.x > rcx + RB) rd0.x -= RB2;
-          if (rd0.z < rcz - RB) rd0.z += RB2; else if (rd0.z > rcz + RB) rd0.z -= RB2;
-          rp[ri2 * 6] = rd0.x; rp[ri2 * 6 + 1] = rd0.y; rp[ri2 * 6 + 2] = rd0.z;
-          rp[ri2 * 6 + 3] = rd0.x + 0.38; rp[ri2 * 6 + 4] = rd0.y + rd0.len; rp[ri2 * 6 + 5] = rd0.z;
-        }
-        rain.geometry.attributes.position.needsUpdate = true;
-      }
-      // 朱砂点：全景时浮现呼吸，飞行/景点机位时隐去；远处按距离向雾气淡出（雾 far=135 外不硬消失）
-      var mkT = (fly || curKey !== "overview") ? 0 : 0.9;
-      markers.forEach(function (m, i) {
-        var fk = THREE.MathUtils.clamp(1 - (camera.position.distanceTo(m.position) - 55) / 150, 0.4, 1);
-        m.material.opacity += (mkT * fk - m.material.opacity) * Math.min(1, dt * 4.5);
-        m.visible = m.material.opacity > 0.02;
-        var pu = reduced ? 2.3 : 2.3 * (1 + Math.sin(t * 1.8 + m.userData.ph) * 0.07);
-        m.scale.set(pu, pu, 1);
-        var ns = nameSprites[i];
-        if (ns) { ns.material.opacity = m.material.opacity * 0.95; ns.visible = m.visible; }
-      });
-      if (postScene) {
-        renderer.setRenderTarget(rt);
-        renderer.render(scene, camera);
-        renderer.setRenderTarget(null);
-        renderer.render(postScene, postCam);
-      } else renderer.render(scene, camera);
-      } catch (err) {
-        // 渲染循环绝不允许死掉：异常拦截 + 释放 fly（fly 卡死会永久锁死拖拽）
-        if (!window.__mapErr) { window.__mapErr = err; console.error("[水墨行迹] 渲染循环异常（已拦截并继续）:", err); }
-        fly = null;
-        camera.fov = 46; camera.updateProjectionMatrix();
-      }
-    }
-    resize();
-    animate();
-    dotBtns[7].classList.add("is-active");
-  })();
-  </script>
-</body></html>
+ 271→      "}"
+ 272→    ].join("\n");
+ 273→    var waterFrag = [
+ 274→      "uniform float uTime;",
+ 275→      "uniform vec3 uFogColor;",
+ 276→      "uniform float uFogNear;",
+ 277→      "uniform float uFogFar;",
+ 278→      "varying vec3 vWorld;",
+ 279→      "float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }",
+ 280→      "float noise(vec2 p){",
+ 281→      "  vec2 i = floor(p); vec2 f = fract(p);",
+ 282→      "  f = f * f * (3.0 - 2.0 * f);",
+ 283→      "  return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x),",
+ 284→      "             mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x), f.y);",
+ 285→      "}",
+ 286→      "float field(vec2 p){",
+ 287→      "  return noise(p) * 0.6 + noise(p * 2.3) * 0.3 + noise(p * 4.9) * 0.1;",
+ 288→      "}",
+ 289→      "void main(){",
+ 290→      "  float t = uTime;",
+ 291→      "  vec2 o1 = vWorld.xz * 0.32 + vec2(t * 0.055, t * 0.021);",
+ 292→      "  vec2 o2 = vWorld.xz * 0.85 + vec2(-t * 0.042, t * 0.028);",
+ 293→      "  float e = 0.14;",
+ 294→      "  float w0 = field(o1);",
+ 295→      "  vec2 g1 = vec2(field(o1 + vec2(e, 0.0)) - w0, field(o1 + vec2(0.0, e)) - w0) / e;",
+ 296→      "  float w2 = field(o2);",
+ 297→      "  vec2 g2 = vec2(field(o2 + vec2(e, 0.0)) - w2, field(o2 + vec2(0.0, e)) - w2) / e;",
+ 298→      "  vec2 grad = g1 * 0.32 + g2 * 0.10;",
+ 299→      "  vec3 nrm = normalize(vec3(-grad.x, 1.0, -grad.y));",
+ 300→      "  vec3 vdir = normalize(cameraPosition - vWorld);",
+ 301→      "  float fres = pow(1.0 - max(dot(nrm, vdir), 0.0), 3.0);",
+ 302→      "  vec3 deep = vec3(0.204, 0.227, 0.216);",
+ 303→      "  vec3 sky  = vec3(0.416, 0.431, 0.404);",
+ 304→      "  vec3 col = mix(deep, sky, clamp(0.08 + fres * 0.92, 0.0, 1.0));",
+ 305→      "  vec3 L = normalize(vec3(0.35, 0.72, 0.5));",
+ 306→      "  float spec = pow(max(dot(nrm, normalize(L + vdir)), 0.0), 90.0);",
+ 307→      "  col += vec3(0.96, 0.94, 0.87) * spec * 0.5;",
+ 308→      "  float inkF = field(vWorld.xz * 0.045 + vec2(t * 0.012, -t * 0.009) + 7.3);",  // 大尺度缓移墨流
+ 309→      "  col = mix(col, col * vec3(0.86, 0.87, 0.88), smoothstep(0.52, 0.85, inkF) * 0.45);",
+ 310→      "  float fog = smoothstep(uFogNear, uFogFar, distance(cameraPosition, vWorld));",
+ 311→      "  col = mix(col, uFogColor, fog);",
+ 312→      "  gl_FragColor = vec4(col, 0.96);",
+ 313→      "}"
+ 314→    ].join("\n");
+ 315→    var fogUni = { uFogColor: { value: new THREE.Color(0xccc5b3) }, uFogNear: { value: 55 }, uFogFar: { value: 260 } };
+ 316→    var seaMat = new THREE.ShaderMaterial({
+ 317→      uniforms: { uTime: { value: 0 }, uFogColor: fogUni.uFogColor, uFogNear: fogUni.uFogNear, uFogFar: fogUni.uFogFar },
+ 318→      vertexShader: waterVert, fragmentShader: waterFrag,
+ 319→      transparent: true, depthWrite: false
+ 320→    });
+ 321→    var seaGeo = new THREE.PlaneGeometry(172, 172); // 水面收在疆界远山环（±84）以内
+ 322→    var sea = new THREE.Mesh(seaGeo, seaMat);
+ 323→    sea.rotation.x = -Math.PI / 2; sea.renderOrder = -1; scene.add(sea);
+ 324→
+ 325→    // ---------- 陆地：水墨渲染着色器（宣纸底 + 淡墨晕染 + 干笔皴纹 + 海岸浓墨笔描 + 雾） ----------
+ 326→    var landVert = [
+ 327→      "varying vec3 vWorld;",
+ 328→      "varying vec2 vUv;",
+ 329→      "void main(){",
+ 330→      "  vec4 wp = modelMatrix * vec4(position, 1.0);",
+ 331→      "  vWorld = wp.xyz; vUv = uv;",
+ 332→      "  gl_Position = projectionMatrix * viewMatrix * wp;",
+ 333→      "}"
+ 334→    ].join("\n");
+ 335→    var landFrag = [
+ 336→      "uniform vec3 uFogColor;",
+ 337→      "uniform float uFogNear;",
+ 338→      "uniform float uFogFar;",
+ 339→      "uniform float uSeed;",
+ 340→      "varying vec3 vWorld;",
+ 341→      "varying vec2 vUv;",
+ 342→      "float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }",
+ 343→      "float noise(vec2 p){",
+ 344→      "  vec2 i = floor(p); vec2 f = fract(p);",
+ 345→      "  f = f * f * (3.0 - 2.0 * f);",
+ 346→      "  return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x),",
+ 347→      "             mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x), f.y);",
+ 348→      "}",
+ 349→      "float fbm(vec2 p){",
+ 350→      "  return noise(p) * 0.5 + noise(p * 2.1) * 0.3 + noise(p * 4.3) * 0.2;",
+ 351→      "}",
+ 352→      "void main(){",
+ 353→      "  vec2 q = (vUv - 0.5) * 2.0;",
+ 354→      "  float n = fbm(vUv * 3.2 + uSeed);",
+ 355→      "  float r = length(q) * (1.0 + (n - 0.5) * 0.75);",  // 噪声扰动的不规则海岸线
+ 356→      "  float mask = smoothstep(1.0, 0.9, r);",
+ 357→      "  if (mask < 0.01) discard;",
+ 358→      "  float t = fbm(vUv * 5.0 + uSeed * 1.7 + 13.1);",  // 大块墨韵
+ 359→      "  float g = fbm(vUv * 12.0 + uSeed * 2.3 + 41.7);", // 细碎苔点
+ 360→      "  vec3 paper = vec3(0.838, 0.816, 0.748);",        // 宣纸底（略深于雾色）
+ 361→      "  vec3 paleInk = vec3(0.665, 0.652, 0.612);",      // 淡墨
+ 362→      "  vec3 deepInk = vec3(0.357, 0.352, 0.332);",      // 重墨
+ 363→      "  vec3 inkLine = vec3(0.315, 0.308, 0.290);",      // 海岸笔描浓墨
+ 364→      "  vec3 col = paper;",
+ 365→      "  col = mix(col, paleInk, smoothstep(0.40, 0.80, t) * 0.5);",   // 淡墨晕染块面
+ 366→      "  col = mix(col, deepInk, smoothstep(0.66, 0.92, g) * 0.16);",  // 苔点皴擦
+ 367→      "  float streak = fbm(vec2(vUv.x * 26.0, vUv.y * 8.0) + uSeed * 4.7);",
+ 368→      "  col = mix(col, paleInk, smoothstep(0.58, 0.88, streak) * 0.12);", // 干笔横向皴纹
+ 369→      "  float wash = smoothstep(0.68, 0.92, r);",        // 海岸内侧墨色浸染
+ 370→      "  col = mix(col, paleInk * 0.9, wash * 0.4);",
+ 371→      "  float wob = (fbm(vUv * 9.0 + uSeed * 3.1) - 0.5) * 0.09;", // 笔锋抖动
+ 372→      "  float rr = r + wob;",
+ 373→      "  float lineBand = smoothstep(0.83, 0.90, rr) * smoothstep(1.0, 0.94, rr);",
+ 374→      "  col = mix(col, inkLine, lineBand * 0.7);",       // 海岸浓墨笔描，随雾渐散
+ 375→      "  float fog = smoothstep(uFogNear, uFogFar, distance(cameraPosition, vWorld));",
+ 376→      "  col = mix(col, uFogColor, fog);",
+ 377→      "  gl_FragColor = vec4(col, mask * 0.94);",
+ 378→      "}"
+ 379→    ].join("\n");
+ 380→    function landmass(x, z, w, d, seed) {
+ 381→      var m = new THREE.Mesh(new THREE.PlaneGeometry(w, d), new THREE.ShaderMaterial({
+ 382→        uniforms: { uFogColor: fogUni.uFogColor, uFogNear: fogUni.uFogNear, uFogFar: fogUni.uFogFar, uSeed: { value: seed } },
+ 383→        vertexShader: landVert, fragmentShader: landFrag,
+ 384→        transparent: true, depthWrite: false
+ 385→      }));
+ 386→      m.rotation.x = -Math.PI / 2; m.position.set(x, 0.02, z); scene.add(m);
+ 387→    }
+ 388→    // 九块陆地：托住景致与前景岸坡（孤舟、汀州与江防要塞仍在水面）
+ 389→    landmass(-16, -30, 66, 46, 3.1);   // 金陵 · 钟山
+ 390→    landmass(-48, 27, 44, 28, 7.7);    // 洪州
+ 391→    landmass(-59, -52, 26, 20, 17.9);  // 汴京
+ 392→    landmass(45, 39, 38, 24, 23.3);    // 北邙山
+ 393→    landmass(24, 9, 18, 10, 31.7);     // 前景 · 岸坡柳一
+ 394→    landmass(-20, 11, 18, 10, 37.3);   // 前景 · 岸坡柳二
+ 395→    landmass(8, 10, 13, 8, 41.9);      // 前景 · 芦苇滩
+ 396→    landmass(-64, 7, 15, 9, 47.1);     // 前景 · 西芦滩
+ 397→    landmass(58, -3, 15, 9, 53.7);     // 前景 · 东芦滩
+ 398→
+ 399→    // 面片：真素材按原始宽高比立起
+ 400→    var upright = [];
+ 401→    var sway = []; // 风物摇曳：松涛/芦苇/柳/舟楫
+ 402→    // 墨形浮雕几何：把纹理 α 高度场转成单位平面上的正向鼓包（z 以"面宽比例"计，随 mesh.scale.z 缩放）
+ 403→    function reliefGeo(img, depthFrac) {
+ 404→      try {
+ 405→        var gw = 64, gh = Math.max(20, Math.round(64 * img.height / img.width));
+ 406→        var c = cnv(gw, gh), x = c.getContext("2d");
+ 407→        x.drawImage(img, 0, 0, gw, gh);
+ 408→        var d = x.getImageData(0, 0, gw, gh).data;
+ 409→        var a = new Float32Array(gw * gh);
+ 410→        for (var i = 0; i < gw * gh; i++) a[i] = d[i * 4 + 3] / 255;
+ 411→        for (var p = 0; p < 2; p++) { // 两轮 3×3 平滑，防噪点尖刺
+ 412→          var b = new Float32Array(gw * gh);
+ 413→          for (var yy = 0; yy < gh; yy++) for (var xx = 0; xx < gw; xx++) {
+ 414→            var s = 0, n = 0;
+ 415→            for (var dy = -1; dy <= 1; dy++) for (var dx = -1; dx <= 1; dx++) {
+ 416→              var nx = xx + dx, ny = yy + dy;
+ 417→              if (nx < 0 || ny < 0 || nx >= gw || ny >= gh) continue;
+ 418→              s += a[ny * gw + nx]; n++;
+ 419→            }
+ 420→            b[yy * gw + xx] = s / n;
+ 421→          }
+ 422→          a = b;
+ 423→        }
+ 424→        function alphaAt(u, v) { // 双线性采样（v 自下而上，画布行 0 在顶）
+ 425→          var fx = Math.min(gw - 1.001, Math.max(0, u * (gw - 1)));
+ 426→          var fy = Math.min(gh - 1.001, Math.max(0, (1 - v) * (gh - 1)));
+ 427→          var x0 = Math.floor(fx), y0 = Math.floor(fy), tx = fx - x0, ty = fy - y0;
+ 428→          var t = a[y0 * gw + x0] * (1 - tx) + a[y0 * gw + x0 + 1] * tx;
+ 429→          var b2 = a[(y0 + 1) * gw + x0] * (1 - tx) + a[(y0 + 1) * gw + x0 + 1] * tx;
+ 430→          return t * (1 - ty) + b2 * ty;
+ 431→        }
+ 432→        var geo = new THREE.PlaneGeometry(1, 1, 72, 52);
+ 433→        var pos = geo.attributes.position;
+ 434→        for (var vi = 0; vi < pos.count; vi++) pos.setZ(vi, alphaAt(pos.getX(vi) + 0.5, pos.getY(vi) + 0.5) * depthFrac);
+ 435→        pos.needsUpdate = true;
+ 436→        window.__reliefN = (window.__reliefN || 0) + 1;
+ 437→        return geo;
+ 438→      } catch (e) { return null; } // file:// 图片进不了 canvas 时退回平面
+ 439→    }
+ 440→    function imagePlane(tex, w, x, z, opts) {
+ 441→      opts = opts || {};
+ 442→      var isInk = inkList.indexOf(tex) >= 0;
+ 443→      // 墨形浮雕：按 α 鼓出体量（深度表 0 = 平面；opts.relief 可覆盖/false 关闭）
+ 444→      var reliefF = 0;
+ 445→      if (isInk && opts.relief !== false && inkName.get(tex)) reliefF = opts.relief !== undefined ? opts.relief : (inkDepth[inkName.get(tex)] !== undefined ? inkDepth[inkName.get(tex)] : 0.12);
+ 446→      var mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, side: THREE.DoubleSide, depthWrite: false, opacity: opts.opacity || 1, fog: !opts.fogless });
+ 447→      if (reliefF && !inkSoft[inkName.get(tex)]) { mat.depthWrite = true; mat.alphaTest = 0.03; }
+ 448→      // 光影：光自西北来，东侧山体/汀州稍暗（静态烘焙受光差）；山形/汀洲/崖壁压深一档，opts.darken 可覆盖
+ 449→      var lb = 1 - 0.06 * THREE.MathUtils.clamp((x + 70) / 140, 0, 1);
+ 450→      if (inkList.indexOf(tex) >= 0) {
+ 451→        var nm = inkName.get(tex) || "";
+ 452→        var dk = opts.darken !== undefined ? opts.darken : ((/^mtn/.test(nm) || /^isle/.test(nm) || nm === "cliff.jpg") ? 0.65 : 1);
+ 453→        mat.color.setScalar(lb * dk);
+ 454→      }
+ 455→      var mesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), mat);
+ 456→      function fit() {
+ 457→        var img = tex.image;
+ 458→        var asp = img && img.height ? img.height / img.width : 0.3;
+ 459→        mesh.scale.set(w, w * asp * (opts.stretch || 1), reliefF ? w : 1);
+ 460→        mesh.position.set(x, (opts.y || 0) + mesh.scale.y / 2, z);
+ 461→        mesh.userData.baseY = mesh.position.y;
+ 462→        if (reliefF && !mesh.userData.reliefDone && img && img.width) {
+ 463→          mesh.userData.reliefDone = true;
+ 464→          var g = reliefGeo(img, reliefF);
+ 465→          if (g) { mesh.geometry.dispose(); mesh.geometry = g; }
+ 466→        }
+ 467→      }
+ 468→      if (opts.ry) mesh.rotation.y = opts.ry;
+ 469→      scene.add(mesh); upright.push({ mesh: mesh, fit: fit, tex: tex });
+ 470→      // 风物摇曳登记：芦苇最摆、柳次之、松微颤（舟楫起伏由 boat 既有逻辑负责）
+ 471→      var swAmp = tex === texReed ? 0.03 : tex === texWillow ? 0.018 : (inkName.get(tex) && /^pine/.test(inkName.get(tex))) ? 0.009 : 0;
+ 472→      if (swAmp) sway.push({ m: mesh, a: swAmp, p: Math.random() * 6.283 });
+ 473→      // 纸背厚度（水墨拆片为透明底，无纸边，不带纸背）
+ 474→      if (inkList.indexOf(tex) < 0) {
+ 475→        var back = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: tex, transparent: true, side: THREE.DoubleSide, depthWrite: false, color: 0x8b8b84, opacity: 0.5 }));
+ 476→        function fitBack() { back.scale.copy(mesh.scale); back.position.set(x, mesh.position.y, z - 0.24); back.rotation.y = opts.ry || 0; }
+ 477→        scene.add(back); upright.push({ mesh: back, fit: fitBack, tex: tex });
+ 478→      }
+ 479→      // 水面倒影：垂直镜像 + 低透明度 + 水色混合（模糊在 onLoad 统一处理）
+ 480→      if (opts.reflect) {
+ 481→        var refl = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: tex, transparent: true, side: THREE.DoubleSide, depthWrite: false, opacity: 0.1, color: 0xd4cdb8 }));
+ 482→        refl.userData.isRefl = true;
+ 483→        function fitRefl() {
+ 484→          refl.scale.set(mesh.scale.x, -mesh.scale.y, 1);
+ 485→          refl.position.set(x, (opts.y || 0) - mesh.scale.y / 2 + 0.05, z);
+ 486→          refl.rotation.y = opts.ry || 0;
+ 487→        }
+ 488→        scene.add(refl); upright.push({ mesh: refl, fit: fitRefl, tex: tex });
+ 489→      }
+ 490→      if (tex.image && tex.image.width) fit(); else tex.addEventListener("load", fit);
+ 491→      return mesh;
+ 492→    }
+ 493→    // 轻模糊纹理：用于水面倒影（canvas filter blur；file:// 下先探测画布可用性）
+ 494→    function blurredTex(tex, r) {
+ 495→      var img = tex.image; if (!img || !img.width) return tex;
+ 496→      var c = cnv(img.width, img.height), x = c.getContext("2d");
+ 497→      x.filter = "blur(" + r + "px)"; x.drawImage(img, 0, 0); x.filter = "none";
+ 498→      var t = new THREE.CanvasTexture(c); t.needsUpdate = true; return t;
+ 499→    }
+ 500→    function canvasUsable(img) {
+ 501→      try {
+ 502→        var t = document.createElement("canvas"); t.width = t.height = 2;
+ 503→        var g = t.getContext("2d"); g.drawImage(img, 0, 0, 2, 2); g.getImageData(0, 0, 1, 1);
+ 504→        return true;
+ 505→      } catch (e) { return false; }
+ 506→    }
+ 507→    manager.onLoad = function () {
+ 508→      upright.forEach(function (u) {
+ 509→        if (u.mesh.userData && u.mesh.userData.isRefl && u.mesh.material.map.image && canvasUsable(u.mesh.material.map.image)) {
+ 510→          u.mesh.material.map = blurredTex(u.mesh.material.map, 3);
+ 511→        }
+ 512→        u.fit();
+ 513→      });
+ 514→      hideVeil();
+ 515→      console.log("[水墨行迹] build f59 · js/css 目录化 ×资源 assets ×子页 pages" + (window.__reliefN || 0) + (postScene ? " · 后期开" : " · 后期退回"));
+ 516→    };
+ 517→    function shadowBlob(x, z, s) {
+ 518→      var m = new THREE.Mesh(new THREE.PlaneGeometry(s, s * 0.36), new THREE.MeshBasicMaterial({ map: toTex(blobTex()), transparent: true, opacity: 0.45, depthWrite: false }));
+ 519→      m.rotation.x = -Math.PI / 2; m.position.set(x, 0.03, z); scene.add(m);
+ 520→    }
+ 521→
+ 522→    /* ---------- 七处景致（山峦用真抠图素材） ---------- */
+ 523→    // 远山底幕：远景层与云带交替环绕，底边沉入云海
+ 524→    imagePlane(inkTex["mtn-far-faint.png"], 66, -34, -58, { y: -11 });
+ 525→    imagePlane(cloudTexB, 70, 12, -64, { y: -7, ry: 0.12, stretch: 0.42, opacity: 0.85 });
+ 526→    imagePlane(inkTex["mtn-far-faint.png"], 62, 46, -30, { y: -10, ry: 0.5, opacity: 0.85 });
+ 527→    imagePlane(cloudTexB, 66, -62, 26, { y: -6, ry: -0.5, stretch: 0.42, opacity: 0.85 });
+ 528→    imagePlane(inkTex["mtn-far-faint.png"], 64, 34, 52, { y: -10, ry: -0.3, opacity: 0.85 });
+ 529→    imagePlane(cloudTexB, 68, -30, 54, { y: -7, ry: -0.7, stretch: 0.42, opacity: 0.85 });
+ 530→    // 最外侧天际云幕
+ 531→    imagePlane(cloudTexB, 130, -8, -92, { y: -18, stretch: 0.4, opacity: 0.8 });
+ 532→    imagePlane(cloudTexB, 110, 66, -66, { y: -15, ry: 0.5, stretch: 0.4, opacity: 0.75 });
+ 533→    // 1·2 主峰拆片群（金陵·钟山共享）：六片由近及远叠出纵深
+ 534→    shadowBlob(-30, -14, 18);
+ 535→    shadowBlob(-12, -40, 15);
+ 536→    // 宫阙（金陵·都城）：真素材 + 十字交叉面片
+ 537→    imagePlane(inkTex["palace.jpg"], 15, -30, -14, null);
+ 538→    // 松柏（钟山林泉）：真素材单株 + 十字交叉面片
+ 539→    imagePlane(inkTex["pine-2.jpg"], 4.5, -8, -22, null);
+ 540→    imagePlane(inkTex["isle-front.jpg"], 30, -44, -22, { y: -5.3, ry: 0.3, opacity: 0.95 });
+ 541→    imagePlane(inkTex["isle-mid.jpg"], 22, 6, -34, { y: -3.8, ry: -0.2, opacity: 0.85 });
+ 542→    imagePlane(inkTex["mtn-dome-dark.png"], 36, 0, -17, { ry: 0.12, stretch: 0.6 });
+ 543→    imagePlane(inkTex["mtn-peak-dense.png"], 52, -26, -30, { reflect: true });
+ 544→    imagePlane(inkTex["mtn-sharp-focal.png"], 46, -4, -34, { reflect: true });
+ 545→    imagePlane(inkTex["mtn-triple.png"], 38, 14, -42, { ry: -0.2, opacity: 0.95 });
+ 546→    imagePlane(inkTex["mtn-range-mist.png"], 60, -22, -46, { opacity: 0.85 });
+ 547→    imagePlane(inkTex["mtn-dome-ochre.png"], 40, -44, -50, { ry: 0.25, opacity: 0.8 });
+ 548→    // 3 洪州：城郭 + 岸山
+ 549→    shadowBlob(-46, 20, 16);
+ 550→    // 城郭（洪州·南都）：真素材 + 十字交叉面片
+ 551→    imagePlane(inkTex["citywall.jpg"], 16, -46, 20, null);
+ 552→    imagePlane(inkTex["isle-front.jpg"], 32, -46, 32, { y: -5.7, opacity: 0.95 });
+ 553→    imagePlane(texFar, 40, -52, 40, { ry: -0.4, opacity: 0.85 });
+ 554→    // 4 采石矶：陡崖 + 浓墨辅助山
+ 555→    shadowBlob(20, -8, 10);
+ 556→    // 江防要塞（采石矶）：真素材 + 十字交叉面片，横向构图加宽落位
+ 557→    imagePlane(inkTex["cliff.jpg"], 13, 20, -8, null);
+ 558→    // 疆界山屏：两排远山叠合——薄一档、矮一档，浓度介于内山与纸底之间（不受雾以保持边框常在）
+ 559→    (function () {
+ 560→      function wall(dist, off, texA, texB, tw, ts, dk, yb) {
+ 561→        [-84, -56, -28, 0, 28, 56, 84].forEach(function (t, i) {
+ 562→          var tn = i % 2 ? texA : texB;
+ 563→          var o = { y: yb + (i % 2) * 2, stretch: ts, relief: false, opacity: 1, darken: dk, fogless: true };
+ 564→          var w = tw + (i % 3) * 8;
+ 565→          imagePlane(inkTex[tn], w, t + off, -dist, o);                                       // 北
+ 566→          imagePlane(inkTex[tn], w, -t - off, dist, Object.assign({ ry: Math.PI }, o));       // 南
+ 567→          imagePlane(inkTex[tn], w, dist, t - off, Object.assign({ ry: -Math.PI / 2 }, o));   // 东
+ 568→          imagePlane(inkTex[tn], w, -dist, -t + off, Object.assign({ ry: Math.PI / 2 }, o));  // 西
+ 569→        });
+ 570→      }
+ 571→      wall(84, 0, "mtn-peak-dense.png", "mtn-dome-dark.png", 44, 1.22, 0.56, -13);    // 前排：贴水缘
+ 572→      wall(94, 14, "mtn-dome-dark.png", "mtn-peak-dense.png", 40, 1.42, 0.52, -14);   // 后排：错缝补缝
+ 573→    })();
+ 574→    imagePlane(texFar, 30, 38, -30, { ry: -0.25, opacity: 0.85 });
+ 575→    imagePlane(inkTex["isle-far.jpg"], 34, 30, -20, { y: -4.7, ry: -0.25, opacity: 0.9 });
+ 576→    // 5 江舟：孤舟（主峰群在望）
+ 577→    var boat = imagePlane(texBoat, 4.6, 34, 1, { y: 0.06 });
+ 578→    imagePlane(inkTex["isle-mid.jpg"], 26, 40, -24, { y: -4.5, opacity: 0.9 });
+ 579→    imagePlane(inkTex["isle-front.jpg"], 24, 44, 20, { y: -4.3, ry: -0.2, opacity: 0.9 });
+ 580→    imagePlane(texFar, 40, 30, -34, { opacity: 0.9 });
+ 581→    // 6 汴京：小楼庭院（周围大片留白）
+ 582→    shadowBlob(-58, -46, 7);
+ 583→    // 囚居小院（汴京·违命侯）：真素材 + 十字交叉面片
+ 584→    imagePlane(inkTex["tower.jpg"], 5, -58, -46, null);
+ 585→    imagePlane(texFar, 34, -60, -62, { opacity: 0.8 });
+ 586→    // 7 北邙山：赭石圆顶丘陵 + 松柏（倒影）
+ 587→    shadowBlob(50, 40, 13);
+ 588→    imagePlane(inkTex["mtn-dome-ochre.png"], 38, 50, 44, { stretch: 0.75, reflect: true });
+ 589→    imagePlane(texShore, 24, 38, 34, { ry: 0.3, stretch: 0.7, opacity: 0.85 });
+ 590→    // 北邙松柏：苍虬老松 + 虬曲松 环侍圆丘（真素材 + 十字交叉面片）
+ 591→    imagePlane(inkTex["pine-3.jpg"], 5.5, 50, 36, null);
+ 592→    imagePlane(inkTex["pine-1.jpg"], 4, 41, 40, null);
+ 593→    // 岸芷汀兰：柳与芦苇（真素材）
+ 594→    imagePlane(texWillow, 7, 24, 8, { ry: 0.4 });
+ 595→    imagePlane(texWillow, 6, -20, 10, { ry: -0.5 });
+ 596→    imagePlane(texReed, 5, 8, 9, { opacity: 0.9 });
+ 597→    imagePlane(texReed, 4.5, -64, 6, { ry: 0.3 });
+ 598→    imagePlane(texReed, 4.5, 58, -4, { ry: -0.3 });
+ 599→    // 月与雁
+ 600→    var moon = new THREE.Sprite(new THREE.SpriteMaterial({ map: toTex(moonTex()), transparent: true, opacity: 0.75, depthWrite: false }));
+ 601→    moon.scale.set(9, 9, 1); moon.position.set(-26, 26, -52); scene.add(moon);
+ 602→    var birds = new THREE.Sprite(new THREE.SpriteMaterial({ map: toTex(birdsTex()), transparent: true, opacity: 0.6, depthWrite: false }));
+ 603→    birds.scale.set(5, 2.5, 1); birds.position.set(12, 18, -20); scene.add(birds);
+ 604→    // 月光水路：海面月影，随波明灭
+ 605→    var moonColTex = toTex((function () {
+ 606→      var c = cnv(128, 256), x = c.getContext("2d");
+ 607→      x.save(); x.translate(64, 128); x.scale(1, 2.2);
+ 608→      var g = x.createRadialGradient(0, 0, 2, 0, 0, 60);
+ 609→      g.addColorStop(0, "rgba(240,234,208,0.55)"); g.addColorStop(0.5, "rgba(240,234,208,0.18)"); g.addColorStop(1, "rgba(240,234,208,0)");
+ 610→      x.fillStyle = g; x.beginPath(); x.arc(0, 0, 60, 0, 6.283); x.fill(); x.restore();
+ 611→      return c;
+ 612→    })());
+ 613→    var moonCol = new THREE.Mesh(new THREE.PlaneGeometry(6.5, 24), new THREE.MeshBasicMaterial({ map: moonColTex, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0.5 }));
+ 614→    moonCol.rotation.x = -Math.PI / 2; moonCol.position.set(-26, 0.07, -38); moonCol.renderOrder = 1; scene.add(moonCol);
+ 615→
+ 616→    // 江面波纹（云海之间的水面暗示）
+ 617→    var waterTexA = toTex(rippleTex(true));
+ 618→    waterTexA.wrapS = waterTexA.wrapT = THREE.RepeatWrapping; waterTexA.repeat.set(5, 1);
+ 619→    var waterTexB = toTex(rippleTex(true));
+ 620→    waterTexB.wrapS = waterTexB.wrapT = THREE.RepeatWrapping; waterTexB.repeat.set(3, 1);
+ 621→    var waterA = new THREE.Mesh(new THREE.PlaneGeometry(150, 14), new THREE.MeshBasicMaterial({ map: waterTexA, transparent: true, opacity: 0.3, depthWrite: false }));
+ 622→    waterA.rotation.x = -Math.PI / 2; waterA.position.set(6, 0.06, 0); scene.add(waterA);
+ 623→    var waterB = new THREE.Mesh(new THREE.PlaneGeometry(110, 18), new THREE.MeshBasicMaterial({ map: waterTexB, transparent: true, opacity: 0.2, depthWrite: false }));
+ 624→    waterB.rotation.x = -Math.PI / 2; waterB.position.set(-10, 0.05, 5); scene.add(waterB);
+ 625→    // 云影：大片淡墨影子掠过水面（光影呼吸感）
+ 626→    var cshadows = [];
+ 627→    [[-52, -16, 40, 24, 1.0], [-8, 18, 46, 26, 1.35], [26, -34, 38, 22, 0.8], [58, 8, 42, 24, 1.1]].forEach(function (s) {
+ 628→      var cs = new THREE.Mesh(new THREE.PlaneGeometry(s[2], s[3]), new THREE.MeshBasicMaterial({ map: toTex(blobTex()), transparent: true, opacity: 0.075, color: 0x57503e, depthWrite: false }));
+ 629→      cs.rotation.x = -Math.PI / 2;
+ 630→      cs.position.set(s[0], 0.04, s[1]);
+ 631→      cs.userData.v = s[4];
+ 632→      scene.add(cs); cshadows.push(cs);
+ 633→    });
+ 634→
+ 635→    // 浮墨微尘：空气中漂浮的淡墨颗粒（呼吸感）
+ 636→    var moteGeo = new THREE.BufferGeometry();
+ 637→    var mN = 90, mPos = new Float32Array(mN * 3), mSeed = new Float32Array(mN);
+ 638→    for (var mi = 0; mi < mN; mi++) {
+ 639→      mPos[mi * 3] = -85 + Math.random() * 170;
+ 640→      mPos[mi * 3 + 1] = 0.6 + Math.random() * 15;
+ 641→      mPos[mi * 3 + 2] = -85 + Math.random() * 170;
+ 642→      mSeed[mi] = Math.random() * 6.283;
+ 643→    }
+ 644→    moteGeo.setAttribute("position", new THREE.BufferAttribute(mPos, 3));
+ 645→    var motes = new THREE.Points(moteGeo, new THREE.PointsMaterial({
+ 646→      map: toTex((function () {
+ 647→        var c = cnv(32, 32), x = c.getContext("2d");
+ 648→        var g = x.createRadialGradient(16, 16, 1, 16, 16, 15);
+ 649→        g.addColorStop(0, "rgba(87,80,62,0.95)"); g.addColorStop(1, "rgba(87,80,62,0)");
+ 650→        x.fillStyle = g; x.fillRect(0, 0, 32, 32); return c;
+ 651→      })()),
+ 652→      transparent: true, opacity: 0.16, size: 0.55, sizeAttenuation: true, depthWrite: false, color: 0x57503e
+ 653→    }));
+ 654→    scene.add(motes);
+ 655→
+ 656→    // 疏雨：细雨丝斜落（雨场跟随相机回绕，近观也保持密度）
+ 657→    var rain = null;
+ 658→    if (!reduced) {
+ 659→      var rN = 900, rPos = new Float32Array(rN * 6), rData = [], rSpd = new Float32Array(rN);
+ 660→      for (var ri = 0; ri < rN; ri++) {
+ 661→        rData.push({ x: -95 + Math.random() * 190, y: Math.random() * 46, z: -95 + Math.random() * 190, len: 1.5 + Math.random() * 1.2 });
+ 662→        rSpd[ri] = 24 + Math.random() * 8;
+ 663→      }
+ 664→      var rainGeo = new THREE.BufferGeometry();
+ 665→      rainGeo.setAttribute("position", new THREE.BufferAttribute(rPos, 3));
+ 666→      rain = new THREE.LineSegments(rainGeo, new THREE.LineBasicMaterial({ color: 0x8a8170, transparent: true, opacity: 0.26, depthWrite: false }));
+ 667→      rain.renderOrder = 2;
+ 668→      rain.userData = { data: rData, spd: rSpd };
+ 669→      scene.add(rain);
+ 670→    }
+ 671→
+ 672→    // 全景朱砂点：全景机位下浮现的场景内互动点，点按飞往各站
+ 673→    var markTex = toTex((function () {
+ 674→      var c = cnv(64, 64), x = c.getContext("2d");
+ 675→      var g = x.createRadialGradient(32, 32, 2, 32, 32, 30);
+ 676→      g.addColorStop(0, "rgba(176,64,46,0.95)"); g.addColorStop(0.38, "rgba(158,52,38,0.85)");
+ 677→      g.addColorStop(0.55, "rgba(158,52,38,0.28)"); g.addColorStop(1, "rgba(158,52,38,0)");
+ 678→      x.fillStyle = g; x.beginPath(); x.arc(32, 32, 30, 0, 6.283); x.fill();
+ 679→      x.strokeStyle = "rgba(94,30,22,0.9)"; x.lineWidth = 2.5;
+ 680→      x.beginPath(); x.arc(32, 32, 12.5, 0, 6.283); x.stroke();
+ 681→      x.fillStyle = "rgba(216,124,102,0.95)"; x.beginPath(); x.arc(29, 29, 4, 0, 6.283); x.fill();
+ 682→      return c;
+ 683→    })());
+ 684→    var markers = [], nameSprites = [];
+ 685→    [["jinling", -26, -24, "金陵"], ["zhongshan", -10, -28, "钟山"], ["hongzhou", -46, 20, "洪州"], ["caishi", 20, -9, "采石矶"],
+ 686→     ["jiangzhou", 34, 1, "江舟"], ["bianjing", -58, -46, "汴京"], ["beimang", 50, 40, "北邙山"]].forEach(function (s) {
+ 687→      var sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: markTex, transparent: true, opacity: 0, depthWrite: false, fog: false }));
+ 688→      sp.position.set(s[1], 1.0, s[2]);
+ 689→      sp.scale.set(2.3, 2.3, 1);
+ 690→      sp.userData.key = s[0]; sp.userData.ph = Math.random() * 6.283;
+ 691→      scene.add(sp); markers.push(sp);
+ 692→      // 站名（鸿雷行书）：悬于朱砂点上方，随点同现同隐；字体就绪后重绘避免回退字形
+ 693→      var nc = cnv(256, 80);
+ 694→      var nsp = new THREE.Sprite(new THREE.SpriteMaterial({ transparent: true, opacity: 0, depthWrite: false, fog: false }));
+ 695→      function drawName() {
+ 696→        var nx = nc.getContext("2d");
+ 697→        nx.clearRect(0, 0, 256, 80);
+ 698→        nx.font = "52px 'HongLei Calligraphy', serif";
+ 699→        nx.textAlign = "center"; nx.textBaseline = "middle";
+ 700→        nx.shadowColor = "rgba(233,227,203,0.85)"; nx.shadowBlur = 5;
+ 701→        nx.fillStyle = "rgba(142,50,38,0.95)";
+ 702→        nx.fillText(s[3], 128, 44);
+ 703→        nsp.material.map = new THREE.CanvasTexture(nc);
+ 704→        nsp.material.needsUpdate = true;
+ 705→      }
+ 706→      drawName();
+ 707→      nsp.userData.key = s[0]; nsp.userData.redraw = drawName;
+ 708→      nsp.position.set(s[1], 2.75, s[2]);
+ 709→      nsp.scale.set(3.0, 0.94, 1);
+ 710→      scene.add(nsp); nameSprites.push(nsp);
+ 711→    });
+ 712→    if (document.fonts && document.fonts.load) {
+ 713→      document.fonts.load("52px 'HongLei Calligraphy'").then(function () {
+ 714→        nameSprites.forEach(function (n) { n.userData.redraw(); });
+ 715→      }).catch(function () { });
+ 716→    }
+ 717→    window.__mapDebug = { camera: camera, markers: markers, nameSprites: nameSprites }; // 供自动化测试定位点击
+ 718→
+ 719→    // 宣纸颗粒层：multiply 叠加细噪（纸本质感，静态一次生成）
+ 720→    (function () {
+ 721→      var gEl = document.getElementById("paperGrain");
+ 722→      if (!gEl) return;
+ 723→      var c = cnv(160, 160), x = c.getContext("2d"), im = x.createImageData(160, 160), d = im.data;
+ 724→      for (var i = 0; i < d.length; i += 4) {
+ 725→        var v = 232 + Math.random() * 23;
+ 726→        d[i] = v; d[i + 1] = v - 3; d[i + 2] = v - 9;
+ 727→        d[i + 3] = 12 + Math.random() * 28;
+ 728→      }
+ 729→      x.putImageData(im, 0, 0);
+ 730→      gEl.style.backgroundImage = "url(" + c.toDataURL() + ")";
+ 731→    })();
+ 732→
+ 733→    // 云海：低层铺谷白云 + 高层薄纱（黑底云素材拆片，向东缓漂）
+ 734→    var mists = [];
+ 735→    [[16, -62, -20, 0.3, 0.8, 0], [13, -30, 6, 0.6, 0.75, 1], [18, 6, -30, 0.4, 0.85, 0],
+ 736→     [12, 30, 10, 0.7, 0.7, 1], [15, 58, -14, 0.5, 0.8, 0], [14, -10, 24, 0.8, 0.75, 0],
+ 737→     [17, 44, 26, 0.6, 0.8, 1], [12, -48, 34, 0.9, 0.7, 0], [16, 20, -52, 0.5, 0.75, 0],
+ 738→     [13, -20, -56, 0.7, 0.7, 1], [15, 68, 18, 0.6, 0.75, 0], [14, -66, -44, 0.5, 0.7, 0],
+ 739→     [12, 2, 40, 0.8, 0.65, 1], [13, -38, -6, 0.5, 0.8, 0]].forEach(function (s, i) {
+ 740→      var m = imagePlane(s[5] ? cloudTexB : cloudTexA, s[0], s[1], s[2], { y: s[3], ry: (i % 5 - 2) * 0.09, opacity: s[4] });
+ 741→      m.userData.v = 0.35 + (i % 5) * 0.16;
+ 742→      mists.push(m);
+ 743→    });
+ 744→    // 高空薄纱云
+ 745→    [[-40, -60, 9], [0, -80, 12], [44, -40, 10], [-20, 60, 11], [30, 48, 9], [62, -8, 13]].forEach(function (s, i) {
+ 746→      var m = imagePlane(cloudTexB, 22 + (i % 3) * 5, s[0], s[1], { y: s[2], opacity: 0.32 });
+ 747→      m.userData.v = 0.25 + (i % 4) * 0.1;
+ 748→      mists.push(m);
+ 749→    });
+ 750→
+ 751→    /* ---------- 八组相机镜头坐标 ---------- */
+ 752→    var VIEWS = {
+ 753→      jinling:   { pos: [-30, 6.8, -1],  tgt: [-30, 4.8, -14] },
+ 754→      zhongshan: { pos: [-8, 7.1, -6],   tgt: [-8, 5, -24] },
+ 755→      hongzhou:  { pos: [-39, 3.6, 8],   tgt: [-46, 4, 20] },
+ 756→      caishi:    { pos: [20, 6.5, 4],    tgt: [20, 4.5, -9] },
+ 757→      jiangzhou: { pos: [34, 4.0, 13],   tgt: [34, 2, 1] },
+ 758→      bianjing:  { pos: [-58, 5.2, -33], tgt: [-58, 3.2, -46] },
+ 759→      beimang:   { pos: [45.5, 5.2, 25], tgt: [45.5, 3.2, 38] },
+ 760→      overview:  { pos: [69, 74, 126],   tgt: [-2, 1, -4] }
+ 761→    };
+ 762→
+ 763→    /* ---------- 自制轨道控制 + 镜头飞行 ---------- */
+ 764→    var ctl = { tgt: new THREE.Vector3(), r: 60, theta: 0, phi: 0.9, dTgt: new THREE.Vector3(), dR: 60, dTheta: 0, dPhi: 0.9 };
+ 765→    var fly = null;
+ 766→    function applyCamera() {
+ 767→      var sph = new THREE.Spherical(ctl.r, THREE.MathUtils.clamp(ctl.phi, 0.12, 1.42), ctl.theta);
+ 768→      var off = new THREE.Vector3().setFromSpherical(sph);
+ 769→      camera.position.copy(ctl.tgt).add(off);
+ 770→      camera.lookAt(ctl.tgt);
+ 771→    }
+ 772→    function setFromView(v) {
+ 773→      ctl.dTgt.set(v.tgt[0], v.tgt[1], v.tgt[2]);
+ 774→      var off = new THREE.Vector3(v.pos[0] - v.tgt[0], v.pos[1] - v.tgt[1], v.pos[2] - v.tgt[2]);
+ 775→      var sph = new THREE.Spherical().setFromVector3(off);
+ 776→      ctl.dR = sph.radius; ctl.dTheta = sph.theta; ctl.dPhi = sph.phi;
+ 777→      ctl.tgt.copy(ctl.dTgt); ctl.r = ctl.dR; ctl.theta = ctl.dTheta; ctl.phi = ctl.dPhi;
+ 778→      applyCamera();
+ 779→    }
+ 780→    setFromView(VIEWS.overview);
+ 781→    var inkPulse = document.getElementById("inkPulse");
+ 782→    function flyTo(key, dur) {
+ 783→      var v = VIEWS[key]; if (!v) return;
+ 784→      var tgt1 = new THREE.Vector3(v.tgt[0], v.tgt[1], v.tgt[2]);
+ 785→      var sph1 = new THREE.Spherical().setFromVector3(new THREE.Vector3(v.pos[0] - v.tgt[0], v.pos[1] - v.tgt[1], v.pos[2] - v.tgt[2]));
+ 786→      // 电影化运镜：距离/方位/俯仰/目标点全程球面插值（theta 走最短弧），
+ 787→      // 中段叠加吊臂升摇（升高 + 拉远）与广角呼吸——钟形包络起落两端为零，落定仍是固定机位、无跳变
+ 788→      var dTh = sph1.theta - ctl.theta;
+ 789→      dTh = ((dTh + Math.PI) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2) - Math.PI;
+ 790→      var dist = ctl.tgt.distanceTo(tgt1) + Math.abs(sph1.radius - ctl.r);
+ 791→      fly = {
+ 792→        t0: ctl.tgt.clone(), t1: tgt1,
+ 793→        r0: ctl.r, r1: sph1.radius,
+ 794→        th0: ctl.theta, dTh: dTh,
+ 795→        ph0: THREE.MathUtils.clamp(ctl.phi, 0.12, 1.42), ph1: THREE.MathUtils.clamp(sph1.phi, 0.12, 1.42),
+ 796→        lift: Math.min(0.3, 0.07 + dist * 0.004),   // 中段吊臂升高（phi 减小 = 机位抬升）
+ 797→        sweep: Math.min(16, dist * 0.18),           // 中段拉远横扫
+ 798→        fovAmp: Math.min(6, 2 + dist * 0.035),      // 中段广角呼吸（眩晕感）
+ 799→        start: performance.now(), dur: reduced ? 0 : (dur || THREE.MathUtils.clamp(1400 + dist * 30, 1800, 3400))
+ 800→      };
+ 801→    }
+ 802→    function ease(k) { return k < 0.5 ? 16 * k * k * k * k * k : 1 - Math.pow(-2 * k + 2, 5) / 2; }
+ 803→    var dragging = 0, lastX = 0, lastY = 0, hinted = false, downX = 0, downY = 0, tapOk = false;
+ 804→    var dom = renderer.domElement;
+ 805→    dom.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+ 806→    dom.addEventListener("pointerdown", function (e) {
+ 807→      downX = e.clientX; downY = e.clientY; tapOk = !fly;
+ 808→      if (fly) return;
+ 809→      dragging = e.button === 2 || e.shiftKey ? 2 : 1;
+ 810→      lastX = e.clientX; lastY = e.clientY;
+ 811→      try { dom.setPointerCapture(e.pointerId); } catch (err) { }
+ 812→      hideHint();
+ 813→    });
+ 814→    dom.addEventListener("pointermove", function (e) {
+ 815→      if (!dragging || fly) {
+ 816→        // 悬停朱砂点：指针示意可点
+ 817→        if (!dragging && !fly) dom.style.cursor = (curKey === "overview" && pickMarker(e)) ? "pointer" : "";
+ 818→        return;
+ 819→      }
+ 820→      // 已禁用手动旋转/平移：拖拽仅作点击判定，镜头只随点位切换
+ 821→    });
+ 822→    function endDrag(e) {
+ 823→      if (dragging === 1 && tapOk && e && Math.abs(e.clientX - downX) < 6 && Math.abs(e.clientY - downY) < 6) {
+ 824→        var m = pickMarker(e);
+ 825→        if (m) go(m.userData.key); // 全景里点朱砂点 → 飞往该站
+ 826→      }
+ 827→      dragging = 0;
+ 828→    }
+ 829→    var ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
+ 830→    function pickMarker(e) {
+ 831→      if (!markers.length) return null;
+ 832→      var r = dom.getBoundingClientRect();
+ 833→      if (!r.width || !r.height) return null;
+ 834→      ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+ 835→      ray.setFromCamera(ndc, camera);
+ 836→      var hits = ray.intersectObjects(markers.concat(nameSprites).filter(function (m) { return m.material.opacity > 0.25; }));
+ 837→      return hits.length ? hits[0].object : null;
+ 838→    }
+ 839→    dom.addEventListener("pointerup", endDrag);
+ 840→    dom.addEventListener("pointercancel", endDrag);
+ 841→
+ 842→    /* ---------- 点位与笺卡 ---------- */
+ 843→    var SPOTS = {
+ 844→      jinling: { name: "金陵", tag: "南唐都城", now: "今 · 江苏南京",
+ 845→        events: [
+ 846→          ["937", "七夕之夜生于金陵宫苑，初名从嘉——丰额骈齿、一目重瞳，宫中以为奇相；数月后祖父受禅开国，他便生在江南最锦绣的岁月里"],
+ 847→          ["954", "十八岁迎娶周宗长女娥皇；她通书史、善音律，夫妇重订《霓裳羽衣》残谱，雪夜宴饮、红袖添香——词里尽是「烂嚼红茸」的明快"],
+ 848→          ["959", "长兄太子弘冀鸩杀叔父景遂，数月后惊惧暴卒；储位之疑一夜消散，最无意争位的第六子，被命运推向台前"],
+ 849→          ["961", "中主迁都洪州后忧愤病逝；二十五岁的李煜留金陵监国，旋即柩前即位——接过的却是岁贡称臣、北面而事的江南残局"],
+ 850→          ["975", "曹彬大军围城经年，城中斗米千金；十一月城破，肉袒出降——辞太庙、别宫娥，四十年来家国一朝画上句点"]],
+ 851→        word: "《破阵子》 四十年来家国，三千里地山河。" },
+ 852→      zhongshan: { name: "钟山", tag: "少年隐读", now: "金陵城北 · 今紫金山",
+ 853→        events: [
+ 854→          ["约953—959", "长兄太子弘冀性严猜忌，为避锋芒自号「钟隐」「莲峰居士」，隐读钟山经籍、不预政事——翰墨诗酒之间，反得几年安稳"],
+ 855→          ["约957", "山林舟楫之间作《渔父》二首：「浪花有意千里雪，桃李无言一队春」——一壶酒、一竿身，快活之愿写于尚可快活的年纪"],
+ 856→          ["975", "宋军破城，宫苑付之一炬；当年避世的钟山林泉，从此只在一个囚徒的梦里重现"]],
+ 857→        word: "《渔父》 一壶酒，一竿身，快活如侬有几人。" },
+ 858→      hongzhou: { name: "洪州", tag: "南唐南都", now: "今 · 江西南昌",
+ 859→        events: [
+ 860→          ["959", "后周世宗三征淮南，江北十四州尽没；金陵临江无险可守，中主议迁都以避兵锋"],
+ 861→          ["961", "二月中主率六军溯江迁都；至则城邑迫陋、宫室湫隘，君臣悔叹，六月忧愤病逝于此——太子煜留金陵监国"],
+ 862→          ["961", "李煜即位仍以洪州为南都，后改南昌府；然北廷日强、贡赋日重，江南国势已如累卵"],
+ 863→          ["975", "金陵城破、国主北迁，洪州终未成南唐的避风之港——「南都」二字，随之一起写入旧史"]],
+ 864→        word: "《浣溪沙》 欲寻陈迹怅人非，天教心愿与身违。" },
+ 865→      caishi: { name: "采石矶", tag: "江防要冲", now: "今 · 安徽马鞍山",
+ 866→        events: [
+ 867→          ["973", "宋使屡促入朝，李煜称疾固辞、卑辞厚贡以缓兵期；暗增水军、沿江戒备——两头都抓，两头都迟"],
+ 868→          ["974", "落第书生樊若水献策宋廷，假托钓鱼、以丝绳往返测得矶前江面宽度——「天险可越」自此有了图纸"],
+ 869→          ["974", "冬，宋军大举渡江，巨舰相连、铺竹为筏，浮桥横跨采石江面；曹彬、潘美大军踏桥而过，如履平地"],
+ 870→          ["975", "天险既失，金陵顿成孤城；围城一载、援绝粮尽，终以城破国灭收场"]],
+ 871→        word: "《乌夜啼》 世事漫随流水，算来一梦浮生。" },
+ 872→      jiangzhou: { name: "江舟", tag: "辞庙北上", now: "长江 · 975 年冬",
+ 873→        events: [
+ 874→          ["975", "十一月廿七日城破，率百官肉袒出降；立国三十九年的南唐，就此谢幕"],
+ 875→          ["975", "十二月辞庙登舟北上，教坊犹奏别离歌、宫娥挥泪相送——一叶囚舟载着四十年家国的记忆，驶向未知的北方"],
+ 876→          ["976", "正月，囚舟抵汴京；江南的春水烟雨自此只在梦里——「梦里不知身是客，一晌贪欢」"]],
+ 877→        word: "《浪淘沙令》 梦里不知身是客，一晌贪欢。" },
+ 878→      bianjing: { name: "汴京", tag: "违命侯岁月", now: "今 · 河南开封",
+ 879→        events: [
+ 880→          ["976", "正月抵汴，太祖赦而不杀，封「违命侯」、赐居汴城——一生风雅的江南国主，终以「违命」二字名世"],
+ 881→          ["976", "十月太祖崩、太宗即位；次年去恶号、改封陇西公——名分稍改，囚居之实未变"],
+ 882→          ["977—978", "深院梧桐、秋月如钩，故国山川只在梦中重现；与旧臣书自言「此中日夕，只以眼泪洗面」——而词，恰于泪中登峰造极"],
+ 883→          ["978", "七夕四十二岁生辰，与故臣小酌、命歌伎奏新词《虞美人》，「一江春水」声闻于外；是夜暴卒，世传赐牵机药——词成而人逝"]],
+ 884→        word: "《虞美人》 问君能有几多愁？恰似一江春水向东流。" },
+ 885→      beimang: { name: "北邙山", tag: "词心不朽", now: "洛阳之北 · 长眠之所",
+ 886→        events: [
+ 887→          ["978", "太宗辍朝三日，追封吴王，以王礼葬于洛阳北邙山——四十二年的浮沉，归于一抔北邙黄土"],
+ 888→          ["978", "小周后扶柩恸哭、哀毁骨立，未几亦逝，相继归葬北邙——夫妻同穴，国恨同眠"],
+ 889→          ["978", "江南旧臣设奠遥祭，徐铉奉诏撰墓志；生于七夕、死于七夕——词的句读与人生的句读，同时画上"],
+ 890→          ["后世", "千年之下词名愈盛：王国维谓其「变伶工之词而为士大夫之词」，又叹「后主之词，真所谓以血书者也」——北邙土冷，词心不冷"]],
+ 891→        word: "《浪淘沙令》 流水落花春去也，天上人间。" },
+ 892→      overview: { name: "全景", tag: "三千里地山河", now: "南唐疆域 · 写意",
+ 893→        events: [
+ 894→          ["937—961", "从金陵宫苑的锦衣重瞳，到柩前仓促即位的江南国主——才华与江山，自此同负一身"],
+ 895→          ["961—975", "十四年称臣纳贡、卑辞厚币，去号降仪也换不来一纸平安；三千里地山河，终究挡不住一道浮桥"],
+ 896→          ["975—978", "北迁囚居、以泪洗面，却把花间的伶工之词，淬成「以血书者」的千古绝唱"],
+ 897→          ["937—978", "生于七夕、死于七夕，四十一年走完从帝王到词宗的一生——「国家不幸诗家幸」，他是最痛的注脚"]],
+ 898→        word: "《破阵子》 四十年来家国，三千里地山河。" }
+ 899→    };
+ 900→    var curKey = "overview"; // 当前站点：朱砂点只在全景浮现
+ 901→    var popup = document.getElementById("inkPopup");
+ 902→    var popupDefault = popup.querySelector("[data-popup-default]");
+ 903→    var popupDetail = popup.querySelector("[data-popup-detail]");
+ 904→    var dotBtns = Array.prototype.slice.call(document.querySelectorAll(".dot-btn"));
+ 905→    function showSpot(key) {
+ 906→      var spot = SPOTS[key]; if (!spot) return;
+ 907→      popupDefault.hidden = true; popupDetail.hidden = false; popup.hidden = false;
+ 908→      popupDetail.querySelector("[data-spot-era]").textContent = spot.tag;
+ 909→      popupDetail.querySelector("[data-spot-name]").textContent = spot.name;
+ 910→      popupDetail.querySelector("[data-spot-now]").textContent = spot.now;
+ 911→      var list = popupDetail.querySelector("[data-spot-events]");
+ 912→      list.innerHTML = "";
+ 913→      spot.events.forEach(function (ev) {
+ 914→        var li = document.createElement("li");
+ 915→        var b = document.createElement("b"); b.textContent = ev[0];
+ 916→        li.appendChild(b); li.appendChild(document.createTextNode(ev[1]));
+ 917→        list.appendChild(li);
+ 918→      });
+ 919→      popupDetail.querySelector("[data-spot-word]").textContent = spot.word;
+ 920→    }
+ 921→    function go(key) {
+ 922→      curKey = key;
+ 923→      dotBtns.forEach(function (d) { d.classList.toggle("is-active", d.dataset.go === key); });
+ 924→      var ti = TOUR.indexOf(key); if (ti >= 0) tourIdx = ti; // 时间指引同步（TOUR 在下方初始化，点击时必已就绪）
+ 925→      flyTo(key);
+ 926→      showSpot(key);
+ 927→      tourSync();
+ 928→    }
+ 929→    dotBtns.forEach(function (d) { d.addEventListener("click", function () { go(d.dataset.go); }); });
+ 930→    popup.querySelector(".popup-close").addEventListener("click", function () {
+ 931→      popup.hidden = true;
+ 932→      popupDefault.hidden = false; popupDetail.hidden = true;
+ 933→      dotBtns.forEach(function (d) { d.classList.remove("is-active"); });
+ 934→    });
+ 935→    document.addEventListener("keydown", function (e) {
+ 936→      if (e.key === "Escape" && !popup.hidden) {
+ 937→        popup.hidden = true; popupDefault.hidden = false; popupDetail.hidden = true;
+ 938→      }
+ 939→    });
+ 940→    /* ---------- 时间指引：按年顺游（下一步看哪里的故事） ---------- */
+ 941→    var TOUR = ["jinling", "zhongshan", "hongzhou", "caishi", "jiangzhou", "bianjing", "beimang"];
+ 942→    var tourBox = document.getElementById("tourGuide");
+ 943→    var tourNodes = tourBox ? Array.prototype.slice.call(tourBox.querySelectorAll(".tour-node")) : [];
+ 944→    var tourPrev = tourBox ? tourBox.querySelector(".tour-prev") : null;
+ 945→    var tourNext = tourBox ? tourBox.querySelector(".tour-next") : null;
+ 946→    var tourIdx = -1; // -1 = 尚未起卷（全景）
+ 947→    function tourSync() {
+ 948→      if (!tourBox) return;
+ 949→      tourNodes.forEach(function (n, i) {
+ 950→        n.classList.toggle("is-active", i === tourIdx);
+ 951→        n.classList.toggle("is-done", tourIdx >= 0 && i < tourIdx);
+ 952→      });
+ 953→      if (tourPrev) tourPrev.disabled = tourIdx <= 0;
+ 954→      if (tourNext) tourNext.innerHTML = tourIdx >= TOUR.length - 1 ? "再游一遍 ⟶" : "下一站 ⟶";
+ 955→    }
+ 956→    tourNodes.forEach(function (n) {
+ 957→      n.addEventListener("click", function () { tourIdx = TOUR.indexOf(n.dataset.go); go(n.dataset.go); tourSync(); });
+ 958→    });
+ 959→    if (tourPrev) tourPrev.addEventListener("click", function () {
+ 960→      if (tourIdx > 0) { tourIdx--; go(TOUR[tourIdx]); tourSync(); }
+ 961→    });
+ 962→    if (tourNext) tourNext.addEventListener("click", function () {
+ 963→      if (tourIdx >= TOUR.length - 1) { tourIdx = 0; go(TOUR[0]); tourSync(); return; }
+ 964→      if (tourIdx < 0) tourIdx = 0; else tourIdx++;
+ 965→      go(TOUR[tourIdx]); tourSync();
+ 966→    });
+ 967→    tourSync(); // 初始态：未起卷时「上一站」禁用
+ 968→
+ 969→    var hint = document.getElementById("stageHint");
+ 970→    function hideHint() { if (!hinted && hint) { hinted = true; hint.classList.add("is-hidden"); } }
+ 971→
+ 972→    /* ---------- 渲染循环 ---------- */
+ 973→    var clock = new THREE.Clock();
+ 974→    function animate() {
+ 975→      requestAnimationFrame(animate);
+ 976→      var dt = Math.min(clock.getDelta(), 0.05);
+ 977→      var t = clock.elapsedTime;
+ 978→      try {
+ 979→      if (fly) {
+ 980→        var k = fly.dur ? Math.min((performance.now() - fly.start) / fly.dur, 1) : 1;
+ 981→        var ek = ease(k);
+ 982→        var bell = Math.sin(Math.PI * k); bell *= bell; // 钟形包络：中段满幅，起落两端归零
+ 983→        ctl.tgt.lerpVectors(fly.t0, fly.t1, ek);
+ 984→        ctl.r = fly.r0 + (fly.r1 - fly.r0) * ek + fly.sweep * bell;
+ 985→        ctl.theta = fly.th0 + fly.dTh * ek;
+ 986→        ctl.phi = THREE.MathUtils.clamp(fly.ph0 + (fly.ph1 - fly.ph0) * ek - fly.lift * bell, 0.12, 1.42);
+ 987→        camera.fov = 46 + fly.fovAmp * bell; camera.updateProjectionMatrix();
+ 988→        applyCamera();
+ 989→        if (k >= 1) {
+ 990→          ctl.dR = ctl.r; ctl.dTheta = ctl.theta; ctl.dPhi = ctl.phi; ctl.dTgt.copy(ctl.tgt);
+ 991→          camera.fov = 46; camera.updateProjectionMatrix();
+ 992→          fly = null;
+ 993→          if (inkPulse && inkPulse.animate) inkPulse.animate([{ opacity: 0.16 }, { opacity: 0 }], { duration: 700, easing: "ease-out" }); // 墨韵收笔
+ 994→        }
+ 995→      } else {
+ 996→        ctl.tgt.lerp(ctl.dTgt, 0.1);
+ 997→        ctl.r += (ctl.dR - ctl.r) * 0.1;
+ 998→        ctl.theta += (ctl.dTheta - ctl.theta) * 0.12;
+ 999→        ctl.phi += (ctl.dPhi - ctl.phi) * 0.12;
+1000→        applyCamera();
+1001→      }
+1002→      if (!reduced) {
+1003→        seaMat.uniforms.uTime.value = t;
+1004→        waterTexA.offset.x += dt * 0.02;
+1005→        waterTexB.offset.x -= dt * 0.012;
+1006→        mists.forEach(function (sp) {
+1007→          sp.position.x += sp.userData.v * dt;
+1008→          if (sp.position.x > 82) sp.position.x = -82;
+1009→        });
+1010→        cshadows.forEach(function (cs) {
+1011→          cs.position.x += cs.userData.v * dt;
+1012→          if (cs.position.x > 62) cs.position.x = -62; // 水面收边后，云影同步收在水面内
+1013→        });
+1014→        var mp = moteGeo.attributes.position.array;
+1015→        for (var mi2 = 0; mi2 < mN; mi2++) {
+1016→          mp[mi2 * 3] += dt * (0.45 + (mi2 % 5) * 0.15);
+1017→          mp[mi2 * 3 + 1] += Math.sin(t * 0.5 + mSeed[mi2]) * dt * 0.2;
+1018→          if (mp[mi2 * 3] > 88) mp[mi2 * 3] = -88;
+1019→        }
+1020→        moteGeo.attributes.position.needsUpdate = true;
+1021→        sway.forEach(function (s) {
+1022→          s.m.rotation.z = Math.sin(t * 0.6 + s.p) * s.a;
+1023→        });
+1024→        if (moonCol) moonCol.material.opacity = 0.42 + Math.sin(t * 1.3) * 0.1 + Math.sin(t * 3.7) * 0.05;
+1025→        if (boat.userData.baseY !== undefined) boat.position.y = boat.userData.baseY + Math.sin(t * 1.4) * 0.06;
+1026→      }
+1027→      // 疏雨：雨丝下落 + 侧风斜飘；雨场随相机回绕（相机周围 ±60 内常驻 900 条，近观不稀）
+1028→      if (rain) {
+1029→        var rp = rain.geometry.attributes.position.array, rd = rain.userData.data, rs = rain.userData.spd;
+1030→        var rcx = camera.position.x, rcz = camera.position.z, RB = 60, RB2 = 120;
+1031→        for (var ri2 = 0; ri2 < rd.length; ri2++) {
+1032→          var rd0 = rd[ri2];
+1033→          rd0.y -= rs[ri2] * dt;
+1034→          if (rd0.y < 0) { rd0.y += 46; rd0.x = rcx - RB + Math.random() * RB2; rd0.z = rcz - RB + Math.random() * RB2; }
+1035→          if (rd0.x < rcx - RB) rd0.x += RB2; else if (rd0.x > rcx + RB) rd0.x -= RB2;
+1036→          if (rd0.z < rcz - RB) rd0.z += RB2; else if (rd0.z > rcz + RB) rd0.z -= RB2;
+1037→          rp[ri2 * 6] = rd0.x; rp[ri2 * 6 + 1] = rd0.y; rp[ri2 * 6 + 2] = rd0.z;
+1038→          rp[ri2 * 6 + 3] = rd0.x + 0.38; rp[ri2 * 6 + 4] = rd0.y + rd0.len; rp[ri2 * 6 + 5] = rd0.z;
+1039→        }
+1040→        rain.geometry.attributes.position.needsUpdate = true;
+1041→      }
+1042→      // 朱砂点：全景时浮现呼吸，飞行/景点机位时隐去；远处按距离向雾气淡出（雾 far=135 外不硬消失）
+1043→      var mkT = (fly || curKey !== "overview") ? 0 : 0.9;
+1044→      markers.forEach(function (m, i) {
+1045→        var fk = THREE.MathUtils.clamp(1 - (camera.position.distanceTo(m.position) - 55) / 150, 0.4, 1);
+1046→        m.material.opacity += (mkT * fk - m.material.opacity) * Math.min(1, dt * 4.5);
+1047→        m.visible = m.material.opacity > 0.02;
+1048→        var pu = reduced ? 2.3 : 2.3 * (1 + Math.sin(t * 1.8 + m.userData.ph) * 0.07);
+1049→        m.scale.set(pu, pu, 1);
+1050→        var ns = nameSprites[i];
+1051→        if (ns) { ns.material.opacity = m.material.opacity * 0.95; ns.visible = m.visible; }
+1052→      });
+1053→      if (postScene) {
+1054→        renderer.setRenderTarget(rt);
+1055→        renderer.render(scene, camera);
+1056→        renderer.setRenderTarget(null);
+1057→        renderer.render(postScene, postCam);
+1058→      } else renderer.render(scene, camera);
+1059→      } catch (err) {
+1060→        // 渲染循环绝不允许死掉：异常拦截 + 释放 fly（fly 卡死会永久锁死拖拽）
+1061→        if (!window.__mapErr) { window.__mapErr = err; console.error("[水墨行迹] 渲染循环异常（已拦截并继续）:", err); }
+1062→        fly = null;
+1063→        camera.fov = 46; camera.updateProjectionMatrix();
+1064→      }
+1065→    }
+1066→    resize();
+1067→    animate();
+1068→    dotBtns[7].classList.add("is-active");
+1069→  })();
+1070→  </script>
+1071→</body></html>
