@@ -1483,7 +1483,7 @@ body.map-page .map-tab{display:none}
 .dot-btn-overview .dot-tip{opacity:1}
 .dot-btn-overview + .dot-btn::after{content:"";position:absolute;left:50%;top:-14px;transform:translateX(-50%);width:1px;height:10px;background:rgba(122,84,58,.4)}
 
-/* —— 云游指南浮层（f62）：每次进入自动展开，顶栏「？」随时重看 ——
+/* —— 云游指南浮层（f62）：首访自动展开，顶栏「？」随时重看 ——
    .map-guide 全屏居中定位；.is-open 控制淡入 + 卡片上浮弹入；[hidden] 直接不占位
    .map-guide-mask 半透明压暗 + 模糊背景，点击等于「先自己随便看看」
    .map-guide-card 米黄宣纸底卡片，三步指南 + 朱砂主按钮 + 虚线跳过小字 */
