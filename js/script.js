@@ -3173,6 +3173,39 @@
     });
   })();
 
+  // 入场须知：首次进入首页先提醒「戴耳机 / 多用滚轮 / 半沉浸」，关闭后本次会话不再出现
+  (function initializeEnterNotice() {
+    if (!document.body.classList.contains("home-page")) return;
+    const notice = document.getElementById("enterNotice");
+    if (!notice) return;
+    const STORAGE_KEY = "liyu-enter-notice-seen";
+    let seen = false;
+    try { seen = sessionStorage.getItem(STORAGE_KEY) === "1"; } catch (error) { seen = false; }
+    if (seen) return;
+    const button = notice.querySelector(".enter-notice-btn");
+    let closed = false;
+    const close = () => {
+      if (closed) return;
+      closed = true;
+      notice.classList.remove("is-on");
+      try { sessionStorage.setItem(STORAGE_KEY, "1"); } catch (error) { /* 隐私模式禁用存储时忽略 */ }
+      window.setTimeout(() => { notice.hidden = true; }, 440);
+      // 关闭后把键盘焦点交还封面按钮，避免焦点悬空
+      document.querySelector(".book-open-button")?.focus({ preventScroll: true });
+    };
+    notice.hidden = false;
+    requestAnimationFrame(() => notice.classList.add("is-on"));
+    button?.focus({ preventScroll: true });
+    button?.addEventListener("click", close);
+    // 点卡片外空白或按 Esc 也可关闭，提示不会挡住进入封面
+    notice.addEventListener("click", (event) => { if (event.target === notice) close(); });
+    window.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape" || closed) return;
+      event.preventDefault();
+      close();
+    });
+  })();
+
   // 时间轴尽头导读：读到最后一段时点亮提示，并让右侧「月色故人 · 水墨行迹」侧签同步提亮（仅月色故人页）
   (function initializeTrailGuide() {
     if (!document.body.classList.contains("life-page")) return;

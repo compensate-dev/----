@@ -15,14 +15,31 @@
   <meta property="og:description" content="走进南唐后主李煜的一生与词作，读写作背景、听词句回响，在一江春水间遇见千年前的悲欢。">
   <meta property="og:image" content="assets/image/home-hero-clean-v2.jpg">
   <meta property="og:locale" content="zh_CN">
-  <link rel="stylesheet" href="css/style.css?v=f120">
+  <link rel="stylesheet" href="css/style.css?v=f121">
   <script src="js/three.min.js" defer></script>
-  <script src="js/script.js?v=f120" defer></script>
+  <script src="js/script.js?v=f121" defer></script>
 </head>
 <!-- body.home-page：首页专用类，供 CSS 区分首页与其他子页（开场未揭开前隐藏页头与正文） -->
 <body class="home-page">
 <!-- 跳过导航：键盘用户按 Tab 时可直接跳入正文(#main-content) -->
   <a class="skip-link" href="#main-content">跳至主要内容</a>
+<!-- 入场须知：首次进入网站先提醒戴耳机、半沉浸与多用滚轮；关闭后本次会话不再出现（交互见 script.js） -->
+  <section class="enter-notice" id="enterNotice" role="dialog" aria-modal="true" aria-labelledby="enterNoticeTitle" aria-describedby="enterNoticeLead" hidden>
+    <div class="enter-notice-card">
+      <span class="enter-notice-seal" aria-hidden="true">听</span>
+      <span class="enter-notice-kicker">BEFORE YOU ENTER · 入场须知</span>
+      <h2 id="enterNoticeTitle">请戴好耳机，<br>再往下走。</h2>
+      <p id="enterNoticeLead" class="enter-notice-lead">这是一段半沉浸的词境漫游。画面、江声与词句，会跟着你的滚动缓缓展开。</p>
+<!-- 三条提示：耳机 / 滚轮 / 半沉浸，各配一枚线描图标 -->
+      <ul class="enter-notice-list">
+        <li><i aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="2.5" y="12.5" width="4" height="7.5" rx="2"/><rect x="17.5" y="12.5" width="4" height="7.5" rx="2"/></svg></i><div><b>戴好耳机</b><span>风声、水声与诵读都在声音里，音响会漏掉一半。</span></div></li>
+        <li><i aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><rect x="7" y="2.5" width="10" height="19" rx="5"/><path d="M12 6.2v3.4M12 13v2.6m0 0-2.2-2.2m2.2 2.2 2.2-2.2"/></svg></i><div><b>多用滚轮</b><span>向下滚动是这场漫游的主动作，慢一点，画面才看得清。</span></div></li>
+        <li><i aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor" fill-opacity=".28" stroke="none"/><path d="M12 3.5v17"/></svg></i><div><b>半沉浸</b><span>不必全屏也不必连续看，安静读完这一江春水就好。</span></div></li>
+      </ul>
+      <button class="enter-notice-btn" type="button">知道了，进入词境 <span aria-hidden="true">↓</span></button>
+      <p class="enter-notice-note">按 Esc 或点空白处也能关闭 · 本次浏览不再提示</p>
+    </div>
+  </section>
 <!-- 开场封面：全屏「书封」层，role=dialog 语义化，读到封面标题为无障碍名称 -->
   <section class="book-opening" role="dialog" aria-modal="true" aria-labelledby="book-cover-heading">
 <!-- 封面右侧花枝：立于封面右侧的梅枝小鸟图，正片叠底并轻微摇曳，纯装饰 -->
