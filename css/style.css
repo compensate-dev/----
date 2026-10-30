@@ -503,7 +503,7 @@ textarea::placeholder{color:#9aa297}
 .recite-list{margin-left:18%}
 .recite-card{display:grid;grid-template-columns:190px 1fr;gap:31px;padding:21px 0;border-bottom:1px solid var(--line)}
 .recite-art{min-height:158px;position:relative;overflow:hidden;background:linear-gradient(150deg,#8a9a82,#435d4a);background-position:center calc(50% + var(--scroll-y,0px));background-size:cover;display:flex;flex-direction:column;justify-content:center;align-items:center;color:#f4f0e5}
-.recite-art:not(.art-moon):not(.art-rain){background-image:url("../assets/image/recite-spring-river.jpg")}
+.recite-art:not(.art-moon):not(.art-rain):not(.art-guoguo):not(.art-wuyeti){background-image:url("../assets/image/recite-spring-river.jpg")}
 .recite-art:after{content:none}
 .recite-art>span,.recite-art>b,.recite-art>small{position:relative;z-index:1}
 .recite-art>span{font:9px var(--sans);letter-spacing:.14em;align-self:flex-start;margin:13px 15px 0}
@@ -511,6 +511,9 @@ textarea::placeholder{color:#9aa297}
 .recite-art>small{font:8px var(--sans);letter-spacing:.2em;color:#d8dacd;margin-bottom:14px}
 .art-moon{background-image:url("../assets/image/recite-moon-courtyard.jpg")}
 .art-rain{background-image:url("../assets/image/recite-rain-courtyard.jpg")}
+/* 其四/其五的专用插图：破阵子用竖幅剧照取底部「仓皇辞庙」一段，乌夜啼整幅入画 */
+.art-guoguo{background-image:url("../assets/image/recite-pozhenzi.jpg");background-position:center 100%}
+.art-wuyeti{background-image:url("../assets/image/recite-wuyeti.jpg")}
 .recite-info{padding:11px 0}
 .recite-info h3{font-size:19px;font-weight:500;letter-spacing:.08em;margin:8px 0}
 .recite-info p{font-size:11px;color:#7c857b;margin:0}
