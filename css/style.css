@@ -1816,11 +1816,16 @@ body.home-page.stage-mode .scene-content::-webkit-scrollbar{width:0;height:0}
 body.home-page.stage-mode .scene-content>*{width:100%;flex:none;margin:auto 0}
 
 body.home-page.stage-mode .scene[data-scene="0"]{background:#f1f2ec}
-body.home-page.stage-mode .scene[data-scene="1"]{background:#f3f3ed}
-body.home-page.stage-mode .scene[data-scene="2"]{background:#e9ebe4}
-body.home-page.stage-mode .scene[data-scene="3"]{background:#ebe9dc}
-body.home-page.stage-mode .scene[data-scene="4"]{background:#f3f3ed}
-body.home-page.stage-mode .scene[data-scene="5"]{background:#eef0e8}
+body.home-page.stage-mode .scene[data-scene="1"]{background:#f4f2ea}
+body.home-page.stage-mode .scene[data-scene="2"]{background:#f3f3ed}
+body.home-page.stage-mode .scene[data-scene="3"]{background:#f2f0e6}
+body.home-page.stage-mode .scene[data-scene="4"]{background:#e9ebe4}
+body.home-page.stage-mode .scene[data-scene="5"]{background:#f4f2ea}
+body.home-page.stage-mode .scene[data-scene="6"]{background:#ebe9dc}
+body.home-page.stage-mode .scene[data-scene="7"]{background:#f1efe5}
+body.home-page.stage-mode .scene[data-scene="8"]{background:#f3f3ed}
+body.home-page.stage-mode .scene[data-scene="9"]{background:#f4f2ea}
+body.home-page.stage-mode .scene[data-scene="10"]{background:#eef0e8}
 
 /* 换幕语法：一幕一种镜头运动（横移 / 升幕 / 叠化 / 翻页 / 纵深），不再全是"飞来" */
 /* 入场起始态由 JS 写入变量：--ex/--ey/--ez 位移，--eyr 绕 Y 转，--exr 绕 X 转，--ezr 滚转，--es 缩放，--eb 模糊 */
@@ -1875,24 +1880,16 @@ body.home-page.stage-mode .stage-wash{position:absolute;inset:0;z-index:10;point
 body.home-page.stage-mode .stage-wash.is-on{animation:stageWash .98s cubic-bezier(.42,0,.52,1) both}
 @keyframes stageWash{0%{opacity:0}16%{opacity:.48}32%{opacity:.72}62%{opacity:.28}100%{opacity:0}}
 
-/* 折子引导：书脊上只露一枚折角，翻开是"下一折"的预告，点它即翻到下一幕 */
-body.home-page.stage-mode .fold-guide{position:fixed;left:0;top:50%;transform:translateY(-50%);z-index:17;display:flex;align-items:stretch;filter:drop-shadow(0 16px 26px rgba(40,60,48,.14))}
-body.home-page.stage-mode .fg-toggle{position:relative;width:30px;height:110px;padding:0;border:0;border-radius:0 3px 3px 0;background:linear-gradient(180deg,#f3efe2,#e4dfcd);cursor:pointer;display:grid;place-items:center}
-body.home-page.stage-mode .fg-toggle span{writing-mode:vertical-rl;font:11px var(--sans);letter-spacing:.42em;color:#3b5044}
-body.home-page.stage-mode .fg-toggle:before,
-body.home-page.stage-mode .fg-toggle:after{content:"";position:absolute;left:0;right:0;height:1px;background:rgba(58,82,66,.14)}
-body.home-page.stage-mode .fg-toggle:before{top:16px}
-body.home-page.stage-mode .fg-toggle:after{bottom:16px}
-body.home-page.stage-mode .fold-guide:hover .fg-toggle,
-body.home-page.stage-mode .fold-guide.is-open .fg-toggle{background:linear-gradient(180deg,#fbf8ee,#e9e4d2)}
-body.home-page.stage-mode .fg-sheet{position:relative;display:flex;align-items:center;gap:12px;width:0;height:110px;padding:0;border:0;opacity:0;overflow:hidden;background:linear-gradient(180deg,#f9f6ec,#eae5d4);border-radius:0 6px 6px 0;cursor:pointer;white-space:nowrap;text-align:left;transition:width .52s cubic-bezier(.22,1,.36,1),opacity .3s ease,padding .52s cubic-bezier(.22,1,.36,1)}
-body.home-page.stage-mode .fold-guide.is-open .fg-sheet{width:186px;padding:0 18px 0 20px;opacity:1}
-body.home-page.stage-mode .fg-kicker{writing-mode:vertical-rl;font:9.5px var(--sans);letter-spacing:.34em;color:#8b9a8c}
-body.home-page.stage-mode .fg-name{font-family:var(--serif);font-size:19px;letter-spacing:.16em;color:#24382d;opacity:0;transition:opacity .3s ease .08s}
-body.home-page.stage-mode .fg-arrow{margin-left:auto;font:13px var(--sans);color:#7d8f83;opacity:0;transform:translateX(-5px);transition:opacity .3s ease .1s,transform .4s cubic-bezier(.22,1,.36,1) .1s}
-body.home-page.stage-mode .fold-guide.is-open .fg-name,
-body.home-page.stage-mode .fold-guide.is-open .fg-arrow{opacity:1;transform:none}
-body.home-page.stage-mode .fg-sheet:focus-visible{outline:1px solid #8b9d8e;outline-offset:-3px}
+/* 折子幕：一整屏只放一句引子，把读者带到下一部分 */
+body.home-page.stage-mode .fold-scene .scene-content{display:flex;align-items:center;justify-content:center;padding:clamp(40px,10vh,120px) clamp(28px,6vw,120px)}
+body.home-page.stage-mode .fold-card{position:relative;width:min(1120px,88vw)}
+body.home-page.stage-mode .fold-kicker{position:absolute;left:0;top:4px;writing-mode:vertical-rl;font:11px var(--sans);letter-spacing:.5em;color:#7f8d80}
+body.home-page.stage-mode .fold-line{display:flex;align-items:center;gap:clamp(14px,2.2vw,32px);padding-left:clamp(60px,6.4vw,104px)}
+body.home-page.stage-mode .fold-line h2{margin:0;font-family:var(--serif);font-weight:400;font-size:clamp(32px,4.6vw,68px);line-height:1.22;letter-spacing:.09em;color:#26392e}
+body.home-page.stage-mode .fold-stroke{flex:0 0 auto;width:clamp(80px,10vw,160px);height:18px;fill:none;stroke:#8d7f66;stroke-width:1.3;stroke-linecap:round;opacity:.55}
+body.home-page.stage-mode .fold-rule{display:block;height:1px;margin:clamp(22px,3.4vh,40px) 0 0 clamp(60px,6.4vw,104px);background:linear-gradient(90deg,rgba(118,102,74,.46),rgba(118,102,74,0) 78%)}
+body.home-page.stage-mode .fold-seal{position:absolute;right:0;top:clamp(-58px,-5vh,-34px);width:44px;height:44px;display:grid;place-items:center;border:1px solid rgba(112,96,66,.42);background:rgba(255,255,255,.2);transform:rotate(45deg);opacity:.86}
+body.home-page.stage-mode .fold-seal b{transform:rotate(-45deg);font-family:var(--serif);font-weight:400;font-size:17px;color:#6f5f43}
 
 /* 滚动提示：静置时一句轻招 */
 body.home-page.stage-mode .stage-hint{position:fixed;left:50%;bottom:78px;transform:translateX(-50%);z-index:15;display:flex;flex-direction:column;align-items:center;gap:8px;font:10px var(--sans);letter-spacing:.26em;color:#5a6b5f;pointer-events:none;opacity:0;transition:opacity .6s ease}
@@ -1943,12 +1940,14 @@ body.home-page.stage-mode .poem-card:hover .poem-arrow{transform:translate(3px,-
   body.home-page.stage-mode .home-stage .narrative-thread{padding:12px 7% 10px}
   body.home-page.stage-mode .scene.is-settled{transform:translate3d(0,0,0) rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(1)}
   body.home-page.stage-mode .scene-wrap{padding:70px 0 58px}
-  body.home-page.stage-mode .fold-guide{top:auto;bottom:96px;transform:none}
-  body.home-page.stage-mode .fg-toggle{width:26px;height:88px}
-  body.home-page.stage-mode .fg-sheet{height:88px}
-  body.home-page.stage-mode .fold-guide.is-open .fg-sheet{width:160px;padding:0 14px 0 16px}
-  body.home-page.stage-mode .fg-name{font-size:16px}
   body.home-page.stage-mode .stage-hint{bottom:70px;letter-spacing:.18em}
+  body.home-page.stage-mode .fold-scene .scene-content{padding:80px 9vw 90px}
+  body.home-page.stage-mode .fold-kicker{position:static;writing-mode:horizontal-tb;letter-spacing:.3em;display:block;margin-bottom:14px}
+  body.home-page.stage-mode .fold-line{flex-direction:column;align-items:flex-start;gap:12px;padding-left:0}
+  body.home-page.stage-mode .fold-line h2{font-size:clamp(26px,8vw,38px);line-height:1.3}
+  body.home-page.stage-mode .fold-stroke{width:84px}
+  body.home-page.stage-mode .fold-rule{margin-left:0}
+  body.home-page.stage-mode .fold-seal{top:auto;bottom:-46px;right:0;width:34px;height:34px}
 }
 @media(hover:none){body.home-page.stage-mode .stage-rail button:after{display:none}}
 @media(prefers-reduced-motion:reduce){

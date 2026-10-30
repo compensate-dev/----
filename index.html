@@ -15,9 +15,9 @@
   <meta property="og:description" content="走进南唐后主李煜的一生与词作，读写作背景、听词句回响，在一江春水间遇见千年前的悲欢。">
   <meta property="og:image" content="assets/image/home-hero-clean-v2.jpg">
   <meta property="og:locale" content="zh_CN">
-  <link rel="stylesheet" href="css/style.css?v=f81">
+  <link rel="stylesheet" href="css/style.css?v=f82">
   <script src="js/three.min.js" defer></script>
-  <script src="js/script.js?v=f81" defer></script>
+  <script src="js/script.js?v=f82" defer></script>
 </head>
 <!-- body.home-page：首页专用类，供 CSS 区分首页与其他子页（开场未揭开前隐藏页头与正文） -->
 <body class="home-page">
@@ -245,18 +245,26 @@
         </div>
       </section>
 
-<!-- 词人介绍：左侧李煜画像 + 中间文字 + 右侧《虞美人》名句卡 -->
-      <section class="scene" data-scene="1" data-chapter="贰 · 识其人" aria-label="第二章 识其人">
+      <!-- 第一折：独立一幕，只作引子，不承载内容 -->
+      <section class="scene fold-scene" data-scene="1" data-chapter="第一折 · 识其人" aria-label="第一折 识其人">
         <div class="scene-wrap">
-    <aside class="narrative-thread" aria-hidden="true">
-      <span class="nt-kicker">第一折 · 识其人</span>
-      <span class="nt-line">他从金陵的月色里走来</span>
-      <b class="nt-glyph">人</b>
-      <svg class="nt-stroke" viewBox="0 0 220 18"><path pathLength="1" d="M2 12 C42 4 73 16 112 9 S178 4 218 8"/></svg>
-    </aside>
+          <div class="scene-content">
+            <div class="fold-card">
+              <span class="fold-kicker">第一折 · 识其人</span>
+              <div class="fold-line"><h2>他从金陵的月色里走来</h2><svg class="fold-stroke" viewBox="0 0 220 18" aria-hidden="true"><path pathLength="1" d="M2 12 C42 4 73 16 112 9 S178 4 218 8"/></svg></div>
+              <span class="fold-rule" aria-hidden="true"></span>
+              <span class="fold-seal" aria-hidden="true"><b>折</b></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+<!-- 词人介绍：左侧李煜画像 + 中间文字 + 右侧《虞美人》名句卡 -->
+      <section class="scene" data-scene="2" data-chapter="贰 · 识其人" aria-label="第二章 识其人">
+        <div class="scene-wrap">
     <div class="scene-content">
     <section class="intro section-wrap">
-      <div class="intro-poet"><div class="section-kicker">01 <span>THE POET</span></div><div class="portrait-frame"><img class="poet-portrait" src="assets/image/li-yu-portrait.jpg" alt="李煜人物画像" loading="lazy" decoding="async"></div></div>
+      <div class="intro-poet"><div class="section-kicker">01 <span>THE POET</span></div><div class="portrait-frame"><img class="poet-portrait" src="assets/image/li-yu-portrait.jpg" alt="李煜人物画像" decoding="async"></div></div>
       <div class="intro-heading"><h2>他把无常，<br>写成了永恒。</h2><p>李煜，南唐最后一位君主，也是中国词史上极具感染力的抒情者。前期词写宫廷生活与男女情思，后期词则沉入故国之思、身世之痛；词风由绮丽转为深沉，开拓了词的表达境界。</p><a class="under-link" href="pages/life.html">走近李煜 <span>↗</span></a></div>
       <div class="intro-card"><span class="card-index">A LIFE IN VERSE</span><p>“春花秋月何时了，<br>往事知多少。”</p><span class="card-caption">《虞美人》 · 绝唱</span><span class="card-orbit"></span></div>
     </section>
@@ -264,16 +272,23 @@
         </div>
       </section>
 
-      <section class="scene" data-scene="2" data-chapter="叁 · 读其词" aria-label="第三章 读其词">
+      <!-- 第二折：独立一幕，只作引子，不承载内容 -->
+      <section class="scene fold-scene" data-scene="3" data-chapter="第二折 · 读其词" aria-label="第二折 读其词">
         <div class="scene-wrap">
+          <div class="scene-content">
+            <div class="fold-card">
+              <span class="fold-kicker">第二折 · 读其词</span>
+              <div class="fold-line"><h2>他把心事，写进词里</h2><svg class="fold-stroke" viewBox="0 0 220 18" aria-hidden="true"><path pathLength="1" d="M2 12 C42 4 73 16 112 9 S178 4 218 8"/></svg></div>
+              <span class="fold-rule" aria-hidden="true"></span>
+              <span class="fold-seal" aria-hidden="true"><b>折</b></span>
+            </div>
+          </div>
+        </div>
+      </section>
 
 <!-- 精选词作：四张词卡(配图 + 编号 + 题材 + 词名 + 句选)，点击进入词作笺赏页锚点 -->
-    <aside class="narrative-thread nt-alt" aria-hidden="true">
-      <span class="nt-kicker">第二折 · 读其词</span>
-      <span class="nt-line">他把心事，写进词里</span>
-      <b class="nt-glyph">词</b>
-      <svg class="nt-stroke" viewBox="0 0 220 18"><path pathLength="1" d="M2 12 C42 4 73 16 112 9 S178 4 218 8"/></svg>
-    </aside>
+      <section class="scene" data-scene="4" data-chapter="叁 · 读其词" aria-label="第三章 读其词">
+        <div class="scene-wrap">
     <div class="scene-content">
     <section class="feature-section">
 <!-- 两山开合（左/右）：区块底层的山影装饰，随区块进出视口进度向两侧退开、渐隐消散（--part-p 由脚本写入，纯装饰） -->
@@ -290,15 +305,22 @@
         </div>
       </section>
 
-<!-- 词外余韵：引导进入「词容万象」页 -->
-      <section class="scene" data-scene="3" data-chapter="肆 · 拾其句" aria-label="第四章 拾其句">
+      <!-- 第三折：独立一幕，只作引子，不承载内容 -->
+      <section class="scene fold-scene" data-scene="5" data-chapter="第三折 · 拾其句" aria-label="第三折 拾其句">
         <div class="scene-wrap">
-    <aside class="narrative-thread" aria-hidden="true">
-      <span class="nt-kicker">第三折 · 拾其句</span>
-      <span class="nt-line">词散作水中字，等你拾回</span>
-      <b class="nt-glyph">拾</b>
-      <svg class="nt-stroke" viewBox="0 0 220 18"><path pathLength="1" d="M2 12 C42 4 73 16 112 9 S178 4 218 8"/></svg>
-    </aside>
+          <div class="scene-content">
+            <div class="fold-card">
+              <span class="fold-kicker">第三折 · 拾其句</span>
+              <div class="fold-line"><h2>词散作水中字，等你拾回</h2><svg class="fold-stroke" viewBox="0 0 220 18" aria-hidden="true"><path pathLength="1" d="M2 12 C42 4 73 16 112 9 S178 4 218 8"/></svg></div>
+              <span class="fold-rule" aria-hidden="true"></span>
+              <span class="fold-seal" aria-hidden="true"><b>折</b></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="scene" data-scene="6" data-chapter="肆 · 拾其句" aria-label="第四章 拾其句">
+        <div class="scene-wrap">
     <div class="scene-content">
     <section class="verse-game section-wrap" aria-labelledby="verse-game-title">
       <span class="verse-game-seal" aria-hidden="true">戏</span>
@@ -329,29 +351,46 @@
         </div>
       </section>
 
-      <section class="scene" data-scene="4" data-chapter="伍 · 听回响" aria-label="第五章 听回响">
+      <!-- 第四折：独立一幕，只作引子，不承载内容 -->
+      <section class="scene fold-scene" data-scene="7" data-chapter="第四折 · 听回响" aria-label="第四折 听回响">
         <div class="scene-wrap">
-    <aside class="narrative-thread nt-alt" aria-hidden="true">
-      <span class="nt-kicker">第四折 · 听回响</span>
-      <span class="nt-line">千年之后，词还在被读</span>
-      <b class="nt-glyph">响</b>
-      <svg class="nt-stroke" viewBox="0 0 220 18"><path pathLength="1" d="M2 12 C42 4 73 16 112 9 S178 4 218 8"/></svg>
-    </aside>
+          <div class="scene-content">
+            <div class="fold-card">
+              <span class="fold-kicker">第四折 · 听回响</span>
+              <div class="fold-line"><h2>千年之后，词还在被读</h2><svg class="fold-stroke" viewBox="0 0 220 18" aria-hidden="true"><path pathLength="1" d="M2 12 C42 4 73 16 112 9 S178 4 218 8"/></svg></div>
+              <span class="fold-rule" aria-hidden="true"></span>
+              <span class="fold-seal" aria-hidden="true"><b>折</b></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="scene" data-scene="8" data-chapter="伍 · 听回响" aria-label="第五章 听回响">
+        <div class="scene-wrap">
     <div class="scene-content">
+<!-- 词外余韵：引导进入「词容万象」页 -->
     <section class="afterlife-section section-wrap"><div class="section-kicker">03 <span>BEYOND HIS TIME</span></div><div class="afterlife-copy"><div><h2>李煜已远去，<br><em>词中的他</em>仍在此刻。</h2><p>千年之后，人们仍在诗词、舞台与自己的阅读里重新看见李煜。走进不同的目光，看看同一个名字如何映出万千心境。</p></div><a class="button button-dark" href="pages/wanxiang.html">走进词容万象 <span>↗</span></a></div></section>
     </div>
         </div>
       </section>
 
-<!-- 结语：留心情表单 + 引导进入「听词入梦」页 -->
-      <section class="scene" data-scene="5" data-chapter="陆 · 留一笔" aria-label="第六章 留一笔">
+      <!-- 第五折：独立一幕，只作引子，不承载内容 -->
+      <section class="scene fold-scene" data-scene="9" data-chapter="第五折 · 留一笔" aria-label="第五折 留一笔">
         <div class="scene-wrap">
-    <aside class="narrative-thread" aria-hidden="true">
-      <span class="nt-kicker">第五折 · 留一笔</span>
-      <span class="nt-line">现在，轮到你了</span>
-      <b class="nt-glyph">留</b>
-      <svg class="nt-stroke" viewBox="0 0 220 18"><path pathLength="1" d="M2 12 C42 4 73 16 112 9 S178 4 218 8"/></svg>
-    </aside>
+          <div class="scene-content">
+            <div class="fold-card">
+              <span class="fold-kicker">第五折 · 留一笔</span>
+              <div class="fold-line"><h2>现在，轮到你了</h2><svg class="fold-stroke" viewBox="0 0 220 18" aria-hidden="true"><path pathLength="1" d="M2 12 C42 4 73 16 112 9 S178 4 218 8"/></svg></div>
+              <span class="fold-rule" aria-hidden="true"></span>
+              <span class="fold-seal" aria-hidden="true"><b>折</b></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+<!-- 结语：留心情表单 + 引导进入「听词入梦」页 -->
+      <section class="scene" data-scene="10" data-chapter="陆 · 留一笔" aria-label="第六章 留一笔">
+        <div class="scene-wrap">
     <div class="scene-content">
     <section class="closing section-wrap"><div class="closing-pine">松<br>影</div><div><div class="section-kicker">04 <span>MAKE A MOMENT</span></div><h2>此刻，你心中<br>也有一江春水吗？</h2><p>留下一句此刻的心情，让千年前的词与你相遇。</p><a class="button button-dark" href="pages/listen.html">进入听词小院 <span>↗</span></a></div><form class="mood-form"><label for="mood">把心情写在这里</label><textarea id="mood" maxlength="80" placeholder="例如：今夜月色很好……"></textarea><div class="form-bottom"><span id="mood-count">0 / 80</span><button type="submit">投进春水　↗</button></div><p class="mood-feedback" aria-live="polite"></p></form><div class="closing-river" aria-hidden="true"><i></i><i></i></div></section>
     </div>
@@ -365,18 +404,13 @@
       <div class="stage-wash" aria-hidden="true"></div>
     </div>
     <nav class="stage-rail" aria-label="首页章节">
-      <button type="button" data-go="0" aria-label="第一章 月下故园" aria-current="step"><i></i></button>
-      <button type="button" data-go="1" aria-label="第二章 识其人"><i></i></button>
-      <button type="button" data-go="2" aria-label="第三章 读其词"><i></i></button>
-      <button type="button" data-go="3" aria-label="第四章 拾其句"><i></i></button>
-      <button type="button" data-go="4" aria-label="第五章 听回响"><i></i></button>
-      <button type="button" data-go="5" aria-label="第六章 留一笔"><i></i></button>
+      <button type="button" data-go="0" aria-label="序幕 月下故园" aria-current="step"><i></i></button>
+      <button type="button" data-go="1" aria-label="第一折 识其人"><i></i></button>
+      <button type="button" data-go="3" aria-label="第二折 读其词"><i></i></button>
+      <button type="button" data-go="5" aria-label="第三折 拾其句"><i></i></button>
+      <button type="button" data-go="7" aria-label="第四折 听回响"><i></i></button>
+      <button type="button" data-go="9" aria-label="第五折 留一笔"><i></i></button>
     </nav>
-    <!-- 折子引导：书脊上只露出一枚折角，翻开是"下一折"的预告 -->
-    <aside class="fold-guide" aria-label="下一折引导">
-      <button class="fg-toggle" type="button" aria-expanded="false" aria-controls="foldNext"><span>折</span></button>
-      <button class="fg-sheet" id="foldNext" type="button"><span class="fg-kicker">下一折</span><b class="fg-name"></b><i class="fg-arrow">→</i></button>
-    </aside>
     <!-- 滚动提示：静置时轻轻招手 -->
     <div class="stage-hint" aria-hidden="true"><i></i><span>滚动 · 进入下一幕</span></div>
   </main>

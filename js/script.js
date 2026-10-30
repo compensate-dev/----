@@ -3410,13 +3410,19 @@
 
   /* ---------- 二、氛围基调（每幕一种水色墨意） ---------- */
   // cam = 每一幕的摄影机机位（DCC 里的一台推轨）：x 横移、y 升降、z 推拉、roll 滚转、fov 焦段
+  const FOLD_MOOD = (a, cam) => ({ a, b: 0xf4efe3, speed: 0.45, dirY: 0.05, opacity: 0.55, size: 0.85, name: "折白", cam });
   const MOODS = [
-    { a: 0xaebfb2, b: 0xe3e9de, speed: 0.8, dirY: 0.10, opacity: 0.75, size: 1.0, name: "月白", cam: { x: 0, y: 0, z: 0, roll: 0, fov: 46 } },       // 0 月色 · 静
-    { a: 0xc2ac8a, b: 0xe9dfc8, speed: 0.6, dirY: 0.06, opacity: 0.65, size: 0.9, name: "纸暖", cam: { x: -150, y: 58, z: -110, roll: -0.8, fov: 45 } },  // 1 识人 · 纸暖
-    { a: 0x7e9385, b: 0xd3dcd0, speed: 0.9, dirY: 0.12, opacity: 0.8, size: 1.0, name: "墨绿", cam: { x: 165, y: -44, z: -215, roll: 0.9, fov: 47 } },   // 2 读词 · 墨绿
-    { a: 0x8aa69e, b: 0xd2e1d9, speed: 1.2, dirY: -0.16, opacity: 0.85, size: 0.95, name: "水青", cam: { x: -78, y: 70, z: -300, roll: -0.6, fov: 45.5 } }, // 3 拾句 · 水流
-    { a: 0xc9a26f, b: 0xead9b6, speed: 0.7, dirY: 0.34, opacity: 0.8, size: 0.8, name: "灯金", cam: { x: 132, y: -62, z: -380, roll: 0.85, fov: 47.5 } }, // 4 回响 · 灯上浮
-    { a: 0x93a5ad, b: 0xd9e0e1, speed: 1.05, dirY: -0.4, opacity: 0.85, size: 0.9, name: "江灰", cam: { x: 6, y: 18, z: -450, roll: 0.15, fov: 46 } }    // 5 留笔 · 江下行
+    { a: 0xaebfb2, b: 0xe3e9de, speed: 0.8, dirY: 0.10, opacity: 0.75, size: 1.0, name: "月白", cam: { x: 0, y: 0, z: 0, roll: 0, fov: 46 } },       // 0 序幕 · 月下故园
+    FOLD_MOOD(0xd9cfb4, { x: 0, y: 0, z: 60, roll: 0, fov: 44 }),                                                                                     // 1 第一折 识其人
+    { a: 0xc2ac8a, b: 0xe9dfc8, speed: 0.6, dirY: 0.06, opacity: 0.65, size: 0.9, name: "纸暖", cam: { x: -150, y: 58, z: -110, roll: -0.8, fov: 45 } },  // 2 识人 · 纸暖
+    FOLD_MOOD(0xd3c6a8, { x: 40, y: -24, z: 120, roll: 0.3, fov: 43 }),                                                                                // 3 第二折 读其词
+    { a: 0x7e9385, b: 0xd3dcd0, speed: 0.9, dirY: 0.12, opacity: 0.8, size: 1.0, name: "墨绿", cam: { x: 165, y: -44, z: -215, roll: 0.9, fov: 47 } },   // 4 读词 · 墨绿
+    FOLD_MOOD(0xc9d2c8, { x: -36, y: 20, z: 90, roll: -0.28, fov: 44 }),                                                                               // 5 第三折 拾其句
+    { a: 0x8aa69e, b: 0xd2e1d9, speed: 1.2, dirY: -0.16, opacity: 0.85, size: 0.95, name: "水青", cam: { x: -78, y: 70, z: -300, roll: -0.6, fov: 45.5 } }, // 6 拾句 · 水流
+    FOLD_MOOD(0xd8c3a0, { x: 28, y: -18, z: 150, roll: 0.25, fov: 43.5 }),                                                                             // 7 第四折 听回响
+    { a: 0xc9a26f, b: 0xead9b6, speed: 0.7, dirY: 0.34, opacity: 0.8, size: 0.8, name: "灯金", cam: { x: 132, y: -62, z: -380, roll: 0.85, fov: 47.5 } }, // 8 回响 · 灯上浮
+    FOLD_MOOD(0xc6ccd2, { x: 0, y: 0, z: 110, roll: 0, fov: 44 }),                                                                                     // 9 第五折 留一笔
+    { a: 0x93a5ad, b: 0xd9e0e1, speed: 1.05, dirY: -0.4, opacity: 0.85, size: 0.9, name: "江灰", cam: { x: 6, y: 18, z: -450, roll: 0.15, fov: 46 } }    // 10 留笔 · 江下行
   ];
   let moodTarget = MOODS[0];
   /* ---------- 二之一、换幕导演：一幕一景，新幕自纵深飞来 ---------- */
@@ -3428,7 +3434,8 @@
     ".verse-game-head", ".verse-stage", ".verse-scroll",
     ".afterlife-copy",
     ".closing > div:not(.closing-pine)", ".mood-form",
-    ".nt-kicker", ".nt-line", ".nt-glyph"
+    ".nt-kicker", ".nt-line", ".nt-glyph",
+    ".fold-kicker", ".fold-line", ".fold-rule", ".fold-seal"
   ].join(",");
   let current = 0;
   let busy = false;
@@ -3438,19 +3445,19 @@
   let washTimer = 0;
   let camKick = 0;
   let rollKick = 0;
-  let surgeFn = () => {}; // three.js 就绪后接管：换幕时把悬浮物像鼓风一样推过镜头
-  let foldSync = () => {}; // three.js / 折子就绪后接管，更新"下一折"预告
   const stageGate = stage.querySelector(".stage-gate");
   const gateArt = scenes[0].querySelector(".hero-art");
 
+  // 章节栏只标六个分部：0 为序幕，其后每两幕（折子幕 + 内容幕）算一章
+  const railIndexFor = (idx) => (idx === 0 ? 0 : Math.ceil(idx / 2));
   const updateRail = (idx) => {
+    const active = railIndexFor(idx);
     railButtons.forEach((btn, i) => {
-      const on = i === idx;
+      const on = i === active;
       btn.classList.toggle("is-on", on);
       if (on) btn.setAttribute("aria-current", "step");
       else btn.removeAttribute("aria-current");
     });
-    foldSync(idx);
   };
   // 清 stagger：默认全清；传 scene 则保留该幕（落定后仍要留着 is-settled 让字句停在可见态）
   const clearStagger = (keepScene) => {
@@ -3477,7 +3484,8 @@
 
   /* 换幕语法：一幕一种镜头运动，别让每一幕都"飞来" */
   // 0→1 穿框（首幕画框被镜头穿过），其余依次：横移、升幕、纵深、翻页
-  const SEQ = ["gate", "slide", "rise", "depth", "turn"];
+  // 十个幕隙各给一种镜头语法：穿框之后不再重复"飞来"，折子幕与内容幕交替用不同调度
+  const SEQ = ["gate", "slide", "rise", "turn", "depth", "dissolve", "slide", "rise", "turn", "depth"];
   const MOVES = {
     dissolve: {
       enter: { z: "-90px", s: "1.05", b: "15px", dur: 1.34, ease: "cubic-bezier(.32,.68,.2,1)" },
@@ -3613,7 +3621,6 @@
         cutTimer = window.setTimeout(() => stageCut.classList.remove("is-on"), 230);
       }
     }
-    surgeFn(dir); // 鼓风：悬浮物从纵深涌向镜头
     scenes.forEach((scene, i) => { scene.style.zIndex = i === next ? "3" : i === current ? "2" : ""; });
 
     clearFx(to);
@@ -3690,50 +3697,8 @@
   body.dataset.act = "0";
   moodTarget = MOODS[0];
 
-  /* 折子引导：书脊上只露一枚折角，翻开是「下一折」的预告，点它翻到下一幕 */
-  const foldGuide = main.querySelector(".fold-guide");
-  const foldSheet = main.querySelector("#foldNext");
-  const foldToggle = main.querySelector(".fg-toggle");
-  const foldKicker = foldSheet?.querySelector(".fg-kicker");
-  const foldName = foldSheet?.querySelector(".fg-name");
+  // 滚动提示：静置时轻轻招手（入场结束且仍停在首幕时才出现）
   const stageHint = main.querySelector(".stage-hint");
-  const foldOpen = () => {
-    foldGuide?.classList.add("is-open");
-    foldToggle?.setAttribute("aria-expanded", "true");
-  };
-  const foldClose = () => {
-    foldGuide?.classList.remove("is-open");
-    foldToggle?.setAttribute("aria-expanded", "false");
-  };
-  foldSync = (idx) => {
-    if (!foldSheet || !foldName) return;
-    const last = idx >= scenes.length - 1;
-    const target = last ? 0 : idx + 1;
-    const parts = (scenes[target].dataset.chapter || "").split("·");
-    const name = (parts[1] || "").trim() || MOODS[target]?.name || "";
-    foldName.textContent = last ? "回到" + ((scenes[0].dataset.chapter || "").split("·")[1] || "第一折").trim() : name;
-    if (foldKicker) foldKicker.textContent = last ? "回卷" : "下一折";
-    foldGuide?.setAttribute("data-next", String(target));
-    foldSheet.setAttribute("aria-label", (last ? "回到第一幕 " : "翻到下一折 ") + name);
-  };
-  if (foldGuide && foldSheet) {
-    foldToggle?.addEventListener("click", (event) => {
-      event.stopPropagation();
-      if (foldGuide.classList.contains("is-open")) foldClose(); else foldOpen();
-    });
-    foldSheet.addEventListener("click", () => {
-      const target = Number(foldGuide.dataset.next || 0);
-      foldClose();
-      go(target);
-    });
-    foldGuide.addEventListener("pointerenter", () => { if (!matchMedia("(hover:none)").matches) foldOpen(); });
-    foldGuide.addEventListener("pointerleave", () => { if (!matchMedia("(hover:none)").matches) foldClose(); });
-    // 键盘 Tab 到折角时也翻开，免得摸到一块看不见的纸
-    foldGuide.addEventListener("focusin", foldOpen);
-    foldGuide.addEventListener("focusout", (event) => { if (!foldGuide.contains(event.relatedTarget)) foldClose(); });
-    document.addEventListener("click", (event) => { if (!foldGuide.contains(event.target)) foldClose(); });
-    foldSync(current);
-  }
   const hideHint = () => stageHint?.classList.remove("is-on");
   const hintTick = () => { // 只等入场真正结束、且仍停在首幕时才招手
     if (narrativeReady() && current === 0) stageHint?.classList.add("is-on");
@@ -3802,9 +3767,6 @@
   let pulse = 0;
   let atmosphere = null;
   const camNow = { x: 0, y: 0, z: 0, roll: 0, fov: 46 };
-  const surging = [];   // 换幕时被"鼓风"推过镜头的悬浮物
-  let surgeT = 1;
-  let pieceWhite = null;
   let lastTick = 0;
   if (typeof THREE !== "undefined") {
     try {
@@ -3918,132 +3880,7 @@
       });
       scene.add(new THREE.Points(geometry, material));
 
-      /* 鼓风物件：立体花瓣 / 墨珠 / 卷起的诗笺——真几何 + 两盏灯，换幕时从纵深涌过镜头 */
-      pieceWhite = new THREE.Color(0xffffff);
-      scene.add(new THREE.AmbientLight(0xfff7ea, 0.92));
-      const keyLight = new THREE.DirectionalLight(0xfff2d8, 0.92);
-      keyLight.position.set(420, 520, 640);
-      scene.add(keyLight);
-      const rimLight = new THREE.DirectionalLight(0xc9dcd0, 0.55);
-      rimLight.position.set(-560, -300, -420);
-      scene.add(rimLight);
-
-      // 花瓣：平面弯成瓢形，尖端收窄，翻过来看得到背面
-      const petalGeo = new THREE.PlaneGeometry(1, 1.3, 8, 10);
-      for (let i = 0; i < petalGeo.attributes.position.count; i++) {
-        const pos = petalGeo.attributes.position;
-        const x = pos.getX(i);
-        const y = pos.getY(i);
-        const u = Math.min(1, Math.abs(x) * 2);
-        const v = Math.min(1, Math.abs(y) / 0.65);
-        pos.setZ(i, -0.3 * (1 - u * u) * (0.5 + 0.5 * (1 - v)) + Math.sin(y * 2.6) * 0.045);
-        if (v > 0.6) pos.setX(i, x * (1 - (v - 0.6) * 1.4));
-      }
-      petalGeo.computeVertexNormals();
-
-      // 墨珠：压扁的球，像一笔将落未落的墨
-      const inkGeo = new THREE.SphereGeometry(0.62, 18, 14);
-      inkGeo.scale(1, 1, 0.58);
-
-      // 诗笺：卷起的纸条，竖排小字印在纸面上
-      const scrollGeo = new THREE.PlaneGeometry(1, 0.66, 18, 3);
-      for (let i = 0; i < scrollGeo.attributes.position.count; i++) {
-        const pos = scrollGeo.attributes.position;
-        pos.setZ(i, Math.cos(pos.getX(i) * 2.7) * 0.13);
-      }
-      scrollGeo.computeVertexNormals();
-      const scrollTex = (() => {
-        const c = document.createElement("canvas");
-        c.width = 256;
-        c.height = 168;
-        const g = c.getContext("2d");
-        g.fillStyle = "rgba(255,255,255,.93)";
-        if (g.roundRect) {
-          g.beginPath(); g.roundRect(8, 10, 240, 148, 5); g.fill();
-        } else {
-          g.fillRect(8, 10, 240, 148);
-        }
-        g.fillStyle = "rgba(44,58,48,.82)";
-        g.textAlign = "center";
-        g.textBaseline = "top";
-        g.font = "600 16px 'Songti SC','SimSun',Georgia,serif";
-        ["春花秋月", "往事知多", "一江春水"].forEach((col, ci) => {
-          for (let i = 0; i < col.length; i += 1) g.fillText(col[i], 56 + ci * 72, 22 + i * 21);
-        });
-        const tex = new THREE.CanvasTexture(c);
-        tex.minFilter = THREE.LinearFilter;
-        return tex;
-      })();
-
-      const pieceGeos = [petalGeo, inkGeo, scrollGeo];
-      const pieceSizes = [1.05, 0.6, 0.92];
-      const pieceTints = [1, 0.34, 0.96];
-      const PIECE_COUNT = desktopLayout ? 42 : 24;
-      for (let i = 0; i < PIECE_COUNT; i++) {
-        const kind = i % 3; // 花瓣 / 墨珠 / 诗笺
-        let material;
-        if (kind === 0) {
-          material = new THREE.MeshLambertMaterial({ color: 0xf4efe2, side: THREE.DoubleSide, transparent: true, opacity: 0, depthWrite: false });
-        } else if (kind === 1) {
-          material = new THREE.MeshPhongMaterial({ color: 0x33453a, specular: 0x8fa596, shininess: 26, transparent: true, opacity: 0, depthWrite: false });
-        } else {
-          material = new THREE.MeshLambertMaterial({ map: scrollTex, color: 0xf4efe2, side: THREE.DoubleSide, transparent: true, opacity: 0, depthWrite: false });
-        }
-        const mesh = new THREE.Mesh(pieceGeos[kind], material);
-        mesh.userData = {
-          kind, tint: pieceTints[kind], size: pieceSizes[kind], seed: Math.random() * 6.283,
-          // 屏占：每件物件在画面里大约占多高，按深度反推世界尺寸，才不会近处糊满整屏
-          apparent: (kind === 0 ? 0.07 : kind === 1 ? 0.042 : 0.062) + Math.random() * 0.06,
-          op: (kind === 1 ? 0.2 : 0.24) + Math.random() * 0.26,
-          z0: 0, x0: 0, y0: 0, delay: 0, spin: 0, rot: 0,
-          travel: 1, rx: 0, ry: 0, spinX: 0, spinY: 0, rvx: 0, rvy: 0, drift: 20
-        };
-        mesh.visible = false;
-        scene.add(mesh);
-        surging.push(mesh);
-      }
-      // 常态漂浮：每幕都有的活物，慢慢向镜头漂；指针靠近会被拂开再弹回
-      const spawnAmbient = (mesh) => {
-        const d = mesh.userData;
-        const z = -430 - Math.random() * 3200;
-        d.x0 = (Math.random() - 0.5) * Math.abs(z) * 0.95;
-        d.y0 = (Math.random() - 0.5) * Math.abs(z) * 0.6;
-        d.rot = Math.random() * 6.283;
-        d.spinX = (Math.random() - 0.5) * 1.2;
-        d.spinY = (Math.random() - 0.5) * 1.6;
-        d.spin = (Math.random() - 0.5) * 0.7;
-        d.drift = 16 + Math.random() * 48;
-        d.rx = d.ry = d.rvx = d.rvy = 0;
-        d.delay = 0;
-        mesh.position.set(d.x0, d.y0, z);
-        mesh.rotation.set(d.spinX, d.spinY, d.rot);
-        mesh.scale.setScalar(0.849 * Math.abs(z) * d.apparent);
-        mesh.material.opacity = d.op;
-        mesh.visible = true;
-      };
-      surging.forEach(spawnAmbient);
-      surgeFn = () => {
-        surgeT = 0;
-        for (let i = 0; i < surging.length; i++) {
-          const mesh = surging[i];
-          const d = mesh.userData;
-          const far = 950 + Math.random() * 3000;
-          d.z0 = -far;
-          d.x0 = (Math.random() - 0.5) * far * 0.95;
-          d.y0 = (Math.random() - 0.5) * far * 0.58;
-          d.delay = Math.random() * 0.28;
-          d.spin = (Math.random() - 0.5) * 3.6;
-          d.rot = Math.random() * 6.283;
-          d.spinX = (Math.random() - 0.5) * 3.4;
-          d.spinY = (Math.random() - 0.5) * 3.4;
-          d.travel = far + 700;
-          d.rx = d.ry = d.rvx = d.rvy = 0;
-          mesh.scale.setScalar(0.849 * far * d.apparent);
-          mesh.material.opacity = 0;
-          mesh.visible = true;
-        }
-      };
-      atmosphere = { renderer, scene, camera, uniforms, fogLayers, fogColor: new THREE.Color(MOODS[0].a), pieceColor: new THREE.Color(MOODS[0].a) };
+      atmosphere = { renderer, scene, camera, uniforms, fogLayers, fogColor: new THREE.Color(MOODS[0].a) };
       const onResize = () => {
         renderer.setSize(window.innerWidth, window.innerHeight, false);
         camera.aspect = window.innerWidth / window.innerHeight;
@@ -4123,17 +3960,6 @@
     if (!narrativeReady()) return;
     pulse = Math.min(1, pulse + 0.55);
     wind.x += (Math.random() - 0.5) * 0.05;
-    for (let i = 0; i < surging.length; i++) {
-      const mesh = surging[i];
-      const d = mesh.userData;
-      const depth = Math.abs(mesh.position.z);
-      const ox = d.x0 + d.rx - pointerLerp.x * depth * 0.78;
-      const oy = d.y0 + d.ry - pointerLerp.y * depth * 0.5;
-      const dist = Math.sqrt(ox * ox + oy * oy) || 1;
-      const force = Math.max(0, 1 - dist / 1900) * 46;
-      d.rvx += (ox / dist) * force;
-      d.rvy += (oy / dist) * force;
-    }
   }, { passive: true });
 
   /* ---------- 六、主循环：风、脉冲、幕间色调全部缓动 ---------- */
@@ -4187,79 +4013,6 @@
         mesh.material.color.copy(atmosphere.fogColor);
         mesh.position.y = mesh.userData.y + Math.sin(now * 0.00016 + mesh.userData.bob) * 120;
       });
-      // 鼓风：纸笺/花瓣/墨点带着自转掠过镜头，越近越大、末端淡出
-      if (surgeT < 1) {
-        surgeT = Math.min(1, surgeT + dt * 0.8);
-        atmosphere.pieceColor.copy(atmosphere.fogColor).lerp(pieceWhite, 0.4);
-        for (let i = 0; i < surging.length; i++) {
-          const mesh = surging[i];
-          const d = mesh.userData;
-          const local = Math.max(0, Math.min(1, (surgeT - d.delay) / 0.58));
-          const spread = 1 + local * 0.62;
-          mesh.position.set(
-            d.x0 * spread + Math.sin(now * 0.0005 + d.seed) * 26,
-            d.y0 * spread + Math.cos(now * 0.0004 + d.seed) * 22,
-            d.z0 + local * d.travel
-          );
-          mesh.rotation.set(d.spinX + local * 2.4, d.spinY + local * 1.7, d.rot + local * d.spin);
-          const fade = local < 0.08 ? local / 0.08 : local > 0.86 ? Math.max(0, (1 - local) / 0.14) : 1;
-          mesh.material.opacity = fade * d.op;
-          // 屏占随飞出略微涨大，但封顶：掠过镜头时是"拂面"而不是糊满视野
-          mesh.scale.setScalar(0.849 * Math.max(120, -mesh.position.z) * d.apparent * (0.72 + local * 1.3));
-          mesh.material.color.copy(atmosphere.pieceColor).multiplyScalar(d.tint);
-        }
-      } else {
-        // 常态：四十二件立体花瓣 / 墨珠 / 诗笺慢慢向镜头漂，指针靠近便拂开、点击一振
-        for (let i = 0; i < surging.length; i++) {
-          const mesh = surging[i];
-          const d = mesh.userData;
-          let z = mesh.position.z + d.drift * dt;
-          if (z > -320) { // 飘到镜头前就回到最深处，循环成一片不会空的雾
-            z = -430 - Math.random() * 3200;
-            d.x0 = (Math.random() - 0.5) * Math.abs(z) * 0.95;
-            d.y0 = (Math.random() - 0.5) * Math.abs(z) * 0.6;
-            d.rot = Math.random() * 6.283;
-            d.spinX = (Math.random() - 0.5) * 1.2;
-            d.spinY = (Math.random() - 0.5) * 1.6;
-            d.rvx = d.rvy = 0;
-          }
-          const depth = Math.abs(z);
-          const px = pointerLerp.x * depth * 0.78;
-          const py = pointerLerp.y * depth * 0.5;
-          const dx = d.x0 + d.rx - px;
-          const dy = d.y0 + d.ry - py;
-          const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-          const reach = 780;
-          if (dist < reach) {
-            const force = (1 - dist / reach) * 190 * dt;
-            d.rvx += (dx / dist) * force;
-            d.rvy += (dy / dist) * force;
-          }
-          d.rvx *= 0.94; d.rvy *= 0.94;
-          d.rx = d.rx * 0.966 + d.rvx * dt * 14;
-          d.ry = d.ry * 0.966 + d.rvy * dt * 14;
-          d.rot += d.spin * dt;
-          mesh.position.set(
-            d.x0 + d.rx + Math.sin(now * 0.00042 + d.seed) * 22,
-            d.y0 + d.ry + Math.cos(now * 0.00036 + d.seed * 1.7) * 18,
-            z
-          );
-          // 按深度折算世界尺寸：飘到镜头前仍是小物，屏占恒定，不会糊住正文
-          mesh.scale.setScalar(0.849 * Math.max(320, -z) * d.apparent);
-          // 立体物件边飘边翻面：花瓣缓缓翻转，纸笺卷着自转
-          d.spinX += d.spinY * dt * 0.2;
-          d.spinY += -d.spinX * dt * 0.2;
-          mesh.rotation.set(
-            d.spinX + Math.sin(now * 0.0006 + d.seed) * 0.7,
-            d.spinY + Math.cos(now * 0.00052 + d.seed * 1.3) * 0.6,
-            d.rot
-          );
-          const near = Math.min(1, Math.max(0, (-z - 430) / 1200));
-          mesh.material.opacity = d.op * (0.38 + 0.62 * near) * (0.85 + pulse * 0.3);
-          mesh.material.color.copy(atmosphere.pieceColor).lerp(pieceWhite, 0.3 + pulse * 0.34).multiplyScalar(d.tint);
-          if (!mesh.visible) mesh.visible = true;
-        }
-      }
       atmosphere.renderer.render(atmosphere.scene, atmosphere.camera);
     }
     if (now < brushUntil) {
