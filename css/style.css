@@ -1087,6 +1087,36 @@ button:not(.book-open-button):active,.button:active{translate:0 1px}
   .timeline-narrative .timeline-quote{font-size:12px}
   .timeline-narrative .timeline-item.is-active .timeline-card{transform:translateY(-2px)}
 }
+/* ===== 时间轴尽头导读（life.html）：走完十段后提示去右侧「月色故人 · 水墨行迹」侧签 ===== */
+.trail-guide{position:relative;display:flex;align-items:center;justify-content:space-between;gap:clamp(18px,3vw,38px);max-width:780px;margin:clamp(10px,2vh,28px) auto 0;padding:clamp(24px,3.4vw,38px) clamp(22px,3vw,38px) clamp(24px,3.4vw,38px) clamp(28px,3.6vw,46px);border:1px solid rgba(169,104,76,.26);background:linear-gradient(118deg,rgba(248,247,239,.94),rgba(237,239,230,.82));box-shadow:0 20px 50px rgba(36,54,46,.09);opacity:0;transform:translateY(26px);transition:opacity .9s ease,transform 1.1s cubic-bezier(.2,.7,.25,1)}
+.trail-guide:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--rust),var(--gold))}
+/* 未滚到尽头时保持隐藏，进入视口后由脚本挂 .is-on 缓升入画 */
+.trail-guide.is-on{opacity:1;transform:none}
+.trail-guide-kicker{display:block;margin-bottom:12px;font:11px var(--sans);letter-spacing:.2em;color:#98583f}
+.trail-guide-copy p{margin:0;font-family:"Xuandong Kaishu",var(--serif);font-size:17px;line-height:2;letter-spacing:.05em;color:#2f443a}
+.trail-guide-copy strong,.trail-guide-copy em{font-family:"Liyu Xingkai",var(--serif);font-style:normal;font-weight:400;font-size:19px;letter-spacing:.06em}
+.trail-guide-copy strong{color:#8a3a26;border-bottom:1px solid rgba(169,104,76,.45)}
+.trail-guide-copy em{color:var(--rust)}
+.trail-guide-arrow{flex:none;display:flex;align-items:center;gap:10px;color:var(--rust)}
+.trail-guide-arrow i{font-style:normal;writing-mode:vertical-rl;font:11px var(--sans);letter-spacing:.26em;color:#7d6a54}
+.trail-guide-arrow b{display:inline-block;font:34px/1 var(--sans);font-weight:400;color:var(--rust)}
+/* 箭头只在导读点亮后轻轻向右推，暗示侧签在页面右缘 */
+.trail-guide.is-on .trail-guide-arrow b{animation:trailGuideNudge 2.4s ease-in-out infinite}
+@keyframes trailGuideNudge{0%,100%{transform:translateX(0)}50%{transform:translateX(6px)}}
+@media(max-width:760px){
+  .trail-guide{flex-direction:column;align-items:flex-start;gap:18px;padding:24px 22px}
+  .trail-guide-copy p{font-size:16px;line-height:1.95}
+  .trail-guide-arrow{gap:8px}
+  .trail-guide-arrow i{writing-mode:horizontal-tb;letter-spacing:.18em}
+  /* 窄屏侧签落到右下角，箭头改竖向指引，同时停掉右推动画以免覆盖旋转 */
+  .trail-guide-arrow b{font-size:26px;transform:rotate(90deg)}
+  .trail-guide.is-on .trail-guide-arrow b{animation:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .trail-guide{transition:none;opacity:1;transform:none}
+  .trail-guide.is-on .trail-guide-arrow b,.map-tab.is-call{animation:none}
+}
+
 @media(prefers-reduced-motion:reduce){html{scroll-snap-type:none}.timeline-scene:before,.timeline-scene-copy,.timeline-scene-progress span{transition:none;transform:none}.timeline-scene-copy.is-changing{opacity:1}.bamboo-leaves{display:none}.scroll-parallax,.scroll-parallax-bg,.scroll-parallax-slow{transform:none!important}.poem-line{clip-path:none!important;opacity:1!important;transform:none!important;filter:none!important}.work-number{transform:none!important}.work-watermark{display:none}.work-side{transform:none!important}.poem-gallery:before{transform:none}}
 
 /* —— 全站微交互 · 呼吸感文字 · 动态排版 · 轻伪3D —— */
@@ -1381,6 +1411,11 @@ body.home-page:not(.book-opened) .share-tab{display:none}
 .map-tab .map-tab-seal{writing-mode:horizontal-tb;display:flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:4px;background:#f2ecdd;color:#8a3a26;font-size:12px;letter-spacing:0;box-shadow:inset 0 0 0 1px rgba(138,58,38,.45)}
 body.map-page .map-tab{display:none}
 @media(max-height:720px){.map-tab{top:auto;bottom:306px;transform:translateX(140%)}.map-tab.is-in{transform:none}}
+/* 时间轴走到底后的呼应：导读出现时侧签同步提亮、并浮出「点此」气泡指向它（.is-call 由脚本按导读显隐切换） */
+.map-tab.is-call{border-color:rgba(240,214,168,.92);animation:mapTabCall 2.2s ease-in-out infinite}
+@keyframes mapTabCall{0%,100%{box-shadow:-6px 0 18px rgba(24,39,30,.22)}50%{box-shadow:-12px 0 32px rgba(138,58,38,.46),0 0 0 3px rgba(232,206,160,.28)}}
+.map-tab.is-call::after{content:"点此 · 水墨行迹";position:absolute;right:calc(100% + 12px);top:50%;transform:translateY(-50%);padding:7px 12px;border:1px solid rgba(232,206,160,.5);border-radius:3px;background:linear-gradient(160deg,#8a3a26,#5c2417);color:#f5ede0;font-family:"Xuandong Kaishu",var(--serif);font-size:13px;letter-spacing:.14em;white-space:nowrap;writing-mode:horizontal-tb;box-shadow:-8px 8px 22px rgba(24,39,30,.22);pointer-events:none}
+.map-tab.is-call::before{content:"";position:absolute;right:calc(100% + 6px);top:50%;width:0;height:0;border:6px solid transparent;border-left-color:#8a3a26;border-right:0;transform:translateY(-50%)}
 /* 头部 */
 .map-hero{position:relative;min-height:52vh;display:flex;align-items:center;justify-content:space-between;gap:40px;padding:96px 7vw 48px;background:linear-gradient(180deg,rgba(232,238,228,0),rgba(232,238,228,.65))}
 .map-hero-copy{max-width:560px}

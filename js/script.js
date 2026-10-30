@@ -3131,6 +3131,25 @@
     document.body.appendChild(mapTab);
     setTimeout(() => mapTab.classList.add("is-in"), 150); // 跳出动画
   })();
+
+  // 时间轴尽头导读：读到最后一段时点亮提示，并让右侧「月色故人 · 水墨行迹」侧签同步提亮（仅月色故人页）
+  (function initializeTrailGuide() {
+    if (!document.body.classList.contains("life-page")) return;
+    const guide = document.querySelector(".trail-guide");
+    if (!guide) return;
+    const mapTab = document.querySelector(".map-tab");
+    // 导读显隐与侧签提亮一起切换，滚回上方时侧签即停止闪动
+    const setOn = (on) => {
+      guide.classList.toggle("is-on", on);
+      if (mapTab) mapTab.classList.toggle("is-call", on);
+    };
+    if (!("IntersectionObserver" in window)) { setOn(true); return; } // 老浏览器直接常显
+    // 导读露出六成即视为「已读到底」，提前半屏就给出提示
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => setOn(entry.isIntersecting));
+    }, { threshold: 0.6 });
+    observer.observe(guide);
+  })();
   }
   initializePageContent();
 })();
