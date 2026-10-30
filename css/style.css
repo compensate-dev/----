@@ -231,7 +231,7 @@ textarea::placeholder{color:#9aa297}
 .wanxiang-hero:before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(100deg,rgba(239,241,234,.62),rgba(224,232,222,.34));pointer-events:none}
 .wanxiang-hero-video{position:absolute;inset:0;z-index:0;width:100%;height:100%;object-fit:cover;object-position:center 50%}
 .wanxiang-hero:after{z-index:1;width:68%;height:90%;background:linear-gradient(145deg,transparent 25%,rgba(79,103,83,.13));opacity:.8;pointer-events:none}
-.wanxiang-hero .subhero-copy{max-width:510px}
+.wanxiang-hero .subhero-copy{max-width:600px}
 .wanxiang-hero .eyebrow{margin-bottom:18px}
 .wanxiang-hero .subhero-copy>p:not(.eyebrow){max-width:460px;color:#405248;font-size:14px;line-height:2.2;letter-spacing:.04em}
 .wanxiang-hero .button{margin-top:15px}
@@ -282,7 +282,7 @@ textarea::placeholder{color:#9aa297}
 .media-card-wangchuan::after{content:"贰"}
 .media-card-yanyun::after{content:"叁"}
 .media-card-film::after{content:"肆"}
-/* —— 词容万象「书影流转」3D 轮播（coverflow）：默认静态网格兜底，JS 加 .media-deck-3d 才启用 3D —— */
+/* —— 帘外余音「书影流转」3D 轮播（coverflow）：默认静态网格兜底，JS 加 .media-deck-3d 才启用 3D —— */
 .media-carousel{position:relative;max-width:1100px;margin:6px auto 0;translate:0 calc((var(--glide-p,.5) - .5)*-48px);will-change:translate}
 .media-deck{position:relative;display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:22px;outline:none}
 .media-deck:focus-visible .media-art{box-shadow:0 0 0 2px rgba(199,170,119,.6),0 0 22px rgba(255,252,240,.4)}
@@ -893,7 +893,7 @@ body.arrival-lock{overflow:hidden}
 .poem-gallery:before{content:"";position:absolute;z-index:-1;inset:0;background:linear-gradient(rgba(243,243,237,.62),rgba(243,243,237,.62)),url("../assets/image/poem-background.jpg") center 42%/cover no-repeat}
 .poem-gallery .poem-tabs{margin-left:18%}
 .works{overflow-x:clip;position:relative}
-/* 词作笺赏两山开合：山影分列区块左右（multiply 融纸底免抠图，右山镜像使主峰朝外），
+/* 词间春水两山开合：山影分列区块左右（multiply 融纸底免抠图，右山镜像使主峰朝外），
    滚动深入时向两侧退开、渐隐消散；--part-p 由 JS 写入（0=刚进视口，1=将出） */
 .works>*:not(.works-mountain){position:relative;z-index:1}
 .works-mountain{position:absolute;z-index:0;top:clamp(46px,7vw,104px);pointer-events:none;mix-blend-mode:multiply;will-change:translate,opacity,filter}
@@ -1060,7 +1060,7 @@ button:not(.book-open-button):active,.button:active{translate:0 1px}
 .subhero-stage>.works,.subhero-stage>.memory-section{background:var(--paper)}
 /* 视频与底图：随覆盖推进缓慢上移并轻轻推近，预留放大余量不露边 */
 .subhero-stage .life-hero-video,.subhero-stage .listen-hero-video,.subhero-stage .wanxiang-hero-video{will-change:transform;transform:translate3d(0,calc(var(--hero-p,0) * -46px),0) scale(calc(1.14 + var(--hero-p,0) * .05))}
-/* 词作笺赏：外层承接滚动位移，内层 :before 独立做极缓 ken-burns 漂移（互不抢占 transform） */
+/* 词间春水：外层承接滚动位移，内层 :before 独立做极缓 ken-burns 漂移（互不抢占 transform） */
 .subhero-stage .ci-hero-drift{inset:-7%;will-change:transform;transform:translate3d(0,calc(var(--hero-p,0) * -34px),0) scale(1.05)}
 .subhero-stage .ci-hero-drift:before{animation:ci-drift 34s ease-in-out infinite alternate;will-change:transform}
 @keyframes ci-drift{from{transform:scale(1) translate3d(0,0,0)}to{transform:scale(1.09) translate3d(1.6%,-1%,0)}}
@@ -1085,7 +1085,7 @@ button:not(.book-open-button):active,.button:active{translate:0 1px}
 }
 @media(max-width:700px) and (prefers-reduced-motion:reduce){.subhero-stage>.subhero{min-height:390px;padding:55px 7%;align-items:flex-start}}
 
-/* —— 听词入梦 · BACK 区动作组（终幕一期内嵌 .finale-scene 版已删，终幕独立成 finale.html）—— */
+/* —— 枕上低语 · BACK 区动作组（终幕一期内嵌 .finale-scene 版已删，终幕独立成 finale.html）—— */
 .next-step-actions{display:flex;flex-direction:column;align-items:flex-end;gap:16px}
 @media(max-width:700px){.next-step-actions{align-items:flex-start}}
 
@@ -1307,7 +1307,7 @@ body.home-page:not(.book-opened) .share-tab{display:none}
 .share-footnote{margin:12px 2px 0;font-size:10px;line-height:1.9;color:#8a9387;text-align:center}
 
 /* ========== 水墨行迹（map.html · 南唐疆域水墨地图） ========== */
-/* 词人故事专属板块（f52）：仅词人故事页弹出——侧栏置顶、朱砂底、带「迹」印、右缘跳出动画 */
+/* 月色故人专属板块（f52）：仅月色故人页弹出——侧栏置顶、朱砂底、带「迹」印、右缘跳出动画 */
 .map-tab{top:calc(50% - 128px);background:linear-gradient(160deg,#8a3a26,#5c2417);border-color:rgba(232,206,160,.55);font-size:16px;gap:10px;padding:18px 9px;transform:translateY(-50%) translateX(140%);transition:transform .8s cubic-bezier(.16,.84,.24,1.1) .5s,background .3s}
 /* 初始位移 140% 隐藏于右缘之外，脚本延时挂 .is-in 后滑入——即「跳出」出场 */
 .map-tab.is-in{transform:translateY(-50%)}
@@ -1597,13 +1597,13 @@ body.finale-page::after{background:radial-gradient(125% 95% at 50% 45%,transpare
 .form-bottom{font-size:11px;color:#6f7a70}
 .afterlife-copy p{font-size:14px}
 .section-kicker span{font-size:10px;color:#79857a}
-/* —— 词人故事 —— */
+/* —— 月色故人 —— */
 .timeline-open-hint{font-size:13px}
 .timeline-story-note{font-size:12px;color:#6f7a70}
 .life-note>span:last-child{font-size:11px;color:#d6ddca}
-/* —— 词作笺赏 —— */
+/* —— 词间春水 —— */
 .works-heading p{font-size:13px;color:#5a665c}
-/* —— 词容万象 —— */
+/* —— 帘外余音 —— */
 .memory-lead p{font-size:14px;color:#52604f}
 .memory-line p{font-size:13px;color:#59675a}
 .memory-line article>span{font-size:10px;color:#8a5238}
@@ -1612,7 +1612,7 @@ body.finale-page::after{background:radial-gradient(125% 95% at 50% 45%,transpare
 .media-caption-note{font-size:12px;color:#6a6a5f}
 .screen-world-summary p+p{font-size:12.5px;color:#5c6a5e}
 .living-echo>span:last-child{font-size:10.5px;color:#7d6450}
-/* —— 听词入梦 —— */
+/* —— 枕上低语 —— */
 .listen-title p{font-size:13px;color:#5a665c}
 .interactive p{font-size:13px;color:#5a665c}
 .recite-info p{font-size:12px;color:#616d63}
@@ -1885,7 +1885,7 @@ body.home-page.stage-mode .fold-scene .scene-content{display:flex;align-items:ce
 body.home-page.stage-mode .fold-card{position:relative;width:min(1120px,88vw)}
 body.home-page.stage-mode .fold-kicker{position:absolute;left:0;top:4px;writing-mode:vertical-rl;font:11px var(--sans);letter-spacing:.5em;color:#7f8d80}
 body.home-page.stage-mode .fold-line{display:flex;align-items:center;gap:clamp(14px,2.2vw,32px);padding-left:clamp(60px,6.4vw,104px)}
-body.home-page.stage-mode .fold-line h2{margin:0;font-family:var(--serif);font-weight:400;font-size:clamp(32px,4.6vw,68px);line-height:1.22;letter-spacing:.09em;color:#26392e}
+body.home-page.stage-mode .fold-line h2{margin:0;font-family:"HongLei Calligraphy",var(--serif);font-weight:400;font-size:clamp(32px,4.6vw,68px);line-height:1.22;letter-spacing:.09em;color:#26392e}
 body.home-page.stage-mode .fold-stroke{flex:0 0 auto;width:clamp(80px,10vw,160px);height:18px;fill:none;stroke:#8d7f66;stroke-width:1.3;stroke-linecap:round;opacity:.55}
 body.home-page.stage-mode .fold-rule{display:block;height:1px;margin:clamp(22px,3.4vh,40px) 0 0 clamp(60px,6.4vw,104px);background:linear-gradient(90deg,rgba(118,102,74,.46),rgba(118,102,74,0) 78%)}
 body.home-page.stage-mode .fold-seal{position:absolute;right:0;top:clamp(-58px,-5vh,-34px);width:44px;height:44px;display:grid;place-items:center;border:1px solid rgba(112,96,66,.42);background:rgba(255,255,255,.2);transform:rotate(45deg);opacity:.86}

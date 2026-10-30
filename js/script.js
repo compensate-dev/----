@@ -458,7 +458,7 @@
     updateStages();
   })();
 
-  // 词容万象「书影流转」3D 轮播（coverflow）：默认静态网格兜底，加 .media-deck-3d 启用 3D；
+  // 帘外余音「书影流转」3D 轮播（coverflow）：默认静态网格兜底，加 .media-deck-3d 启用 3D；
   // 滚入视口先叠摞再铺开入场；空闲自动流转（悬停/详情弹窗/页面隐藏时停摆）；桌面悬浮微倾+中心卡内部视差；
   // 鼠标与触摸拖拽均可翻页；键盘左右、箭头圆钮、点侧卡聚焦（捕获拦截），点中心卡交给大图弹窗
   (() => {
@@ -655,7 +655,7 @@
     update();
   })();
 
-  // 两山开合：按各区块（ci 词作笺赏 / index 词牌卡 / wanxiang 记忆卡）进出视口进度
+  // 两山开合：按各区块（ci 词间春水 / index 词牌卡 / wanxiang 记忆卡）进出视口进度
   // 各自写 --part-p（0=刚进，1=将出），驱动山影向两侧退开、渐隐消散；
   // reduced-motion 不启用，山影保持静态
   (() => {
@@ -2988,7 +2988,7 @@
     if (document.querySelector(".share-tab")) return;
     const pageUrl = location.href.split("#")[0];
     const pageTitle = "春水留痕·李煜词境";
-    const pageDesc = "以一江春水为引，走进南唐后主的词境：读词人故事，赏四阕词笺，听一段诵读，留一句笺语。";
+    const pageDesc = "以一江春水为引，走进南唐后主的词境：月色故人、词间春水、帘外余音、枕上低语。";
     const isHttp = location.protocol === "http:" || location.protocol === "https:";
     const pagePic = isHttp ? location.origin + "/assets/image/plum-blossom.jpg" : "";
     const enc = encodeURIComponent;
@@ -3115,14 +3115,14 @@
     if (navigator.share) drawer.querySelector(".share-btn-sys").hidden = false;
   })();
 
-  // 水墨行迹：词人故事页专属侧签。点击直接进入 map.html 新页面，加载后从右缘弹出。
+  // 水墨行迹：月色故人页专属侧签。点击直接进入 map.html 新页面，加载后从右缘弹出。
   (function initializeMapTab() {
-    if (!document.body.classList.contains("life-page")) return; // 仅词人故事页出现
+    if (!document.body.classList.contains("life-page")) return; // 仅月色故人页出现
     const mapTab = document.createElement("button");
     mapTab.type = "button";
     mapTab.className = "shop-tab map-tab";
-    mapTab.setAttribute("aria-label", "词人故事专属板块：进入水墨行迹，云游李煜生平地图");
-    mapTab.innerHTML = "<span class=\"map-tab-seal\" aria-hidden=\"true\">迹</span>词人故事<small>水墨行迹 · 云游生平</small>";
+    mapTab.setAttribute("aria-label", "月色故人专属板块：进入水墨行迹，云游李煜生平地图");
+    mapTab.innerHTML = "<span class=\"map-tab-seal\" aria-hidden=\"true\">迹</span>月色故人<small>水墨行迹 · 云游生平</small>";
     mapTab.addEventListener("click", () => { location.href = "map.html?v=f58"; });
     document.body.appendChild(mapTab);
     setTimeout(() => mapTab.classList.add("is-in"), 150); // 跳出动画
@@ -3210,7 +3210,7 @@
   }));
 })();
 
-// 首页「词间一戏 · 拾字成句」：字笺按原句次序拾取，三阕皆圆后开启词作笺赏入口。
+// 首页「词间一戏 · 拾字成句」：字笺按原句次序拾取，三阕皆圆后开启词间春水入口。
 // 仅存在于首页（.verse-game 为判据），不触碰入场动画与既有交互。
 (() => {
   const game = document.querySelector(".verse-game");

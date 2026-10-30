@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="zh-CN">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#d9d2c1"><meta name="description" content="全屏沉浸式纸片 3D 水墨云游：云海之上，金陵宫阙、钟山林泉、洪州城郭、采石矶崖、一叶江舟、汴京小楼、北邙松柏。拖拽旋转，朱砂点为引，飞往李煜人生的每一站。"><title>水墨行迹｜春水留痕·李煜词境</title><link rel="stylesheet" href="../css/style.css?v=f74"><script src="../js/script.js?v=f74" defer></script><style>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#d9d2c1"><meta name="description" content="全屏沉浸式纸片 3D 水墨云游：云海之上，金陵宫阙、钟山林泉、洪州城郭、采石矶崖、一叶江舟、汴京小楼、北邙松柏。拖拽旋转，朱砂点为引，飞往李煜人生的每一站。"><title>水墨行迹｜春水留痕·李煜词境</title><link rel="stylesheet" href="../css/style.css?v=f84"><script src="../js/script.js?v=f84" defer></script><style>
   /* 渲染质感层：水墨夜空（淡墨晕染三叠）+ 画面色调 + 纸纹/暗角叠层 */
   .stage3d{background:
     radial-gradient(52% 36% at 24% 16%,rgba(56,62,58,.22),rgba(56,62,58,0) 70%),
@@ -81,7 +81,7 @@
     <div class="veil-inner"><span class="brand-seal veil-seal">煜</span><p>水墨行迹</p><small>铺纸 · 研墨 · 起笔</small></div>
   </div>
 
-  <!-- 云游指南：每次进入自动展开，顶栏「？」可随时重看 -->
+  <!-- 云游指南：首次进入自动展开，顶栏「？」可随时重看 -->
   <div class="map-guide" id="mapGuide" role="dialog" aria-modal="true" aria-labelledby="mapGuideTitle" hidden>
     <div class="map-guide-mask" aria-hidden="true"></div>
     <div class="map-guide-card">
@@ -527,7 +527,7 @@
         u.fit();
       });
       hideVeil();
-      console.log("[水墨行迹] build f63 · 云游指南（每次进入自动展开 ×顶栏重看）" + (window.__reliefN || 0) + (postScene ? " · 后期开" : " · 后期退回"));
+      console.log("[水墨行迹] build f62 · 云游指南（首访自动展开 ×顶栏重看）" + (window.__reliefN || 0) + (postScene ? " · 后期开" : " · 后期退回"));
     };
     function shadowBlob(x, z, s) {
       var m = new THREE.Mesh(new THREE.PlaneGeometry(s, s * 0.36), new THREE.MeshBasicMaterial({ map: toTex(blobTex()), transparent: true, opacity: 0.45, depthWrite: false }));
@@ -982,16 +982,12 @@
     tourSync(); // 初始态：未起卷时「上一站」禁用
 
     /* ---------- 云游指南：每次进入自动展开，顶栏「？」随时重看 ---------- */
-    // 与旧版区别：不再用 localStorage 记录"已看过"，每次进入页面都会重新弹出指南
     var guide = document.getElementById("mapGuide");
-    // 打开指南：先解除 hidden 让元素参与布局，再延时加 is-open 类触发淡入动画
     function openGuide() {
       if (!guide || !guide.hidden) return;
       guide.hidden = false;
       window.setTimeout(function () { guide.classList.add("is-open"); }, 30); // 计时器触发：rAF 在后台窗口会被冻结
     }
-    // 关闭指南：移除 is-open 播放淡出动画，340ms 后恢复 hidden
-    // andFly=true 时（点了「从金陵起笔」）顺带飞往金陵做一次镜头示范
     function closeGuide(andFly) {
       if (!guide || guide.hidden) return;
       guide.classList.remove("is-open");
