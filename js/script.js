@@ -2534,7 +2534,8 @@
 
   const initializeDepthInteractions = () => {
     if (reducedMotion || window.innerWidth <= 700 || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
-    document.querySelectorAll(".poem-card, .timeline-card, .memory-line article, .intro-card, .hero-art, .floating-verse, .sound-orbit, .recite-art").forEach((surface) => {
+    /* 悬浮微倾斜 + 轻微放大的作用于这些卡片；首屏主画框 .hero-art 已移出，避免鼠标移到图上时画面突然放大 */
+    document.querySelectorAll(".poem-card, .timeline-card, .memory-line article, .intro-card, .floating-verse, .sound-orbit, .recite-art").forEach((surface) => {
       if (surface.dataset.depthInitialized === "true") return;
       surface.dataset.depthInitialized = "true";
       surface.classList.add("depth-surface");
