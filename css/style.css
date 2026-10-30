@@ -265,7 +265,6 @@ textarea::placeholder{color:#9aa297}
 .wanxiang-hero .subhero-copy{max-width:600px}
 .wanxiang-hero .eyebrow{margin-bottom:18px}
 .wanxiang-hero .button{margin-top:15px}
-.wanxiang-mark{position:absolute;right:3%;top:13%;z-index:1;color:rgba(169,104,76,.14);font-size:clamp(65px,9vw,130px);line-height:1.1;writing-mode:vertical-rl;letter-spacing:.18em;pointer-events:none}
 /* 记忆卡区（memory-section）：两栏导语 + 三张记忆卡 + 故事对话框，底部分置山影 */
 .memory-section{padding-top:100px;padding-bottom:106px}
 .memory-section>.section-kicker{margin-bottom:28px}
@@ -920,7 +919,6 @@ body.arrival-lock{overflow:hidden}
 @media(max-width:700px){
   .wanxiang-hero{min-height:0;display:block;padding:62px 8% 55px}
   .wanxiang-hero .subhero-copy{max-width:none}
-  .wanxiang-mark{right:3%;top:45%;font-size:54px}
   .memory-section{padding-top:68px;padding-bottom:72px}
   .memory-lead{display:block;padding-left:0}
   .memory-lead h2{font-size:29px}
@@ -1176,8 +1174,8 @@ button:not(.book-open-button):active,.button:active{translate:0 1px}
 .subhero-stage .subhero h1{animation-name:verse-title-arrive;animation-duration:.85s;animation-timing-function:cubic-bezier(.2,.72,.25,1);animation-fill-mode:backwards;will-change:opacity,transform,filter;opacity:calc(1 - var(--hero-p,0) * .86);transform:translate3d(0,calc(var(--hero-p,0) * 30px),0) scale(calc(1 - var(--hero-p,0) * .03));filter:blur(calc(var(--hero-p,0) * 1.8px))}
 /* 眉题、说明、按钮：比标题更早淡出并轻微上浮 */
 .subhero-stage .eyebrow,.subhero-stage .subhero-copy>p:not(.eyebrow),.subhero-stage .subhero-copy .button{opacity:calc(max(0,1 - var(--hero-p,0) * 1.9));transform:translate3d(0,calc(var(--hero-p,0) * 20px),0)}
-/* 右侧装饰环/竖印同步淡出；用独立 translate 属性，保留其原有 transform 缩放（含移动端 .58/.72） */
-.subhero-stage .sound-orbit,.subhero-stage .wanxiang-mark{opacity:calc(max(0,1 - var(--hero-p,0) * 1.9));translate:0 calc(var(--hero-p,0) * 20px)}
+/* 右侧装饰环随滚动同步淡出；用独立 translate 属性，保留其原有 transform 缩放（含移动端 .58/.72） */
+.subhero-stage .sound-orbit{opacity:calc(max(0,1 - var(--hero-p,0) * 1.9));translate:0 calc(var(--hero-p,0) * 20px)}
 /* floating-verse 自身带 opacity 呼吸动画，opacity 会被动画覆盖，故用 filter 做淡出 */
 .subhero-stage .floating-verse{will-change:filter;filter:opacity(calc(max(0,1 - var(--hero-p,0) * 1.9)));translate:0 calc(var(--hero-p,0) * 20px)}
 @media(max-width:700px){.subhero-stage>.subhero{align-items:center;padding:84px 7% 44px}}
@@ -1186,7 +1184,7 @@ button:not(.book-open-button):active,.button:active{translate:0 1px}
 .subhero-stage>.subhero{position:static;height:auto;min-height:435px}
 .subhero-stage>.wanxiang-hero{min-height:540px}
 .subhero-stage .subhero h1{animation:none;opacity:1;transform:none;filter:none;will-change:auto}
-.subhero-stage .eyebrow,.subhero-stage .subhero-copy>p:not(.eyebrow),.subhero-stage .subhero-copy .button,.subhero-stage .sound-orbit,.subhero-stage .wanxiang-mark,.subhero-stage .floating-verse{opacity:1;transform:none;translate:0 0;filter:none;will-change:auto}
+.subhero-stage .eyebrow,.subhero-stage .subhero-copy>p:not(.eyebrow),.subhero-stage .subhero-copy .button,.subhero-stage .sound-orbit,.subhero-stage .floating-verse{opacity:1;transform:none;translate:0 0;filter:none;will-change:auto}
 .subhero-stage .life-hero-video,.subhero-stage .listen-hero-video,.subhero-stage .wanxiang-hero-video{transform:none;will-change:auto}
 .subhero-stage .ci-hero-drift{inset:0;transform:none;will-change:auto}
 .subhero-stage .ci-hero-drift:before{animation:none;will-change:auto}
