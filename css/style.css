@@ -98,7 +98,7 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}
 .art-poem{position:absolute;z-index:4;right:8%;bottom:15%;writing-mode:vertical-rl;letter-spacing:.23em;font-size:15px;line-height:2;color:#fff8ef;text-shadow:0 1px 8px rgba(13,30,40,.85)}
 .art-poem span{color:#d8c9a9}
 .art-stamp{position:absolute;z-index:4;bottom:9%;left:9%;width:48px;height:38px;border:1px solid rgba(238,195,168,.8);color:#ffdbbf;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;font-size:8px;line-height:1.35;writing-mode:horizontal-tb;letter-spacing:.14em;background:rgba(32,49,56,.38);text-shadow:0 1px 5px rgba(13,30,40,.8)}
-.hero-bottom{position:absolute;bottom:24px;left:10%;right:10%;display:flex;align-items:center;gap:13px;font:9px var(--sans);letter-spacing:.18em;color:#788278}
+.hero-bottom{position:absolute;bottom:24px;left:10%;right:10%;display:flex;align-items:center;gap:13px;font:12px var(--sans);letter-spacing:.14em;color:#46564a}
 .cloud-stage{position:relative}
 .hero-cloud{position:absolute;top:calc(var(--hero-h,min(720px,calc(100vh - 86px))) * 1.04);width:min(48vw,720px);z-index:0;pointer-events:none;mix-blend-mode:multiply;opacity:calc(.92 * (1 - var(--cloud-fade,0)));filter:blur(calc(var(--cloud-fade,0) * 8px));will-change:transform,opacity,filter}
 .hero-cloud img{display:block;width:100%;height:auto}
@@ -108,9 +108,9 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}
 @media(max-width:700px){.hero-cloud{width:86vw;top:calc(var(--hero-h,min(720px,calc(100vh - 86px))) * 1.02);opacity:calc(.7 * (1 - var(--cloud-fade,0)))}.hero-cloud-left{left:-20%}.hero-cloud-right{right:-20%}.hl-a{--hl-size:52px;left:4%;top:11%}.hl-b{--hl-size:40px;left:44%;top:2%}.hl-c{display:none}}
 @media(prefers-reduced-motion:reduce){.hero-cloud-left,.hero-cloud-right{transform:translateY(-100%)}.hero-cloud{filter:none;will-change:auto}.hero-base,.hero-figure-layer,.hero-lantern-field{transform:none;will-change:auto}.hero-figure,.hero-lantern{animation:none;will-change:auto}}
 /* 底部滚动引导细线：一条浅墨横线，内嵌一段朱色光带缓慢右移，暗示“向下继续读” */
-.scroll-line{position:relative;width:80px;height:1px;background:#bdc7ba;overflow:hidden}
-.scroll-line:after{content:"";position:absolute;top:0;left:0;width:24px;height:1px;background:linear-gradient(90deg,rgba(169,104,76,0),var(--rust));animation:scroll-line-sweep 2.6s ease-in-out infinite}
-@keyframes scroll-line-sweep{0%{transform:translateX(-26px);opacity:0}38%{opacity:1}100%{transform:translateX(80px);opacity:0}}
+.scroll-line{position:relative;width:96px;height:2px;background:#b3bfb2;overflow:hidden}
+.scroll-line:after{content:"";position:absolute;top:0;left:0;width:28px;height:2px;background:linear-gradient(90deg,rgba(169,104,76,0),var(--rust));animation:scroll-line-sweep 2.6s ease-in-out infinite}
+@keyframes scroll-line-sweep{0%{transform:translateX(-30px);opacity:0}38%{opacity:1}100%{transform:translateX(96px);opacity:0}}
 .hero-bottom span:last-child{margin-left:auto;color:#a0a79d}
 @media(prefers-reduced-motion:reduce){.scroll-line:after{animation:none;opacity:1;transform:translateX(56px)}}
 .section-wrap{padding-left:10%;padding-right:10%}
@@ -1569,14 +1569,14 @@ body.map-page .map-tab{display:none}
 .map-help:hover{background:#a9452c;border-color:#a9452c;color:#f6f2e6}
 
 /* —— 入词境 · 全屏下滑提示（f63）：替代原角落滚动小标，滚动或点击空白处散去 ——
-   全屏半透明压暗层，居中放鼠标滚轮示意 i（上下浮动 + 内部小点下滑动画）+ 大字标题 + 英文小字
+   全屏半透明压暗层，居中放鼠标滚轮示意 i（上下浮动 + 内部小点下滑动画）+ 大字标题 + 说明小字
    .is-hidden 时 opacity/visibility 双清零并关闭指针事件，避免残留遮挡点击 */
 .arrival-hint{position:fixed;inset:0;z-index:9;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;text-align:center;cursor:pointer;background:radial-gradient(ellipse at 50% 42%,rgba(10,20,17,.34),rgba(10,20,17,.64) 80%);backdrop-filter:blur(2px);transition:opacity .5s ease,visibility .5s}
 .arrival-hint.is-hidden{opacity:0;visibility:hidden;pointer-events:none}
-.arrival-hint i{position:relative;width:30px;height:48px;border:1px solid rgba(230,211,177,.8);border-radius:16px;animation:arrival-hint-bob 2.2s ease-in-out infinite} /* 鼠标外形：整体上下轻浮 */
-.arrival-hint i:after{content:"";position:absolute;top:9px;left:14px;width:2px;height:9px;border-radius:2px;background:#e6d3b1;animation:arrival-scroll-hint 1.6s ease-in-out infinite} /* 滚轮小点：循环下滑示意 */
-.arrival-hint b{font-family:"ZhongQi ZhiMang","HongLei Calligraphy",var(--serif);font-weight:400;font-size:clamp(30px,4.6vw,52px);letter-spacing:.14em;color:#f7f2e7;text-shadow:0 8px 36px rgba(9,18,16,.42)} /* 主标题大字（钟齐志莽） */
-.arrival-hint span{font:12px var(--sans);letter-spacing:.22em;color:rgba(241,231,210,.68)} /* 底部英文小字提示 */
+.arrival-hint i{position:relative;width:38px;height:60px;border:1.5px solid rgba(230,211,177,.9);border-radius:21px;animation:arrival-hint-bob 2.2s ease-in-out infinite} /* 鼠标外形：整体上下轻浮 */
+.arrival-hint i:after{content:"";position:absolute;top:12px;left:50%;width:3px;height:11px;margin-left:-1.5px;border-radius:2px;background:#e6d3b1;animation:arrival-scroll-hint 1.6s ease-in-out infinite} /* 滚轮小点：循环下滑示意 */
+.arrival-hint b{font-family:"ZhongQi ZhiMang","HongLei Calligraphy",var(--serif);font-weight:400;font-size:clamp(32px,5vw,56px);letter-spacing:.14em;color:#f7f2e7;text-shadow:0 8px 36px rgba(9,18,16,.42)} /* 主标题大字（钟齐志莽） */
+.arrival-hint span{font:14px var(--sans);letter-spacing:.2em;color:rgba(241,231,210,.82)} /* 底部说明小字，提亮加大以便看清 */
 @keyframes arrival-hint-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(9px)}}
 
 /* —— f68 互动反馈升级：诵读呼吸 / 收藏弹跳 / 表单两态 / 墨线焦点 / 词签墨线 ——
@@ -1641,7 +1641,7 @@ body.finale-page::after{background:radial-gradient(125% 95% at 50% 45%,transpare
 /* ============ f70 全站文字可读性修正 ============ */
 /* 原则：中文说明字 ≥12px；纸底灰绿说明字加深一档；深底小字提亮加大；保留笺注式字号梯度的美感 */
 /* —— 首页 —— */
-.hero-bottom{font-size:11px;color:#5d6a5c}
+.hero-bottom{font-size:12.5px;color:#46564a}
 .card-index{font-size:10.5px;color:#6b776c}
 .card-caption{font-size:11.5px;color:#5d6a5c}
 .poem-number,.poem-tag{font-size:10.5px}
@@ -1677,7 +1677,7 @@ body.finale-page::after{background:radial-gradient(125% 95% at 50% 45%,transpare
 @media(max-width:700px){
   .timeline-scene-kicker{font-size:9px}
   .book-cover-foot{font-size:9px}
-  .hero-bottom{font-size:10px}
+  .hero-bottom{font-size:11px}
 }
 /* —— 共用抽屉组件（手记/赠语/分享）：说明字≥12px，浅灰绿加深 —— */
 .jy-note{font-size:12px;color:#59675a}
@@ -1960,11 +1960,27 @@ body.home-page.stage-mode .fold-scene.stg-run .fold-stroke path{animation:foldSt
 body.home-page.stage-mode .fold-stroke{flex:0 0 auto;width:clamp(80px,10vw,160px);height:18px;fill:none;stroke:#8d7f66;stroke-width:1.3;stroke-linecap:round;opacity:.55}
 body.home-page.stage-mode .fold-rule{display:block;height:1px;margin:clamp(22px,3.4vh,40px) 0 0 clamp(60px,6.4vw,104px);background:linear-gradient(90deg,rgba(118,102,74,.46),rgba(118,102,74,0) 78%);transform-origin:0 50%}
 
-/* 滚动提示：静置时一句轻招 */
-body.home-page.stage-mode .stage-hint{position:fixed;left:50%;bottom:78px;transform:translateX(-50%);z-index:15;display:flex;flex-direction:column;align-items:center;gap:8px;font:10px var(--sans);letter-spacing:.26em;color:#5a6b5f;pointer-events:none;opacity:0;transition:opacity .6s ease}
-body.home-page.stage-mode .stage-hint.is-on{opacity:.9}
-body.home-page.stage-mode .stage-hint i{width:1px;height:28px;background:linear-gradient(180deg,rgba(60,84,68,0),rgba(60,84,68,.55));animation:stageHintDrop 2.3s ease-in-out infinite}
-@keyframes stageHintDrop{0%{transform:translateY(-7px);opacity:0}32%{opacity:1}72%{opacity:1}100%{transform:translateY(9px);opacity:0}}
+/* 滚动提示：静置时一句轻招。去掉原来的米色浮签方框，改为「线描鼠标 + 朱砂滚轮点」，
+   背后用一团墨色氤氲化开，像宣纸上随手批的一笔淡墨，既不抢画面又看得清 */
+body.home-page.stage-mode .stage-hint{position:fixed;left:50%;bottom:64px;transform:translateX(-50%);z-index:15;display:flex;flex-direction:column;align-items:center;gap:12px;padding:0;background:none;border:0;border-radius:0;box-shadow:none;font:15px var(--sans);letter-spacing:.14em;color:#2e4436;pointer-events:none;opacity:0;transition:opacity .6s ease}
+body.home-page.stage-mode .stage-hint.is-on{opacity:1}
+/* 墨色氤氲：两团低透明度墨色径向渐变在提示背后晕开，像宣纸上化开的淡墨，边缘用 blur 化虚 */
+body.home-page.stage-mode .stage-hint::before,
+body.home-page.stage-mode .stage-hint::after{content:"";position:absolute;left:50%;top:50%;border-radius:50%;pointer-events:none;z-index:-1;filter:blur(12px);background:radial-gradient(closest-side,rgba(36,54,46,.17),rgba(36,54,46,.07) 58%,rgba(36,54,46,0) 82%)}
+body.home-page.stage-mode .stage-hint::before{width:286px;height:132px;transform:translate(-50%,-50%)}
+body.home-page.stage-mode .stage-hint::after{width:172px;height:92px;transform:translate(-56%,-44%);opacity:.75}
+/* 鼠标轮廓：细线圆角框 + 顶部中缝；b 为朱砂滚轮点，沿中缝往复滑落，暗示滚轮滚动 */
+body.home-page.stage-mode .stage-hint i{position:relative;width:30px;height:47px;border:1.6px solid rgba(46,68,54,.72);border-radius:15px}
+body.home-page.stage-mode .stage-hint i::before{content:"";position:absolute;left:50%;top:0;width:1px;height:15px;margin-left:-.5px;background:rgba(46,68,54,.46)}
+body.home-page.stage-mode .stage-hint i b{position:absolute;left:50%;top:9px;width:3px;height:9px;margin-left:-1.5px;border-radius:1.5px;background:var(--rust);animation:stageHintWheel 1.9s ease-in-out infinite}
+@keyframes stageHintWheel{0%{opacity:0;transform:translateY(-1px)}26%{opacity:1}58%{opacity:1;transform:translateY(10px)}80%,100%{opacity:0;transform:translateY(13px)}}
+/* 触屏设备：隐藏鼠标形状与「滚轮」文案，改用「上滑」说法，避免误导演示 */
+body.home-page.stage-mode .stage-hint .hint-touch{display:none}
+@media(hover:none){
+  body.home-page.stage-mode .stage-hint i{display:none}
+  body.home-page.stage-mode .stage-hint .hint-desktop{display:none}
+  body.home-page.stage-mode .stage-hint .hint-touch{display:inline}
+}
 
 /* 视差：镜头随指针微移，各层按深度差速位移（translate 独立于 stagger 的 transform） */
 body.home-page.stage-mode .hero-copy,

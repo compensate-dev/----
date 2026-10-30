@@ -3664,7 +3664,8 @@
     moodTarget = MOODS[next] || MOODS[0];
     body.dataset.act = String(next);
     updateRail(next);
-    hideHint();
+    hideHint(); // 切幕瞬间先收起旧提示
+    scheduleHint(next); // 落定后在新一幕重新招手（最后一幕不再提示）
     settleTimer = window.setTimeout(() => {
       from.classList.remove("is-live");
       from.style.zIndex = "";
@@ -3698,14 +3699,25 @@
   body.dataset.act = "0";
   moodTarget = MOODS[0];
 
-  // 滚动提示：静置时轻轻招手（入场结束且仍停在首幕时才出现）
+  // 滚动提示：除最后一幕（留言幕）外，每一幕静置时都招手，提醒用滚轮继续向下
   const stageHint = main.querySelector(".stage-hint");
-  const hideHint = () => stageHint?.classList.remove("is-on");
-  const hintTick = () => { // 只等入场真正结束、且仍停在首幕时才招手
-    if (narrativeReady() && current === 0) stageHint?.classList.add("is-on");
-    else window.setTimeout(hintTick, 900);
+  let hintTimer = 0;
+  const hideHint = () => { window.clearTimeout(hintTimer); stageHint?.classList.remove("is-on"); };
+  // 为某一幕预约提示：落定 delay 毫秒后，若仍停在该幕且不在切幕动画中，就显示
+  const scheduleHint = (idx, delay = 1800) => {
+    window.clearTimeout(hintTimer);
+    if (!stageHint) return;
+    if (idx >= scenes.length - 1) { stageHint.classList.remove("is-on"); return; } // 最后一幕不再提示向下
+    hintTimer = window.setTimeout(() => {
+      if (narrativeReady() && current === idx && !busy) stageHint.classList.add("is-on");
+    }, delay);
   };
-  window.setTimeout(hintTick, 4200);
+  // 等入场真正结束后，为首幕排一次提示；未就绪则每 0.9s 重试
+  const hintTick = () => {
+    if (narrativeReady()) { scheduleHint(current, 900); return; }
+    window.setTimeout(hintTick, 900);
+  };
+  window.setTimeout(hintTick, 1200);
 
   /* 输入：滚轮 / 键盘 / 触控 / 右侧章节 */
   let lastWheelAt = 0;

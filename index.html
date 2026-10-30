@@ -181,8 +181,8 @@
     <!-- 全屏下滑提示：滚动或点击空白处散去 -->
     <div class="arrival-hint is-hidden" id="arrivalHint" aria-hidden="true">
       <i aria-hidden="true"></i>
-      <b>向下滚动 · 走近词境</b>
-      <span>轻轻向下滑动，故事便缓缓展开 —— 点击空白处亦可关闭</span>
+      <b>滚轮向下 · 走近词境</b>
+      <span>滚动鼠标滚轮，故事便缓缓展开 —— 点击空白处亦可关闭</span>
     </div>
   </section>
 <!-- 页头：品牌 + 主导航(当前页高亮「首页」) + 背景音乐开关/音量；开场未揭开时 inert 禁用交互 -->
@@ -238,7 +238,8 @@
       <span class="hero-moon" aria-hidden="true"></span>
       <span class="hero-side-poem" aria-hidden="true">无言独上西楼<i>月如钩</i></span>
       <div class="hero-petals" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-      <div class="hero-bottom"><span>SCROLL TO WANDER</span><span class="scroll-line"></span><span>01 / 04</span></div>
+      <!-- 底部滚动引导：明确写出「滚轮向下」，与中央滚动提示同一套说法 -->
+      <div class="hero-bottom"><span>滚轮向下 · SCROLL TO WANDER</span><span class="scroll-line"></span><span>01 / 04</span></div>
     </section>
           </div>
         </div>
@@ -410,8 +411,9 @@
       <button type="button" data-go="7" aria-label="第四折 听回响"><i></i></button>
       <button type="button" data-go="9" aria-label="第五折 留一笔"><i></i></button>
     </nav>
-    <!-- 滚动提示：静置时轻轻招手 -->
-    <div class="stage-hint" aria-hidden="true"><i></i><span>滚动 · 进入下一幕</span></div>
+    <!-- 滚动提示：静置时轻轻招手。i 为细线鼠标轮廓（内嵌朱砂滚轮点），明确提示用滚轮向下翻幕；
+         桌面端显示「滚轮」文案，触屏设备（hover:none）自动切换为「上滑」文案 -->
+    <div class="stage-hint" aria-hidden="true"><i><b></b></i><span class="hint-desktop">滚轮向下 · 进入下一幕</span><span class="hint-touch">向上滑动 · 进入下一幕</span></div>
   </main>
 <!-- 页脚：品牌 + 标语 + 跳转链接；开场未揭开时 inert -->
   <footer class="site-footer" inert><a class="brand" href="index.html"><span class="brand-seal">煜</span><span>一江春水<small>愿每个读词的人，都有一刻安宁。</small></span></a><span>词有尽时，春水长流。</span><a href="pages/ci.html">再读一首 ↗</a></footer>
