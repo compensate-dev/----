@@ -7,16 +7,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#e8eee4">
 <!-- Open Graph：分享到社交平台时的站点名、类型、标题、摘要、封面图与语言 -->
-  <meta name="description" content="帘外的雨声歇了，词还没有走远。从旧绘到游戏与光影，看千年之间的人怎样一次次把他重新描摹。">
+  <meta name="description" content="帘外的雨声歇了，词还没有走远。从旧绘到戏台、游戏与剧集，看千年之间的人怎样一次次把他重新描摹。">
   <meta property="og:site_name" content="春水留痕·李煜词境">
   <meta property="og:type" content="website">
   <meta property="og:title" content="帘外余音｜春水留痕·李煜词境">
-  <meta property="og:description" content="帘外的雨声歇了，词还没有走远。从旧绘到游戏与光影，看千年之间的人怎样一次次把他重新描摹。">
+  <meta property="og:description" content="帘外的雨声歇了，词还没有走远。从旧绘到戏台、游戏与剧集，看千年之间的人怎样一次次把他重新描摹。">
   <meta property="og:image" content="../assets/image/screen-world-background.jpg">
   <meta property="og:locale" content="zh_CN">
   <title>帘外余音｜春水留痕·李煜词境</title>
-  <link rel="stylesheet" href="../css/style.css?v=f106">
-  <script src="../js/script.js?v=f106" defer></script>
+  <link rel="stylesheet" href="../css/style.css?v=f107">
+  <script src="../js/script.js?v=f107" defer></script>
 </head>
 <body>
 <!-- 跳过导航：键盘用户按 Tab 时可直接跳入正文(#main-content) -->
@@ -70,7 +70,7 @@
     </section>
     </div>
 
-<!-- 荧幕天地：背景巨字「影」+ 标题行 + 四张演绎书影轮播 + 收束小结 -->
+<!-- 荧幕天地：背景巨字「影」+ 标题行 + 五张演绎书影轮播 + 收束小结 -->
     <section class="screen-world section-wrap" id="screen-world">
 <!-- 背景巨字：纯装饰层，随区块进出视口上下漂移（--glide-p 由脚本写入） -->
       <span class="screen-world-glyph" aria-hidden="true"><i>影</i></span>
@@ -78,11 +78,11 @@
 <!-- 标题行：左侧标题、右侧导语，整行也随 --glide-p 差速漂移 -->
       <div class="screen-world-heading">
         <div><h2>后来的人，<br>把他<em>又画了一遍</em>。</h2></div>
-        <p>一幅旧绘，三场当代的重逢。画像、游戏与光影各自落笔；画的都是他，照见的却是各自的时代。</p>
+        <p>一幅旧绘，四场当代的重逢。画像、戏台、游戏与《庆余年》各自落笔；画的都是他，照见的却是各自的时代。</p>
       </div>
-<!-- 书影轮播：卡组(3D coverflow) + 翻页条 + 四段说明；无脚本时退回静态网格排布 -->
+<!-- 书影轮播：卡组(3D coverflow) + 翻页条 + 五段说明；无脚本时退回静态网格排布 -->
       <div class="media-carousel">
-<!-- 卡组：四张卡各带 data-index，脚本据此算位次；tabindex 让方向键可以翻页 -->
+<!-- 卡组：五张卡各带 data-index，脚本据此算位次；tabindex 让方向键可以翻页 -->
         <div class="media-deck" role="group" tabindex="0" aria-label="李煜演绎书影轮播，可用左右方向键切换">
 <!-- 卡 01：古本遗像（宋代以后追绘） -->
           <article class="media-card media-slide media-card-archive" data-index="0"><span class="media-seal" aria-hidden="true">壹</span>
@@ -96,19 +96,23 @@
           <article class="media-card media-slide media-card-yanyun" data-index="2"><span class="media-seal" aria-hidden="true">叁</span>
             <figure class="media-art media-art-yanyun" tabindex="0" role="button" aria-haspopup="dialog" aria-label="查看燕云十六声李煜演绎大图与介绍"><img src="../assets/image/liyu-yanyun.jpg" alt="《燕云十六声》中李煜在冷雨中执伞的青衫形象演绎" loading="lazy" decoding="async"><span class="media-art-ink"></span><span class="media-art-vertical-title">燕云十六声</span></figure>
           </article>
-<!-- 卡 04：影视形象 -->
-          <article class="media-card media-slide media-card-film" data-index="3"><span class="media-seal" aria-hidden="true">肆</span>
-            <figure class="media-art media-art-film" tabindex="0" role="button" aria-haspopup="dialog" aria-label="查看影视形象李煜大图与介绍"><img src="../assets/image/liyu-film.jpg" alt="影视剧中成年李煜举杯饮酒、神情沉郁的形象" loading="lazy" decoding="async"><span class="media-art-ink"></span><span class="media-art-vertical-title">光影流年</span></figure>
+<!-- 卡 04：国光剧团实验京昆剧《天上人间·李后主》 -->
+          <article class="media-card media-slide media-card-jingkun" data-index="3"><span class="media-seal" aria-hidden="true">肆</span>
+            <figure class="media-art media-art-jingkun" tabindex="0" role="button" aria-haspopup="dialog" aria-label="查看《天上人间·李后主》京昆剧舞台照大图与介绍"><img src="../assets/image/liyu-tianshangrenjian.jpg" alt="国光剧团《天上人间·李后主》舞台照：李煜居中，大周后与小周后分立两侧" loading="lazy" decoding="async"><span class="media-art-ink"></span><span class="media-art-vertical-title">天上人间</span></figure>
+          </article>
+<!-- 卡 05：《庆余年》中的影视形象 -->
+          <article class="media-card media-slide media-card-film" data-index="4"><span class="media-seal" aria-hidden="true">伍</span>
+            <figure class="media-art media-art-film" tabindex="0" role="button" aria-haspopup="dialog" aria-label="查看《庆余年》中的李煜形象大图与介绍"><img src="../assets/image/liyu-film.jpg" alt="《庆余年》中成年李煜举杯饮酒、神情沉郁的形象" loading="lazy" decoding="async"><span class="media-art-ink"></span><span class="media-art-vertical-title">庆余年</span></figure>
           </article>
         </div>
 <!-- 翻页条：左右箭头 + 页码（页码里的 b 由脚本改写为当前页） -->
 <!-- 两张箭头按钮用 data-dir 标示方向（-1 上一张 / 1 下一张），脚本只读该属性循环切换卡组 -->
         <div class="media-carousel-nav">
           <button type="button" class="media-nav" data-dir="-1" aria-label="上一张">&#8249;</button>
-          <span class="media-carousel-count" aria-hidden="true"><b>01</b>&#8201;/&#8201;04</span>
+          <span class="media-carousel-count" aria-hidden="true"><b>01</b>&#8201;/&#8201;05</span>
           <button type="button" class="media-nav" data-dir="1" aria-label="下一张">&#8250;</button>
         </div>
-<!-- 说明区：四段说明以 data-slide 与卡片一一对应，脚本按当前页切换 is-active -->
+<!-- 说明区：五段说明以 data-slide 与卡片一一对应，脚本按当前页切换 is-active -->
         <div class="media-carousel-info">
 <!-- 说明 01：古本遗像 -->
           <div class="media-caption" data-slide="0"><span>AN OLD PORTRAIT / 01</span><h3>古本遗像</h3><p>这是后世流传最广的李煜旧绘。没有青衣风流，没有月下孤影，只有古人肖像画里敦厚平实的君王样貌。</p><p>史书不曾记下他的眉眼；这幅画像，亦是后人隔着百年时光，对这位后主最初的想象。</p><small class="media-caption-note">此为宋代以后追绘像，并非李煜生前写真；它代表古人视角，而忘川、燕云、影视，则是今人的重构。</small></div>
@@ -116,12 +120,14 @@
           <div class="media-caption" data-slide="1"><span>GAME / 02 · 忘川风华录</span><h3>忘川风华录 · 李煜</h3><h4>纸上君王，笔底春愁</h4><p>明黄王袍尚留南唐余辉，挥笔题梅，似仍是那个尚有江山可恋的君主。</p><p>忘川以温柔的笔触，先还原他帝王的身份，再慢慢透出藏在风雅之下、预知命运的淡淡怅惘。</p><small class="media-caption-note">此为游戏艺术演绎，并非史料所载容貌；它抓住的，是世人想象里「风流多才的南唐后主」。</small></div>
 <!-- 说明 03：燕云十六声 -->
           <div class="media-caption" data-slide="2"><span>GAME / 03 · 燕云十六声</span><h3>燕云十六声 · 李煜</h3><h4>雨中孤客，词中囚徒</h4><p>褪去帝王冕服，一袭青衫、一伞冷雨。燕云十六声没有强调他的君王身份，而放大了命运漂泊感——他不再是南唐天子，更像一个被时代洪流裹挟、满身愁绪的失意之人。</p><p>这也呼应了亡国之后「梦里不知身是客」的词境。</p><small class="media-caption-note">这是极具现代感的解构：取其「愁」，而不拘泥于其「位」，是当代年轻人容易共情的李煜形象。</small></div>
-<!-- 说明 04：影视形象 -->
-          <div class="media-caption" data-slide="3"><span>SCREEN / 04 · 影视形象</span><h3>影视形象 · 李煜</h3><h4>杯酒余生，人间长恨</h4><p>胡须、沉郁的眉眼、仰头饮尽的姿态。影视更偏向成年之后、亡国被俘的后主：繁华落尽，锐气消磨，眼底只剩往事与无可奈何，把「天上人间」的落差，凝在一个举杯的瞬间。</p><small class="media-caption-note">影视叙事偏爱他的悲剧性；我们看见的，往往不是前期宴饮游乐的君主，而是那个「以血书词」的亡国词人。</small></div>
+<!-- 说明 04：天上人间·李后主（国光剧团实验京昆剧） -->
+          <div class="media-caption" data-slide="3"><span>STAGE / 04 · 国光剧团</span><h3>天上人间 · 李后主</h3><h4>一帝二后，京昆同台</h4><p>国光剧团以京昆合演的方式，把李煜的一生写成《天上人间·李后主》。剧照里他白袍居中，大周后（周娥皇）与小周后分立左右——一位陪他走过最明亮的年月，一位陪他走到亡国之后。</p><p>戏台不搬史书，只写人：唱腔一起，春殿的笙歌、城破的江声、囚窗外的月色，都收进三个人之间短短的距离。</p><small class="media-caption-note">此为戏曲舞台的再创作，人物造型与情节均属艺术演绎，并非史实复原。</small></div>
+<!-- 说明 05：庆余年 -->
+          <div class="media-caption" data-slide="4"><span>TV DRAMA / 05 · 庆余年</span><h3>庆余年 · 李煜</h3><h4>杯酒之间，人间长恨</h4><p>《庆余年》的庙堂与江湖之间，这一帧胡须沉郁、仰头饮尽的侧影，恰似亡国之君的余韵：繁华落尽，锐气消磨，眼底只剩往事与无可奈何。</p><p>换一个时代的镜头回望，词里仍是那个「天上人间」的落差——都凝在举杯的一瞬。</p><small class="media-caption-note">影视剧演绎并非史料所载容貌；镜头照见的，是那个「以血书词」的亡国词人，也是今人愿意记住的李煜。</small></div>
         </div>
       </div>
 <!-- 收束小结：史书一行履历 VS 后世千般描摹 -->
-      <aside class="screen-world-summary"><span>AFTER THE PORTRAITS</span><p>史书只给了他一行履历：南唐后主，国亡被俘。<br>而游戏绘其风流，赋其孤勇；影视写其沉哀，刻其落魄。</p><p>每一种模样，都不是真正的李煜，却都是我们这个时代，读懂李煜的一种方式。</p></aside>
+      <aside class="screen-world-summary"><span>AFTER THE PORTRAITS</span><p>史书只给了他一行履历：南唐后主，国亡被俘。<br>而戏台唱其悲欢，游戏绘其风流，赋其孤勇；《庆余年》写其沉哀，刻其落魄。</p><p>每一种模样，都不是真正的李煜，却都是我们这个时代，读懂李煜的一种方式。</p></aside>
     </section>
 
 <!-- 余响区：一句收束 + 落款 -->

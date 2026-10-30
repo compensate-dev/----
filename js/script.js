@@ -508,8 +508,8 @@
     };
     const bumpAuto = () => { stopAuto(); startAuto(); };
     const go = (dir) => { cur = (cur + dir + n) % n; layout(); ritual(dir); };
-    // 切换仪式：一句词自中心卡右侧竖排升起飘散，几粒淡墨朝翻页方向迸落（词与四图意境对应）
-    const VERSES = ["往事已成空 还如一梦中", "寻春须是先春早 看花莫待花枝老", "帘外雨潺潺 春意阑珊", "世事漫随流水 算来一梦浮生"];
+    // 切换仪式：一句词自中心卡右侧竖排升起飘散，几粒淡墨朝翻页方向迸落（词与五图意境对应）
+    const VERSES = ["往事已成空 还如一梦中", "寻春须是先春早 看花莫待花枝老", "帘外雨潺潺 春意阑珊", "流水落花春去也 天上人间", "世事漫随流水 算来一梦浮生"];
     const ritual = (dir) => {
       let verse = deck.querySelector(".media-verse-float");
       if (!verse) {

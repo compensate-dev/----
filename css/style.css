@@ -313,7 +313,8 @@ textarea::placeholder{color:#9aa297}
 .media-card-archive::after{content:"壹"}
 .media-card-wangchuan::after{content:"贰"}
 .media-card-yanyun::after{content:"叁"}
-.media-card-film::after{content:"肆"}
+.media-card-jingkun::after{content:"肆"}
+.media-card-film::after{content:"伍"}
 /* —— 帘外余音「书影流转」3D 轮播（coverflow）：默认静态网格兜底，JS 加 .media-deck-3d 才启用 3D —— */
 .media-carousel{position:relative;max-width:1100px;margin:6px auto 0;translate:0 calc((var(--glide-p,.5) - .5)*-48px);will-change:translate}
 .media-deck{position:relative;display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:22px;outline:none}
@@ -409,6 +410,7 @@ textarea::placeholder{color:#9aa297}
 .media-art-archive{background:linear-gradient(135deg,#d8b780,#e9d1a0 55%,#d2ad75)}
 .media-art-wangchuan{background:linear-gradient(135deg,#171b19,#393225 55%,#171c1c)}
 .media-art-yanyun{background:linear-gradient(135deg,#111e29,#354451 55%,#17232b)}
+.media-art-jingkun{background:linear-gradient(135deg,#2b2433,#5b4b5e 55%,#221c28)}
 .media-art-film{background:linear-gradient(135deg,#1c252d,#44505a 55%,#171f27)}
 .media-caption h4{margin:7px 0 10px;color:#966149;font-size:12px;letter-spacing:.08em;font-weight:500}
 .media-caption p+p{margin-top:8px}
