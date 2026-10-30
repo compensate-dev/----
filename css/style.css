@@ -458,7 +458,7 @@ textarea::placeholder{color:#9aa297}
 .work-entry.is-active .work-watermark{color:rgba(169,104,76,calc(.05 + var(--entry-progress,0) * .09))}
 .work-number{font:29px var(--sans);font-weight:400;color:#bdc5b9;transition:color .6s ease,text-shadow .6s ease;will-change:transform;display:inline-block;position:relative;z-index:1;transform:perspective(700px) rotateY(calc((1 - var(--entry-progress,0)) * -48deg)) translateY(calc(var(--scroll-y,0px) * .12));transform-origin:left center}
 .work-entry.is-active .work-number{color:var(--rust);text-shadow:0 2px 16px rgba(169,104,76,.3)}
-.work-meta{display:flex;gap:9px;align-items:center;font-size:14px;color:#685b49;opacity:var(--entry-progress,.3);transition:opacity .5s ease}
+.work-meta{display:flex;gap:9px;align-items:center;font-size:14px;color:#544738;opacity:clamp(.7,var(--entry-progress,.3),1);transition:opacity .5s ease}
 .work-main{position:relative;z-index:1}
 .work-main h3{font-size:28px;font-weight:400;letter-spacing:.1em;margin:8px 0 20px;color:#293b30;transition:color .5s ease,letter-spacing .5s ease;will-change:transform;transform:translate3d(calc(var(--scroll-y,0px) * -.25),calc(var(--scroll-y,0px) * .08),0)}
 .work-entry.is-active .work-main h3{color:#1d2a21;letter-spacing:.15em}
@@ -467,7 +467,7 @@ textarea::placeholder{color:#9aa297}
 .poem-line{display:block;clip-path:inset(0 calc((1 - var(--line-reveal,0)) * 100%) 0 0);opacity:calc(.35 + var(--line-reveal,0) * .65);transform:translateX(calc((1 - var(--line-reveal,0)) * -12px));filter:blur(calc((1 - var(--line-reveal,0)) * 2.5px));transition:clip-path .45s cubic-bezier(.2,.7,.25,1),opacity .45s ease,transform .45s ease,filter .45s ease;will-change:clip-path,opacity,transform}
 .poem-line-gap{height:16px}
 .work-entry.is-active .poem-line{color:#1c2c22}
-.work-actions,.recite-buttons{display:flex;align-items:center;gap:21px;flex-wrap:wrap;margin-top:21px;opacity:var(--entry-progress,.2);transition:opacity .5s ease}
+.work-actions,.recite-buttons{display:flex;align-items:center;gap:21px;flex-wrap:wrap;margin-top:21px;opacity:clamp(.74,var(--entry-progress,.2),1);transition:opacity .5s ease}
 .work-actions button,.recite-buttons button{padding:0;border:0;background:none;font-family:"Liyu Xingkai",var(--serif);font-size:16px;color:#304d3f;cursor:pointer}
 .work-actions button:hover,.recite-buttons button:hover{color:var(--rust)}
 .work-actions .favorite-button[aria-pressed="true"]{color:var(--rust)}
