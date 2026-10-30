@@ -825,18 +825,18 @@ body.arrival-lock{overflow:hidden}
 .arrival-scroll-cue{display:flex;align-items:center;gap:11px;margin-top:42px;color:rgba(241,231,210,.72);font:9px var(--sans);letter-spacing:.2em}
 .arrival-scroll-cue i{position:relative;width:17px;height:27px;border:1px solid rgba(230,211,177,.64);border-radius:10px}
 .arrival-scroll-cue i:after{content:"";position:absolute;top:5px;left:7px;width:1px;height:5px;background:#e6d3b1;animation:arrival-scroll-hint 1.6s ease-in-out infinite}
-/* 操作区：由右上角移到右下角，整体略放大（进度标签 + 继续/跳过） */
-.arrival-actions{position:absolute;z-index:3;right:clamp(22px,calc((100vw - 1250px)/2 + 22px),54px);top:auto;bottom:clamp(24px,4.6vh,52px);width:min(264px,23vw);display:flex;flex-direction:column;align-items:stretch;gap:10px}
-.arrival-progress-label{display:flex;width:100%;justify-content:space-between;gap:12px;color:rgba(239,231,214,.68);font:9px var(--sans);letter-spacing:.13em}
+/* 操作区：固定在右下角，整体放大（进度标签 + 继续/跳过） */
+.arrival-actions{position:absolute;z-index:3;right:clamp(30px,calc((100vw - 1250px)/2 + 30px),64px);top:auto;bottom:clamp(30px,5vh,60px);width:min(296px,24vw);display:flex;flex-direction:column;align-items:stretch;gap:11px}
+.arrival-progress-label{display:flex;width:100%;justify-content:space-between;gap:12px;color:rgba(239,231,214,.74);font:10px var(--sans);letter-spacing:.13em}
 .arrival-progress-label b{font-weight:400;color:#e8d3ae}
 .arrival-progress-track{width:100%;height:1px;background:rgba(245,239,224,.25)}
 .arrival-progress-track span{display:block;width:var(--arrival-progress-width,0%);height:100%;background:#e3c596;transition:width .12s linear}
-.arrival-enter-button{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;padding:12px 15px;border:1px solid rgba(233,214,180,.65);background:rgba(28,47,40,.48);color:#f6efdf;font-family:"Liyu Xingkai",var(--serif);font-size:14px;letter-spacing:.12em;cursor:pointer;transition:background .25s ease,color .25s ease,opacity .25s ease,transform .25s ease}
+.arrival-enter-button{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;padding:14px 18px;border:1px solid rgba(233,214,180,.65);background:rgba(28,47,40,.48);color:#f6efdf;font-family:"Liyu Xingkai",var(--serif);font-size:15px;letter-spacing:.12em;cursor:pointer;transition:background .25s ease,color .25s ease,opacity .25s ease,transform .25s ease}
 .arrival-enter-button:hover:not(:disabled){background:#e6d2ae;color:#293a31;transform:translateY(-2px)}
 .arrival-enter-button:disabled{opacity:.45;cursor:not-allowed}
-.arrival-enter-button span{font:15px var(--sans);transition:transform .25s}
+.arrival-enter-button span{font:16px var(--sans);transition:transform .25s}
 .arrival-enter-button:hover:not(:disabled) span{transform:translateY(3px)}
-.arrival-skip-button{padding:0;border:0;background:none;color:rgba(242,235,220,.62);font-family:"Liyu Xingkai",var(--serif);font-size:13px;letter-spacing:.1em;cursor:pointer}
+.arrival-skip-button{padding:0;border:0;background:none;color:rgba(242,235,220,.68);font-family:"Liyu Xingkai",var(--serif);font-size:14px;letter-spacing:.1em;cursor:pointer}
 .arrival-skip-button:hover{color:#f3e4c5}
 .arrival-side-note{position:absolute;z-index:2;right:24px;top:50%;color:rgba(241,231,211,.42);font:8px var(--sans);letter-spacing:.23em;writing-mode:vertical-rl;transform:translateY(-50%)}
 .arrival-landscape{transform:translate3d(calc(var(--arrival-world-x,0px) + var(--arrival-pointer-x,0px)*-.35),calc(var(--arrival-landscape-y,0px) + var(--arrival-pointer-y,0px)*-.35),-100px) scale(var(--arrival-landscape-scale,1.18))}
@@ -900,9 +900,9 @@ body.arrival-lock{overflow:hidden}
   .arrival-whisper{margin-top:7px;font-size:11px}
   .arrival-ink-stroke{height:12px;margin-top:0}
   .arrival-scroll-cue{margin-top:13px;font-size:7px}
-  .arrival-actions{top:auto;right:8%;bottom:5%;width:86%;gap:11px}
-  .arrival-progress-label{font-size:8px}
-  .arrival-enter-button{padding:13px 16px;font-size:12px}
+  .arrival-actions{top:auto;right:7%;bottom:6%;width:86%;gap:12px}
+  .arrival-progress-label{font-size:9px}
+  .arrival-enter-button{padding:14px 17px;font-size:13px}
   .arrival-skip-button{align-self:center;padding:4px 12px}
   .arrival-side-note{right:8px;top:53%;font-size:6px}
 }
