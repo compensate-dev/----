@@ -3,7 +3,7 @@
 <html lang="zh-CN">
 <!-- 文档头部：字符集、移动端视口、主题色、SEO 描述、分页标题，以及共用的样式表与交互脚本 -->
 <!-- body.life-page：本页专用类，供 CSS 区分月色故人页与其他页面的底纹与版式 -->
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#e8eee4"><meta name="description" content="从金陵初生到北邙归处，十站看完李煜的四十二年；看一个人的身世，怎样一点点落进词里。"><meta property="og:site_name" content="春水留痕·李煜词境"><meta property="og:type" content="website"><meta property="og:title" content="月色故人｜春水留痕·李煜词境"><meta property="og:description" content="从金陵初生到北邙归处，十站看完李煜的四十二年；看一个人的身世，怎样一点点落进词里。"><meta property="og:image" content="../assets/image/life-background.jpg"><meta property="og:locale" content="zh_CN"><title>月色故人｜春水留痕·李煜词境</title><link rel="stylesheet" href="../css/style.css?v=f112"><script src="../js/script.js?v=f112" defer></script></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#e8eee4"><meta name="description" content="从金陵初生到北邙归处，十站看完李煜的四十二年；看一个人的身世，怎样一点点落进词里。"><meta property="og:site_name" content="春水留痕·李煜词境"><meta property="og:type" content="website"><meta property="og:title" content="月色故人｜春水留痕·李煜词境"><meta property="og:description" content="从金陵初生到北邙归处，十站看完李煜的四十二年；看一个人的身世，怎样一点点落进词里。"><meta property="og:image" content="../assets/image/life-background.jpg"><meta property="og:locale" content="zh_CN"><title>月色故人｜春水留痕·李煜词境</title><link rel="stylesheet" href="../css/style.css?v=f113"><script src="../js/script.js?v=f113" defer></script></head>
 <body class="life-page">
 <!-- 跳过导航：键盘用户按 Tab 时可直接跳入正文(#main-content) -->
   <a class="skip-link" href="#main-content">跳至主要内容</a>
@@ -67,15 +67,23 @@
         <article class="timeline-item"><span class="timeline-year">978</span><div class="timeline-dot"></div><div class="timeline-card" role="button" tabindex="0" aria-haspopup="dialog" aria-label="展开七夕绝唱与李煜之死的故事"><span class="timeline-label">七夕 · 绝唱</span><h3>一江春水，词成人逝</h3><p>四十二岁生辰之夜，与故臣小酌，作《虞美人》。声闻于外，是夜暴卒——世传赐牵机药。词成而人逝，绝唱自此不朽。</p><span class="timeline-quote">“问君能有几多愁？恰似一江春水向东流。”</span><span class="timeline-open-hint">点击展开故事 <span aria-hidden="true">↗</span></span></div></article>
 <!-- 978（下）：北邙归处（以王礼归葬，词心不朽） -->
         <article class="timeline-item" data-scene-key="978b"><span class="timeline-year">978</span><div class="timeline-dot"></div><div class="timeline-card" role="button" tabindex="0" aria-haspopup="dialog" aria-label="展开北邙归葬与词心不朽的故事"><span class="timeline-label">北邙 · 归处</span><h3>王礼归葬，词心不朽</h3><p>以王礼葬于洛阳北邙山，小周后哀毁骨立、未几亦逝，相继归葬。词人已逝，而词心越过千年，仍在抵达每一个读者。</p><span class="timeline-quote">“流水落花春去也，天上人间。”</span><span class="timeline-open-hint">点击展开故事 <span aria-hidden="true">↗</span></span></div></article>
-        </div>
-      </div>
-<!-- 尽头导读：时间轴走完十段后出现，指右侧「月色故人 · 水墨行迹」侧签（滚动到此由脚本点亮） -->
-      <div class="trail-guide">
-        <div class="trail-guide-copy">
+<!-- 尽头导读：时间轴的竖线走到末站后不再收束，而是漫成一团墨、落成两行墨字，提示去右侧「水墨行迹」（is-on 由脚本点亮） -->
+        <div class="trail-guide">
+          <!-- 枯枝：由时间轴竖线长出，几根细枝向右探入文字区；pathLength 统一为 100，便于用 stroke-dashoffset 做生长动画 -->
+          <svg class="trail-branch" viewBox="0 0 300 220" aria-hidden="true" focusable="false">
+            <path pathLength="100" d="M0 0 C0 12 1 22 2 34"/>
+            <path pathLength="100" d="M0 2 C12 6 24 10 34 14"/>
+            <path pathLength="100" d="M0 10 C10 20 20 32 34 44"/>
+            <path pathLength="100" d="M0 18 C12 44 24 68 34 94"/>
+            <path pathLength="100" d="M15 28 C18 24 20 21 22 18"/>
+            <path pathLength="100" d="M16 54 C19 50 21 47 23 43"/>
+          </svg>
+          <span class="trail-guide-dot" aria-hidden="true"></span>
           <span class="trail-guide-kicker">A LIFE WELL WALKED · 这一生，走完了</span>
-          <p>故事在 978 年落笔，山河却还没走完。<br>点页面右侧的<strong>「月色故人」</strong>侧签，去<em>水墨行迹</em>，顺着他的脚步把南唐走一遍。</p>
+          <p class="trail-guide-line">故事在 978 年落笔，山河却还没走完。</p>
+          <p class="trail-guide-line">点页面右侧的「月色故人」侧签，去<em>水墨行迹</em>，顺着他的脚步把南唐走一遍<span class="trail-guide-arrow" aria-hidden="true">→</span></p>
         </div>
-        <span class="trail-guide-arrow" aria-hidden="true"><i>点右侧侧签</i><b>→</b></span>
+        </div>
       </div>
     </section>
     </div>

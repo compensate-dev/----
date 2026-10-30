@@ -1091,34 +1091,42 @@ button:not(.book-open-button):active,.button:active{translate:0 1px}
   .timeline-narrative .timeline-quote{font-size:12px}
   .timeline-narrative .timeline-item.is-active .timeline-card{transform:translateY(-2px)}
 }
-/* ===== 时间轴尽头导读（life.html）：走完十段后提示去右侧「月色故人 · 水墨行迹」侧签 ===== */
-.trail-guide{position:relative;display:flex;align-items:center;justify-content:space-between;gap:clamp(18px,3vw,38px);max-width:780px;margin:clamp(10px,2vh,28px) auto 0;padding:clamp(24px,3.4vw,38px) clamp(22px,3vw,38px) clamp(24px,3.4vw,38px) clamp(28px,3.6vw,46px);border:1px solid rgba(169,104,76,.26);background:linear-gradient(118deg,rgba(248,247,239,.94),rgba(237,239,230,.82));box-shadow:0 20px 50px rgba(36,54,46,.09);opacity:0;transform:translateY(26px);transition:opacity .9s ease,transform 1.1s cubic-bezier(.2,.7,.25,1)}
-.trail-guide:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--rust),var(--gold))}
-/* 未滚到尽头时保持隐藏，进入视口后由脚本挂 .is-on 缓升入画 */
-.trail-guide.is-on{opacity:1;transform:none}
-.trail-guide-kicker{display:block;margin-bottom:12px;font:11px var(--sans);letter-spacing:.2em;color:#98583f}
-.trail-guide-copy p{margin:0;font-family:"Xuandong Kaishu",var(--serif);font-size:17px;line-height:2;letter-spacing:.05em;color:#2f443a}
-.trail-guide-copy strong,.trail-guide-copy em{font-family:"Liyu Xingkai",var(--serif);font-style:normal;font-weight:400;font-size:19px;letter-spacing:.06em}
-.trail-guide-copy strong{color:#8a3a26;border-bottom:1px solid rgba(169,104,76,.45)}
-.trail-guide-copy em{color:var(--rust)}
-.trail-guide-arrow{flex:none;display:flex;align-items:center;gap:10px;color:var(--rust)}
-.trail-guide-arrow i{font-style:normal;writing-mode:vertical-rl;font:11px var(--sans);letter-spacing:.26em;color:#7d6a54}
-.trail-guide-arrow b{display:inline-block;font:34px/1 var(--sans);font-weight:400;color:var(--rust)}
-/* 箭头只在导读点亮后轻轻向右推，暗示侧签在页面右缘 */
-.trail-guide.is-on .trail-guide-arrow b{animation:trailGuideNudge 2.4s ease-in-out infinite}
-@keyframes trailGuideNudge{0%,100%{transform:translateX(0)}50%{transform:translateX(6px)}}
+/* ===== 时间轴尽头导读（life.html）：竖线走到末站后自然分叉成枯枝，枝梢落成两行墨字，指向「水墨行迹」 ===== */
+.trail-guide{position:relative;max-width:560px;margin:clamp(30px,5vh,60px) 0 clamp(6px,1.5vh,16px);color:#1c2b23}
+/* 枯枝压在竖线末端（竖线即时间轴 border-left，位于内容区左侧 36px），细枝向右探入文字 */
+.trail-branch{position:absolute;left:-36px;top:-30px;width:300px;height:220px;pointer-events:none;overflow:visible;z-index:0}
+.trail-branch path{fill:none;stroke:rgba(36,54,46,.58);stroke-width:1.25;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:100;transition:stroke-dashoffset 1.35s cubic-bezier(.22,.7,.25,1)}
+/* 主枝先长，侧枝依次抽出 */
+.trail-branch path:nth-child(2){transition-delay:.1s}
+.trail-branch path:nth-child(3){transition-delay:.22s}
+.trail-branch path:nth-child(4){transition-delay:.34s}
+.trail-branch path:nth-child(5){transition-delay:.5s;stroke-width:.85;stroke:rgba(36,54,46,.45)}
+.trail-branch path:nth-child(6){transition-delay:.6s;stroke-width:.75;stroke:rgba(36,54,46,.38)}
+.trail-guide.is-on .trail-branch path{stroke-dashoffset:0}
+/* 分叉处的墨点：枯枝自此生出 */
+.trail-guide-dot{position:absolute;left:-39px;top:-33px;width:7px;height:7px;border-radius:50%;background:var(--rust);opacity:0;transform:scale(.4);transition:opacity .6s ease .05s,transform .7s cubic-bezier(.2,.7,.25,1) .05s}
+.trail-guide.is-on .trail-guide-dot{opacity:.9;transform:scale(1)}
+/* 文字压在枯枝之上：两行墨字自左向右写出，箭头最后亮起 */
+.trail-guide-kicker,.trail-guide-line{position:relative;z-index:1}
+.trail-guide-kicker{display:block;margin-bottom:14px;font:10px var(--sans);letter-spacing:.28em;color:#98583f;opacity:0;transform:translateY(8px);transition:opacity .9s ease .3s,transform .9s cubic-bezier(.2,.7,.25,1) .3s}
+.trail-guide-line{max-width:520px;margin:0 0 8px;font-family:"Liyu Xingkai",var(--serif);font-size:20px;line-height:2;letter-spacing:.05em;color:#1b2a22;clip-path:inset(0 100% 0 0);transition:clip-path 1.1s cubic-bezier(.3,.7,.2,1) .55s}
+.trail-guide-line+.trail-guide-line{transition-delay:.78s}
+.trail-guide-line em{font-style:normal;font-size:22px;letter-spacing:.08em;color:#8a3a26}
+.trail-guide-arrow{display:inline-block;margin-left:12px;font-family:var(--sans);font-size:17px;color:var(--rust);opacity:0;transform:translateX(-6px);transition:opacity .6s ease 1.15s,transform .7s cubic-bezier(.2,.7,.25,1) 1.15s}
+.trail-guide.is-on .trail-guide-kicker,.trail-guide.is-on .trail-guide-arrow{opacity:1;transform:none}
+.trail-guide.is-on .trail-guide-line{clip-path:inset(0 0 0 0)}
+.trail-guide.is-on .trail-guide-arrow{animation:trailArrow 2.4s ease-in-out 1.8s infinite}
+@keyframes trailArrow{0%,100%{transform:translateX(0)}50%{transform:translateX(5px)}}
 @media(max-width:760px){
-  .trail-guide{flex-direction:column;align-items:flex-start;gap:18px;padding:24px 22px}
-  .trail-guide-copy p{font-size:16px;line-height:1.95}
-  .trail-guide-arrow{gap:8px}
-  .trail-guide-arrow i{writing-mode:horizontal-tb;letter-spacing:.18em}
-  /* 窄屏侧签落到右下角，箭头改竖向指引，同时停掉右推动画以免覆盖旋转 */
-  .trail-guide-arrow b{font-size:26px;transform:rotate(90deg)}
-  .trail-guide.is-on .trail-guide-arrow b{animation:none}
+  .trail-branch{left:-27px;width:250px;height:190px}
+  .trail-guide-dot{left:-30px}
+  .trail-guide-line{font-size:16px;line-height:2}
+  .trail-guide-line em{font-size:18px}
 }
 @media(prefers-reduced-motion:reduce){
-  .trail-guide{transition:none;opacity:1;transform:none}
-  .trail-guide.is-on .trail-guide-arrow b,.map-tab.is-call{animation:none}
+  .trail-branch path{stroke-dashoffset:0;transition:none}
+  .trail-guide-dot,.trail-guide-kicker,.trail-guide-line,.trail-guide-arrow{opacity:1;transform:none;clip-path:none;transition:none}
+  .trail-guide.is-on .trail-guide-arrow,.map-tab.is-call{animation:none}
 }
 
 @media(prefers-reduced-motion:reduce){html{scroll-snap-type:none}.timeline-scene:before,.timeline-scene-copy,.timeline-scene-progress span{transition:none;transform:none}.timeline-scene-copy.is-changing{opacity:1}.bamboo-leaves{display:none}.scroll-parallax,.scroll-parallax-bg,.scroll-parallax-slow{transform:none!important}.poem-line{clip-path:none!important;opacity:1!important;transform:none!important;filter:none!important}.work-number{transform:none!important}.work-watermark{display:none}.work-side{transform:none!important}.poem-gallery:before{transform:none}}
