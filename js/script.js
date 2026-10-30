@@ -3987,3 +3987,16 @@
   };
   window.requestAnimationFrame(tick);
 })();
+
+// 子页开屏滚动提醒：静置片刻后浮现，向下滚过首屏即收起。
+// 首页的同类提示由舞台导演单独调度，这里只接管 pages/ 下各页的 .scroll-hint。
+(() => {
+  const hints = document.querySelectorAll(".scroll-hint");
+  if (!hints.length) return;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const setOn = (on) => hints.forEach((hint) => hint.classList.toggle("is-on", on));
+  const threshold = () => Math.min(200, window.innerHeight * 0.24);
+  // 首屏静置 1.6s 再露头，避免和页面入场动画撞在一起
+  window.setTimeout(() => { if (window.scrollY < 40) setOn(true); }, 1600);
+  window.addEventListener("scroll", () => setOn(window.scrollY < threshold()), { passive: true });
+})();

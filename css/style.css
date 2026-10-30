@@ -1108,7 +1108,8 @@ button:not(.book-open-button):active,.button:active{translate:0 1px}
 
 /* —— 内页首屏「故事画」式滚动钉合：首屏吸顶、视频慢推、标题褪色残留，下一区块上浮覆盖 —— */
 .subhero-stage{position:relative}
-.subhero-stage>.subhero{position:sticky;top:0;z-index:1;min-height:0;height:100vh;height:100svh;--hero-p:0}
+/* 开屏首屏吸顶：让出导航条 86px，高度也扣掉 86px，整屏正好装进视口（不再被底部裁掉） */
+.subhero-stage>.subhero{position:sticky;top:86px;z-index:1;min-height:0;height:calc(100vh - 86px);height:calc(100svh - 86px);--hero-p:0}
 .subhero-stage>.story,.subhero-stage>.works,.subhero-stage>.listen-content,.subhero-stage>.memory-section{position:relative;z-index:2}
 /* 覆盖面板至少满屏，保证整块上浮时能完全遮住钉住的首屏（reduced-motion 下不加，避免空荡留白） */
 @media(prefers-reduced-motion:no-preference){.subhero-stage>.story,.subhero-stage>.works,.subhero-stage>.listen-content,.subhero-stage>.memory-section{min-height:100vh;min-height:100svh}}
@@ -1153,7 +1154,8 @@ button:not(.book-open-button):active,.button:active{translate:0 1px}
 .finale-page .brand-seal{border-color:rgba(228,199,149,.42);background:rgba(228,199,149,.14);color:#e4c795}
 .finale-page .sound-toggle{border-color:rgba(244,240,230,.28)}
 .finale-scroll{position:relative;height:320vh;--finale-p:0;--px:0;--py:0}
-.finale-stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;display:flex;align-items:center;justify-content:center;text-align:center;color:#f4f0e6;isolation:isolate}
+/* 终幕开屏：同样让出导航条 86px，整幅画面（含底部滚动提示）都在视口内 */
+.finale-stage{position:sticky;top:86px;height:calc(100vh - 86px);height:calc(100svh - 86px);overflow:hidden;display:flex;align-items:center;justify-content:center;text-align:center;color:#f4f0e6;isolation:isolate}
 .finale-stage:before{content:"";position:absolute;inset:-6%;z-index:0;background:radial-gradient(120% 90% at 50% 8%,#1e2e27 0%,#16211d 52%,#0e1714 100%);transform:scale(calc(1 + var(--finale-p) * .05));filter:brightness(calc(1 - max(0,var(--finale-p) - .85) * 1.2))}
 .finale-stage:after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(58% 42% at 50% 80%,rgba(199,170,119,.12),transparent 70%)}
 .finale-moon{position:absolute;z-index:1;top:15%;left:auto;right:10%;width:clamp(88px,10vw,150px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 38% 34%,#f6ecd4,#e8d9b0 58%,#d9c491);box-shadow:0 0 46px rgba(238,220,172,.38),0 0 130px rgba(238,220,172,.18);opacity:calc(min(1,var(--finale-p) / .24));translate:calc(var(--px,0) * -10px) calc(var(--py,0) * -7px - (1 - min(1,var(--finale-p) / .24)) * 64px)}
@@ -1190,10 +1192,6 @@ button:not(.book-open-button):active,.button:active{translate:0 1px}
 .finale-return:hover,.finale-return:focus-visible,.finale-gate-button:hover,.finale-gate-button:focus-visible{background:rgba(228,199,149,.12);border-color:rgba(228,199,149,.85);letter-spacing:.2em}
 .finale-again{color:rgba(228,202,158,.75)}
 .finale-again:hover,.finale-again:focus-visible{color:#e4c795}
-.finale-scroll-cue{position:absolute;z-index:3;bottom:26px;left:50%;translate:-50% 0;display:flex;align-items:center;gap:9px;color:rgba(240,232,212,.55);font:10px var(--sans);letter-spacing:.22em}
-.finale-scroll-cue i{position:relative;display:block;width:1px;height:34px;background:linear-gradient(rgba(240,232,212,.55),transparent)}
-.finale-scroll-cue i:after{content:"";position:absolute;top:0;left:-1px;width:3px;height:9px;border-radius:2px;background:#e4c795;animation:finale-cue-fall 2.2s ease-in-out infinite}
-@keyframes finale-cue-fall{0%{transform:translateY(0);opacity:0}30%{opacity:1}100%{transform:translateY(30px);opacity:0}}
 @media(prefers-reduced-motion:no-preference){
   .finale-js .finale-glyph{opacity:calc(min(1,var(--finale-p) / .15) * .18)}
   .finale-js .finale-kicker{opacity:calc(clamp(0,(var(--finale-p) - .08) * 12,1));translate:0 calc((1 - clamp(0,(var(--finale-p) - .08) * 12,1)) * 22px)}
@@ -1204,7 +1202,6 @@ button:not(.book-open-button):active,.button:active{translate:0 1px}
   .finale-js .finale-copy .finale-line:nth-child(2){opacity:calc(clamp(0,(var(--finale-p) - .51) * 8,1));translate:0 calc((1 - clamp(0,(var(--finale-p) - .51) * 8,1)) * 22px);filter:blur(calc((1 - clamp(0,(var(--finale-p) - .51) * 8,1)) * 5px))}
   .finale-js .finale-copy .finale-line:nth-child(3){opacity:calc(clamp(0,(var(--finale-p) - .58) * 8,1));translate:0 calc((1 - clamp(0,(var(--finale-p) - .58) * 8,1)) * 22px);filter:blur(calc((1 - clamp(0,(var(--finale-p) - .58) * 8,1)) * 5px))}
   .finale-js .finale-actions{opacity:calc(clamp(0,(var(--finale-p) - .74) * 9,1));translate:0 calc((1 - clamp(0,(var(--finale-p) - .74) * 9,1)) * 24px)}
-  .finale-js .finale-scroll-cue{opacity:calc(clamp(0,(.1 - var(--finale-p)) * 10,1))}
 }
 @media(prefers-reduced-motion:reduce){
   .finale-scroll{height:auto}
@@ -1217,7 +1214,6 @@ button:not(.book-open-button):active,.button:active{translate:0 1px}
   .finale-hill,.finale-boat,.finale-geese{translate:0 0;rotate:0deg}
   .finale-boat{opacity:.85}
   .finale-geese{opacity:.55}
-  .finale-scroll-cue{display:none}
 }
 /* 终幕引子（listen 页尾 gate）：暗色满屏，雾感初现 + 按钮跳转 finale.html，整块复用全站 reveal 渐显 */
 .finale-gate{position:relative;min-height:100vh;min-height:100svh;display:flex;align-items:center;justify-content:center;overflow:hidden;text-align:center;color:#f4f0e6;background:radial-gradient(120% 100% at 50% 0%,#1b2a24 0%,#141f1b 55%,#0f1815 100%);isolation:isolate}
@@ -1240,6 +1236,19 @@ button:not(.book-open-button):active,.button:active{translate:0 1px}
   .part-js .finale-gate:before{translate:calc(var(--part-px,0) * 34px) calc(var(--part-py,0) * 20px - var(--part-p,0) * 40px);opacity:calc(.4 + var(--part-p,0) * .6)}
 }
 @media(max-width:700px){.finale-inner{padding:84px 8% 90px}.finale-glyph{width:min(240px,64vw)}.finale-title{font-size:34px}.finale-gate-inner{padding:100px 8%}}
+
+/* 矮屏（笔记本 768px 高及以下）适配：开屏内边距与标题同步收紧，保证整屏仍装得下 */
+@media(max-height:800px){
+  .subhero{padding-top:44px;padding-bottom:44px}
+  .subhero h1{font-size:clamp(36px,4.6vw,60px)}
+  .subhero .subhero-copy>p:not(.eyebrow){line-height:1.9}
+  .wanxiang-hero .eyebrow{margin-bottom:12px}
+  .finale-title{font-size:clamp(28px,4.2vw,52px);margin-top:20px}
+  .finale-stroke{margin:12px 0 20px}
+  .finale-copy{line-height:1.95}
+  .finale-actions{margin-top:26px}
+  .scroll-hint{bottom:14px;gap:8px}
+}
 
 /* ========== 文创笺铺（全站侧边栏抽屉 · script.js 动态注入） ========== */
 /* 侧缘小签：常驻右缘的竖排入口 */
@@ -1839,7 +1848,6 @@ body.finale-page::after{background:radial-gradient(125% 95% at 50% 45%,transpare
 .shop-meta{font-size:9.5px;color:#7a6752}
 .jy-mine-tag{font-size:9.5px}
 /* —— 终幕页辅助文字 —— */
-.finale-scroll-cue{font-size:11px;color:rgba(240,232,212,.72)}
 .finale-again{color:rgba(228,202,158,.9)}
 
 /* ================= 全站点击互动：墨点晕染 + 书法字浮出（f73，叠加于既有 click-ripple，不改任何区块主题） ================= */
@@ -1996,6 +2004,23 @@ body.home-page.stage-mode .stage-hint .hint-touch{display:none}
   body.home-page.stage-mode .stage-hint i{display:none}
   body.home-page.stage-mode .stage-hint .hint-desktop{display:none}
   body.home-page.stage-mode .stage-hint .hint-touch{display:inline}
+}
+
+/* 子页开屏滚动提醒：沿用首页的「线描鼠标 + 朱砂滚轮 + 墨色氤氲」，落在首屏底部正中 */
+.scroll-hint{position:absolute;left:50%;bottom:clamp(22px,4.5vh,48px);transform:translateX(-50%);z-index:6;display:flex;flex-direction:column;align-items:center;gap:10px;font:14px var(--sans);letter-spacing:.16em;color:#f3ead6;text-shadow:0 1px 10px rgba(12,20,16,.6);pointer-events:none;opacity:0;transition:opacity .7s ease}
+.scroll-hint.is-on{opacity:1}
+/* 墨色氤氲：深墨团在字后化开，把亮底压暗，提示才读得清 */
+.scroll-hint::before,.scroll-hint::after{content:"";position:absolute;left:50%;top:50%;border-radius:50%;pointer-events:none;z-index:-1;filter:blur(12px);background:radial-gradient(closest-side,rgba(14,23,19,.42),rgba(14,23,19,.16) 58%,rgba(14,23,19,0) 82%)}
+.scroll-hint::before{width:280px;height:128px;transform:translate(-50%,-50%)}
+.scroll-hint::after{width:168px;height:88px;transform:translate(-56%,-44%);opacity:.78}
+.scroll-hint i{position:relative;width:28px;height:44px;border:1.5px solid rgba(243,234,214,.82);border-radius:14px}
+.scroll-hint i::before{content:"";position:absolute;left:50%;top:0;width:1px;height:14px;margin-left:-.5px;background:rgba(243,234,214,.5)}
+.scroll-hint i b{position:absolute;left:50%;top:8px;width:3px;height:9px;margin-left:-1.5px;border-radius:1.5px;background:var(--rust);animation:stageHintWheel 1.9s ease-in-out infinite}
+.scroll-hint .hint-touch{display:none}
+@media(hover:none){
+  .scroll-hint i{display:none}
+  .scroll-hint .hint-desktop{display:none}
+  .scroll-hint .hint-touch{display:inline}
 }
 
 /* 视差：镜头随指针微移，各层按深度差速位移（translate 独立于 stagger 的 transform） */
