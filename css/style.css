@@ -1815,17 +1815,18 @@ body.home-page.stage-mode .scene-content{flex:1;min-height:0;display:flex;flex-d
 body.home-page.stage-mode .scene-content::-webkit-scrollbar{width:0;height:0}
 body.home-page.stage-mode .scene-content>*{width:100%;flex:none;margin:auto 0}
 
-body.home-page.stage-mode .scene[data-scene="0"]{background:#f1f2ec}
-body.home-page.stage-mode .scene[data-scene="1"]{background:#f4f2ea}
-body.home-page.stage-mode .scene[data-scene="2"]{background:#f3f3ed}
-body.home-page.stage-mode .scene[data-scene="3"]{background:#f2f0e6}
-body.home-page.stage-mode .scene[data-scene="4"]{background:#e9ebe4}
-body.home-page.stage-mode .scene[data-scene="5"]{background:#f4f2ea}
-body.home-page.stage-mode .scene[data-scene="6"]{background:#ebe9dc}
-body.home-page.stage-mode .scene[data-scene="7"]{background:#f1efe5}
-body.home-page.stage-mode .scene[data-scene="8"]{background:#f3f3ed}
-body.home-page.stage-mode .scene[data-scene="9"]{background:#f4f2ea}
-body.home-page.stage-mode .scene[data-scene="10"]{background:#eef0e8}
+/* 幕底色：折子幕保持纸色；其余各幕统一落在淡绿一段，只在明度与暖冷上微差 */
+body.home-page.stage-mode .scene[data-scene="0"]{background:radial-gradient(120% 92% at 50% 26%,#eef4ec 0%,#e5eee3 72%,#dee9dd 100%)}
+body.home-page.stage-mode .scene[data-scene="1"]{background:radial-gradient(120% 92% at 48% 30%,#f8f1e3 0%,#f3e8d4 74%,#ecdfc9 100%)}
+body.home-page.stage-mode .scene[data-scene="2"]{background:radial-gradient(120% 92% at 52% 30%,#eaf1e2 0%,#e2ecda 74%,#dae6d1 100%)}
+body.home-page.stage-mode .scene[data-scene="3"]{background:radial-gradient(120% 92% at 50% 32%,#f8efdb 0%,#f1e3c8 74%,#e9d9bd 100%)}
+body.home-page.stage-mode .scene[data-scene="4"]{background:radial-gradient(120% 92% at 50% 30%,#e0e9dc 0%,#d3dfd0 74%,#c8d6c7 100%)}
+body.home-page.stage-mode .scene[data-scene="5"]{background:radial-gradient(120% 92% at 50% 32%,#f5e9d3 0%,#ecdcbf 74%,#e4d2b4 100%)}
+body.home-page.stage-mode .scene[data-scene="6"]{background:radial-gradient(120% 92% at 50% 32%,#e6f0e4 0%,#dbe9da 74%,#d2e3d2 100%)}
+body.home-page.stage-mode .scene[data-scene="7"]{background:radial-gradient(120% 92% at 50% 34%,#f6ead6 0%,#ecdabd 74%,#e3cfb0 100%)}
+body.home-page.stage-mode .scene[data-scene="8"]{background:radial-gradient(120% 92% at 50% 30%,#edf2e0 0%,#e3ecd2 74%,#dbe6c9 100%)}
+body.home-page.stage-mode .scene[data-scene="9"]{background:radial-gradient(120% 92% at 50% 34%,#f1e4ce 0%,#e6d5b8 74%,#ddcaab 100%)}
+body.home-page.stage-mode .scene[data-scene="10"]{background:radial-gradient(120% 92% at 50% 28%,#e8eeea 0%,#dfe7e1 74%,#d6e1da 100%)}
 
 /* 换幕语法：一幕一种镜头运动（横移 / 升幕 / 叠化 / 翻页 / 纵深），不再全是"飞来" */
 /* 入场起始态由 JS 写入变量：--ex/--ey/--ez 位移，--eyr 绕 Y 转，--exr 绕 X 转，--ezr 滚转，--es 缩放，--eb 模糊 */
@@ -1837,9 +1838,15 @@ body.home-page.stage-mode .scene.is-settled{opacity:1;transform-origin:50% 50%;t
 body.home-page.stage-mode .scene.is-exit{opacity:0;transform-origin:var(--ox,50%) var(--oy,50%);transform:translate3d(var(--dx,0),var(--dy,0),var(--dz,0)) rotateY(var(--dyr,0deg)) rotateZ(var(--dzr,0deg)) scale(var(--ds,1));filter:blur(var(--db,20px)) saturate(.82);pointer-events:none;transition:transform var(--xt,.92s) cubic-bezier(.4,0,.6,1),opacity calc(var(--xt,.92s) * .66) ease,filter calc(var(--xt,.92s) * .74) ease}
 /* 首幕穿框：镜头贴着画框中线推进，画框胀满视野后化开 */
 body.home-page.stage-mode .scene.is-gate-through{opacity:0;transform-origin:var(--ox,64%) var(--oy,46%);transform:translate3d(0,0,900px) scale(3.6);filter:blur(18px) brightness(1.1) saturate(.9);pointer-events:none;transition:transform 1.24s cubic-bezier(.7,.02,.9,.04),opacity .5s ease .62s,filter .9s ease}
-/* 穿框的纸窗：整张纸糊满视野，只在画框处留洞；镜头推进时洞胀满屏幕，纸边从眼前掠过 */
-body.home-page.stage-mode .stage-gate{position:absolute;z-index:11;pointer-events:none;opacity:0;transform-origin:50% 50%;will-change:transform,opacity;box-shadow:0 0 0 3px rgba(52,46,34,.62),0 0 0 5px rgba(252,249,240,.95),0 0 0 100vmax rgba(231,223,203,.97),inset 0 0 0 2px rgba(255,255,255,.5),inset 0 0 46px rgba(96,82,58,.3),0 0 34px rgba(96,82,58,.16)}
-body.home-page.stage-mode .stage-gate i{position:absolute;inset:0;background:linear-gradient(118deg,rgba(255,255,255,.34) 0%,rgba(255,255,255,0) 38%,rgba(255,255,255,.12) 64%,rgba(255,255,255,0) 88%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.42)}
+/* 穿框的纸窗：整张纸糊满视野，只在画框处留洞；洞内叠窗棂与一团暖光，镜头穿过时棂条掠过、白光炸开 */
+body.home-page.stage-mode .stage-gate{position:absolute;z-index:11;pointer-events:none;opacity:0;transform-origin:50% 50%;will-change:transform,opacity;overflow:hidden;box-shadow:0 0 0 3px rgba(46,40,28,.62),0 0 0 6px rgba(252,249,240,.95),0 0 0 100vmax rgba(226,217,196,.98),inset 0 0 0 2px rgba(255,255,255,.5),inset 0 0 70px rgba(96,82,58,.3),0 0 46px rgba(255,246,222,.45)}
+body.home-page.stage-mode .stage-gate .gate-glass{position:absolute;inset:0;background:linear-gradient(118deg,rgba(255,255,255,.42) 0%,rgba(255,255,255,0) 36%,rgba(255,255,255,.16) 62%,rgba(255,255,255,0) 86%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.46)}
+body.home-page.stage-mode .stage-gate .gate-lattice{position:absolute;inset:0;opacity:0;transform-origin:50% 50%;mix-blend-mode:multiply;background-image:repeating-linear-gradient(90deg,rgba(96,80,52,.46) 0 2px,transparent 2px 11.5%),repeating-linear-gradient(0deg,rgba(96,80,52,.46) 0 2px,transparent 2px 11.5%)}
+body.home-page.stage-mode .stage-gate .gate-glow{position:absolute;inset:-8%;opacity:0;transform-origin:50% 48%;background:radial-gradient(circle at 50% 48%,rgba(255,253,245,.96) 0%,rgba(255,246,220,.6) 34%,rgba(255,246,220,0) 68%)}
+body.home-page.stage-mode .stage-gate.is-burst .gate-lattice{animation:gateLattice .78s cubic-bezier(.5,.02,.86,.02) both}
+body.home-page.stage-mode .stage-gate.is-burst .gate-glow{animation:gateGlow .82s ease-out both}
+@keyframes gateLattice{0%{opacity:0;transform:scale(1)}16%{opacity:.85}52%{opacity:.52;transform:scale(1.2)}100%{opacity:0;transform:scale(2)}}
+@keyframes gateGlow{0%{opacity:0;transform:scale(.55)}42%{opacity:.92;transform:scale(1.06)}100%{opacity:0;transform:scale(2.7)}}
 
 /* 幕内字句错落（视频二：卡片按位置左右分流，标题逐行落定） */
 body.home-page.stage-mode .scene .stg{opacity:0;transform:translate3d(var(--sx,0px),46px,-150px) rotateX(22deg);transform-origin:50% 64%;filter:blur(7px)}
@@ -1851,11 +1858,16 @@ body.home-page.stage-mode .home-stage .narrative-thread .nt-stroke{stroke-dashof
 
 /* 各幕主体：去竖直留白，交给舞台居中；hero 撑满整屏 */
 body.home-page.stage-mode .home-stage .hero{height:100%;min-height:0;padding:30px 10% 22px}
+/* 首幕底图退后一点，别喧宾夺主 */
+body.home-page.stage-mode .hero:before{opacity:.5}
 body.home-page.stage-mode .home-stage .intro{padding-top:0;padding-bottom:0;align-content:center;align-items:center;background:transparent}
-body.home-page.stage-mode .home-stage .feature-section{padding-top:0;padding-bottom:0}
-body.home-page.stage-mode .home-stage .verse-game{padding-top:0;padding-bottom:0}
-body.home-page.stage-mode .home-stage .afterlife-section{min-height:0;padding-top:0;padding-bottom:0;justify-content:center}
-body.home-page.stage-mode .home-stage .closing{padding-top:0;padding-bottom:0}
+body.home-page.stage-mode .home-stage .feature-section{padding-top:0;padding-bottom:0;background:transparent}
+body.home-page.stage-mode .home-stage .verse-game{padding-top:0;padding-bottom:0;background:transparent}
+body.home-page.stage-mode .home-stage .afterlife-section{height:100%;min-height:0;padding-top:0;padding-bottom:0;justify-content:center;background:transparent}
+body.home-page.stage-mode .home-stage .closing{height:100%;padding-top:0;padding-bottom:0;align-content:center}
+/* 这两幕的底图铺满整屏，并按指针微幅视差（放大一点留出位移余量） */
+body.home-page.stage-mode .afterlife-section:before,
+body.home-page.stage-mode .closing:before{transform:scale(1.06) translate3d(calc(var(--px,0) * -12px),calc(var(--py,0) * -9px),0);transform-origin:50% 50%;transition:transform .5s ease-out}
 body.home-page.stage-mode .scene[data-scene="0"] .scene-content{overflow:hidden}
 body.home-page.stage-mode .scene[data-scene="0"] .hero{margin:0}
 
@@ -1880,16 +1892,22 @@ body.home-page.stage-mode .stage-wash{position:absolute;inset:0;z-index:10;point
 body.home-page.stage-mode .stage-wash.is-on{animation:stageWash .98s cubic-bezier(.42,0,.52,1) both}
 @keyframes stageWash{0%{opacity:0}16%{opacity:.48}32%{opacity:.72}62%{opacity:.28}100%{opacity:0}}
 
-/* 折子幕：一整屏只放一句引子，把读者带到下一部分 */
+/* 折子幕：文字与金线随幕缓缓浮现；一整屏只放一句引子，把读者带到下一部分 */
 body.home-page.stage-mode .fold-scene .scene-content{display:flex;align-items:center;justify-content:center;padding:clamp(40px,10vh,120px) clamp(28px,6vw,120px)}
 body.home-page.stage-mode .fold-card{position:relative;width:min(1120px,88vw)}
-body.home-page.stage-mode .fold-kicker{position:absolute;left:0;top:4px;writing-mode:vertical-rl;font:11px var(--sans);letter-spacing:.5em;color:#7f8d80}
+body.home-page.stage-mode .fold-kicker{position:absolute;left:0;top:4px;writing-mode:vertical-rl;white-space:nowrap;height:auto;font:11px var(--sans);letter-spacing:.46em;line-height:1.9;color:#7f8d80}
 body.home-page.stage-mode .fold-line{display:flex;align-items:center;gap:clamp(14px,2.2vw,32px);padding-left:clamp(60px,6.4vw,104px)}
-body.home-page.stage-mode .fold-line h2{margin:0;font-family:"HongLei Calligraphy",var(--serif);font-weight:400;font-size:clamp(32px,4.6vw,68px);line-height:1.22;letter-spacing:.09em;color:#26392e}
+body.home-page.stage-mode .fold-line h2{margin:0;display:flex;flex-direction:column;align-items:flex-start;gap:clamp(2px,.9vh,12px);font-family:"HongLei Calligraphy",var(--serif);font-weight:400;font-size:clamp(32px,4.6vw,68px);line-height:1.16;letter-spacing:.09em;color:#26392e}
+body.home-page.stage-mode .fold-line h2 span{display:block;white-space:nowrap}
+body.home-page.stage-mode .fold-line h2 .fold-l2{padding-left:1.3em;color:#31463a}
+/* 折子：字与金线随幕缓缓浮现——先竖标，再第一行、第二行，最后金线描出 */
+body.home-page.stage-mode .fold-scene .stg{opacity:0;transform:translate3d(0,26px,0);filter:blur(6px);transition:opacity 1.3s ease,transform 1.25s cubic-bezier(.22,1,.36,1),filter 1.15s ease;transition-delay:calc(.32s + var(--i,0) * .26s)}
+body.home-page.stage-mode .fold-scene.stg-run .stg{opacity:1;transform:translate3d(0,0,0);filter:blur(0)}
+body.home-page.stage-mode .fold-stroke path{stroke-dasharray:1;stroke-dashoffset:0}
+body.home-page.stage-mode .fold-scene.stg-run .fold-stroke path{animation:foldStrokeDraw 1.7s ease .95s both}
+@keyframes foldStrokeDraw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
 body.home-page.stage-mode .fold-stroke{flex:0 0 auto;width:clamp(80px,10vw,160px);height:18px;fill:none;stroke:#8d7f66;stroke-width:1.3;stroke-linecap:round;opacity:.55}
-body.home-page.stage-mode .fold-rule{display:block;height:1px;margin:clamp(22px,3.4vh,40px) 0 0 clamp(60px,6.4vw,104px);background:linear-gradient(90deg,rgba(118,102,74,.46),rgba(118,102,74,0) 78%)}
-body.home-page.stage-mode .fold-seal{position:absolute;right:0;top:clamp(-58px,-5vh,-34px);width:44px;height:44px;display:grid;place-items:center;border:1px solid rgba(112,96,66,.42);background:rgba(255,255,255,.2);transform:rotate(45deg);opacity:.86}
-body.home-page.stage-mode .fold-seal b{transform:rotate(-45deg);font-family:var(--serif);font-weight:400;font-size:17px;color:#6f5f43}
+body.home-page.stage-mode .fold-rule{display:block;height:1px;margin:clamp(22px,3.4vh,40px) 0 0 clamp(60px,6.4vw,104px);background:linear-gradient(90deg,rgba(118,102,74,.46),rgba(118,102,74,0) 78%);transform-origin:0 50%}
 
 /* 滚动提示：静置时一句轻招 */
 body.home-page.stage-mode .stage-hint{position:fixed;left:50%;bottom:78px;transform:translateX(-50%);z-index:15;display:flex;flex-direction:column;align-items:center;gap:8px;font:10px var(--sans);letter-spacing:.26em;color:#5a6b5f;pointer-events:none;opacity:0;transition:opacity .6s ease}
@@ -1927,6 +1945,14 @@ body.home-page.stage-mode .afterlife-copy{--d:.6}
 body.home-page.stage-mode .closing>div{--d:1.1}
 body.home-page.stage-mode .mood-form{--d:1.5}
 
+/* 识其人：文字与画像在立体空间里各自向右转动（文字 15°、画像 8°），不是平面倾斜 */
+body.home-page.stage-mode .scene[data-scene="2"] .intro{grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);gap:clamp(22px,5vw,84px);align-content:center;align-items:center;perspective:1500px}
+body.home-page.stage-mode .scene[data-scene="2"] .intro-heading{order:1;justify-self:center;width:min(100%,480px)}
+body.home-page.stage-mode .scene[data-scene="2"] .intro-poet{order:2;justify-self:center;width:min(100%,320px);align-self:center}
+body.home-page.stage-mode .scene[data-scene="2"] .poet-portrait{aspect-ratio:.78;object-position:center 20%}
+body.home-page.stage-mode .scene[data-scene="2"] .intro-3d{transform:perspective(1200px) rotateY(15deg);transform-origin:50% 50%;transform-style:preserve-3d}
+body.home-page.stage-mode .scene[data-scene="2"] .portrait-frame{transform:perspective(1100px) rotateY(8deg);transform-origin:50% 50%}
+
 /* 词卡微倾斜（光标驱动，JS 写 transform；位移交给 translate，两者互不干扰） */
 body.home-page.stage-mode .poem-card{transform-origin:50% 50%;transition:filter .5s ease,transform .55s cubic-bezier(.16,.86,.24,1)}
 body.home-page.stage-mode .poem-card:hover{filter:brightness(1.06) saturate(1.06)}
@@ -1944,13 +1970,23 @@ body.home-page.stage-mode .poem-card:hover .poem-arrow{transform:translate(3px,-
   body.home-page.stage-mode .fold-scene .scene-content{padding:80px 9vw 90px}
   body.home-page.stage-mode .fold-kicker{position:static;writing-mode:horizontal-tb;letter-spacing:.3em;display:block;margin-bottom:14px}
   body.home-page.stage-mode .fold-line{flex-direction:column;align-items:flex-start;gap:12px;padding-left:0}
-  body.home-page.stage-mode .fold-line h2{font-size:clamp(26px,8vw,38px);line-height:1.3}
+  body.home-page.stage-mode .fold-line h2{font-size:clamp(26px,8vw,38px);line-height:1.3;letter-spacing:.06em}
+  body.home-page.stage-mode .scene[data-scene="2"] .intro{grid-template-columns:1fr;gap:16px}
+  body.home-page.stage-mode .scene[data-scene="2"] .intro-heading{order:1;justify-self:start;width:100%}
+  body.home-page.stage-mode .scene[data-scene="2"] .intro-3d{transform:perspective(900px) rotateY(9deg)}
+  body.home-page.stage-mode .scene[data-scene="2"] .portrait-frame{transform:perspective(900px) rotateY(5deg)}
+  body.home-page.stage-mode .scene[data-scene="2"] .poet-portrait{aspect-ratio:.88}
+  body.home-page.stage-mode .scene[data-scene="2"] .intro-poet{order:2;justify-self:center;width:min(100%,300px)}
+  body.home-page.stage-mode .fold-line h2 .fold-l2{padding-left:1em}
   body.home-page.stage-mode .fold-stroke{width:84px}
   body.home-page.stage-mode .fold-rule{margin-left:0}
-  body.home-page.stage-mode .fold-seal{top:auto;bottom:-46px;right:0;width:34px;height:34px}
 }
 @media(hover:none){body.home-page.stage-mode .stage-rail button:after{display:none}}
 @media(prefers-reduced-motion:reduce){
   body.home-page.stage-mode .scene{transition:none!important;filter:none!important;transform:none!important}
   body.home-page.stage-mode .scene .stg{opacity:1!important;transform:none!important;filter:none!important;transition:none!important}
+  body.home-page.stage-mode .fold-scene.stg-run .fold-stroke path{animation:none;stroke-dashoffset:0}
+  body.home-page.stage-mode .stage-gate,
+  body.home-page.stage-mode .stage-wash,
+  body.home-page.stage-mode .stage-cut{display:none!important}
 }
