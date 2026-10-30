@@ -3212,7 +3212,7 @@
   }));
 })();
 
-// 首页「词间一戏 · 拾字成句」：字笺按原句次序拾取，三阕皆圆后开启词间春水入口。
+// 首页「词间一戏 · 拾字成句」：字笺按原句次序拾取，五阕皆圆后开启词间春水入口。
 // 仅存在于首页（.verse-game 为判据），不触碰入场动画与既有交互。
 (() => {
   const game = document.querySelector(".verse-game");
@@ -3220,7 +3220,11 @@
   const ROUNDS = [
     { name: "第一阕 · 虞美人", title: "虞美人", caption: "春花秋月何时了，往事知多少。", tiles: ["春花", "秋月", "何时了", "往事", "知多少"] },
     { name: "第二阕 · 相见欢", title: "相见欢", caption: "剪不断，理还乱，是离愁。别是一般滋味在心头。", tiles: ["剪不断", "理还乱", "是离愁", "别是", "一般滋味", "在心头"] },
-    { name: "第三阕 · 浪淘沙令", title: "浪淘沙令", caption: "流水落花春去也，天上人间。", tiles: ["流水", "落花", "春去也", "天上", "人间"] }
+    { name: "第三阕 · 浪淘沙令", title: "浪淘沙令", caption: "流水落花春去也，天上人间。", tiles: ["流水", "落花", "春去也", "天上", "人间"] },
+    // 第四阕《清平乐·别来春半》：字笺多一张，接续全戏
+    { name: "第四阕 · 清平乐", title: "清平乐", caption: "离恨恰如春草，更行更远还生。", tiles: ["离恨", "恰如", "春草", "更行", "更远", "还生"] },
+    // 第五阕《破阵子·四十年来家国》：句长笺少，难度回落，收在亡国之痛上
+    { name: "第五阕 · 破阵子", title: "破阵子", caption: "四十年来家国，三千里地山河。", tiles: ["四十年来", "家国", "三千里地", "山河"] }
   ];
   const stage = game.querySelector(".verse-stage");
   const roundName = game.querySelector(".verse-round-name");
@@ -3232,6 +3236,7 @@
   const gameLink = game.querySelector(".verse-game-link");
   const shuffleButton = game.querySelector(".verse-shuffle");
   const restartButton = game.querySelector(".verse-restart");
+  const finale = game.querySelector(".verse-finale");
   if (!stage || !roundName || !assemble || !pool) return;
 
   let roundIndex = 0;
@@ -3289,9 +3294,14 @@
     }
     dots.forEach((dot, i) => dot.classList.toggle("is-on", i <= roundIndex));
     if (roundIndex >= ROUNDS.length - 1) {
-      roundName.textContent = "三阕皆圆 · 词心已拾回";
-      setFeedback("三阕皆圆。词里的春天，已经还给他了。", "ok");
+      roundName.textContent = "五阕皆圆 · 词心已拾回";
+      setFeedback("五阕皆圆。散落的句子，都归了位。", "ok");
       if (gameLink) gameLink.hidden = false;
+      // 末阕落定后稍等一拍，让玩家看清最后一句，再让墨色自顶流下、贺词浮现
+      window.setTimeout(() => {
+        finale?.removeAttribute("inert"); // 贺词此刻才进入无障碍树，可被读到、可点「再拾一遍」
+        stage.classList.add("is-finale");
+      }, 620);
       return;
     }
     setFeedback("一阕已圆——下一句，还在水面等你。", "ok");
@@ -3329,14 +3339,20 @@
     shuffled(remaining).forEach((tile) => pool.appendChild(tile));
     setFeedback("字笺已随水重洗。", "");
   });
-  restartButton?.addEventListener("click", () => {
+  // 重来：收起墨色贺词、清空拾得录，回到首阕
+  const restartGame = () => {
     roundToken += 1;
     roundIndex = 0;
+    stage.classList.remove("is-finale");
+    finale?.setAttribute("inert", ""); // 收起贺词时重新移出无障碍树
     if (doneList) doneList.innerHTML = "";
     if (gameLink) gameLink.hidden = true;
     renderRound();
     setFeedback("从首阕重来。", "");
-  });
+  };
+  restartButton?.addEventListener("click", restartGame);
+  // 贺词里的「再拾一遍」与上方的「从首阕重来」同一逻辑
+  game.querySelector(".verse-finale-again")?.addEventListener("click", restartGame);
   renderRound();
 })();
 

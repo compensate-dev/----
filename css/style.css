@@ -191,6 +191,12 @@ textarea::placeholder{color:#9aa297}
 .form-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:12px;font:10px var(--sans);color:#8b9389}
 .form-bottom button{border:0;background:none;color:var(--pine);font-family:"Liyu Xingkai",var(--serif);font-size:13px;letter-spacing:.06em;cursor:pointer}
 .mood-feedback,.poem-feedback{font-size:11px;color:var(--rust);margin:10px 0 0;min-height:1.5em}
+/* 首页「留一笔」心情卡：卡内所有字整体放大一档（标签、输入、字数、投递） */
+.mood-form{padding:28px 30px}
+.mood-form label{font-size:15px}
+.mood-form textarea{font-size:16px;line-height:1.9}
+.mood-form .form-bottom{font-size:13px}
+.mood-form .form-bottom button{font-size:15px}
 /* 页脚：品牌落款 + 江水底图 + 右侧回链 */
 .site-footer{position:relative;isolation:isolate;min-height:112px;background:transparent;padding:25px 6.6%;display:flex;align-items:center;justify-content:space-between;gap:20px;border-top:1px solid #d9ddd4}
 .site-footer:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(rgba(243,243,237,.2),rgba(243,243,237,.2)),url("../assets/image/footer-river-background.jpg") center 53%/cover no-repeat}
@@ -1743,12 +1749,28 @@ body.finale-page::after{background:radial-gradient(125% 95% at 50% 45%,transpare
 .verse-scroll:before{content:"";position:absolute;inset:6px;border:1px solid rgba(199,170,119,.28);border-radius:13px;pointer-events:none}
 .verse-scroll:after{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,rgba(199,170,119,.7),transparent)}
 .verse-scroll-title{display:block;margin-bottom:18px;font:10px var(--sans);letter-spacing:.32em;color:#c7aa77}
-.verse-done{list-style:none;margin:0;padding:2px 0 0;display:flex;gap:22px;min-height:206px;align-items:flex-start}
-.verse-done li{writing-mode:vertical-rl;height:204px;padding:2px 10px 2px 0;border-right:1px solid rgba(199,170,119,.4);font-family:"Liyu Xingkai",var(--serif);font-size:14px;letter-spacing:.22em;line-height:2;color:#efe6cf;animation:verse-done-in .7s ease both}
+.verse-done{list-style:none;margin:0;padding:2px 0 0;display:flex;flex-wrap:wrap;gap:22px 12px;min-height:206px;align-items:flex-start}
+.verse-done li{writing-mode:vertical-rl;height:204px;padding:2px 6px 2px 0;border-right:1px solid rgba(199,170,119,.4);font-family:"Liyu Xingkai",var(--serif);font-size:13px;letter-spacing:.16em;line-height:1.75;color:#efe6cf;animation:verse-done-in .7s ease both}
 .verse-done li b{font-weight:400;font-size:12px;color:#c7aa77;letter-spacing:.34em}
 @keyframes verse-done-in{0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:none}}
 .verse-game-link{margin-top:16px;color:#e7d7ba;border-color:rgba(231,215,186,.5);font-size:13px}
 .verse-game-link span{color:#c7aa77}
+
+/* —— 五阕皆圆：墨色自戏台上沿倾泻而下，居中缓缓浮出贺词 —— */
+.verse-finale{position:absolute;inset:0;z-index:5;display:grid;place-items:center;padding:26px;border-radius:inherit;pointer-events:none}
+/* 墨瀑：整片深墨自顶滑落，前沿留一道湿墨晕边 */
+.verse-finale-ink{position:absolute;inset:0;border-radius:inherit;background:linear-gradient(180deg,#131d18 0%,#21342a 38%,#2b4437 66%,#1b2a22 100%);transform:translateY(-102%);transition:transform 1.65s cubic-bezier(.6,.02,.32,1)}
+.verse-finale-ink:after{content:"";position:absolute;left:0;right:0;bottom:-18px;height:34px;background:radial-gradient(62% 100% at 50% 0%,rgba(19,29,24,.6),rgba(19,29,24,0) 74%);filter:blur(7px)}
+.verse-stage.is-finale .verse-finale-ink{transform:translateY(0)}
+/* 贺词：等墨色沉定后渐显，金色标题居中压阵 */
+.verse-finale-copy{position:relative;z-index:1;text-align:center;color:#efe6cf;opacity:0;transform:translateY(18px);transition:opacity .9s ease,transform .9s ease}
+.verse-stage.is-finale .verse-finale-copy{opacity:1;transform:none;pointer-events:auto;transition-delay:.9s}
+.verse-finale-copy b{display:block;font-family:"Liyu Xingkai",var(--serif);font-weight:400;font-size:clamp(40px,4.6vw,66px);letter-spacing:.24em;text-indent:.24em;color:#f0dcb4;text-shadow:0 0 18px rgba(226,196,138,.42),0 0 46px rgba(199,170,119,.22)}
+.verse-finale-copy em{display:block;margin-top:20px;font-family:"Xuandong Kaishu",var(--serif);font-style:normal;font-size:clamp(16px,1.6vw,20px);letter-spacing:.32em;color:#d9c9a6}
+.verse-finale-copy small{display:block;margin-top:24px;font-family:"Liyu Xingkai",var(--serif);font-size:14px;letter-spacing:.18em;color:rgba(232,216,186,.64)}
+.verse-finale-again{margin-top:26px;padding:0 0 6px;border:0;border-bottom:1px solid rgba(228,199,149,.46);background:none;color:#e7d3ae;font-family:"Liyu Xingkai",var(--serif);font-size:15px;letter-spacing:.2em;cursor:pointer;pointer-events:auto;transition:color .25s,border-color .25s}
+.verse-finale-again:hover{color:#fdf1d8;border-color:#e7d3ae}
+@media(prefers-reduced-motion:reduce){.verse-finale-ink{transition:none}}
 
 /* —— 结尾春水与心情河灯 —— */
 .closing>div,.closing>form{position:relative;z-index:1}

@@ -15,9 +15,9 @@
   <meta property="og:description" content="走进南唐后主李煜的一生与词作，读写作背景、听词句回响，在一江春水间遇见千年前的悲欢。">
   <meta property="og:image" content="assets/image/home-hero-clean-v2.jpg">
   <meta property="og:locale" content="zh_CN">
-  <link rel="stylesheet" href="css/style.css?v=f95">
+  <link rel="stylesheet" href="css/style.css?v=f98">
   <script src="js/three.min.js" defer></script>
-  <script src="js/script.js?v=f95" defer></script>
+  <script src="js/script.js?v=f98" defer></script>
 </head>
 <!-- body.home-page：首页专用类，供 CSS 区分首页与其他子页（开场未揭开前隐藏页头与正文） -->
 <body class="home-page">
@@ -330,7 +330,7 @@
       </div>
       <div class="verse-game-body">
         <div class="verse-stage">
-          <div class="verse-round-meta"><span class="verse-round-name">虞美人 · 其一</span><span class="verse-round-dots" aria-hidden="true"><i class="is-on"></i><i></i><i></i><i></i></span></div>
+          <div class="verse-round-meta"><span class="verse-round-name">虞美人 · 其一</span><span class="verse-round-dots" aria-hidden="true"><i class="is-on"></i><i></i><i></i><i></i><i></i></span></div>
           <div class="verse-assemble" aria-live="polite" aria-label="已拾得的字笺"></div>
           <div class="verse-pool" role="group" aria-label="水面浮字，点击拾取"></div>
           <div class="verse-game-actions">
@@ -338,6 +338,16 @@
             <button type="button" class="verse-restart">从首阕重来</button>
           </div>
           <p class="verse-feedback" aria-live="polite"></p>
+          <!-- 五阕皆圆：墨色自戏台上沿流下，居中缓缓显出贺词与「再拾一遍」 -->
+          <div class="verse-finale" inert>
+            <span class="verse-finale-ink"></span>
+            <div class="verse-finale-copy">
+              <b>五阕皆圆</b>
+              <em>字字归位，春水归心</em>
+              <small>散落千年的句子，被你就着月光，一句一句拾了回来。</small>
+              <button type="button" class="verse-finale-again">再拾一遍 ↗</button>
+            </div>
+          </div>
         </div>
         <aside class="verse-scroll" aria-label="拾得录">
           <span class="verse-scroll-title">拾得录</span>
