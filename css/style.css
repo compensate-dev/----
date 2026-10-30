@@ -43,6 +43,8 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
 .hero:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(243,243,237,.58),rgba(243,243,237,.24)),url("../assets/image/home-background.jpg") center 45%/cover no-repeat;opacity:.72;pointer-events:none}
 .hero-copy{position:relative;z-index:2;width:52%;max-width:610px}
 .eyebrow,.section-kicker{font-family:var(--sans);font-size:10px;letter-spacing:.2em;color:#98583f;text-transform:uppercase}
+/* 首屏眉题（南唐 · 李煜 · 词中帝王）单独放大到 13px：原来 10px 在浅色底纹上糊成一团，看不清 */
+.hero .eyebrow{font-size:13px;letter-spacing:.18em}
 .eyebrow{display:flex;align-items:center;gap:11px;margin:0 0 28px}
 .eyebrow>span{width:24px;height:1px;background:var(--rust)}
 h1,h2,h3,p{margin-top:0}
@@ -55,7 +57,8 @@ h1,h2,h3,p{margin-top:0}
 .hero-intro,.hero-verse span:not(.verse-rule),.intro-heading p,.afterlife-copy p,.closing>div:nth-child(2)>p{font-family:"Xuandong Kaishu",var(--serif);font-weight:400}
 .book-cover-title small{font-family:"Xuandong Kaishu",var(--serif);font-size:13px;font-weight:400;letter-spacing:.12em}
 h1 em,h2 em{font-style:normal;color:var(--rust)}
-.hero-intro{font-size:18px;letter-spacing:.07em;line-height:2.05;color:#34483b;max-width:500px;margin:0 0 30px;text-shadow:0 1px 0 rgba(243,243,237,.72)}
+/* 首屏引言与名句放大：引言 18→20px、行高略收、宽度放宽；名句 16→18px，浅底上更清楚 */
+.hero-intro{font-size:20px;letter-spacing:.07em;line-height:1.95;color:#34483b;max-width:540px;margin:0 0 30px;text-shadow:0 1px 0 rgba(243,243,237,.72)}
 .hero-actions{display:flex;align-items:center;gap:27px}
 .button{min-height:47px;padding:11px 20px;display:inline-flex;align-items:center;justify-content:center;gap:23px;font-family:var(--sans);font-size:11px;letter-spacing:.1em;transition:transform .3s cubic-bezier(.2,.7,.25,1),background .3s,box-shadow .35s ease,letter-spacing .35s ease,border-color .35s ease}
 .button:hover{transform:translateY(-2px)}
@@ -72,7 +75,7 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}
 .text-link span,.under-link span{color:var(--rust);margin-left:9px;font-size:16px;animation:link-arrow-nudge 2.8s ease-in-out infinite}
 .text-link:hover span,.text-link:focus-visible span,.under-link:hover span,.under-link:focus-visible span{animation:none}
 @keyframes link-arrow-nudge{0%,100%{translate:0 0}50%{translate:5px 0}}
-.hero-verse{display:flex;align-items:center;gap:14px;color:#304638;font-size:16px;letter-spacing:.07em;margin-top:42px;text-shadow:0 1px 0 rgba(243,243,237,.78)}
+.hero-verse{display:flex;align-items:center;gap:14px;color:#304638;font-size:18px;letter-spacing:.07em;margin-top:42px;text-shadow:0 1px 0 rgba(243,243,237,.78)}
 .verse-rule{height:1px;width:35px;background:var(--rust)}
 /* 右侧画框：圆拱描金框 + 底图/人物/灯笼三层视差 + 竖排诗签与印章 + 底部云层飘移 */
 .hero-art{position:absolute;width:min(44vw,570px);height:min(48vw,570px);right:10%;top:48%;transform:translateY(-49%);overflow:hidden;background:#273a48;border:1px solid rgba(199,170,119,.72);border-radius:48% 48% 5px 5px;box-shadow:0 0 0 5px rgba(243,243,237,.68),0 0 0 6px rgba(169,104,76,.38),0 28px 65px rgba(35,54,46,.18)}
@@ -942,7 +945,7 @@ body.arrival-lock{overflow:hidden}
 }
 /* 词卷通栏化：出血到视口整宽，背景大图居中 42% */
 .poem-gallery{position:relative;isolation:isolate;width:100vw;margin-left:calc(50% - 50vw);padding:8px 10vw 4px;overflow:hidden}
-@media(max-width:700px){.hero-intro{font-size:15px}.hero-verse{font-size:14px;margin-top:28px}.intro-heading p{font-size:15px}.closing p{font-size:14px}}
+@media(max-width:700px){.hero-intro{font-size:16px}.hero-verse{font-size:15px;margin-top:28px}.intro-heading p{font-size:15px}.closing p{font-size:14px}}
 @media(max-width:700px){.poet-portrait{aspect-ratio:.96;object-position:left 24%}}
 @media(max-width:700px){.timeline-year{font-size:18px;margin-bottom:8px}.timeline-label{font-size:10px}.timeline-card h3{font-size:19px}.timeline-card p{font-size:14px}.timeline-quote{font-size:13px}}
 .poem-gallery:before{content:"";position:absolute;z-index:-1;inset:0;background:linear-gradient(rgba(243,243,237,.62),rgba(243,243,237,.62)),url("../assets/image/poem-background.jpg") center 42%/cover no-repeat}
