@@ -912,7 +912,6 @@ body.arrival-lock{overflow:hidden}
 @media(max-width:700px){
   .wanxiang-hero{min-height:0;display:block;padding:62px 8% 55px}
   .wanxiang-hero .subhero-copy{max-width:none}
-  .wanxiang-hero .subhero-copy>p:not(.eyebrow){font-size:12px}
   .wanxiang-mark{right:3%;top:45%;font-size:54px}
   .memory-section{padding-top:68px;padding-bottom:72px}
   .memory-lead{display:block;padding-left:0}
