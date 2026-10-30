@@ -2704,10 +2704,10 @@
       if (typeof field.animate === "function") {
         field.animate([{ backgroundColor: "rgba(169,104,76,.14)" }, { backgroundColor: "transparent" }], { duration: 600, easing: "ease-out" });
       }
-      // 点击反馈：选中的意象定格朱砂描边；表单下方随即说明「已替你起笔」，避免点了没反应
+      // 点击反馈：选中的意象定格朱砂描边；表单下方随即说明「梦话替你起了头」，避免点了没反应
       document.querySelectorAll(".prompt-words button").forEach((item) => item.classList.toggle("is-picked", item === button));
       const feedback = document.querySelector(".poem-feedback");
-      if (feedback) showFeedback(feedback, `已替你起笔「${button.dataset.prompt}」，接着往下写就好。`, "ok");
+      if (feedback) showFeedback(feedback, `梦话替你起了头「${button.dataset.prompt}」，往下写就好。`, "ok");
     });
   });
   document.querySelector(".poem-form")?.addEventListener("submit", (event) => {

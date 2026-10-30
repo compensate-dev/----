@@ -1270,6 +1270,9 @@ button:not(.book-open-button):active,.button:active{translate:0 1px}
 .finale-copy{margin:0;font-family:"Liyu Xingkai UI","Liyu Xingkai",var(--serif);font-size:clamp(15px,1.6vw,19px);line-height:2.2;letter-spacing:.12em;color:rgba(244,240,230,.86)}
 .finale-copy .finale-line{display:block}
 .finale-actions{display:flex;flex-direction:column;align-items:center;gap:15px;margin-top:42px}
+/* 终幕「梦外」余白：按钮之后一行极小的收束语，随 --finale-p 最晚一档显影 */
+.finale-signoff{margin:20px 0 0;font-family:"Xuandong Kaishu",var(--serif);font-size:clamp(12px,1.15vw,14px);letter-spacing:.2em;line-height:1.8;color:rgba(232,216,186,.58)}
+.finale-signoff .finale-line{display:block}
 .finale-return,.finale-gate-button{display:inline-flex;align-items:center;gap:10px;padding:13px 32px;border:1px solid rgba(228,199,149,.55);border-radius:99px;color:#f0e6cf;font-family:"Liyu Xingkai",var(--serif);font-size:17px;letter-spacing:.14em;transition:background .3s ease,border-color .3s ease,letter-spacing .3s ease}
 .finale-return:hover,.finale-return:focus-visible,.finale-gate-button:hover,.finale-gate-button:focus-visible{background:rgba(228,199,149,.12);border-color:rgba(228,199,149,.85);letter-spacing:.2em}
 .finale-again{color:rgba(228,202,158,.75)}
@@ -1284,6 +1287,7 @@ button:not(.book-open-button):active,.button:active{translate:0 1px}
   .finale-js .finale-copy .finale-line:nth-child(2){opacity:calc(clamp(0,(var(--finale-p) - .51) * 8,1));translate:0 calc((1 - clamp(0,(var(--finale-p) - .51) * 8,1)) * 22px);filter:blur(calc((1 - clamp(0,(var(--finale-p) - .51) * 8,1)) * 5px))}
   .finale-js .finale-copy .finale-line:nth-child(3){opacity:calc(clamp(0,(var(--finale-p) - .58) * 8,1));translate:0 calc((1 - clamp(0,(var(--finale-p) - .58) * 8,1)) * 22px);filter:blur(calc((1 - clamp(0,(var(--finale-p) - .58) * 8,1)) * 5px))}
   .finale-js .finale-actions{opacity:calc(clamp(0,(var(--finale-p) - .74) * 9,1));translate:0 calc((1 - clamp(0,(var(--finale-p) - .74) * 9,1)) * 24px)}
+  .finale-js .finale-signoff{opacity:calc(clamp(0,(var(--finale-p) - .8) * 9,1));translate:0 calc((1 - clamp(0,(var(--finale-p) - .8) * 9,1)) * 20px)}
 }
 @media(prefers-reduced-motion:reduce){
   .finale-scroll{height:auto}
