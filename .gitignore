@@ -1,2 +1,4 @@
 # Trae 预览/分享 HTML 时自动生成的打包缓存，不纳入版本管理
 .trae-html-share-packages/
+# Trae 截图/临时输出目录，同样属于工具缓存
+.screenshots/
