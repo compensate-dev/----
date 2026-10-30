@@ -526,9 +526,17 @@ textarea::placeholder{color:#9aa297}
 .interactive-grid{display:grid;grid-template-columns:1fr 1fr;gap:9%;align-items:center;margin-left:18%}
 .interactive h2{font-size:34px;margin:0 0 10px}
 .interactive p{font-size:12px;max-width:390px}
+/* 标题下的说明：字号 12→15px 并加粗，浅色底上也读得清 */
+.interactive .interactive-lead{max-width:430px;margin:0;font-size:15px;font-weight:600;line-height:1.9;letter-spacing:.04em;color:#3d5145}
+/* 选词区：从左侧文案移到表单内、输入框下方，用虚线分隔并加一句用途说明 */
+.prompt-block{margin-top:15px;padding-top:13px;border-top:1px dashed rgba(48,77,63,.2)}
+.prompt-note{margin:0 0 9px;font-size:12px;line-height:1.7;letter-spacing:.03em;color:#5a6c5c}
 .prompt-words{display:flex;gap:8px;flex-wrap:wrap}
-.prompt-words button{padding:5px 12px;border:1px solid #c5cdc0;background:transparent;font-family:"Liyu Xingkai",var(--serif);font-size:12px;color:#667466;cursor:pointer}
+.prompt-words button{padding:6px 14px;border:1px solid #c5cdc0;background:transparent;font-family:"Liyu Xingkai",var(--serif);font-size:13px;color:#5b6b5d;cursor:pointer}
 .prompt-words button:hover{background:var(--pine);color:white}
+/* 点击反馈：被选中的意象定格朱砂描边并轻微回弹，与上方输入框的闪光呼应 */
+.prompt-words button.is-picked{border-color:var(--rust);color:#8c4f36;background:rgba(169,104,76,.12);box-shadow:0 0 0 2px rgba(169,104,76,.12);animation:prompt-pick .35s ease}
+@keyframes prompt-pick{0%{transform:scale(1)}45%{transform:scale(1.06)}100%{transform:scale(1)}}
 .poem-form{position:relative;background:#f1f1eb}
 .wind-release{position:absolute;inset:0;z-index:3;display:grid;place-items:center;overflow:hidden;pointer-events:none;background:rgba(241,241,235,.16)}
 .wind-phrase{position:relative;z-index:1;display:flex;flex-wrap:wrap;justify-content:center;max-width:88%;color:#42584a;font-family:"Liyu Xingkai UI","Liyu Xingkai",var(--serif);font-size:clamp(20px,3vw,30px);line-height:1.6;letter-spacing:.08em;text-shadow:0 1px 8px rgba(243,243,237,.9)}

@@ -2704,6 +2704,10 @@
       if (typeof field.animate === "function") {
         field.animate([{ backgroundColor: "rgba(169,104,76,.14)" }, { backgroundColor: "transparent" }], { duration: 600, easing: "ease-out" });
       }
+      // 点击反馈：选中的意象定格朱砂描边；表单下方随即说明「已替你起笔」，避免点了没反应
+      document.querySelectorAll(".prompt-words button").forEach((item) => item.classList.toggle("is-picked", item === button));
+      const feedback = document.querySelector(".poem-feedback");
+      if (feedback) showFeedback(feedback, `已替你起笔「${button.dataset.prompt}」，接着往下写就好。`, "ok");
     });
   });
   document.querySelector(".poem-form")?.addEventListener("submit", (event) => {
@@ -3127,9 +3131,46 @@
     mapTab.className = "shop-tab map-tab";
     mapTab.setAttribute("aria-label", "月色故人专属板块：进入水墨行迹，云游李煜生平地图");
     mapTab.innerHTML = "<span class=\"map-tab-seal\" aria-hidden=\"true\">迹</span>月色故人<small>水墨行迹 · 云游生平</small>";
-    mapTab.addEventListener("click", () => { location.href = "map.html?v=f58"; });
+    mapTab.addEventListener("click", () => {
+      // 进入地图前记住来处页面与滚动位置，供地图页「返回词境」原路返回
+      try { sessionStorage.setItem("liyu-map-return", JSON.stringify({ href: location.href, scroll: window.scrollY })); } catch (error) { /* 隐私模式禁用存储时忽略 */ }
+      location.href = "map.html";
+    });
     document.body.appendChild(mapTab);
     setTimeout(() => mapTab.classList.add("is-in"), 150); // 跳出动画
+  })();
+
+  // 水墨行迹往返：地图页「返回词境」回到进入地图的那个页面与滚动位置，不再固定回首页
+  (function initializeMapReturn() {
+    const isLifePage = document.body.classList.contains("life-page");
+    const isMapPage = document.body.classList.contains("map-page");
+    // 回到月色故人后：读一次性标记，加载完成立即跳回离开时的位置
+    if (isLifePage) {
+      const pending = sessionStorage.getItem("liyu-scroll-restore");
+      if (!pending) return;
+      sessionStorage.removeItem("liyu-scroll-restore");
+      window.addEventListener("load", () => {
+        // 临时关掉平滑滚动，避免复位时一路滑过整段时间轴
+        const root = document.documentElement;
+        const previous = root.style.scrollBehavior;
+        root.style.scrollBehavior = "auto";
+        window.scrollTo(0, Number(pending) || 0);
+        requestAnimationFrame(() => { root.style.scrollBehavior = previous; });
+      });
+      return;
+    }
+    if (!isMapPage) return;
+    const back = document.getElementById("mapBack");
+    if (!back) return;
+    let saved = null;
+    try { saved = JSON.parse(sessionStorage.getItem("liyu-map-return") || "null"); } catch (error) { saved = null; }
+    if (!saved || typeof saved.href !== "string") return; // 直接打开地图页时仍回首页
+    back.href = saved.href; // 中键/新标签打开也回到来处
+    back.addEventListener("click", (event) => {
+      // 左键与键盘激活时写入待复位滚动值；右键或组合键交给浏览器默认行为
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0) return;
+      sessionStorage.setItem("liyu-scroll-restore", String(saved.scroll || 0));
+    });
   })();
 
   // 时间轴尽头导读：读到最后一段时点亮提示，并让右侧「月色故人 · 水墨行迹」侧签同步提亮（仅月色故人页）
