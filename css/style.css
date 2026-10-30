@@ -116,7 +116,7 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}
 @media(prefers-reduced-motion:reduce){.scroll-line:after{animation:none;opacity:1;transform:translateX(56px)}}
 .section-wrap{padding-left:10%;padding-right:10%}
 /* 首页·诗人小传区（intro）：三栏网格（画像 / 标题导语 / 导语卡），底图随滚动纵向视差 */
-.intro{display:grid;grid-template-columns:.45fr 1.05fr .8fr;gap:45px;padding-top:120px;padding-bottom:128px;align-items:start;background:linear-gradient(rgba(243,243,237,.68),rgba(243,243,237,.68)),url("../assets/image/intro-background.jpg") center calc(50% + var(--scroll-y,0px))/cover no-repeat}
+.intro{display:grid;grid-template-columns:.45fr 1.05fr .8fr;gap:45px;padding-top:120px;padding-bottom:128px;align-items:start;background:linear-gradient(rgba(243,243,237,.68),rgba(243,243,237,.68)),url("../assets/image/scene-poet-ink.jpg") center calc(50% + var(--scroll-y,0px))/cover no-repeat}
 .intro-poet{min-width:0;position:relative;z-index:1}
 .intro-heading{position:relative;z-index:1}
 .portrait-frame{position:relative;width:100%;margin:36px 0 0;padding:12px;border:1px solid rgba(122,84,58,.5);background:linear-gradient(150deg,#f8f5ec,#eae6d7 58%,#dfd9c5),repeating-linear-gradient(0deg,rgba(150,120,80,.05) 0 1px,transparent 1px 3px);box-shadow:0 12px 30px rgba(47,62,49,.14),inset 0 0 0 1px rgba(255,255,255,.7),inset 0 0 0 5px rgba(169,104,76,.13)}
@@ -143,7 +143,8 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}
 .card-orbit:after{content:"";position:absolute;inset:0;border:0;border-radius:0;background:linear-gradient(115deg,transparent 22%,rgba(125,157,147,.07),transparent 75%)}
 .under-link{display:inline-block}
 /* 词牌卡区（feature-section）：四张词牌卡网格，卡头图 + 编号标签 + 悬停抬升放大 */
-.feature-section{padding:93px 10% 110px;background:#e9ebe4}
+/* 精选词作：雨中竹亭作底，压一层淡纸色，让词卡仍清楚可读 */
+.feature-section{padding:93px 10% 110px;background:linear-gradient(rgba(243,243,237,.72),rgba(240,242,235,.8)),url("../assets/image/scene-ci-pavilion.jpg") center 46%/cover no-repeat}
 .feature-head{padding:0;display:flex;justify-content:space-between;align-items:end;margin:0 0 38px}
 .feature-head h2{margin:15px 0 0}
 .poem-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}
@@ -1708,7 +1709,7 @@ body.finale-page::after{background:radial-gradient(125% 95% at 50% 45%,transpare
 @keyframes hero-petal-fall{0%{transform:translate3d(0,-4vh,0) rotate(0deg);opacity:0}9%{opacity:.78}86%{opacity:.62}100%{transform:translate3d(var(--pt-sway,6vw),104vh,0) rotate(315deg);opacity:0}}
 
 /* —— 词间一戏：拾字成句 —— */
-.verse-game{position:relative;padding-top:104px;padding-bottom:112px;background:radial-gradient(60% 44% at 88% 6%,rgba(199,170,119,.12),transparent 70%),radial-gradient(52% 42% at 5% 94%,rgba(83,107,89,.12),transparent 72%),linear-gradient(180deg,#f1f0e8,#ebe9dc)}
+.verse-game{position:relative;padding-top:104px;padding-bottom:112px;background:radial-gradient(60% 44% at 88% 6%,rgba(199,170,119,.12),transparent 70%),radial-gradient(52% 42% at 5% 94%,rgba(83,107,89,.12),transparent 72%),linear-gradient(180deg,rgba(241,240,232,.62),rgba(235,233,220,.74)),url("../assets/image/scene-game-lotus.jpg") center/cover no-repeat}
 .verse-game:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(48,77,63,.026) 0 1px,transparent 1px 5px);pointer-events:none}
 .verse-game:after{content:"";position:absolute;top:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,rgba(146,111,84,.4),transparent)}
 .verse-game-seal{position:absolute;top:58px;right:9%;width:62px;height:62px;display:grid;place-items:center;border:1.5px solid rgba(169,104,76,.5);border-radius:7px;color:rgba(169,104,76,.62);background:rgba(243,240,230,.5);font-family:"Liyu Xingkai",var(--serif);font-size:29px;transform:rotate(6deg);pointer-events:none}
@@ -1921,6 +1922,10 @@ body.home-page.stage-mode .hero:before{opacity:.5}
 body.home-page.stage-mode .home-stage .intro{padding-top:0;padding-bottom:0;align-content:center;align-items:center;background:transparent}
 body.home-page.stage-mode .home-stage .feature-section{padding-top:0;padding-bottom:0;background:transparent}
 body.home-page.stage-mode .home-stage .verse-game{padding-top:0;padding-bottom:0;background:transparent}
+/* 三幕专属底图：铺满整幕，压一层淡纸雾保证字迹清楚 */
+body.home-page.stage-mode .scene[data-scene="2"]{background:linear-gradient(180deg,rgba(243,243,237,.46),rgba(243,243,237,.64) 62%),url("../assets/image/scene-poet-ink.jpg") center 44%/cover no-repeat}
+body.home-page.stage-mode .scene[data-scene="4"]{background:linear-gradient(90deg,rgba(243,243,237,.6) 0%,rgba(243,243,237,.46) 42%,rgba(243,243,237,.78) 100%),url("../assets/image/scene-ci-pavilion.jpg") center 52%/cover no-repeat}
+body.home-page.stage-mode .scene[data-scene="6"]{background:linear-gradient(180deg,rgba(241,240,232,.5),rgba(235,233,220,.66)),url("../assets/image/scene-game-lotus.jpg") center 40%/cover no-repeat}
 body.home-page.stage-mode .home-stage .afterlife-section{height:100%;min-height:0;padding-top:0;padding-bottom:0;justify-content:center;background:transparent}
 body.home-page.stage-mode .home-stage .closing{height:100%;padding-top:0;padding-bottom:0;align-content:center}
 /* 这两幕的底图铺满整屏，并按指针微幅视差（放大一点留出位移余量） */
