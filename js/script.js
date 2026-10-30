@@ -274,7 +274,8 @@
       if (status) status.textContent = message || (playing ? "音乐开启" : "开启音乐");
     });
   };
-  const musicVolume = () => Number(volumeSlider?.value ?? 0.32);
+  // 背景音乐默认音量（0.6，可在音量条上自行调节）
+  const musicVolume = () => Number(volumeSlider?.value ?? 0.6);
   // 背景音乐交由脚本接管：进站淡入、暂停淡出、循环交界交叉淡化
   const music = audio ? window.liyuAudio.createLoopingPlayer(audio, { crossfade: 3.2 }) : null;
   const startBackgroundMusic = () => {

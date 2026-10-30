@@ -192,7 +192,7 @@
     <nav class="main-nav" aria-label="主导航">
       <a class="active" href="index.html" aria-current="page">首页</a><a href="pages/life.html">月色故人</a><a href="pages/ci.html">词间春水</a><a href="pages/wanxiang.html">帘外余音</a><a href="pages/listen.html">枕上低语</a><a href="pages/map.html">水墨行迹</a>
     </nav>
-    <div class="sound-controls"><button class="sound-toggle" type="button" aria-label="关闭背景音乐" aria-pressed="true"><span class="sound-icon">♫</span><span class="sound-status">音乐开启</span></button><label class="volume-control"><span class="visually-hidden">背景音乐音量</span><input class="volume-slider" type="range" min="0" max="1" step="0.01" value="0.32"></label></div>
+    <div class="sound-controls"><button class="sound-toggle" type="button" aria-label="关闭背景音乐" aria-pressed="true"><span class="sound-icon">♫</span><span class="sound-status">音乐开启</span></button><label class="volume-control"><span class="visually-hidden">背景音乐音量</span><input class="volume-slider" type="range" min="0" max="1" step="0.01" value="0.6"></label></div>
   </header>
 <!-- 主体：id="main-content" 供顶部「跳至主要内容」链接定位；tabindex="-1" 使其可被程序聚焦；开场未揭开时 inert -->
   <main id="main-content" tabindex="-1" inert>
@@ -419,7 +419,8 @@
   <footer class="site-footer" inert><a class="brand" href="index.html"><span class="brand-seal">煜</span><span>一江春水<small>愿每个读词的人，都有一刻安宁。</small></span></a><span>词有尽时，春水长流。</span><a href="pages/ci.html">再读一首 ↗</a></footer>
 <!-- 背景音乐：循环；自动起播时机改由 script.js 控制（引子待播时先压住），inert 也随 autoplay 一并移除；preload="metadata" 只预取时长信息，不整段下载 -->
 <!-- 开场引子音频：翻开书封时播放的引子（intro-audio.aac），preload="auto" 预加载，播完由 script.js 接力背景音乐 -->
-  <audio class="background-audio" src="assets/audio/background-music.mp3" preload="metadata"></audio>
+<!-- 背景音乐：全站通用的 background-music.aac（开场书法引子与终幕主题曲各自独立，不使用此曲） -->
+  <audio class="background-audio" src="assets/audio/background-music.aac" preload="metadata"></audio>
   <audio class="intro-audio" src="assets/audio/intro-audio.aac" preload="auto" aria-hidden="true"></audio>
 <!-- 金竹飘落画布：全屏固定层，由 script.js 绘制缓缓飘落的竹叶；mix-blend-mode 与页面底色柔融，pointer-events:none 不拦截点击；减弱动效时由 CSS 隐藏 -->
   <canvas class="bamboo-leaves" aria-hidden="true"></canvas>
