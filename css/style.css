@@ -650,10 +650,6 @@ body.home-page.book-opened>.site-header,body.home-page.book-opened>main,body.hom
 .calligraphy-sequence.is-particle-phase .calligraphy-flight{visibility:hidden}
 .calligraphy-particle-canvas{position:absolute;inset:0;z-index:5;width:100%;height:100%;opacity:0;transition:opacity .8s ease}
 .calligraphy-sequence.is-particle-phase .calligraphy-particle-canvas{opacity:1}
-.calligraphy-particle-caption{position:absolute;z-index:6;left:50%;bottom:9%;display:flex;flex-direction:column;align-items:center;gap:8px;transform:translateX(-50%) translateY(16px);opacity:0;transition:opacity .9s ease,transform .9s ease;pointer-events:none}
-.calligraphy-sequence.is-particle-phase .calligraphy-particle-caption{opacity:1;transform:translateX(-50%) translateY(0);transition-delay:2.6s}
-.calligraphy-particle-caption span{font-family:"Liyu Xingkai UI","Liyu Xingkai",var(--serif);font-size:clamp(20px,2.4vw,30px);letter-spacing:.3em;color:#40574c;text-shadow:0 1px 0 rgba(255,255,255,.5)}
-.calligraphy-particle-caption b{font:9px var(--sans);font-weight:400;letter-spacing:.32em;color:#8a7f6d}
 .calligraphy-background,.calligraphy-sequence:after{position:absolute;inset:0;width:100%;height:100%}
 .calligraphy-background{z-index:0;object-fit:cover;object-position:center;opacity:.94;transition:opacity .9s ease}
 .calligraphy-sequence:after{content:"";z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(242,244,237,.26),rgba(242,244,237,.12) 50%,rgba(242,244,237,.26))}
@@ -879,8 +875,8 @@ body.arrival-lock{overflow:hidden}
 .calligraphy-flight-final{animation-name:calligraphy-fall-final}
 @keyframes calligraphy-fall{0%{opacity:.34;transform:translate3d(-50%,calc(-100% + 52px),0)}18%{opacity:.94}76%{opacity:.94}100%{opacity:0;transform:translate3d(-50%,calc(100vh - 52px),0)}}
 @keyframes calligraphy-fall-final{0%{opacity:.34;transform:translate3d(-50%,calc(-100% + 52px),0)}18%,100%{opacity:.94;transform:translate3d(-50%,calc(100vh - 52px),0)}}
-@media(max-width:700px){.calligraphy-flight{max-width:48vw;max-height:62vh}.calligraphy-particle-caption{bottom:12%}}
-@media(prefers-reduced-motion:reduce){.calligraphy-sequence{display:none!important}.calligraphy-flight{animation:none!important}.ink-interlude{transition:none}.calligraphy-particle-canvas,.calligraphy-particle-caption{display:none}.calligraphy-mist{animation:none}.calligraphy-rain{animation:none;opacity:.3}.calligraphy-inkmotes{display:none}}
+@media(max-width:700px){.calligraphy-flight{max-width:48vw;max-height:62vh}}
+@media(prefers-reduced-motion:reduce){.calligraphy-sequence{display:none!important}.calligraphy-flight{animation:none!important}.ink-interlude{transition:none}.calligraphy-particle-canvas{display:none}.calligraphy-mist{animation:none}.calligraphy-rain{animation:none;opacity:.3}.calligraphy-inkmotes{display:none}}
 /* 大屏增强：首页与小传区放大、留白收紧 */
 @media(min-width:1100px) and (min-height:700px){
   .hero{min-height:min(820px,calc(100svh - 86px))}
@@ -1896,6 +1892,8 @@ body.home-page.stage-mode .home-stage .narrative-thread .nt-stroke{stroke-dashof
 
 /* 各幕主体：去竖直留白，交给舞台居中；hero 撑满整屏 */
 body.home-page.stage-mode .home-stage .hero{height:100%;min-height:0;padding:30px 10% 22px}
+/* 第二章「识其人」：整幕压进一屏，不再留内部的滚动余量，滚轮直接换到下一幕 */
+body.home-page.stage-mode .home-stage .intro{height:100%;min-height:0;padding-top:clamp(24px,4.5vh,54px);padding-bottom:clamp(24px,4.5vh,54px);align-items:center}
 /* 首幕底图退后一点，别喧宾夺主 */
 body.home-page.stage-mode .hero:before{opacity:.5}
 body.home-page.stage-mode .home-stage .intro{padding-top:0;padding-bottom:0;align-content:center;align-items:center;background:transparent}
