@@ -1270,7 +1270,7 @@ body.home-page:not(.book-opened) .shop-tab{display:none}
 .shop-body{display:flex;flex-direction:column;flex:1;min-width:0}
 .shop-meta{display:flex;flex-wrap:wrap;gap:5px;margin:0 0 4px;font:8.5px var(--sans);letter-spacing:.12em;color:#8d7b63;text-transform:uppercase}
 .shop-body h3{margin:0 0 5px;font-family:"Liyu Xingkai UI",var(--serif);font-weight:400;font-size:17px;letter-spacing:.08em;color:#2a3b30}
-.shop-body>p{margin:0;font-size:11px;line-height:1.85;color:#5f6c61;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.shop-body>p{margin:0;font-size:11px;line-height:1.85;color:#5f6c61;display:-webkit-box;-webkit-line-clamp:2;line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .concept-buy{margin-top:auto;padding-top:8px;background:none;border:0;cursor:pointer;align-self:flex-start;font:10.5px var(--sans);letter-spacing:.14em;color:var(--pine);border-bottom:1px solid #a9b6a7;padding-bottom:4px;transition:color .3s,border-color .3s}
 .concept-buy span{color:var(--rust);margin-left:5px;display:inline-block;transition:transform .3s}
 @media(hover:hover){.concept-buy:hover{color:#8a4a34;border-color:var(--rust)}.concept-buy:hover span{transform:translate(2px,-2px)}}
@@ -1294,7 +1294,7 @@ body.home-page:not(.book-opened) .shop-tab{display:none}
 .shop-notice-ok:hover{background:#243b30;letter-spacing:.24em}
 @media(max-width:700px){
   .shop-tab{padding:13px 7px;font-size:13px;letter-spacing:.16em}
-  .shop-art{width:82px;height:82px}.shop-body h3{font-size:15px}.shop-body>p{-webkit-line-clamp:3}
+  .shop-art{width:82px;height:82px}.shop-body h3{font-size:15px}.shop-body>p{-webkit-line-clamp:3;line-clamp:3}
 }
 @media(prefers-reduced-motion:reduce){.shop-tab,.shop-drawer,.shop-mask,.shop-card,.shop-art img{transition:none}}
 
