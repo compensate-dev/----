@@ -3,7 +3,7 @@
 <html lang="zh-CN">
 <!-- 文档头部：字符集、移动端视口、主题色、SEO 描述、分页标题，以及共用的样式表与交互脚本 -->
 <!-- body.life-page：本页专用类，供 CSS 区分月色故人页与其他页面的底纹与版式 -->
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#e8eee4"><meta name="description" content="从金陵初生到北邙归处，十站看完李煜的四十二年；看一个人的身世，怎样一点点落进词里。"><meta property="og:site_name" content="春水留痕·李煜词境"><meta property="og:type" content="website"><meta property="og:title" content="月色故人｜春水留痕·李煜词境"><meta property="og:description" content="从金陵初生到北邙归处，十站看完李煜的四十二年；看一个人的身世，怎样一点点落进词里。"><meta property="og:image" content="../assets/image/life-background.jpg"><meta property="og:locale" content="zh_CN"><title>月色故人｜春水留痕·李煜词境</title><link rel="stylesheet" href="../css/style.css?v=f102"><script src="../js/script.js?v=f102" defer></script></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#e8eee4"><meta name="description" content="从金陵初生到北邙归处，十站看完李煜的四十二年；看一个人的身世，怎样一点点落进词里。"><meta property="og:site_name" content="春水留痕·李煜词境"><meta property="og:type" content="website"><meta property="og:title" content="月色故人｜春水留痕·李煜词境"><meta property="og:description" content="从金陵初生到北邙归处，十站看完李煜的四十二年；看一个人的身世，怎样一点点落进词里。"><meta property="og:image" content="../assets/image/life-background.jpg"><meta property="og:locale" content="zh_CN"><title>月色故人｜春水留痕·李煜词境</title><link rel="stylesheet" href="../css/style.css?v=f105"><script src="../js/script.js?v=f105" defer></script></head>
 <body class="life-page">
 <!-- 跳过导航：键盘用户按 Tab 时可直接跳入正文(#main-content) -->
   <a class="skip-link" href="#main-content">跳至主要内容</a>
@@ -21,11 +21,17 @@
       <div class="timeline-narrative" id="timeline">
 <!-- 章节侧栏：内容由 script.js 依据当前阅读到的段落自动同步（章节序号 / 年份 / 地名 / 标题 / 词句 / 进度） -->
         <aside class="timeline-scene" aria-label="李煜人生章节">
-<!-- 章节背景层：四张年份场景图（scene-937/961/975/978.jpg），由 script.js 按当前章节年份切换 is-active，旧的渐隐、新的缓放渐显 -->
+<!-- 章节背景层：按章节年份切换的插图（937/961/975/978 为旧图，954/964/971/974/976 与 978b 归葬段为新图），由 script.js 按当前年份或 sceneKey 切换 is-active，旧的渐隐、新的缓放渐显 -->
           <div class="timeline-scene-bg" data-year="937" aria-hidden="true"></div>
+          <div class="timeline-scene-bg" data-year="954" aria-hidden="true"></div>
           <div class="timeline-scene-bg" data-year="961" aria-hidden="true"></div>
+          <div class="timeline-scene-bg" data-year="964" aria-hidden="true"></div>
+          <div class="timeline-scene-bg" data-year="971" aria-hidden="true"></div>
+          <div class="timeline-scene-bg" data-year="974" aria-hidden="true"></div>
           <div class="timeline-scene-bg" data-year="975" aria-hidden="true"></div>
+          <div class="timeline-scene-bg" data-year="976" aria-hidden="true"></div>
           <div class="timeline-scene-bg" data-year="978" aria-hidden="true"></div>
+          <div class="timeline-scene-bg" data-year="978b" aria-hidden="true"></div>
 <!-- 侧栏装饰：竖排「南唐」印记，纯装饰不对读屏软件播报 -->
           <div class="timeline-scene-art" aria-hidden="true"><span>南唐</span><i></i></div>
 <!-- 侧栏文案区：aria-live 让章节切换时读屏软件也能感知 -->
@@ -60,7 +66,7 @@
 <!-- 978（上）：七夕绝唱（作《虞美人》，词成人逝） -->
         <article class="timeline-item"><span class="timeline-year">978</span><div class="timeline-dot"></div><div class="timeline-card" role="button" tabindex="0" aria-haspopup="dialog" aria-label="展开七夕绝唱与李煜之死的故事"><span class="timeline-label">七夕 · 绝唱</span><h3>一江春水，词成人逝</h3><p>四十二岁生辰之夜，与故臣小酌，作《虞美人》。声闻于外，是夜暴卒——世传赐牵机药。词成而人逝，绝唱自此不朽。</p><span class="timeline-quote">“问君能有几多愁？恰似一江春水向东流。”</span><span class="timeline-open-hint">点击展开故事 <span aria-hidden="true">↗</span></span></div></article>
 <!-- 978（下）：北邙归处（以王礼归葬，词心不朽） -->
-        <article class="timeline-item"><span class="timeline-year">978</span><div class="timeline-dot"></div><div class="timeline-card" role="button" tabindex="0" aria-haspopup="dialog" aria-label="展开北邙归葬与词心不朽的故事"><span class="timeline-label">北邙 · 归处</span><h3>王礼归葬，词心不朽</h3><p>以王礼葬于洛阳北邙山，小周后哀毁骨立、未几亦逝，相继归葬。词人已逝，而词心越过千年，仍在抵达每一个读者。</p><span class="timeline-quote">“流水落花春去也，天上人间。”</span><span class="timeline-open-hint">点击展开故事 <span aria-hidden="true">↗</span></span></div></article>
+        <article class="timeline-item" data-scene-key="978b"><span class="timeline-year">978</span><div class="timeline-dot"></div><div class="timeline-card" role="button" tabindex="0" aria-haspopup="dialog" aria-label="展开北邙归葬与词心不朽的故事"><span class="timeline-label">北邙 · 归处</span><h3>王礼归葬，词心不朽</h3><p>以王礼葬于洛阳北邙山，小周后哀毁骨立、未几亦逝，相继归葬。词人已逝，而词心越过千年，仍在抵达每一个读者。</p><span class="timeline-quote">“流水落花春去也，天上人间。”</span><span class="timeline-open-hint">点击展开故事 <span aria-hidden="true">↗</span></span></div></article>
         </div>
       </div>
     </section>

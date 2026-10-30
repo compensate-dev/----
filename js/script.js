@@ -1786,7 +1786,9 @@
     scene.dataset.chapter = String(activeIndex + 1);
     const activeItem = items[activeIndex];
     const year = activeItem.querySelector(".timeline-year")?.textContent.trim();
-    scene.querySelectorAll(".timeline-scene-bg").forEach((bg) => bg.classList.toggle("is-active", bg.dataset.year === year));
+    // 同一年可能有两段故事（978 七夕绝唱 / 北邙归葬），优先用 item 上的 sceneKey 取场景图
+    const bgKey = activeItem.dataset.sceneKey || year;
+    scene.querySelectorAll(".timeline-scene-bg").forEach((bg) => bg.classList.toggle("is-active", bg.dataset.year === bgKey));
     const label = activeItem.querySelector(".timeline-label")?.textContent.trim();
     const title = activeItem.querySelector(".timeline-card h3")?.textContent.trim();
     const quote = activeItem.querySelector(".timeline-quote")?.textContent.trim();

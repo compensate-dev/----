@@ -1017,17 +1017,19 @@ button:not(.book-open-button):active,.button:active{translate:0 1px}
 .timeline-scene-bg{position:absolute;inset:0;z-index:-1;background-size:contain;background-position:center;opacity:0;transform:scale(1.07);transition:opacity 1.1s ease,transform 1.7s cubic-bezier(.2,.7,.25,1)}
 .timeline-scene-bg:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(24,38,31,.1) 0%,rgba(24,38,31,.26) 40%,rgba(24,38,31,.9) 100%)}
 .timeline-scene-bg.is-active{opacity:1;transform:scale(1)}
-/* 各年份节点对应的场景底图：现共 9 段，复用 4 张图——937 段与 954、964 共用 scene-937，
-   961 段与 971、974 共用 scene-961，975 段与 976 共用 scene-975，978 段单独用 scene-978 */
+/* 各年份节点对应的场景底图：937 / 961 / 975 / 978（七夕绝唱）沿用旧图，
+   954、964、971、974、976 与 978（北邙归葬）换成新绘的六张插图 */
 .timeline-scene-bg[data-year="937"]{background-image:url("../assets/image/scene-937.jpg")}
-.timeline-scene-bg[data-year="954"]{background-image:url("../assets/image/scene-937.jpg")}
-.timeline-scene-bg[data-year="964"]{background-image:url("../assets/image/scene-937.jpg")}
+.timeline-scene-bg[data-year="954"]{background-image:url("../assets/image/life-954-ehuang.jpg");background-size:cover;background-position:center 38%}
+.timeline-scene-bg[data-year="964"]{background-image:url("../assets/image/life-964-dazhouhou.jpg")}
 .timeline-scene-bg[data-year="961"]{background-image:url("../assets/image/scene-961.jpg")}
-.timeline-scene-bg[data-year="971"]{background-image:url("../assets/image/scene-961.jpg")}
-.timeline-scene-bg[data-year="974"]{background-image:url("../assets/image/scene-961.jpg")}
+.timeline-scene-bg[data-year="971"]{background-image:url("../assets/image/life-971-quhao.jpg")}
+.timeline-scene-bg[data-year="974"]{background-image:url("../assets/image/life-974-dujiang.jpg")}
 .timeline-scene-bg[data-year="975"]{background-image:url("../assets/image/scene-975.jpg")}
-.timeline-scene-bg[data-year="976"]{background-image:url("../assets/image/scene-975.jpg")}
+.timeline-scene-bg[data-year="976"]{background-image:url("../assets/image/life-976-weiminghou.jpg")}
 .timeline-scene-bg[data-year="978"]{background-image:url("../assets/image/scene-978.jpg")}
+/* 978 有七夕绝唱与北邙归葬两段，归葬段用 sceneKey 单独取图 */
+.timeline-scene-bg[data-year="978b"]{background-image:url("../assets/image/life-978-guizang.jpg")}
 .timeline-scene-art{position:absolute;inset:0;z-index:-1;overflow:hidden}
 .timeline-scene-art>span{position:absolute;top:24px;left:25px;padding:6px 10px;border:1px solid rgba(240,224,192,.56);color:#f2e7cb;font-size:11px;letter-spacing:.24em;writing-mode:vertical-rl}
 .timeline-scene-art i{position:absolute;width:180px;height:180px;top:17%;left:50%;border:1px solid rgba(237,222,190,.22);border-radius:50%;transform:translateX(-50%);box-shadow:0 0 0 18px rgba(237,222,190,.035),0 0 80px rgba(214,193,146,.12)}
