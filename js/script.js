@@ -3447,8 +3447,6 @@
   let washTimer = 0;
   let camKick = 0;
   let rollKick = 0;
-  const stageGate = stage.querySelector(".stage-gate");
-  const gateArt = scenes[0].querySelector(".hero-art");
 
   // 章节栏只标六个分部：0 为序幕，其后每两幕（折子幕 + 内容幕）算一章
   const railIndexFor = (idx) => (idx === 0 ? 0 : Math.ceil(idx / 2));
@@ -3485,9 +3483,9 @@
   };
 
   /* 换幕语法：一幕一种镜头运动，别让每一幕都"飞来" */
-  // 0→1 穿框（首幕画框被镜头穿过），其余依次：横移、升幕、纵深、翻页
-  // 十个幕隙各给一种镜头语法：穿框之后不再重复"飞来"，折子幕与内容幕交替用不同调度
-  const SEQ = ["gate", "slide", "rise", "turn", "depth", "dissolve", "slide", "rise", "turn", "depth"];
+  // 0→1 改用叠化（原先的"穿框纸窗"会在首幕留下一个突兀的纸色矩形，已移除）
+  // 十个幕隙各给一种镜头语法：叠化之后依次是横移、升幕、纵深、翻页，折子幕与内容幕交替用不同调度
+  const SEQ = ["dissolve", "slide", "rise", "turn", "depth", "dissolve", "slide", "rise", "turn", "depth"];
   const MOVES = {
     dissolve: {
       enter: { z: "-90px", s: "1.05", b: "15px", dur: 1.34, ease: "cubic-bezier(.32,.68,.2,1)" },
@@ -3514,7 +3512,7 @@
     "--dx", "--dy", "--dz", "--dyr", "--dzr", "--ds", "--db", "--xt"];
   const clearFx = (el) => {
     FX_VARS.forEach((name) => el.style.removeProperty(name));
-    el.classList.remove("is-enter", "is-settled", "is-exit", "is-gate-through", "is-gate-return");
+    el.classList.remove("is-enter", "is-settled", "is-exit");
   };
   const neg = (value) => {
     if (!value) return "0";
@@ -3553,46 +3551,6 @@
     el.style.setProperty("--xt", (frame.dur || ".95") + "s");
     el.classList.add("is-exit");
   };
-  /* 穿框：把纸窗对到首幕画面上（只有画框处透光），随后镜头一推，纸边从眼前掠过（回读时反向合回） */
-  const runGateFrame = (dir) => {
-    if (!stageGate) return;
-    const host = stage.getBoundingClientRect();
-    const art = gateArt ? gateArt.getBoundingClientRect() : host;
-    stageGate.style.left = (art.left - host.left) + "px";
-    stageGate.style.top = (art.top - host.top) + "px";
-    stageGate.style.width = art.width + "px";
-    stageGate.style.height = art.height + "px";
-    if (gateArt) {
-      const radius = window.getComputedStyle(gateArt).borderRadius;
-      stageGate.style.borderRadius = radius && radius !== "0px" ? radius : "50% 50% 0 0 / 26% 26% 0 0";
-    }
-    stageGate.classList.add("is-on");
-    stageGate.style.transition = "none";
-    if (dir > 0) {
-      stageGate.style.transform = "scale(1)";
-      stageGate.style.opacity = "1";
-      void stageGate.offsetWidth;
-      stageGate.style.transition = "transform 1.2s cubic-bezier(.62,.02,.9,.06),opacity .26s ease .96s";
-      stageGate.style.transform = "scale(9.4)";
-      window.setTimeout(() => { stageGate.style.opacity = "0"; }, 980);
-    } else {
-      stageGate.style.transform = "scale(8.4)";
-      stageGate.style.opacity = "0";
-      void stageGate.offsetWidth;
-      stageGate.style.transition = "transform .98s cubic-bezier(.16,.86,.24,1),opacity .2s ease";
-      stageGate.style.transform = "scale(1)";
-      stageGate.style.opacity = "1";
-      window.setTimeout(() => { stageGate.style.opacity = "0"; }, 920);
-    }
-    window.setTimeout(() => {
-      stageGate.classList.remove("is-on");
-      stageGate.style.transition = "";
-      stageGate.style.transform = "";
-      stageGate.style.opacity = "";
-      stageGate.style.borderRadius = "";
-    }, 1340);
-  };
-
   const go = (next) => {
     if (busy || next === current || next < 0 || next >= scenes.length) return;
     if (!narrativeReady()) return;
@@ -3601,59 +3559,34 @@
     const from = scenes[current];
     const to = scenes[next];
     const kind = SEQ[Math.min(current, next)] || "dissolve";
-    const pass = kind === "gate";
-    const move = MOVES[pass ? "dissolve" : kind] || MOVES.dissolve;
+    const move = MOVES[kind] || MOVES.dissolve;
     window.clearTimeout(settleTimer);
     window.clearTimeout(staggerTimer);
     clearStagger();
-    // 镜头调度：换幕瞬间给摄影机一记推轨冲动；穿框那一下最猛
-    camKick += pass ? (dir > 0 ? -560 : 470) : (dir > 0 ? -170 : 150);
-    rollKick += pass ? (dir > 0 ? 110 : -95) : (dir > 0 ? 160 : -140);
-    // 顺读＝洗白过曝（新幕从白里显影）；回读＝快门暗角收回。穿框自带纸光，不再叠洗白
-    if (!pass) {
-      if (dir > 0 && stageWash) {
-        window.clearTimeout(washTimer);
-        stageWash.classList.remove("is-on");
-        void stageWash.offsetWidth;
-        stageWash.classList.add("is-on");
-        washTimer = window.setTimeout(() => stageWash.classList.remove("is-on"), 1000);
-      } else if (stageCut) {
-        window.clearTimeout(cutTimer);
-        stageCut.classList.add("is-on");
-        cutTimer = window.setTimeout(() => stageCut.classList.remove("is-on"), 230);
-      }
+    // 镜头调度：换幕瞬间给摄影机一记推轨冲动
+    camKick += dir > 0 ? -170 : 150;
+    rollKick += dir > 0 ? 160 : -140;
+    // 顺读＝洗白过曝（新幕从白里显影）；回读＝快门暗角收回
+    if (dir > 0 && stageWash) {
+      window.clearTimeout(washTimer);
+      stageWash.classList.remove("is-on");
+      void stageWash.offsetWidth;
+      stageWash.classList.add("is-on");
+      washTimer = window.setTimeout(() => stageWash.classList.remove("is-on"), 1000);
+    } else if (stageCut) {
+      window.clearTimeout(cutTimer);
+      stageCut.classList.add("is-on");
+      cutTimer = window.setTimeout(() => stageCut.classList.remove("is-on"), 230);
     }
     scenes.forEach((scene, i) => { scene.style.zIndex = i === next ? "3" : i === current ? "2" : ""; });
 
     clearFx(to);
     to.classList.add("is-live");
-    if (pass && dir < 0) {
-      // 回读穿框：首幕从画框外缩回来
-      to.style.setProperty("--ox", "64%");
-      to.style.setProperty("--oy", "46%");
-      to.style.setProperty("--et", "1.04s");
-      to.classList.add("is-gate-return");
-    } else {
-      setEnter(to, dir > 0 ? move.enter : mirror(move.enter));
-    }
+    setEnter(to, dir > 0 ? move.enter : mirror(move.enter));
     prepStagger(to);
 
-    if (pass) {
-      // 首幕从画框里被镜头穿过；回读时纸框重新合回画面
-      if (dir > 0) {
-        from.style.setProperty("--ox", "64%");
-        from.style.setProperty("--oy", "46%");
-        from.classList.add("is-gate-through");
-      } else {
-        clearFx(from);
-        from.classList.add("is-exit");
-        setExit(from, { z: "-220px", s: ".94", b: "16px", dur: ".86" });
-      }
-      runGateFrame(dir);
-    } else {
-      from.classList.add("is-exit");
-      setExit(from, dir > 0 ? move.exit : mirror(move.exit));
-    }
+    from.classList.add("is-exit");
+    setExit(from, dir > 0 ? move.exit : mirror(move.exit));
 
     void to.offsetWidth; // 先落定起始态，再开启动画
     to.classList.add("is-settled", "stg-run");
@@ -3676,7 +3609,7 @@
       const box = to.querySelector(".scene-content");
       if (box) box.scrollTop = 0;
       busy = false;
-    }, pass ? 1500 : 1260);
+    }, 1260);
     staggerTimer = window.setTimeout(() => { if (current === next) clearStagger(to); }, 1900);
   };
 
