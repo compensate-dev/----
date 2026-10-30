@@ -15,9 +15,9 @@
   <meta property="og:description" content="走进南唐后主李煜的一生与词作，读写作背景、听词句回响，在一江春水间遇见千年前的悲欢。">
   <meta property="og:image" content="assets/image/home-hero-clean-v2.jpg">
   <meta property="og:locale" content="zh_CN">
-  <link rel="stylesheet" href="css/style.css?v=f76">
+  <link rel="stylesheet" href="css/style.css?v=f81">
   <script src="js/three.min.js" defer></script>
-  <script src="js/script.js?v=f76" defer></script>
+  <script src="js/script.js?v=f81" defer></script>
 </head>
 <!-- body.home-page：首页专用类，供 CSS 区分首页与其他子页（开场未揭开前隐藏页头与正文） -->
 <body class="home-page">
@@ -358,7 +358,11 @@
         </div>
       </section>
       </div>
+      <!-- 穿框：首幕画框被镜头穿过时，这层纸框放大掠过眼前 -->
+      <div class="stage-gate" aria-hidden="true"><i></i></div>
       <div class="stage-cut" aria-hidden="true"></div>
+      <!-- 洗白层：顺读换幕时新幕从一片过曝白里显影（回读走 stage-cut 快门暗角） -->
+      <div class="stage-wash" aria-hidden="true"></div>
     </div>
     <nav class="stage-rail" aria-label="首页章节">
       <button type="button" data-go="0" aria-label="第一章 月下故园" aria-current="step"><i></i></button>
@@ -368,6 +372,13 @@
       <button type="button" data-go="4" aria-label="第五章 听回响"><i></i></button>
       <button type="button" data-go="5" aria-label="第六章 留一笔"><i></i></button>
     </nav>
+    <!-- 折子引导：书脊上只露出一枚折角，翻开是"下一折"的预告 -->
+    <aside class="fold-guide" aria-label="下一折引导">
+      <button class="fg-toggle" type="button" aria-expanded="false" aria-controls="foldNext"><span>折</span></button>
+      <button class="fg-sheet" id="foldNext" type="button"><span class="fg-kicker">下一折</span><b class="fg-name"></b><i class="fg-arrow">→</i></button>
+    </aside>
+    <!-- 滚动提示：静置时轻轻招手 -->
+    <div class="stage-hint" aria-hidden="true"><i></i><span>滚动 · 进入下一幕</span></div>
   </main>
 <!-- 页脚：品牌 + 标语 + 跳转链接；开场未揭开时 inert -->
   <footer class="site-footer" inert><a class="brand" href="index.html"><span class="brand-seal">煜</span><span>一江春水<small>愿每个读词的人，都有一刻安宁。</small></span></a><span>词有尽时，春水长流。</span><a href="pages/ci.html">再读一首 ↗</a></footer>

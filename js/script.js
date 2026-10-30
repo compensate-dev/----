@@ -784,7 +784,6 @@
     const arrivalEnterButton = arrivalInterlude?.querySelector(".arrival-enter-button");
     const arrivalSkipButton = arrivalInterlude?.querySelector(".arrival-skip-button");
     const arrivalChapterButtons = arrivalInterlude?.querySelectorAll("[data-arrival-scene]");
-    const paperGate = document.querySelector(".paper-gate");
     const arrivalStage = arrivalInterlude?.querySelector(".arrival-stage");
     const arrivalInkWash = arrivalInterlude?.querySelector(".arrival-ink-wash");
     const inkCanvas = inkInterlude?.querySelector(".ink-canvas");
@@ -1381,55 +1380,6 @@
       arrivalInterlude.style.setProperty("--arrival-pointer-soft-x", `${(x * 12).toFixed(1)}px`);
       arrivalInterlude.style.setProperty("--arrival-pointer-soft-y", `${(y * 9).toFixed(1)}px`);
     };
-    /* 纸门：入场最后一层视觉替换——一叠纸页挡住，下滑即穿过去，穿的同时首页在纸后显影 */
-    const runPaperGate = (onEnter) => new Promise((resolve) => {
-      if (!paperGate || !paperGate.isConnected || reducedMotion) {
-        onEnter();
-        resolve();
-        return;
-      }
-      body.classList.add("paper-gate-open");
-      let done = false;
-      let armed = 0;
-      const cleanup = () => {
-        window.clearTimeout(armed);
-        window.removeEventListener("wheel", onWheel);
-        window.removeEventListener("touchmove", onMove);
-        window.removeEventListener("pointerdown", onMove);
-        window.removeEventListener("keydown", onKey);
-      };
-      const step = () => {
-        if (done) return;
-        done = true;
-        cleanup();
-        onEnter();
-        paperGate.classList.add("is-tearing");
-        window.setTimeout(() => {
-          paperGate.remove();
-          body.classList.remove("paper-gate-open");
-          resolve();
-        }, 1250);
-      };
-      const onWheel = (event) => {
-        if (event.deltaY <= 0) return;
-        event.preventDefault();
-        step();
-      };
-      const onMove = () => step();
-      const onKey = (event) => {
-        if (["ArrowDown", "PageDown", "Enter", " "].indexOf(event.key) < 0) return;
-        event.preventDefault();
-        step();
-      };
-      // 门先立稳再挂手势，免得入场最后一次滚轮把门一闪而过
-      armed = window.setTimeout(() => {
-        window.addEventListener("wheel", onWheel, { passive: false });
-        window.addEventListener("touchmove", onMove, { passive: true });
-        window.addEventListener("pointerdown", onMove);
-        window.addEventListener("keydown", onKey);
-      }, 380);
-      window.setTimeout(() => { if (!done) step(); }, 5400); // 久等也会自己开门，不把读者挡在外面
-    });
     const showArrivalInterlude = () => new Promise((resolve, reject) => {
       if (!arrivalInterlude || !arrivalTrack || !arrivalScroller || !arrivalEnterButton || !arrivalSkipButton) {
         reject(new Error("The parallax arrival interlude is incomplete."));
@@ -1469,18 +1419,13 @@
         removeListeners();
         exitArrivalScene(() => {
           arrivalInterlude.classList.add("is-leaving");
-          runPaperGate(revealHome).then(() => {
-            window.scrollTo({ top: 0, behavior: "auto" });
-            document.querySelector(".hero-actions a")?.focus({ preventScroll: true });
-            resolve();
-          });
+          revealHome();
+          window.scrollTo({ top: 0, behavior: "auto" });
+          document.querySelector(".hero-actions a")?.focus({ preventScroll: true });
+          resolve();
         });
       };
-      const skipAll = () => { // 跳过入场＝连纸门一起跳过
-        paperGate?.remove();
-        body.classList.remove("paper-gate-open");
-        finish();
-      };
+      const skipAll = () => finish(); // 跳过入场：故事直接落在首幕
       const onWheel = (event) => {
         if (finished || event.deltaY <= 0) return;
         const scrollRange = arrivalTrack.offsetHeight - arrivalScroller.clientHeight;
@@ -1647,8 +1592,6 @@
       calligraphySequence.remove();
       inkInterlude?.remove();
       arrivalInterlude?.remove();
-      paperGate?.remove();
-      document.body.classList.remove("paper-gate-open");
       document.querySelectorAll("header[inert], main[inert], footer[inert], audio[inert]").forEach((element) => element.removeAttribute("inert"));
       document.querySelector(".hero-actions a")?.focus({ preventScroll: true });
     } else {
@@ -3496,7 +3439,9 @@
   let camKick = 0;
   let rollKick = 0;
   let surgeFn = () => {}; // three.js 就绪后接管：换幕时把悬浮物像鼓风一样推过镜头
-  let foldItems = [];    // 折子目录里的六枚折角
+  let foldSync = () => {}; // three.js / 折子就绪后接管，更新"下一折"预告
+  const stageGate = stage.querySelector(".stage-gate");
+  const gateArt = scenes[0].querySelector(".hero-art");
 
   const updateRail = (idx) => {
     railButtons.forEach((btn, i) => {
@@ -3505,15 +3450,21 @@
       if (on) btn.setAttribute("aria-current", "step");
       else btn.removeAttribute("aria-current");
     });
-    foldItems.forEach((item, i) => item.classList.toggle("is-on", i === idx));
+    foldSync(idx);
   };
-  const clearStagger = () => {
+  // 清 stagger：默认全清；传 scene 则保留该幕（落定后仍要留着 is-settled 让字句停在可见态）
+  const clearStagger = (keepScene) => {
     stage.querySelectorAll(".stg").forEach((node) => {
+      if (keepScene && keepScene.contains(node)) return;
       node.classList.remove("stg");
       node.style.removeProperty("--i");
       node.style.removeProperty("--sx");
+      node.style.transform = "";
     });
-    scenes.forEach((scene) => scene.classList.remove("stg-run"));
+    scenes.forEach((scene) => {
+      if (scene === keepScene) return;
+      scene.classList.remove("stg-run");
+    });
   };
   const prepStagger = (scene) => {
     Array.from(scene.querySelectorAll(STAGGER_SEL)).forEach((node, i) => {
@@ -3524,6 +3475,114 @@
     });
   };
 
+  /* 换幕语法：一幕一种镜头运动，别让每一幕都"飞来" */
+  // 0→1 穿框（首幕画框被镜头穿过），其余依次：横移、升幕、纵深、翻页
+  const SEQ = ["gate", "slide", "rise", "depth", "turn"];
+  const MOVES = {
+    dissolve: {
+      enter: { z: "-90px", s: "1.05", b: "15px", dur: 1.34, ease: "cubic-bezier(.32,.68,.2,1)" },
+      exit: { z: "170px", s: "1.07", b: "18px", dur: 1.02 }
+    },
+    slide: {
+      enter: { x: "17vw", yr: "-9deg", z: "-140px", s: ".97", b: "13px", dur: 1.14, ease: "cubic-bezier(.18,.9,.2,1)" },
+      exit: { x: "-30vw", yr: "8deg", z: "90px", s: "1.04", b: "20px", dur: ".96" }
+    },
+    rise: {
+      enter: { y: "18vh", z: "-60px", s: "1.01", b: "12px", dur: 1.16, ease: "cubic-bezier(.2,.86,.2,1)" },
+      exit: { y: "-22vh", z: "120px", s: "1.05", b: "18px", dur: ".96" }
+    },
+    turn: {
+      enter: { x: "10vw", yr: "-15deg", z: "60px", s: ".98", b: "14px", ox: "0%", dur: 1.12, ease: "cubic-bezier(.22,.92,.2,1)" },
+      exit: { x: "-10vw", yr: "12deg", z: "70px", s: "1.02", b: "16px", ox: "100%", dur: ".96" }
+    },
+    depth: {
+      enter: { y: "6vh", z: "-760px", s: ".88", b: "20px", dur: 1.2, ease: "cubic-bezier(.16,.86,.24,1)" },
+      exit: { y: "-12vh", z: "400px", s: "1.17", b: "22px", dur: ".96" }
+    }
+  };
+  const FX_VARS = ["--ex", "--ey", "--ez", "--exr", "--eyr", "--ezr", "--es", "--eb", "--ox", "--oy", "--et", "--ec", "--ed",
+    "--dx", "--dy", "--dz", "--dyr", "--dzr", "--ds", "--db", "--xt"];
+  const clearFx = (el) => {
+    FX_VARS.forEach((name) => el.style.removeProperty(name));
+    el.classList.remove("is-enter", "is-settled", "is-exit", "is-gate-through", "is-gate-return");
+  };
+  const neg = (value) => {
+    if (!value) return "0";
+    const m = /^(-?[\d.]+)(.*)$/.exec(value);
+    return m ? (parseFloat(m[1]) * -1) + m[2] : value;
+  };
+  const mirror = (frame) => Object.assign({}, frame, {
+    x: neg(frame.x), y: neg(frame.y), yr: neg(frame.yr), zr: neg(frame.zr),
+    ox: frame.ox === "0%" ? "100%" : frame.ox === "100%" ? "0%" : frame.ox
+  });
+  const setEnter = (el, frame) => {
+    el.style.setProperty("--ex", frame.x || "0");
+    el.style.setProperty("--ey", frame.y || "0");
+    el.style.setProperty("--ez", frame.z || "0");
+    el.style.setProperty("--eyr", frame.yr || "0deg");
+    el.style.setProperty("--ezr", frame.zr || "0deg");
+    el.style.setProperty("--es", frame.s || "1");
+    el.style.setProperty("--eb", frame.b || "12px");
+    el.style.setProperty("--ox", frame.ox || "50%");
+    el.style.setProperty("--oy", frame.oy || "50%");
+    el.style.setProperty("--et", (frame.dur || 1.1) + "s");
+    el.style.setProperty("--ec", frame.ease || "cubic-bezier(.2,.9,.24,1)");
+    el.style.setProperty("--ed", frame.delay || "0s");
+    el.classList.add("is-enter");
+  };
+  const setExit = (el, frame) => {
+    el.style.setProperty("--dx", frame.x || "0");
+    el.style.setProperty("--dy", frame.y || "0");
+    el.style.setProperty("--dz", frame.z || "0");
+    el.style.setProperty("--dyr", frame.yr || "0deg");
+    el.style.setProperty("--dzr", frame.zr || "0deg");
+    el.style.setProperty("--ds", frame.s || "1");
+    el.style.setProperty("--db", frame.b || "20px");
+    el.style.setProperty("--ox", frame.ox || "50%");
+    el.style.setProperty("--oy", frame.oy || "50%");
+    el.style.setProperty("--xt", (frame.dur || ".95") + "s");
+    el.classList.add("is-exit");
+  };
+  /* 穿框：把纸窗对到首幕画面上（只有画框处透光），随后镜头一推，纸边从眼前掠过（回读时反向合回） */
+  const runGateFrame = (dir) => {
+    if (!stageGate) return;
+    const host = stage.getBoundingClientRect();
+    const art = gateArt ? gateArt.getBoundingClientRect() : host;
+    stageGate.style.left = (art.left - host.left) + "px";
+    stageGate.style.top = (art.top - host.top) + "px";
+    stageGate.style.width = art.width + "px";
+    stageGate.style.height = art.height + "px";
+    if (gateArt) {
+      const radius = window.getComputedStyle(gateArt).borderRadius;
+      stageGate.style.borderRadius = radius && radius !== "0px" ? radius : "50% 50% 0 0 / 26% 26% 0 0";
+    }
+    stageGate.classList.add("is-on");
+    stageGate.style.transition = "none";
+    if (dir > 0) {
+      stageGate.style.transform = "scale(1)";
+      stageGate.style.opacity = "1";
+      void stageGate.offsetWidth;
+      stageGate.style.transition = "transform 1.2s cubic-bezier(.62,.02,.9,.06),opacity .26s ease .96s";
+      stageGate.style.transform = "scale(9.4)";
+      window.setTimeout(() => { stageGate.style.opacity = "0"; }, 980);
+    } else {
+      stageGate.style.transform = "scale(8.4)";
+      stageGate.style.opacity = "0";
+      void stageGate.offsetWidth;
+      stageGate.style.transition = "transform .98s cubic-bezier(.16,.86,.24,1),opacity .2s ease";
+      stageGate.style.transform = "scale(1)";
+      stageGate.style.opacity = "1";
+      window.setTimeout(() => { stageGate.style.opacity = "0"; }, 920);
+    }
+    window.setTimeout(() => {
+      stageGate.classList.remove("is-on");
+      stageGate.style.transition = "";
+      stageGate.style.transform = "";
+      stageGate.style.opacity = "";
+      stageGate.style.borderRadius = "";
+    }, 1340);
+  };
+
   const go = (next) => {
     if (busy || next === current || next < 0 || next >= scenes.length) return;
     if (!narrativeReady()) return;
@@ -3531,32 +3590,64 @@
     const dir = next > current ? 1 : -1;
     const from = scenes[current];
     const to = scenes[next];
+    const kind = SEQ[Math.min(current, next)] || "dissolve";
+    const pass = kind === "gate";
+    const move = MOVES[pass ? "dissolve" : kind] || MOVES.dissolve;
     window.clearTimeout(settleTimer);
     window.clearTimeout(staggerTimer);
     clearStagger();
-    // 镜头调度：换幕瞬间给摄影机一记推轨冲动（顺读前推、回读后拉）
-    camKick += dir > 0 ? -260 : 240;
-    rollKick += dir > 0 ? 240 : -210;
-    // 顺读＝洗白过曝（新幕从白里显影）；回读＝快门暗角收回，方向感分得清
-    if (dir > 0 && stageWash) {
-      window.clearTimeout(washTimer);
-      stageWash.classList.remove("is-on");
-      void stageWash.offsetWidth;
-      stageWash.classList.add("is-on");
-      washTimer = window.setTimeout(() => stageWash.classList.remove("is-on"), 1000);
-    } else if (stageCut) {
-      window.clearTimeout(cutTimer);
-      stageCut.classList.add("is-on");
-      cutTimer = window.setTimeout(() => stageCut.classList.remove("is-on"), 230);
+    // 镜头调度：换幕瞬间给摄影机一记推轨冲动；穿框那一下最猛
+    camKick += pass ? (dir > 0 ? -560 : 470) : (dir > 0 ? -170 : 150);
+    rollKick += pass ? (dir > 0 ? 110 : -95) : (dir > 0 ? 160 : -140);
+    // 顺读＝洗白过曝（新幕从白里显影）；回读＝快门暗角收回。穿框自带纸光，不再叠洗白
+    if (!pass) {
+      if (dir > 0 && stageWash) {
+        window.clearTimeout(washTimer);
+        stageWash.classList.remove("is-on");
+        void stageWash.offsetWidth;
+        stageWash.classList.add("is-on");
+        washTimer = window.setTimeout(() => stageWash.classList.remove("is-on"), 1000);
+      } else if (stageCut) {
+        window.clearTimeout(cutTimer);
+        stageCut.classList.add("is-on");
+        cutTimer = window.setTimeout(() => stageCut.classList.remove("is-on"), 230);
+      }
     }
     surgeFn(dir); // 鼓风：悬浮物从纵深涌向镜头
     scenes.forEach((scene, i) => { scene.style.zIndex = i === next ? "3" : i === current ? "2" : ""; });
-    to.classList.remove("fly-fwd", "fly-back", "is-settled", "is-depart-fwd", "is-depart-back");
-    to.classList.add("is-live", dir > 0 ? "fly-fwd" : "fly-back");
+
+    clearFx(to);
+    to.classList.add("is-live");
+    if (pass && dir < 0) {
+      // 回读穿框：首幕从画框外缩回来
+      to.style.setProperty("--ox", "64%");
+      to.style.setProperty("--oy", "46%");
+      to.style.setProperty("--et", "1.04s");
+      to.classList.add("is-gate-return");
+    } else {
+      setEnter(to, dir > 0 ? move.enter : mirror(move.enter));
+    }
     prepStagger(to);
+
+    if (pass) {
+      // 首幕从画框里被镜头穿过；回读时纸框重新合回画面
+      if (dir > 0) {
+        from.style.setProperty("--ox", "64%");
+        from.style.setProperty("--oy", "46%");
+        from.classList.add("is-gate-through");
+      } else {
+        clearFx(from);
+        from.classList.add("is-exit");
+        setExit(from, { z: "-220px", s: ".94", b: "16px", dur: ".86" });
+      }
+      runGateFrame(dir);
+    } else {
+      from.classList.add("is-exit");
+      setExit(from, dir > 0 ? move.exit : mirror(move.exit));
+    }
+
     void to.offsetWidth; // 先落定起始态，再开启动画
     to.classList.add("is-settled", "stg-run");
-    from.classList.add(dir > 0 ? "is-depart-fwd" : "is-depart-back");
     // 氛围层同步一振：云雾向后退去再归于平静
     pulse = Math.min(1, pulse + 0.5);
     wind.y += dir > 0 ? -0.26 : 0.22;
@@ -3567,15 +3658,16 @@
     updateRail(next);
     hideHint();
     settleTimer = window.setTimeout(() => {
-      from.classList.remove("is-live", "is-depart-fwd", "is-depart-back");
+      from.classList.remove("is-live");
       from.style.zIndex = "";
-      to.classList.remove("fly-fwd", "fly-back", "is-settled");
+      clearFx(from);
       to.style.zIndex = "";
+      clearFx(to);
       const box = to.querySelector(".scene-content");
       if (box) box.scrollTop = 0;
       busy = false;
-    }, 1180);
-    staggerTimer = window.setTimeout(clearStagger, 1900);
+    }, pass ? 1500 : 1260);
+    staggerTimer = window.setTimeout(() => { if (current === next) clearStagger(to); }, 1900);
   };
 
   const canScrollContent = (scene, dir) => {
@@ -3598,36 +3690,49 @@
   body.dataset.act = "0";
   moodTarget = MOODS[0];
 
-  /* 折子引导：把六幕的折子抽成书脊目录，展开可跳幕；折叠时只剩一枚竖排"折" */
-  const toHex = (n) => "#" + ("000000" + n.toString(16)).slice(-6);
+  /* 折子引导：书脊上只露一枚折角，翻开是「下一折」的预告，点它翻到下一幕 */
   const foldGuide = main.querySelector(".fold-guide");
+  const foldSheet = main.querySelector("#foldNext");
+  const foldToggle = main.querySelector(".fg-toggle");
+  const foldKicker = foldSheet?.querySelector(".fg-kicker");
+  const foldName = foldSheet?.querySelector(".fg-name");
   const stageHint = main.querySelector(".stage-hint");
-  if (foldGuide) {
-    const sheet = foldGuide.querySelector(".fg-sheet");
-    const toggle = foldGuide.querySelector(".fg-toggle");
-    scenes.forEach((scene, i) => {
-      const parts = (scene.dataset.chapter || "").split("·");
-      const mood = MOODS[i] || MOODS[0];
-      const item = document.createElement("button");
-      item.type = "button";
-      item.className = "fg-item";
-      item.innerHTML = "<b></b><i></i><span></span>";
-      item.querySelector("b").textContent = (parts[0] || "0" + (i + 1)).trim();
-      item.querySelector("span").textContent = (parts[1] || "").trim() || mood.name;
-      item.querySelector("i").style.background = toHex(mood.a);
-      item.addEventListener("click", () => { closeFold(); go(i); });
-      sheet.appendChild(item);
-      foldItems.push(item);
+  const foldOpen = () => {
+    foldGuide?.classList.add("is-open");
+    foldToggle?.setAttribute("aria-expanded", "true");
+  };
+  const foldClose = () => {
+    foldGuide?.classList.remove("is-open");
+    foldToggle?.setAttribute("aria-expanded", "false");
+  };
+  foldSync = (idx) => {
+    if (!foldSheet || !foldName) return;
+    const last = idx >= scenes.length - 1;
+    const target = last ? 0 : idx + 1;
+    const parts = (scenes[target].dataset.chapter || "").split("·");
+    const name = (parts[1] || "").trim() || MOODS[target]?.name || "";
+    foldName.textContent = last ? "回到" + ((scenes[0].dataset.chapter || "").split("·")[1] || "第一折").trim() : name;
+    if (foldKicker) foldKicker.textContent = last ? "回卷" : "下一折";
+    foldGuide?.setAttribute("data-next", String(target));
+    foldSheet.setAttribute("aria-label", (last ? "回到第一幕 " : "翻到下一折 ") + name);
+  };
+  if (foldGuide && foldSheet) {
+    foldToggle?.addEventListener("click", (event) => {
+      event.stopPropagation();
+      if (foldGuide.classList.contains("is-open")) foldClose(); else foldOpen();
     });
-    const openFold = () => { foldGuide.classList.add("is-open"); toggle.setAttribute("aria-expanded", "true"); };
-    const closeFold = () => { foldGuide.classList.remove("is-open"); toggle.setAttribute("aria-expanded", "false"); };
-    toggle.addEventListener("click", () => {
-      if (foldGuide.classList.contains("is-open")) closeFold(); else openFold();
+    foldSheet.addEventListener("click", () => {
+      const target = Number(foldGuide.dataset.next || 0);
+      foldClose();
+      go(target);
     });
-    foldGuide.addEventListener("pointerenter", () => { if (!matchMedia("(hover:none)").matches) openFold(); });
-    foldGuide.addEventListener("pointerleave", () => { if (!matchMedia("(hover:none)").matches) closeFold(); });
-    document.addEventListener("click", (event) => { if (!foldGuide.contains(event.target)) closeFold(); });
-    updateRail(current); // 目录建好后补一次高亮
+    foldGuide.addEventListener("pointerenter", () => { if (!matchMedia("(hover:none)").matches) foldOpen(); });
+    foldGuide.addEventListener("pointerleave", () => { if (!matchMedia("(hover:none)").matches) foldClose(); });
+    // 键盘 Tab 到折角时也翻开，免得摸到一块看不见的纸
+    foldGuide.addEventListener("focusin", foldOpen);
+    foldGuide.addEventListener("focusout", (event) => { if (!foldGuide.contains(event.relatedTarget)) foldClose(); });
+    document.addEventListener("click", (event) => { if (!foldGuide.contains(event.target)) foldClose(); });
+    foldSync(current);
   }
   const hideHint = () => stageHint?.classList.remove("is-on");
   const hintTick = () => { // 只等入场真正结束、且仍停在首幕时才招手
@@ -3813,48 +3918,86 @@
       });
       scene.add(new THREE.Points(geometry, material));
 
-      /* 鼓风物件：纸笺 / 花瓣 / 墨点；换幕瞬间从纵深涌向镜头、从两侧掠过（风箱一鼓） */
+      /* 鼓风物件：立体花瓣 / 墨珠 / 卷起的诗笺——真几何 + 两盏灯，换幕时从纵深涌过镜头 */
       pieceWhite = new THREE.Color(0xffffff);
-      const pieceTex = (kind, glyph) => {
+      scene.add(new THREE.AmbientLight(0xfff7ea, 0.92));
+      const keyLight = new THREE.DirectionalLight(0xfff2d8, 0.92);
+      keyLight.position.set(420, 520, 640);
+      scene.add(keyLight);
+      const rimLight = new THREE.DirectionalLight(0xc9dcd0, 0.55);
+      rimLight.position.set(-560, -300, -420);
+      scene.add(rimLight);
+
+      // 花瓣：平面弯成瓢形，尖端收窄，翻过来看得到背面
+      const petalGeo = new THREE.PlaneGeometry(1, 1.3, 8, 10);
+      for (let i = 0; i < petalGeo.attributes.position.count; i++) {
+        const pos = petalGeo.attributes.position;
+        const x = pos.getX(i);
+        const y = pos.getY(i);
+        const u = Math.min(1, Math.abs(x) * 2);
+        const v = Math.min(1, Math.abs(y) / 0.65);
+        pos.setZ(i, -0.3 * (1 - u * u) * (0.5 + 0.5 * (1 - v)) + Math.sin(y * 2.6) * 0.045);
+        if (v > 0.6) pos.setX(i, x * (1 - (v - 0.6) * 1.4));
+      }
+      petalGeo.computeVertexNormals();
+
+      // 墨珠：压扁的球，像一笔将落未落的墨
+      const inkGeo = new THREE.SphereGeometry(0.62, 18, 14);
+      inkGeo.scale(1, 1, 0.58);
+
+      // 诗笺：卷起的纸条，竖排小字印在纸面上
+      const scrollGeo = new THREE.PlaneGeometry(1, 0.66, 18, 3);
+      for (let i = 0; i < scrollGeo.attributes.position.count; i++) {
+        const pos = scrollGeo.attributes.position;
+        pos.setZ(i, Math.cos(pos.getX(i) * 2.7) * 0.13);
+      }
+      scrollGeo.computeVertexNormals();
+      const scrollTex = (() => {
         const c = document.createElement("canvas");
-        c.width = c.height = 128;
+        c.width = 256;
+        c.height = 168;
         const g = c.getContext("2d");
-        g.fillStyle = "#fff";
-        if (kind === 0) {
-          g.save(); g.translate(64, 64); g.rotate(-0.18);
-          g.beginPath();
-          if (g.roundRect) g.roundRect(-46, -32, 92, 64, 7); else g.rect(-46, -32, 92, 64);
-          g.fill(); g.restore();
-        } else if (kind === 1) {
-          g.save(); g.translate(64, 64);
-          g.beginPath(); g.moveTo(0, -48);
-          g.bezierCurveTo(36, -30, 30, 28, 0, 48);
-          g.bezierCurveTo(-30, 28, -36, -30, 0, -48);
-          g.fill(); g.restore();
-        } else if (kind === 2) {
-          const rg = g.createRadialGradient(64, 64, 2, 64, 64, 60);
-          rg.addColorStop(0, "rgba(255,255,255,.95)");
-          rg.addColorStop(.5, "rgba(255,255,255,.6)");
-          rg.addColorStop(1, "rgba(255,255,255,0)");
-          g.fillStyle = rg; g.beginPath(); g.arc(64, 64, 60, 0, 6.2832); g.fill();
-        } else { // 诗字：一枚单字飘在雾里
-          g.textAlign = "center"; g.textBaseline = "middle";
-          g.font = "600 92px Georgia, 'Songti SC', serif";
-          g.fillText(glyph, 64, 68);
+        g.fillStyle = "rgba(255,255,255,.93)";
+        if (g.roundRect) {
+          g.beginPath(); g.roundRect(8, 10, 240, 148, 5); g.fill();
+        } else {
+          g.fillRect(8, 10, 240, 148);
         }
+        g.fillStyle = "rgba(44,58,48,.82)";
+        g.textAlign = "center";
+        g.textBaseline = "top";
+        g.font = "600 16px 'Songti SC','SimSun',Georgia,serif";
+        ["春花秋月", "往事知多", "一江春水"].forEach((col, ci) => {
+          for (let i = 0; i < col.length; i += 1) g.fillText(col[i], 56 + ci * 72, 22 + i * 21);
+        });
         const tex = new THREE.CanvasTexture(c);
         tex.minFilter = THREE.LinearFilter;
         return tex;
-      };
-      const pieceTexes = [pieceTex(0), pieceTex(1), pieceTex(2), pieceTex(3, "春"), pieceTex(3, "水"), pieceTex(3, "月")];
-      const PIECE_COUNT = desktopLayout ? 48 : 26;
+      })();
+
+      const pieceGeos = [petalGeo, inkGeo, scrollGeo];
+      const pieceSizes = [1.05, 0.6, 0.92];
+      const pieceTints = [1, 0.34, 0.96];
+      const PIECE_COUNT = desktopLayout ? 42 : 24;
       for (let i = 0; i < PIECE_COUNT; i++) {
-        const kind = i % 4; // 纸笺 / 花瓣 / 墨点 / 诗字
-        const mesh = new THREE.Mesh(
-          new THREE.PlaneGeometry(1, 1),
-          new THREE.MeshBasicMaterial({ map: pieceTexes[kind === 3 ? 3 + (i % 3) : kind], transparent: true, opacity: 0, depthWrite: false, depthTest: false, color: 0xf3f0e6 })
-        );
-        mesh.userData = { kind, seed: Math.random() * 6.283, op: 0.3 + Math.random() * 0.42, z0: 0, x0: 0, y0: 0, delay: 0, spin: 0, rot: 0, travel: 1, rx: 0, ry: 0, rvx: 0, rvy: 0, drift: 20 };
+        const kind = i % 3; // 花瓣 / 墨珠 / 诗笺
+        let material;
+        if (kind === 0) {
+          material = new THREE.MeshLambertMaterial({ color: 0xf4efe2, side: THREE.DoubleSide, transparent: true, opacity: 0, depthWrite: false });
+        } else if (kind === 1) {
+          material = new THREE.MeshPhongMaterial({ color: 0x33453a, specular: 0x8fa596, shininess: 26, transparent: true, opacity: 0, depthWrite: false });
+        } else {
+          material = new THREE.MeshLambertMaterial({ map: scrollTex, color: 0xf4efe2, side: THREE.DoubleSide, transparent: true, opacity: 0, depthWrite: false });
+        }
+        const mesh = new THREE.Mesh(pieceGeos[kind], material);
+        mesh.userData = {
+          kind, tint: pieceTints[kind], size: pieceSizes[kind], seed: Math.random() * 6.283,
+          // 屏占：每件物件在画面里大约占多高，按深度反推世界尺寸，才不会近处糊满整屏
+          apparent: (kind === 0 ? 0.07 : kind === 1 ? 0.042 : 0.062) + Math.random() * 0.06,
+          op: (kind === 1 ? 0.2 : 0.24) + Math.random() * 0.26,
+          z0: 0, x0: 0, y0: 0, delay: 0, spin: 0, rot: 0,
+          travel: 1, rx: 0, ry: 0, spinX: 0, spinY: 0, rvx: 0, rvy: 0, drift: 20
+        };
         mesh.visible = false;
         scene.add(mesh);
         surging.push(mesh);
@@ -3866,18 +4009,15 @@
         d.x0 = (Math.random() - 0.5) * Math.abs(z) * 0.95;
         d.y0 = (Math.random() - 0.5) * Math.abs(z) * 0.6;
         d.rot = Math.random() * 6.283;
+        d.spinX = (Math.random() - 0.5) * 1.2;
+        d.spinY = (Math.random() - 0.5) * 1.6;
         d.spin = (Math.random() - 0.5) * 0.7;
         d.drift = 16 + Math.random() * 48;
         d.rx = d.ry = d.rvx = d.rvy = 0;
         d.delay = 0;
         mesh.position.set(d.x0, d.y0, z);
-        mesh.rotation.z = d.rot;
-        const s = 95 + Math.random() * 300;
-        mesh.scale.set(
-          s * (d.kind === 0 ? 1.15 : d.kind === 1 ? 0.72 : d.kind === 3 ? 0.9 : 0.5),
-          s * (d.kind === 0 ? 0.64 : d.kind === 3 ? 0.9 : 1),
-          1
-        );
+        mesh.rotation.set(d.spinX, d.spinY, d.rot);
+        mesh.scale.setScalar(0.849 * Math.abs(z) * d.apparent);
         mesh.material.opacity = d.op;
         mesh.visible = true;
       };
@@ -3894,14 +4034,11 @@
           d.delay = Math.random() * 0.28;
           d.spin = (Math.random() - 0.5) * 3.6;
           d.rot = Math.random() * 6.283;
+          d.spinX = (Math.random() - 0.5) * 3.4;
+          d.spinY = (Math.random() - 0.5) * 3.4;
           d.travel = far + 700;
           d.rx = d.ry = d.rvx = d.rvy = 0;
-          const s = 130 + Math.random() * 360;
-          mesh.scale.set(
-            s * (d.kind === 0 ? 1.2 : d.kind === 1 ? 0.66 : d.kind === 3 ? 0.92 : 0.5),
-            s * (d.kind === 0 ? 0.66 : d.kind === 3 ? 0.92 : 1),
-            1
-          );
+          mesh.scale.setScalar(0.849 * far * d.apparent);
           mesh.material.opacity = 0;
           mesh.visible = true;
         }
@@ -3981,11 +4118,22 @@
     lastX = event.clientX;
     lastY = event.clientY;
   }, { passive: true });
-  // 点击时墨色一振：雾粒轻轻鼓起（DOM 侧的墨晕与字条由既有全局点击互动负责）
+  // 点击时墨色一振：雾粒鼓起，近处的花瓣与诗笺被一圈气浪推开再浮回来
   window.addEventListener("click", () => {
     if (!narrativeReady()) return;
     pulse = Math.min(1, pulse + 0.55);
     wind.x += (Math.random() - 0.5) * 0.05;
+    for (let i = 0; i < surging.length; i++) {
+      const mesh = surging[i];
+      const d = mesh.userData;
+      const depth = Math.abs(mesh.position.z);
+      const ox = d.x0 + d.rx - pointerLerp.x * depth * 0.78;
+      const oy = d.y0 + d.ry - pointerLerp.y * depth * 0.5;
+      const dist = Math.sqrt(ox * ox + oy * oy) || 1;
+      const force = Math.max(0, 1 - dist / 1900) * 46;
+      d.rvx += (ox / dist) * force;
+      d.rvy += (oy / dist) * force;
+    }
   }, { passive: true });
 
   /* ---------- 六、主循环：风、脉冲、幕间色调全部缓动 ---------- */
@@ -4053,13 +4201,15 @@
             d.y0 * spread + Math.cos(now * 0.0004 + d.seed) * 22,
             d.z0 + local * d.travel
           );
-          mesh.rotation.z = d.rot + local * d.spin;
+          mesh.rotation.set(d.spinX + local * 2.4, d.spinY + local * 1.7, d.rot + local * d.spin);
           const fade = local < 0.08 ? local / 0.08 : local > 0.86 ? Math.max(0, (1 - local) / 0.14) : 1;
           mesh.material.opacity = fade * d.op;
-          mesh.material.color.copy(atmosphere.pieceColor);
+          // 屏占随飞出略微涨大，但封顶：掠过镜头时是"拂面"而不是糊满视野
+          mesh.scale.setScalar(0.849 * Math.max(120, -mesh.position.z) * d.apparent * (0.72 + local * 1.3));
+          mesh.material.color.copy(atmosphere.pieceColor).multiplyScalar(d.tint);
         }
       } else {
-        // 常态：四十八件漂浮物慢慢向镜头漂，指针靠近便拂开、点击一振
+        // 常态：四十二件立体花瓣 / 墨珠 / 诗笺慢慢向镜头漂，指针靠近便拂开、点击一振
         for (let i = 0; i < surging.length; i++) {
           const mesh = surging[i];
           const d = mesh.userData;
@@ -4069,7 +4219,9 @@
             d.x0 = (Math.random() - 0.5) * Math.abs(z) * 0.95;
             d.y0 = (Math.random() - 0.5) * Math.abs(z) * 0.6;
             d.rot = Math.random() * 6.283;
-            d.rx = d.ry = d.rvx = d.rvy = 0;
+            d.spinX = (Math.random() - 0.5) * 1.2;
+            d.spinY = (Math.random() - 0.5) * 1.6;
+            d.rvx = d.rvy = 0;
           }
           const depth = Math.abs(z);
           const px = pointerLerp.x * depth * 0.78;
@@ -4092,10 +4244,19 @@
             d.y0 + d.ry + Math.cos(now * 0.00036 + d.seed * 1.7) * 18,
             z
           );
-          mesh.rotation.z = d.rot;
+          // 按深度折算世界尺寸：飘到镜头前仍是小物，屏占恒定，不会糊住正文
+          mesh.scale.setScalar(0.849 * Math.max(320, -z) * d.apparent);
+          // 立体物件边飘边翻面：花瓣缓缓翻转，纸笺卷着自转
+          d.spinX += d.spinY * dt * 0.2;
+          d.spinY += -d.spinX * dt * 0.2;
+          mesh.rotation.set(
+            d.spinX + Math.sin(now * 0.0006 + d.seed) * 0.7,
+            d.spinY + Math.cos(now * 0.00052 + d.seed * 1.3) * 0.6,
+            d.rot
+          );
           const near = Math.min(1, Math.max(0, (-z - 430) / 1200));
           mesh.material.opacity = d.op * (0.38 + 0.62 * near) * (0.85 + pulse * 0.3);
-          mesh.material.color.copy(atmosphere.pieceColor).lerp(pieceWhite, 0.34 + pulse * 0.4);
+          mesh.material.color.copy(atmosphere.pieceColor).lerp(pieceWhite, 0.3 + pulse * 0.34).multiplyScalar(d.tint);
           if (!mesh.visible) mesh.visible = true;
         }
       }
