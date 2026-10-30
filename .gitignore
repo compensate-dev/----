@@ -1,0 +1,2 @@
+# Trae 预览/分享 HTML 时自动生成的打包缓存，不纳入版本管理
+.trae-html-share-packages/
