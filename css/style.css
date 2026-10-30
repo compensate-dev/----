@@ -9,6 +9,7 @@
 @font-face{font-family:"Xuandong Kaishu";src:url("../assets/font/xuandong-kaishu.ttf") format("truetype");font-style:normal;font-weight:400;font-display:swap}
 @font-face{font-family:"Liyu Xingkai";src:url("../assets/font/liyu-xingkai.ttf") format("truetype");font-style:normal;font-weight:400;font-display:swap}
 @font-face{font-family:"Liyu Xingkai UI";src:url("../assets/font/liyu-xingkai-header.ttf") format("truetype");font-style:normal;font-weight:400;font-display:swap}
+/* 全站设计令牌与基础重置：纸色/墨色 CSS 变量、双字体栈、盒模型、焦点可见性、跳转链接、选区配色 */
 :root{--paper:#f3f3ed;--paper-deep:#e9ece4;--ink:#24362e;--muted:#6d786d;--pine:#304d3f;--moss:#73806a;--rust:#a9684c;--gold:#c7aa77;--line:#d9ddd3;--serif:"Noto Serif SC","Songti SC",serif;--sans:"Manrope","Microsoft YaHei",sans-serif}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;scroll-padding-top:100px;scroll-snap-type:y proximity}
@@ -21,6 +22,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
 .skip-link:focus{transform:translateY(0)}
 .home-page:not(.book-opened) .skip-link{display:none}
 ::selection{background:#c8d1c3;color:#24362e}
+/* 顶部导航条：吸顶 + 毛玻璃，水墨导航底图；下接品牌、导航、音效开关与移动端汉堡钮 */
 .site-header{height:86px;padding:0 6.6%;display:flex;align-items:center;justify-content:space-between;gap:28px;background:linear-gradient(rgba(243,243,237,.76),rgba(243,243,237,.76)),url("../assets/image/navigation-background.jpg") center 52%/cover no-repeat;border-bottom:1px solid rgba(48,77,63,.1);position:sticky;top:0;z-index:20;backdrop-filter:blur(14px)}
 .site-header .brand,.site-footer .brand{font-family:"Liyu Xingkai UI",var(--serif);font-weight:400;font-size:19px;letter-spacing:.08em}
 .brand{display:flex;align-items:center;gap:12px;font-weight:600;letter-spacing:.12em;font-size:15px;line-height:1.25;white-space:nowrap}
@@ -36,6 +38,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
 .sound-toggle:hover{background:var(--pine);border-color:var(--pine);color:#fff}
 .sound-icon{color:var(--rust);font-size:15px}
 .menu-toggle{display:none;background:none;border:0;font-size:22px}
+/* 首页首屏 Hero：左文案右画框三段式，底图 + 指针视差变量 --hero-px/--hero-py */
 .hero{--hero-px:0;--hero-py:0;min-height:min(720px,calc(100vh - 86px));position:relative;overflow:hidden;padding:90px 10% 78px;display:flex;align-items:center;background:radial-gradient(ellipse at 83% 45%,rgba(210,218,203,.82),transparent 43%),linear-gradient(110deg,#f1f2ec 0%,#e8ece4 65%,#e0e7dc 100%)}
 .hero:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(243,243,237,.58),rgba(243,243,237,.24)),url("../assets/image/home-background.jpg") center 45%/cover no-repeat;opacity:.72;pointer-events:none}
 .hero-copy{position:relative;z-index:2;width:52%;max-width:610px}
@@ -71,6 +74,7 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}
 @keyframes link-arrow-nudge{0%,100%{translate:0 0}50%{translate:5px 0}}
 .hero-verse{display:flex;align-items:center;gap:14px;color:#304638;font-size:16px;letter-spacing:.07em;margin-top:42px;text-shadow:0 1px 0 rgba(243,243,237,.78)}
 .verse-rule{height:1px;width:35px;background:var(--rust)}
+/* 右侧画框：圆拱描金框 + 底图/人物/灯笼三层视差 + 竖排诗签与印章 + 底部云层飘移 */
 .hero-art{position:absolute;width:min(44vw,570px);height:min(48vw,570px);right:10%;top:48%;transform:translateY(-49%);overflow:hidden;background:#273a48;border:1px solid rgba(199,170,119,.72);border-radius:48% 48% 5px 5px;box-shadow:0 0 0 5px rgba(243,243,237,.68),0 0 0 6px rgba(169,104,76,.38),0 28px 65px rgba(35,54,46,.18)}
 .hero-art-scroll{will-change:transform;transform:translateY(calc(-49% + var(--scroll-y,0px) * .16))}
 .hero-scene{position:absolute;inset:0;border-radius:inherit;overflow:hidden}
@@ -103,6 +107,7 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}
 .scroll-line{width:80px;height:1px;background:#bdc7ba}
 .hero-bottom span:last-child{margin-left:auto;color:#a0a79d}
 .section-wrap{padding-left:10%;padding-right:10%}
+/* 首页·诗人小传区（intro）：三栏网格（画像 / 标题导语 / 导语卡），底图随滚动纵向视差 */
 .intro{display:grid;grid-template-columns:.45fr 1.05fr .8fr;gap:45px;padding-top:120px;padding-bottom:128px;align-items:start;background:linear-gradient(rgba(243,243,237,.68),rgba(243,243,237,.68)),url("../assets/image/intro-background.jpg") center calc(50% + var(--scroll-y,0px))/cover no-repeat}
 .intro-poet{min-width:0;position:relative;z-index:1}
 .intro-heading{position:relative;z-index:1}
@@ -120,6 +125,7 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}
    须置于文件后部 700px 移动端规则之前，避免覆盖移动端字号 */
 .intro-heading p{font-size:20px}
 .screen-world-heading p{font-size:16px;color:var(--ink);font-weight:500}
+/* 导语卡：纸面渐变 + 内描边双框，右侧墨弧轨道纹遮罩 */
 .intro-card{position:relative;z-index:1;margin-top:37px;min-height:255px;padding:31px 30px;background:linear-gradient(135deg,rgba(249,249,242,.96),rgba(239,241,232,.96));border:1px solid #42554a;border-radius:21px;box-shadow:0 8px 24px rgba(47,62,49,.08);overflow:hidden}
 .intro-card:before{content:"";position:absolute;inset:5px;border:1px solid rgba(48,77,63,.72);border-radius:16px;pointer-events:none}
 .card-index{font:9px var(--sans);letter-spacing:.17em;color:#818b7f}
@@ -128,6 +134,7 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}
 .card-orbit{position:absolute;width:36%;height:100%;right:0;bottom:0;opacity:.82;pointer-events:none;background:radial-gradient(ellipse 118% 58% at 104% 16%,transparent 62%,rgba(87,125,118,.42) 62.7%,transparent 63.5%),radial-gradient(ellipse 112% 55% at 101% 33%,transparent 64%,rgba(87,125,118,.33) 64.7%,transparent 65.5%),radial-gradient(ellipse 120% 62% at 106% 53%,transparent 65%,rgba(87,125,118,.37) 65.7%,transparent 66.5%),radial-gradient(ellipse 115% 55% at 103% 76%,transparent 63%,rgba(87,125,118,.3) 63.7%,transparent 64.5%),radial-gradient(ellipse 120% 60% at 107% 94%,transparent 65%,rgba(87,125,118,.35) 65.7%,transparent 66.5%);mask-image:linear-gradient(90deg,transparent,#000 42%)}
 .card-orbit:after{content:"";position:absolute;inset:0;border:0;border-radius:0;background:linear-gradient(115deg,transparent 22%,rgba(125,157,147,.07),transparent 75%)}
 .under-link{display:inline-block}
+/* 词牌卡区（feature-section）：四张词牌卡网格，卡头图 + 编号标签 + 悬停抬升放大 */
 .feature-section{padding:93px 10% 110px;background:#e9ebe4}
 .feature-head{padding:0;display:flex;justify-content:space-between;align-items:end;margin:0 0 38px}
 .feature-head h2{margin:15px 0 0}
@@ -150,6 +157,7 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}
 .poem-arrow{position:absolute;bottom:18px;right:20px;z-index:1;font-size:18px;color:#e7d7ba}
 @media(prefers-reduced-motion:reduce){.poem-card,.poem-card-image{transition:none;will-change:auto}.poem-card:hover,.poem-card:focus-visible,.poem-card:hover .poem-card-image,.poem-card:focus-visible .poem-card-image{transform:none}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.life-hero-video,.listen-hero-video,.wanxiang-hero-video{display:none}}
+/* 余音区（afterlife-section）：满幅底图视差 + 大标题对句 + 行动按钮 */
 .afterlife-section{position:relative;isolation:isolate;min-height:370px;padding-top:62px;padding-bottom:70px;display:flex;flex-direction:column;justify-content:center;overflow:hidden;background:#f3f3ed}
 .afterlife-section:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(238,240,232,.3),rgba(238,240,232,.2) 66%,rgba(238,240,232,.16)),url("../assets/image/afterlife-background.jpg") center calc(53% + var(--scroll-y,0px))/cover no-repeat;opacity:.56}
 .afterlife-section>.section-kicker{color:#755e40;text-shadow:0 1px 12px rgba(255,255,255,.5)}
@@ -159,6 +167,7 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}
 .afterlife-copy h2 em{font-style:normal;color:#755b3f}
 .afterlife-copy p{max-width:500px;margin:0;color:#4f594e;font-size:13px;line-height:2.1;text-shadow:0 1px 14px rgba(255,255,245,.85)}
 .afterlife-copy .button{flex-shrink:0;box-shadow:0 3px 18px rgba(255,255,245,.48)}
+/* 结尾区（closing）：三栏 —— 松枝竖排 / 结语 / 心情留言板，底图视差 */
 .closing{position:relative;isolation:isolate;padding-top:108px;padding-bottom:110px;display:grid;grid-template-columns:.35fr 1fr .85fr;gap:45px;align-items:center}
 .closing:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(rgba(238,240,232,.14),rgba(238,240,232,.14)),url("../assets/image/closing-background.jpg") center calc(54% + var(--scroll-y,0px))/cover no-repeat;opacity:.56}
 .closing-pine{color:#879483;font-size:13px;letter-spacing:.3em;writing-mode:vertical-rl;border-left:1px solid #b8c1b5;height:170px;padding:10px 0 0 16px;animation:pine-sway 8s ease-in-out infinite;transform-origin:top left}
@@ -174,10 +183,12 @@ textarea::placeholder{color:#9aa297}
 .form-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:12px;font:10px var(--sans);color:#8b9389}
 .form-bottom button{border:0;background:none;color:var(--pine);font-size:10px;letter-spacing:.06em;cursor:pointer}
 .mood-feedback,.poem-feedback{font-size:11px;color:var(--rust);margin:10px 0 0;min-height:1.5em}
+/* 页脚：品牌落款 + 江水底图 + 右侧回链 */
 .site-footer{position:relative;isolation:isolate;min-height:112px;background:transparent;padding:25px 6.6%;display:flex;align-items:center;justify-content:space-between;gap:20px;border-top:1px solid #d9ddd4}
 .site-footer:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(rgba(243,243,237,.2),rgba(243,243,237,.2)),url("../assets/image/footer-river-background.jpg") center 53%/cover no-repeat}
 .site-footer>span{font-family:"Liyu Xingkai UI",var(--serif);font-size:15px;color:#59675b;letter-spacing:.06em}
 .site-footer>a:last-child{font-family:"Liyu Xingkai UI",var(--serif);font-size:14px;color:var(--pine);border-bottom:1px solid #bac3b8;padding-bottom:5px}
+/* 内页首屏（subhero）通用骨架：左文右饰；月色故人 / 枕上低语 / 帘外余音各页覆写底图与视频层 */
 .subhero{min-height:435px;padding:75px 10%;display:flex;align-items:center;justify-content:space-between;position:relative;overflow:hidden;background:linear-gradient(118deg,#eef0e9,#e0e7dc)}
 .life-hero{background:linear-gradient(90deg,rgba(238,240,233,.34),rgba(238,240,233,.16)),url("../assets/image/life-background.jpg") center 48%/cover no-repeat}
 .life-hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
@@ -192,12 +203,14 @@ textarea::placeholder{color:#9aa297}
 .subhero-mark{z-index:2;margin-right:12%;font:12px var(--sans);font-weight:600;color:#304638;display:grid;grid-template-columns:auto 1px auto;gap:13px;align-items:center;letter-spacing:.1em;text-shadow:0 1px 0 rgba(243,243,237,.8)}
 .subhero-mark .mark-line{height:72px;background:#748574}
 .subhero-mark small{grid-column:1 / -1;line-height:1.8;font-size:10px;color:#405748;font-weight:500}
+/* 月色故人页 · 生平长栏（story）：中缝花纹饰 + 两栏导语 + 底图滚动视差 */
 .story{position:relative;padding-top:94px;padding-bottom:95px;border-top:1px solid rgba(169,104,76,.34);background:linear-gradient(180deg,rgba(243,243,237,.62),rgba(243,243,237,.48) 24%,rgba(243,243,237,.54)),url("../assets/image/life-story-background.jpg") center calc(48% + var(--scroll-y,0px))/cover no-repeat}
 .story:before{content:"\2767\3000\2727\3000\2767";position:absolute;top:-17px;left:50%;transform:translateX(-50%);padding:0 20px;background:#f0f0e8;color:#9b7054;font-size:18px;line-height:32px;letter-spacing:.16em;text-shadow:0 1px 0 rgba(255,255,255,.7)}
 .story>.section-kicker{margin-bottom:28px}
 .story-lead{display:grid;grid-template-columns:1fr 1fr;gap:10%;padding:0 0 55px 18%}
 .story-lead h2{font-size:37px;margin:0}
 .story-lead p{margin:4px 0 0}
+/* 生平时间线：左侧年份、朱砂圆点、卡片，点击弹出故事对话框（timeline-story-dialog） */
 .timeline{position:relative;margin-left:20%;padding:10px 0 0 54px;border-left:1px solid #cbd2c8}
 .timeline-item{position:relative;display:grid;grid-template-columns:1fr;max-width:690px;padding:0 0 39px}
 .timeline-year{position:absolute;right:calc(100% + 76px);top:0;font:600 22px var(--sans);color:#80513e;letter-spacing:.06em;text-shadow:0 1px 0 rgba(243,243,237,.9)}
@@ -221,12 +234,14 @@ textarea::placeholder{color:#9aa297}
 .timeline-card h3{font-size:22px;font-weight:500;letter-spacing:.07em;margin:9px 0}
 .timeline-card p{font-size:15px;color:#59675a;line-height:2.05;margin:0 0 12px}
 .timeline-quote{font-size:14px;color:#4b5e4d}
+/* 深底引言块（life-note）与页尾转场（next-step） */
 .life-note{padding:56px 20px;background:#304b3d;text-align:center;color:#f1eee4;position:relative}
 .life-note blockquote{margin:0 0 16px;font-size:27px;letter-spacing:.15em;line-height:1.9}
 .life-note>span:last-child{font:10px var(--sans);letter-spacing:.1em;color:#c0c8b9}
 .note-ornament{position:absolute;font:100px Georgia;color:rgba(255,255,255,.12);top:4px;left:calc(50% - 160px)}
 .next-step{display:flex;justify-content:space-between;align-items:center;padding-top:88px;padding-bottom:88px}
 .next-step h2{font-size:31px;margin:15px 0 0}
+/* 帘外余音页首屏（wanxiang-hero）：视频底图 + 右侧竖排巨字水印 */
 .wanxiang-hero{position:relative;isolation:isolate;min-height:540px;gap:7%;background:#dfe6dc}
 .wanxiang-hero:before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(100deg,rgba(239,241,234,.62),rgba(224,232,222,.34));pointer-events:none}
 .wanxiang-hero-video{position:absolute;inset:0;z-index:0;width:100%;height:100%;object-fit:cover;object-position:center 50%}
@@ -236,6 +251,7 @@ textarea::placeholder{color:#9aa297}
 .wanxiang-hero .subhero-copy>p:not(.eyebrow){max-width:460px;color:#405248;font-size:14px;line-height:2.2;letter-spacing:.04em}
 .wanxiang-hero .button{margin-top:15px}
 .wanxiang-mark{position:absolute;right:3%;top:13%;z-index:1;color:rgba(169,104,76,.14);font-size:clamp(65px,9vw,130px);line-height:1.1;writing-mode:vertical-rl;letter-spacing:.18em;pointer-events:none}
+/* 记忆卡区（memory-section）：两栏导语 + 三张记忆卡 + 故事对话框，底部分置山影 */
 .memory-section{padding-top:100px;padding-bottom:106px}
 .memory-section>.section-kicker{margin-bottom:28px}
 .memory-lead{display:grid;grid-template-columns:1fr 1fr;gap:9%;padding-left:18%;align-items:start}
@@ -275,6 +291,7 @@ textarea::placeholder{color:#9aa297}
 .screen-world-heading{display:grid;grid-template-columns:1fr 1fr;gap:9%;align-items:end;margin-left:18%;margin-bottom:36px;translate:0 calc((var(--glide-p,.5) - .5)*30px)}
 .screen-world-heading h2{font-size:clamp(30px,3.1vw,42px);line-height:1.65;font-weight:500;letter-spacing:.06em;margin:0}
 .screen-world-heading p{max-width:460px;font-size:13px;line-height:2.2;color:#68766b;margin:0 7% 7px 0}
+/* 书影卡（media-card）：四角金线 + 序号印章角标，hover 上浮描金 */
 .media-card{min-width:0;position:relative;background:linear-gradient(160deg,rgba(252,250,242,.92),rgba(245,241,229,.93));border:1px solid rgba(199,170,119,.42);box-shadow:0 12px 30px rgba(49,67,53,.07);transition:transform .5s cubic-bezier(.2,.7,.25,1),box-shadow .5s ease,border-color .5s ease}
 .media-card::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:2;opacity:.7;background:linear-gradient(var(--gold),var(--gold)) top left/16px 1px no-repeat,linear-gradient(var(--gold),var(--gold)) top left/1px 16px no-repeat,linear-gradient(var(--gold),var(--gold)) top right/16px 1px no-repeat,linear-gradient(var(--gold),var(--gold)) top right/1px 16px no-repeat,linear-gradient(var(--gold),var(--gold)) bottom left/16px 1px no-repeat,linear-gradient(var(--gold),var(--gold)) bottom left/1px 16px no-repeat,linear-gradient(var(--gold),var(--gold)) bottom right/16px 1px no-repeat,linear-gradient(var(--gold),var(--gold)) bottom right/1px 16px no-repeat;transition:opacity .4s ease}
 .media-card::after{position:absolute;top:16px;right:16px;width:36px;height:36px;display:grid;place-items:center;font-family:"Liyu Xingkai",var(--serif);font-size:19px;color:#f6ecd6;background:rgba(169,104,76,.9);border-radius:3px;box-shadow:0 3px 10px rgba(169,104,76,.38),inset 0 0 0 1px rgba(246,236,214,.32);z-index:5;letter-spacing:0}
@@ -341,6 +358,7 @@ textarea::placeholder{color:#9aa297}
 }
 .media-slide::after{display:none}
 @media(hover:hover) and (pointer:fine){.media-card:not(.media-slide):hover{transform:translateY(-7px);border-color:rgba(199,170,119,.85);box-shadow:0 22px 48px rgba(49,67,53,.14)}.media-card:hover::before{opacity:1}}
+/* 无图占位卡：素纸底 + 内框 + 类型/编号角标 + 中央说明 */
 .media-placeholder{position:relative;display:grid;place-items:center;aspect-ratio:1.72;min-height:180px;overflow:hidden;background-color:#e3e7dd;color:#69786a}
 .media-placeholder:before{content:"";position:absolute;inset:12px;border:1px solid rgba(101,123,104,.31);pointer-events:none}
 .media-placeholder:after{content:"";position:absolute;inset:0;background:linear-gradient(145deg,rgba(255,255,255,.38),transparent 43%,rgba(68,89,70,.07));pointer-events:none}
@@ -363,6 +381,7 @@ textarea::placeholder{color:#9aa297}
 .media-caption h4{margin:10px 0 14px;color:#966149;font-size:13px;letter-spacing:.12em;font-weight:400;font-family:"Liyu Xingkai",var(--serif)}
 .media-caption p+p{margin-top:10px}
 .media-caption-note{display:block;margin-top:16px;padding:10px 14px;border-left:2px solid var(--gold);background:rgba(199,170,119,.08);font-size:11px;line-height:1.9;color:#7c7468;font-style:italic}
+/* 帘外余音页尾：脚注与总结笺 */
 .screen-world-footnote{margin:24px 0 0 18%;padding-left:13px;border-left:1px solid rgba(169,104,76,.55);font-size:10px;line-height:1.9;color:#7b8478}
 .media-art{position:relative;display:block;height:clamp(250px,28vw,360px);margin:0;overflow:hidden;border-bottom:1px solid rgba(199,170,119,.32);cursor:zoom-in;background:#eae4d4}
 .media-art:after{content:"";position:absolute;inset:10px;border:1px solid rgba(199,170,119,.55);pointer-events:none;z-index:2;box-shadow:inset 0 0 0 1px rgba(36,54,46,.18)}
@@ -383,10 +402,12 @@ textarea::placeholder{color:#9aa297}
 .screen-world-summary>span{font:8px var(--sans);letter-spacing:.18em;color:#9b6852}
 .screen-world-summary p{font-size:13px;line-height:2.1;letter-spacing:.035em;color:#435348;margin:10px 0 0}
 .screen-world-summary p+p{font-size:12px;color:#738074;margin-top:6px}
+/* 活态回响区（living-echo）：居中引文与大引号装饰 */
 .living-echo{position:relative;padding-top:86px;padding-bottom:82px;text-align:center;background:radial-gradient(ellipse at 50% 50%,rgba(207,216,201,.55),transparent 65%)}
 .echo-quote{display:block;height:43px;font:72px Georgia,serif;line-height:1;color:rgba(169,104,76,.48)}
 .living-echo p{font-size:clamp(20px,2.5vw,29px);letter-spacing:.1em;line-height:2;margin:9px 0 17px}
 .living-echo>span:last-child{font:9px var(--sans);letter-spacing:.19em;color:#8b7660}
+/* 词间春水页首屏（ci-hero）：淡彩底 + 背景漂移层 + 漂浮诗句圆章 */
 .ci-hero{isolation:isolate;background:radial-gradient(ellipse at 80% 50%,rgba(201,215,200,.6),transparent 36%),linear-gradient(115deg,#eff0e9,#e3e9e0)}
 .ci-hero-drift{position:absolute;inset:0;z-index:0;pointer-events:none}
 .ci-hero-drift:before{content:"";position:absolute;inset:0;background:url("../assets/image/ci-hero-background.jpg") center 48%/cover no-repeat;opacity:.24}
@@ -396,11 +417,13 @@ textarea::placeholder{color:#9aa297}
 .floating-verse span{font-size:12px;letter-spacing:.3em;writing-mode:vertical-rl}
 .floating-verse b{font-weight:500;font-size:40px;color:var(--rust);margin-top:8px}
 .floating-verse small{font:8px var(--sans);letter-spacing:.2em;margin-top:10px}
+/* 词间春水主体（works）：词条列表容器，上下留白与分隔线 */
 .works{padding-top:95px;padding-bottom:80px}
 .works>.section-kicker{margin-bottom:27px}
 .works-heading{display:flex;justify-content:space-between;align-items:end;margin-left:18%;margin-bottom:34px}
 .works-heading h2{font-size:35px;margin:0}
 .works-heading p{font-size:12px;color:#727d72;line-height:2.1;margin:0 7% 5px 0}
+/* 词卷画廊（poem-gallery）：行楷字族 + 透视场，背景视差 --gallery-parallax */
 .poem-gallery{font-family:"Liyu Xingkai",var(--serif);font-weight:400;color:#354439;perspective:1400px}
 .poem-gallery:before{will-change:transform;transform:translate3d(0,calc(var(--gallery-parallax,0px) * -.18),0) scale(1.04)}
 .poem-tabs{margin:6px 0 0 18%;display:flex;align-items:center;gap:34px;border-bottom:none;padding:0}
@@ -408,6 +431,7 @@ textarea::placeholder{color:#9aa297}
 .poem-tabs a:hover{color:var(--rust)}
 .poem-tabs a.is-active{color:var(--rust)}
 .poem-tabs a.is-active:before{content:"";position:absolute;left:-14px;top:50%;transform:translateY(-50%);width:6px;height:6px;background:var(--gold);box-shadow:0 0 8px rgba(199,170,119,.7)}
+/* 单阕词条（work-entry）：三栏网格；--entry-progress 驱动序号水印、金线与逐行晕开 */
 .work-entry{display:grid;grid-template-columns:12% 1fr 20%;gap:28px;padding:52px 0 56px;border-bottom:1px solid rgba(199,170,119,.18);scroll-margin-top:100px;position:relative;transform-style:preserve-3d;scroll-snap-align:center;transition:box-shadow .6s ease}
 .work-entry.is-active{box-shadow:0 0 70px -34px rgba(199,170,119,.45)}
 .work-entry:before{content:"";position:absolute;left:-2%;top:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--gold),var(--rust));transform:scaleY(var(--entry-progress,0));transform-origin:top;opacity:.4;box-shadow:0 0 14px rgba(199,170,119,.4)}
@@ -435,6 +459,7 @@ textarea::placeholder{color:#9aa297}
 .work-entry.is-active .work-side{border-left-color:var(--gold);box-shadow:-10px 0 30px -18px rgba(199,170,119,.5)}
 .work-side span{font-family:"Liyu Xingkai",var(--serif);font-size:14px;color:#8d523c;letter-spacing:.12em}
 .work-side p{font-size:14px;color:#4d594d;line-height:2;margin:7px 0 0}
+/* 侧注与折叠笺注（annotation）：details 展开赏析 */
 .annotation{margin-top:20px;border-top:1px solid #d8ddd4;max-width:660px;opacity:var(--entry-progress,.3);transition:opacity .5s ease}
 .annotation summary{cursor:pointer;list-style:none;padding:11px 0;font-size:14px;color:#4d5a4e}
 .annotation summary::-webkit-details-marker{display:none}
@@ -443,18 +468,21 @@ textarea::placeholder{color:#9aa297}
 .annotation>div{padding:3px 0 5px}
 .annotation p{font-size:14px;color:#414f43;line-height:2.1;margin:9px 0}
 .annotation strong{color:#405544;font-weight:500}
+/* 枕上低语页首屏（listen-hero 覆写）：暖调淡彩底 + 声纹圆环装饰 */
 .listen-hero{background:radial-gradient(ellipse at 78% 50%,rgba(215,207,184,.36),transparent 30%),linear-gradient(120deg,#ecefe7,#e1e8df)}
 .sound-orbit{position:relative;z-index:2;width:210px;height:210px;margin-right:14%;border:1px solid rgba(111,129,110,.35);border-radius:50%;display:grid;place-items:center;color:var(--rust);font-size:46px}
 .sound-orbit:before,.sound-orbit:after,.sound-orbit i,.sound-orbit b{content:"";position:absolute;inset:15px;border:1px solid rgba(111,129,110,.24);border-radius:50%}
 .sound-orbit:after{inset:-16px;border-style:dashed;opacity:.6}
 .sound-orbit i{inset:32px}.sound-orbit b{inset:49px;background:rgba(194,203,188,.2)}
 .sound-orbit small{position:absolute;bottom:-44px;font:8px var(--sans);letter-spacing:.2em;color:#818b7f}
+/* 枕上低语主体（listen-content）：诵读卡列表，底图随滚动视差 */
 .listen-content{position:relative;isolation:isolate;padding-top:95px;padding-bottom:80px;background:#f3f3ed}
 .listen-content:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(rgba(243,243,237,.76),rgba(243,243,237,.82)),url("../assets/image/listen-recitation-background.jpg") center calc(47% + var(--scroll-y,0px))/cover no-repeat}
 .listen-content>.section-kicker{margin-bottom:27px}
 .listen-title{display:flex;justify-content:space-between;align-items:end;margin-left:18%;margin-bottom:34px}
 .listen-title h2{font-size:35px;margin:0}
 .listen-title p{font-size:12px;margin:0 7% 5px 0}
+/* 诵读卡列表容器：左移 18% 让位左侧竖排标题 */
 .recite-list{margin-left:18%}
 .recite-card{display:grid;grid-template-columns:190px 1fr;gap:31px;padding:21px 0;border-bottom:1px solid var(--line)}
 .recite-art{min-height:158px;position:relative;overflow:hidden;background:linear-gradient(150deg,#8a9a82,#435d4a);background-position:center calc(50% + var(--scroll-y,0px));background-size:cover;display:flex;flex-direction:column;justify-content:center;align-items:center;color:#f4f0e5}
@@ -470,6 +498,7 @@ textarea::placeholder{color:#9aa297}
 .recite-info h3{font-size:19px;font-weight:500;letter-spacing:.08em;margin:8px 0}
 .recite-info p{font-size:11px;color:#7c857b;margin:0}
 .recite-buttons{margin-top:17px}
+/* 互动写词区（interactive）：提示词 + 词笺表单 + 风送字迹动画 */
 .interactive{padding-top:84px;padding-bottom:84px;background:#e9ebe4}
 .listen-interactive{position:relative;isolation:isolate}
 .listen-interactive:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(rgba(243,243,237,.61),rgba(243,243,237,.68)),url("../assets/image/listen-writing-background.jpg") center calc(48% + var(--scroll-y,0px))/cover no-repeat}
@@ -489,6 +518,7 @@ textarea::placeholder{color:#9aa297}
 .wind-current:nth-child(3){width:76%;height:44%;border-color:rgba(116,139,119,.34)}
 @keyframes wind-carry-away{0%{opacity:0;transform:translate(0,8px) rotate(0) scale(.94)}12%{opacity:1}100%{opacity:0;transform:translate(var(--wind-x),var(--wind-y)) rotate(var(--wind-turn)) scale(.18);filter:blur(2px)}}
 @keyframes wind-sweep{0%{opacity:0;transform:translate(-50%,-50%) rotate(var(--wind-angle)) scaleX(.18)}18%{opacity:.75}100%{opacity:0;transform:translate(calc(-50% + 34px),calc(-50% - 20px)) rotate(calc(var(--wind-angle) - 18deg)) scaleX(1.15)}}
+/* 全站音频面板：固定右侧，hidden 控制显隐，含本地音频上传 */
 .audio-panel{position:fixed;right:25px;top:100px;width:min(340px,calc(100vw - 32px));z-index:40;padding:25px;background:#f7f6ef;box-shadow:0 15px 55px rgba(31,50,38,.2);border:1px solid #dce0d7}
 .audio-panel[hidden]{display:none}
 .audio-panel strong{font-size:16px;font-weight:500;letter-spacing:.06em}
@@ -498,9 +528,11 @@ textarea::placeholder{color:#9aa297}
 .audio-close{position:absolute;top:12px;right:14px;border:0;background:none;font-size:21px;color:#718071;cursor:pointer}
 .file-button{display:inline-flex;padding:8px 12px;background:var(--pine);color:white;font:10px var(--sans);cursor:pointer}
 .file-button input{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+/* 顶部阅读进度条 + 右下回顶按钮 */
 .reading-progress{position:fixed;top:0;left:0;width:100%;height:3px;z-index:30;transform:scaleX(0);transform-origin:left center;background:linear-gradient(90deg,#9c654d,#c7aa77,#73806a);pointer-events:none}
 .back-to-top{position:fixed;right:24px;bottom:24px;z-index:25;width:44px;height:44px;border:1px solid rgba(48,77,63,.24);border-radius:50%;background:rgba(243,243,237,.9);color:var(--pine);font-size:22px;line-height:1;cursor:pointer;box-shadow:0 5px 18px rgba(36,54,46,.12);transition:transform .2s,background .2s,box-shadow .2s}
 .back-to-top:hover{transform:translateY(-3px);background:#fff;box-shadow:0 8px 22px rgba(36,54,46,.18)}
+/* 通用工具类：滚动渐显、整组/慢速/背景视差（JS 写 --scroll-y） */
 .reveal-on-scroll{opacity:0;transform:translateY(22px);transition:opacity .7s cubic-bezier(.2,.65,.25,1) var(--reveal-delay,0ms),transform .7s cubic-bezier(.2,.65,.25,1) var(--reveal-delay,0ms)}
 .reveal-on-scroll.is-visible{opacity:1;transform:translateY(0)}
 .scroll-parallax{will-change:transform;transform:translate3d(0,var(--scroll-y,0px),0)}
@@ -510,6 +542,7 @@ textarea::placeholder{color:#9aa297}
 .img-parallax{will-change:transform;transform:translate3d(0,calc(var(--scroll-y,0px) * -.5),0) scale(1.08)}
 .portrait-frame{overflow:hidden}
 @media(prefers-reduced-motion:reduce){.img-parallax{transform:none;will-change:auto}}
+/* 全屏氛围层：竹叶 canvas、点击墨点涟漪、翻页涟漪与 main 转场 */
 .bamboo-leaves{position:fixed;inset:0;z-index:1010;pointer-events:none;width:100%;height:100%;opacity:.52;mix-blend-mode:normal}
 @media(max-width:700px){.bamboo-leaves{opacity:.38}}
 .click-ripple{position:fixed;inset:0;z-index:999;overflow:hidden;pointer-events:none}
@@ -524,7 +557,9 @@ main{transition:opacity .24s ease,transform .24s ease,filter .24s ease}
 html.page-transitioning main{opacity:.08;transform:translateY(8px) scale(.995);filter:blur(3px)}
 @keyframes page-ripple-wave{0%{transform:translate(-50%,-50%) scale(.015);opacity:0}12%{opacity:1}100%{transform:translate(-50%,-50%) scale(1.35);opacity:0}}
 @keyframes click-ripple-wave{0%{transform:translate(-50%,-50%) scale(.12);opacity:0}16%{opacity:.9}100%{transform:translate(-50%,-50%) scale(1);opacity:0}}
+/* 1000px 断点：栅格收窄、边距与字号整体降档 */
 @media(max-width:1000px){.site-header{padding:0 4%}.main-nav{gap:22px}.hero{padding-left:7%;padding-right:7%}.hero-art{right:4%;width:50vw;height:50vw}.section-wrap{padding-left:7%;padding-right:7%}.intro{grid-template-columns:.3fr 1fr .8fr;gap:26px}.feature-section{padding-left:7%;padding-right:7%}.poem-card{padding:19px 15px}.closing{grid-template-columns:.2fr 1fr .9fr;gap:25px}.subhero{padding-left:7%;padding-right:7%}.works,.listen-content,.story{padding-left:7%;padding-right:7%}.work-entry{grid-template-columns:8% 1fr 18%;gap:18px}}
+/* 700px 移动端：汉堡菜单、单栏重排、画框与字号缩放 */
 @media(max-width:700px){html{scroll-padding-top:75px}.site-header{height:70px;padding:0 5%}.brand{font-size:13px}.brand-seal{width:34px;height:34px}.menu-toggle{display:block;margin-left:auto;order:3}.sound-toggle{order:2;padding:7px 10px}.sound-toggle span:last-child{display:none}.main-nav{display:none;position:absolute;left:0;right:0;top:69px;height:auto;padding:11px 5% 19px;background:rgba(243,243,237,.98);border-bottom:1px solid var(--line);gap:0;flex-direction:column;align-items:stretch}.main-nav.open{display:flex}.main-nav a{height:auto;padding:12px 5px}.main-nav a.active:after{left:auto;right:4px;bottom:18px}.hero{min-height:810px;min-height:calc(100svh - 70px);padding:72px 7% 50px;align-items:flex-start}.hero-copy{width:100%;max-width:none}.hero h1{font-size:48px}.hero-intro{max-width:330px;font-size:12px}.hero-art{top:auto;bottom:22px;right:0;transform:none;width:91vw;height:390px;border-radius:48% 48% 4px 4px}.art-label{top:11%;left:17%;font-size:9px}.art-poem{right:7%;bottom:16%;font-size:12px}.art-stamp{bottom:8%;left:8%;width:48px;height:38px;font-size:8px}.hero-verse{margin-top:30px;font-size:10px}.hero-bottom{bottom:13px;left:7%;right:7%;font-size:8px}.hero-bottom .scroll-line{width:45px}.intro{grid-template-columns:1fr;gap:16px;padding-top:72px;padding-bottom:78px}.intro-poet{display:grid;grid-template-columns:1fr;justify-items:start}.portrait-frame{width:min(100%,360px);margin-top:20px}.poet-portrait{aspect-ratio:1.42;object-position:center 24%}.intro-heading{padding-left:0}.intro-heading h2,.feature-head h2,.story-lead h2,.works-heading h2,.listen-title h2,.interactive h2,.next-step h2,.closing h2{font-size:29px}.intro-card{margin:5px 0 0;min-height:210px}.feature-section{padding:66px 6% 73px}.feature-head{align-items:start;gap:15px}.feature-head .under-link{margin-top:30px;white-space:nowrap;font-size:10px}.poem-grid{grid-template-columns:repeat(2,1fr);gap:9px}.poem-card{min-height:230px;padding:17px 14px}.poem-card h3{font-size:21px;margin-top:35px}.poem-card p{font-size:11px}.closing{grid-template-columns:36px 1fr;padding-top:70px;padding-bottom:70px;gap:16px}.closing-pine{height:145px}.closing .mood-form{grid-column:1/-1}.site-footer{padding:24px 5%;flex-wrap:wrap}.site-footer>span{display:none}.site-footer .brand small{font-size:11px}.site-header .brand{font-size:17px}.site-header .brand small{font-size:11px}.subhero{min-height:390px;padding:55px 7%;align-items:flex-start}.subhero h1{font-size:43px}.subhero-copy>p:not(.eyebrow){font-size:12px;max-width:290px}.subhero-mark,.floating-verse,.sound-orbit{position:absolute;right:7%;bottom:24px;transform:scale(.72);transform-origin:bottom right;margin:0}.subhero-mark{right:15%;bottom:52px}.story,.works,.listen-content{padding:65px 7%}.story>.section-kicker,.works>.section-kicker,.listen-content>.section-kicker{margin-bottom:20px}.story-lead{grid-template-columns:1fr;gap:14px;padding:0 0 35px 0}.story-lead h2{font-size:30px}.timeline{margin-left:12px;padding-left:28px}.timeline-item{padding-bottom:24px}.timeline-year{position:static;display:block;margin-bottom:8px}.timeline-dot{left:-33px;top:6px}.timeline-card{padding:18px 17px}.timeline-card h3{font-size:17px}.timeline-card p{font-size:11px}.timeline-story-dialog{width:calc(100vw - 24px);max-height:86vh;padding:27px 21px}.timeline-story-close{margin:-12px -10px 0 10px}.timeline-story-content p{font-size:14px;line-height:1.95}.timeline-story-content blockquote{font-size:18px}.life-note blockquote{font-size:22px}.next-step{padding-top:62px;padding-bottom:62px;gap:15px}.next-step h2{font-size:25px}.next-step .button{padding:10px 13px;gap:10px;white-space:nowrap;font-size:9px}.works-heading,.listen-title{display:block;margin:0 0 22px}.works-heading h2,.listen-title h2{font-size:30px;margin-bottom:10px}.works-heading p,.listen-title p{font-size:11px}.poem-tabs{margin:0 -2px;gap:16px;overflow-x:auto;white-space:nowrap}.work-entry{grid-template-columns:34px 1fr;gap:10px;padding:27px 0}.work-number{font-size:20px}.work-main h3{font-size:22px}.work-main h3 small{display:block;margin:1px 0 0;font-size:10px}.poem-text{font-size:13px;line-height:2.1}.work-side{display:none}.work-actions{gap:14px}.work-actions .text-link{font-size:9px}.recite-list{margin:0}.recite-card{grid-template-columns:105px 1fr;gap:16px;padding:15px 0}.recite-art{min-height:145px}.recite-art>b{font-size:20px}.recite-info{padding:3px 0}.recite-info h3{font-size:15px}.recite-info p{font-size:10px}.recite-buttons{gap:11px;margin-top:12px}.recite-buttons button,.recite-buttons .text-link{font-size:9px}.interactive{padding:64px 7%}.interactive-grid{grid-template-columns:1fr;gap:17px;margin:0}.interactive h2{font-size:29px}.audio-panel{right:12px;top:80px}.floating-verse{transform:scale(.58);right:4%;bottom:8px}.sound-orbit{transform:scale(.58);right:5%;bottom:23px}.subhero:after{width:77%}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 @media(max-width:700px){.poem-card{min-height:275px}.poem-card-image{height:105px}.poem-card:after{height:106px}.poem-card h3{margin-top:101px}.hero-intro{font-size:14px}.hero-verse{font-size:12px;margin-top:30px}.intro-heading p{font-size:14px}.afterlife-section{min-height:410px;padding-top:55px;padding-bottom:58px;background-position:58% center}.afterlife-copy{display:block;margin:52px 0 0}.afterlife-copy h2{font-size:33px}.afterlife-copy p{font-size:12px}.afterlife-copy .button{margin-top:23px}.closing:before{background-position:62% center}}
@@ -538,6 +573,7 @@ html.page-transitioning main{opacity:.08;transform:translateY(8px) scale(.995);f
 .visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .background-audio{display:none}
 @media(max-width:700px){.sound-controls{gap:6px}.sound-toggle{padding:7px 9px}.sound-toggle .sound-status{display:inline;font-size:9px}.volume-slider{width:48px}}
+/* 开卷动画（book-opening）：3D 翻封 + 梅枝摇曳 + 首页内容揭幕 */
 .book-opening{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;perspective:1800px;overflow:hidden;background:radial-gradient(ellipse at 50% 45%,#faf9f2 0%,#e8ebe2 66%,#dce3d9 100%)}
 .book-opening:before,.book-opening:after{content:"";position:absolute;pointer-events:none}
 .book-opening:before{inset:15px;border:1px solid rgba(169,104,76,.3);background:linear-gradient(90deg,#a9684c 0 2px,transparent 2px 100%) left top/30px 30px no-repeat,linear-gradient(180deg,#a9684c 0 2px,transparent 2px 100%) left top/30px 30px no-repeat,linear-gradient(270deg,#a9684c 0 2px,transparent 2px 100%) right top/30px 30px no-repeat,linear-gradient(180deg,#a9684c 0 2px,transparent 2px 100%) right top/30px 30px no-repeat,linear-gradient(90deg,#a9684c 0 2px,transparent 2px 100%) left bottom/30px 30px no-repeat,linear-gradient(0deg,#a9684c 0 2px,transparent 2px 100%) left bottom/30px 30px no-repeat,linear-gradient(270deg,#a9684c 0 2px,transparent 2px 100%) right bottom/30px 30px no-repeat,linear-gradient(0deg,#a9684c 0 2px,transparent 2px 100%) right bottom/30px 30px no-repeat}
@@ -598,6 +634,7 @@ body.home-page.book-opened>.site-header,body.home-page.book-opened>main,body.hom
   .book-side-branch{display:none}
 }
 @media(prefers-reduced-motion:reduce){.book-opening.is-opening .book-cover{animation-duration:.01ms}.book-opening.is-leaving{transition-duration:.01ms}}
+/* 书法序章（calligraphy-sequence）：字幅坠落 → 碎粒化飞散 → 诗笺落款 */
 .calligraphy-sequence{position:fixed;inset:0;z-index:1001;overflow:hidden;visibility:hidden;opacity:0;pointer-events:none;background:#e8eee4;transition:opacity .4s ease}
 .calligraphy-sequence.is-active{visibility:visible;opacity:1}
 .calligraphy-sequence.is-revealing{opacity:0}
@@ -622,12 +659,14 @@ body.home-page.book-opened>.site-header,body.home-page.book-opened>main,body.hom
 .calligraphy-sequence.is-particle-phase .calligraphy-mist{opacity:.96;transition:opacity 1.1s ease}
 @keyframes calligraphy-mist-drift{0%{transform:scale(1.14) translate3d(-2.2%,1%,0)}100%{transform:scale(1.2) translate3d(2.4%,-1.4%,0)}}
 .calligraphy-flight.is-shattering{animation-play-state:paused!important;opacity:0;visibility:hidden;transition:opacity .3s ease}
+/* 幕间墨戏（ink-interlude）：全屏墨底题字，衔接序章与入词境 */
 .ink-interlude{position:fixed;inset:0;z-index:1002;overflow:hidden;display:grid;place-items:center;background:#0e0f12;color:#e8e6e1;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .6s ease,visibility .6s;will-change:opacity}
 .ink-interlude.is-visible{opacity:1;visibility:visible}
 .ink-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .ink-interlude-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;padding:40px;text-align:center;pointer-events:none}
 .ink-interlude-content h2{margin:0;font-family:"ZhongQi ZhiMang","Liyu Xingkai UI",var(--serif);font-size:clamp(34px,5vw,60px);font-weight:400;letter-spacing:.14em;opacity:.94;text-shadow:0 0 40px rgba(0,0,0,.6)}
 .ink-interlude-content p{max-width:680px;margin:18px 0 0;font-family:"ZhongQi ZhiMang","Liyu Xingkai",var(--serif);font-size:clamp(16px,1.9vw,22px);line-height:1.9;letter-spacing:.08em;opacity:.74}
+/* 入词境长卷（arrival-interlude）：390svh 滚动叙事，三幕换景 + 山水视差 + 进入按钮 */
 .arrival-interlude{position:fixed;inset:0;z-index:1003;background:#17231f;color:#f4f0e6;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .6s ease,visibility .6s}
 .arrival-interlude.is-visible{opacity:1;visibility:visible;pointer-events:auto}
 .arrival-interlude.is-leaving{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .5s ease,visibility .5s}
@@ -635,6 +674,7 @@ body.arrival-lock{overflow:hidden}
 .arrival-scroller{position:absolute;inset:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}
 .arrival-scroller::-webkit-scrollbar{display:none}
 .arrival-track{height:390svh;min-height:2340px}
+/* 入词境舞台：sticky 全屏画布，三幕背景图 + 视差山水层 + 文案与进入按钮 */
 .arrival-stage{position:sticky;top:0;isolation:isolate;height:100svh;min-height:540px;overflow:hidden;background:#1d302b;perspective:1100px;transform-style:preserve-3d}
 .arrival-landscape{position:absolute;inset:-8% -3%;z-index:-4;background:linear-gradient(90deg,rgba(17,30,27,.68),rgba(24,39,34,.2) 57%,rgba(22,33,31,.04)),linear-gradient(0deg,rgba(16,27,25,.38),transparent 47%),url("../assets/image/home-hero.jpg") center 48%/cover;transform:translate3d(calc(var(--arrival-world-x,0px) + var(--arrival-pointer-x,0px)*-.35),calc(var(--arrival-landscape-y,0px) + var(--arrival-pointer-y,0px)*-.35),-100px) scale(var(--arrival-landscape-scale,1.04));will-change:transform;transition:filter 1s ease,opacity 1.15s ease}
 .arrival-interlude[data-scene="1"] .arrival-landscape{opacity:0}
@@ -833,6 +873,7 @@ body.arrival-lock{overflow:hidden}
 @keyframes calligraphy-fall-final{0%{opacity:.34;transform:translate3d(-50%,calc(-100% + 52px),0)}18%,100%{opacity:.94;transform:translate3d(-50%,calc(100vh - 52px),0)}}
 @media(max-width:700px){.calligraphy-flight{max-width:48vw;max-height:62vh}.calligraphy-particle-caption{bottom:12%}}
 @media(prefers-reduced-motion:reduce){.calligraphy-sequence{display:none!important}.calligraphy-flight{animation:none!important}.ink-interlude{transition:none}.calligraphy-particle-canvas,.calligraphy-particle-caption{display:none}.calligraphy-mist{animation:none}.calligraphy-rain{animation:none;opacity:.3}.calligraphy-inkmotes{display:none}}
+/* 大屏增强：首页与小传区放大、留白收紧 */
 @media(min-width:1100px) and (min-height:700px){
   .hero{min-height:min(820px,calc(100svh - 86px))}
   .hero-cloud{top:calc(var(--hero-h,min(820px,calc(100svh - 86px))) * 1.04)}
@@ -886,6 +927,7 @@ body.arrival-lock{overflow:hidden}
   .living-echo{padding-top:62px;padding-bottom:60px}
   .living-echo p{font-size:18px}
 }
+/* 词卷通栏化：出血到视口整宽，背景大图居中 42% */
 .poem-gallery{position:relative;isolation:isolate;width:100vw;margin-left:calc(50% - 50vw);padding:8px 10vw 4px;overflow:hidden}
 @media(max-width:700px){.hero-intro{font-size:15px}.hero-verse{font-size:14px;margin-top:28px}.intro-heading p{font-size:15px}.closing p{font-size:14px}}
 @media(max-width:700px){.poet-portrait{aspect-ratio:.96;object-position:left 24%}}
@@ -951,6 +993,7 @@ button:not(.book-open-button):active,.button:active{translate:0 1px}
 .timeline-item.is-active .timeline-dot{transform:scale(1.3);background:var(--gold);box-shadow:0 0 0 5px var(--paper),0 0 0 8px rgba(169,104,76,.2)}
 .timeline-item.is-active .timeline-year{color:var(--rust);transform:translateX(-3px)}
 @media(prefers-reduced-motion:reduce){.timeline-progress,.timeline-dot,.timeline-year{transition:none}}
+/* 生平长卷（timeline-narrative）：左侧粘性场景画 + 右侧时间轴，滚动换景换年 */
 .timeline-narrative{display:grid;grid-template-columns:minmax(300px,.88fr) minmax(0,1.12fr);gap:clamp(36px,6vw,88px);align-items:start}
 .timeline-scene{position:sticky;top:112px;isolation:isolate;min-height:min(690px,calc(100svh - 145px));overflow:hidden;display:flex;align-items:flex-end;color:#f5f1e6;background:#24362e;box-shadow:0 24px 65px rgba(36,54,46,.2)}
 .timeline-scene:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(24,38,31,.08) 4%,rgba(24,38,31,.25) 38%,rgba(24,38,31,.94) 100%),url("../assets/image/timeline-bg.jpg") center/cover;filter:saturate(.74);transform:scale(1.02);transition:filter .7s ease,transform 1.2s cubic-bezier(.2,.7,.25,1)}
@@ -977,6 +1020,7 @@ button:not(.book-open-button):active,.button:active{translate:0 1px}
 .timeline-scene-art{position:absolute;inset:0;z-index:-1;overflow:hidden}
 .timeline-scene-art>span{position:absolute;top:24px;left:25px;padding:6px 10px;border:1px solid rgba(240,224,192,.56);color:#f2e7cb;font-size:11px;letter-spacing:.24em;writing-mode:vertical-rl}
 .timeline-scene-art i{position:absolute;width:180px;height:180px;top:17%;left:50%;border:1px solid rgba(237,222,190,.22);border-radius:50%;transform:translateX(-50%);box-shadow:0 0 0 18px rgba(237,222,190,.035),0 0 80px rgba(214,193,146,.12)}
+/* 场景画文字层：眉题 / 年份 / 题名 / 引句 / 章节进度点 */
 .timeline-scene-copy{position:relative;width:100%;padding:38px clamp(24px,3vw,42px) 28px;transition:opacity .22s ease,transform .32s cubic-bezier(.2,.7,.25,1)}
 .timeline-scene-copy.is-changing{opacity:.25;transform:translateY(10px)}
 .timeline-scene-kicker{display:block;color:#ddc99e;font:9px var(--sans);letter-spacing:.2em}
@@ -1958,6 +2002,7 @@ body.home-page.stage-mode .poem-card{transform-origin:50% 50%;transition:filter 
 body.home-page.stage-mode .poem-card:hover{filter:brightness(1.06) saturate(1.06)}
 body.home-page.stage-mode .poem-card:hover .poem-arrow{transform:translate(3px,-3px)}
 
+/* 舞台移动端：侧栏收窄、折页竖排化；hover:none 隐藏章名浮签；reduced-motion 全关舞台动效 */
 @media(max-width:760px){
   body.home-page.stage-mode .stage-rail{right:8px;gap:8px}
   body.home-page.stage-mode .stage-rail button{width:20px}
