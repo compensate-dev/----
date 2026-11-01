@@ -208,7 +208,8 @@
   }
 
   document.addEventListener("click", (event) => {
-    if (reducedMotion || event.target.closest("input, textarea, select, audio, video")) return;
+    // AI 侍读与写作小笺属于浮层控件，不触发全站点击涟漪/墨晕，免得盖住小窗内容
+    if (reducedMotion || event.target.closest("input, textarea, select, audio, video, .ai-guide-root, .ai-write-tools, .ai-write-result")) return;
     const link = event.target.closest("a[href]");
     if (link) {
       const url = new URL(link.href, location.href);

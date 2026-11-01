@@ -2208,3 +2208,98 @@ body.home-page.stage-mode .poem-card:hover .poem-arrow{transform:translate(3px,-
   body.home-page.stage-mode .stage-wash,
   body.home-page.stage-mode .stage-cut{display:none!important}
 }
+/* AI 侍读：右下角一方「侍」印，点开是纸色问答小窗（DOM 由 js/ai-guide.js 注入） */
+/* 由 root 定位：印在右下角，面板从印上方展开 */
+.ai-guide-root{position:fixed;z-index:1150;right:clamp(16px,3vw,36px);bottom:clamp(18px,3vh,34px);font-family:var(--serif);line-height:1.8}
+/* 首页翻开书封前先不出现，免得压住开场；入场滚动段（arrival-lock）也先收起 */
+.home-page:not(.book-opened) .ai-guide-root,
+.home-page.arrival-lock .ai-guide-root{display:none}
+/* 「侍」印：朱砂边框 + 轻微倾斜，悬停回正 */
+.ai-guide-seal{position:relative;width:58px;height:58px;display:grid;place-items:center;padding:0;border:1px solid rgba(169,104,76,.68);background:linear-gradient(150deg,#f8f5eb,#e8ebe0);color:var(--rust);cursor:pointer;transform:rotate(-4deg);box-shadow:0 10px 24px rgba(30,45,36,.18);transition:transform .3s cubic-bezier(.2,.7,.25,1),box-shadow .3s,background .3s}
+.ai-guide-seal:hover,.ai-guide-seal:focus-visible,.ai-guide-seal[aria-expanded="true"]{transform:rotate(0) translateY(-2px);box-shadow:0 14px 30px rgba(30,45,36,.24)}
+.ai-guide-seal[aria-expanded="true"]{background:linear-gradient(150deg,#eef0e4,#dfe4d6)}
+.ai-guide-seal-word{font-family:"ZhongQi ZhiMang",var(--serif);font-size:25px;line-height:1;letter-spacing:0}
+/* 悬停时在印章左侧浮出小标签 */
+.ai-guide-seal-label{position:absolute;right:calc(100% + 10px);top:50%;white-space:nowrap;font:600 11px var(--sans);letter-spacing:.16em;color:#56675b;background:rgba(243,243,237,.94);padding:6px 9px;border:1px solid rgba(48,77,63,.14);opacity:0;translate:6px -50%;transition:opacity .25s ease,translate .25s ease;pointer-events:none}
+.ai-guide-seal:hover .ai-guide-seal-label,.ai-guide-seal:focus-visible .ai-guide-seal-label{opacity:1;translate:0 -50%}
+/* 面板：从印章上方展开，高度随视口收放 */
+.ai-guide-panel{position:absolute;right:0;bottom:calc(100% + 16px);width:min(392px,calc(100vw - 32px));height:min(568px,calc(100svh - 128px));display:flex;flex-direction:column;background:linear-gradient(160deg,rgba(250,248,240,.99),rgba(235,239,228,.99));border:1px solid rgba(134,151,131,.42);box-shadow:0 26px 72px rgba(24,39,30,.28);opacity:0;translate:0 14px;transition:opacity .26s ease,translate .3s cubic-bezier(.2,.7,.25,1);overflow:hidden}
+.ai-guide-panel.is-on{opacity:1;translate:0 0}
+.ai-guide-panel[hidden]{display:none}
+/* 窗头：小印 + 标题 + 关闭 */
+.ai-guide-head{display:flex;align-items:center;gap:12px;padding:15px 16px 13px;border-bottom:1px solid rgba(48,77,63,.14);background:linear-gradient(180deg,rgba(246,245,236,.92),rgba(240,242,232,.7))}
+.ai-guide-mark{display:grid;place-items:center;width:30px;height:30px;border:1px solid rgba(169,104,76,.6);color:var(--rust);font-family:"Xuandong Kaishu",var(--serif);font-size:17px;transform:rotate(-4deg)}
+.ai-guide-title{flex:1;min-width:0}
+.ai-guide-title b{display:block;font-family:"Liyu Xingkai UI",var(--serif);font-size:16px;font-weight:400;letter-spacing:.06em;color:#2c3f34}
+.ai-guide-title small{display:block;font:9px var(--sans);letter-spacing:.18em;color:#7d8a7e;margin-top:2px}
+.ai-guide-close{width:30px;height:30px;display:grid;place-items:center;border:0;background:none;color:#7b877b;font-size:20px;line-height:1;cursor:pointer;border-radius:50%;transition:.2s}
+.ai-guide-close:hover{background:rgba(48,77,63,.08);color:var(--rust)}
+/* 会话区：唯一滚动容器 */
+.ai-guide-body{flex:1;min-height:0;overflow-y:auto;padding:16px 16px 6px;scrollbar-width:thin;scrollbar-color:rgba(48,77,63,.24) transparent}
+.ai-guide-page{ margin:0 0 12px;font:9px var(--sans);letter-spacing:.16em;color:#87907f;text-transform:uppercase}
+.ai-guide-body::-webkit-scrollbar{width:5px}
+.ai-guide-body::-webkit-scrollbar-thumb{background:rgba(48,77,63,.22);border-radius:99px}
+/* 气泡：问句靠右、答语靠左，系统态居中 */
+.ai-guide-msg{display:flex;margin:0 0 12px;animation:ai-guide-rise .32s ease both}
+.ai-guide-msg p{max-width:88%;margin:0;padding:10px 13px;font-size:13.5px;line-height:1.85;letter-spacing:.02em;white-space:pre-wrap;word-break:break-word}
+.ai-guide-msg.is-me{justify-content:flex-end}
+.ai-guide-msg.is-me p{background:#314c3e;color:#f4f1e6;border-radius:10px 10px 2px 10px;box-shadow:0 4px 14px rgba(30,45,36,.14)}
+.ai-guide-msg.is-seer p{background:#fbfaf4;color:#2c3f34;border:1px solid rgba(48,77,63,.13);border-left:2px solid rgba(169,104,76,.5);border-radius:2px 10px 10px 10px}
+.ai-guide-msg.is-system{justify-content:center}
+.ai-guide-msg.is-system p{max-width:100%;background:none;color:#7f8a7d;font:11px var(--sans);letter-spacing:.06em;padding:4px 0;text-align:center}
+.ai-guide-msg.is-system.is-loading p{color:#8a6a56}
+@keyframes ai-guide-rise{from{opacity:0;translate:0 6px}to{opacity:1;translate:0 0}}
+/* 检索结果：小列卡片，点击可继续追问 */
+.ai-guide-sources{margin:2px 0 14px;padding:10px 11px;border:1px dashed rgba(48,77,63,.2);background:rgba(250,249,242,.7)}
+.ai-guide-sources-label{display:block;font:9px var(--sans);letter-spacing:.16em;color:#87907f;margin-bottom:7px}
+.ai-guide-source{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid rgba(48,77,63,.1);background:none;padding:7px 0;cursor:pointer;transition:background .2s}
+.ai-guide-source:last-child{border-bottom:0;padding-bottom:2px}
+.ai-guide-source:hover{background:rgba(48,77,63,.05)}
+.ai-guide-source b{font-family:"Xuandong Kaishu",var(--serif);font-weight:400;font-size:13px;color:#2c3f34;letter-spacing:.03em}
+.ai-guide-source small{font:9px var(--sans);color:#8d967f;letter-spacing:.08em;margin-left:8px}
+.ai-guide-source em{display:block;font-style:normal;font-size:11.5px;color:#66735f;line-height:1.7;margin-top:2px}
+/* 快捷问题：横排小药丸，可换行 */
+.ai-guide-chips{display:flex;flex-wrap:wrap;gap:7px;padding:0 16px 12px}
+.ai-guide-chip{border:1px solid rgba(48,77,63,.22);background:rgba(250,249,242,.86);color:#4b5f50;font:11.5px var(--serif);letter-spacing:.02em;padding:6px 10px;cursor:pointer;transition:.2s;border-radius:99px}
+.ai-guide-chip:hover{border-color:rgba(169,104,76,.6);color:#8a4f39;background:#fbf8ee}
+/* 输入区：模式切换 + 单行输入 + 发送 */
+.ai-guide-form{padding:11px 14px 10px;border-top:1px solid rgba(48,77,63,.14);background:rgba(246,245,236,.86)}
+.ai-guide-modes{display:flex;gap:4px;margin-bottom:6px}
+.ai-guide-modes button{border:0;background:none;padding:3px 8px 4px;font:10px var(--sans);letter-spacing:.12em;color:#87907f;cursor:pointer;border-bottom:1.5px solid transparent;transition:.2s}
+.ai-guide-modes button.is-on{color:#8a4f39;border-bottom-color:rgba(169,104,76,.6)}
+.ai-guide-inputrow{display:flex;align-items:center;gap:8px}
+.ai-guide-input{flex:1;min-width:0;height:38px;border:1px solid rgba(48,77,63,.18);background:#fbfaf4;padding:0 11px;font:13px var(--serif);color:var(--ink);outline:none;transition:border-color .2s}
+.ai-guide-input:focus{border-color:rgba(169,104,76,.6)}
+.ai-guide-input::placeholder{color:#9aa292;font-size:12.5px}
+.ai-guide-send{width:42px;height:38px;border:0;background:#314c3e;color:#f4f1e6;font-family:"Liyu Xingkai",var(--serif);font-size:15px;letter-spacing:.06em;cursor:pointer;transition:.2s}
+.ai-guide-send:hover:not(:disabled){background:#3c5c4a}
+.ai-guide-send:disabled{opacity:.5;cursor:not-allowed}
+.ai-guide-note{margin:0;padding:0 14px 10px;font:9px var(--sans);letter-spacing:.08em;color:#9aa292;background:rgba(246,245,236,.86)}
+/* 写作区伴写工具：两枚细线小按钮 + 结果小笺（首页心情笺 / 枕上低语填词共用） */
+.ai-write-tools{display:flex;flex-wrap:wrap;gap:14px;margin:10px 0 0}
+.ai-write-tools button{border:0;background:none;padding:0 0 3px;border-bottom:1px solid rgba(169,104,76,.42);font:12px var(--serif);letter-spacing:.04em;color:#8a4f39;cursor:pointer;transition:.2s}
+.ai-write-tools button:hover{color:#6d3a27;border-bottom-color:rgba(169,104,76,.8)}
+.ai-write-tools button:disabled{opacity:.5;cursor:wait}
+/* 结果小笺：纸色底 + 朱砂左线，与站点开屏小字同一套样式 */
+.ai-write-result{margin-top:12px;padding:13px 14px;background:rgba(250,249,242,.96);border:1px solid rgba(48,77,63,.14);border-left:2px solid rgba(169,104,76,.52);box-shadow:0 8px 22px rgba(30,45,36,.08);animation:ai-guide-rise .3s ease both}
+.ai-write-result[hidden]{display:none}
+.ai-write-tag{display:block;font:9px var(--sans);letter-spacing:.16em;color:#8a6a56;margin-bottom:6px}
+.ai-write-text{margin:0;font-family:"Xuandong Kaishu",var(--serif);font-size:14px;line-height:1.95;color:#2e4336;white-space:pre-wrap}
+.ai-write-hint{margin:0;font:11px var(--sans);color:#7c877a;letter-spacing:.04em}
+.ai-write-result.is-error{border-left-color:rgba(169,104,76,.7);background:rgba(250,244,238,.9)}
+.ai-write-result.is-error .ai-write-hint{color:#8a4f39}
+.ai-write-actions{display:flex;gap:16px;margin-top:10px}
+.ai-write-actions button{border:0;background:none;padding:0 0 2px;border-bottom:1px solid rgba(48,77,63,.26);font:11.5px var(--serif);color:#405746;cursor:pointer;transition:.2s}
+.ai-write-actions button:hover{color:#8a4f39;border-bottom-color:rgba(169,104,76,.6)}
+/* 窄屏：改成从底部升起的半屏卡片，避开手机底部手势区；印章挪到左下，避免和右侧小签叠在一起 */
+@media(max-width:640px){
+  .ai-guide-root{left:14px;right:auto;bottom:18px}
+  .ai-guide-seal{width:52px;height:52px}
+  .ai-guide-seal-word{font-size:22px}
+  .ai-guide-panel{position:fixed;left:12px;right:12px;bottom:calc(16px + 52px + 12px);width:auto;height:min(72svh,600px)}
+  .ai-guide-msg p{font-size:13px}
+}
+/* 减弱动态：去掉进出场动画 */
+@media(prefers-reduced-motion:reduce){
+  .ai-guide-panel,.ai-guide-msg{transition:none!important;animation:none!important}
+}
