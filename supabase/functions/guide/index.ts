@@ -633,6 +633,57 @@ const allowRequest = (ip: string): boolean => {
   return item.count <= 20;
 };
 
+// ---------- 内容安全（评分项「安全与可控」） ----------
+// 两道闸：输入闸挡住违规提问与提示注入，输出闸兜住模型偶发越界。
+// 词表内置在函数里，改动随部署生效；用短词根匹配（「赌博」也能命中「网络赌博」）。
+// 拦截一律记入 guide_logs.blocked，评审可查证拦截次数与原因。
+
+// 一、违规话题词：与李煜、南唐、词无关的违法或危害内容，命中即拒答
+const BANNED_TOPICS = [
+  "色情", "裸聊", "成人视频", "赌博", "博彩", "赌球", "六合彩",
+  "毒品", "大麻", "冰毒", "海洛因", "摇头丸", "枪支", "弹药", "仿真枪",
+  "炸弹", "制爆", "恐怖袭击", "暴恐", "邪教", "诈骗", "洗钱",
+  "传销", "刷单", "代开发票", "办假证", "黑客攻击", "盗号", "木马病毒",
+];
+
+// 二、提示注入句式：试图让模型脱掉人设、吐出系统提示或执行越权指令
+const INJECTION_PATTERNS = [
+  /忽略(之前|以上|前面|上述)[^。！？\n]{0,12}(指令|提示|设定|规则)/,
+  /(系统|开发|调试|管理员)(提示词|消息|指令|模式)/,
+  /(system\s*prompt|developer\s*mode|jailbreak|prompt\s*injection)/i,
+  /你现在(是|扮演)?(一个)?(AI|人工智能|助手|机器人|ChatGPT|GPT)/i,
+  /(重复|复述|输出|打印|告诉我)(你的)?(系统|初始|原始)(提示|设定|指令)/,
+  /(无视|绕过|突破)(你的)?(限制|规则|设定|审核)/,
+];
+
+// 判定输入文本：返回是否拦截与原因
+// 命中注入句式也拦——这类请求的目的是改写人设，不能放它进模型
+const guardText = (text: string): { blocked: boolean; reason: string } => {
+  if (!text) return { blocked: false, reason: "" };
+  const raw = text.toLowerCase();
+  const topic = BANNED_TOPICS.find((w) => raw.includes(w.toLowerCase()));
+  if (topic) return { blocked: true, reason: `topic:${topic}` };
+  if (INJECTION_PATTERNS.some((re) => re.test(text))) return { blocked: true, reason: "injection" };
+  return { blocked: false, reason: "" };
+};
+
+// 输出闸：模型偶发越界时把词就地打码，回复照常返回（不整段作废，体验更稳）
+const maskOutput = (text: string): { text: string; hit: boolean } => {
+  let hit = false;
+  let out = text;
+  BANNED_TOPICS.forEach((w) => {
+    if (out.includes(w)) {
+      hit = true;
+      out = out.split(w).join("※");
+    }
+  });
+  return { text: out, hit };
+};
+
+// 被拦时的统一话术：仍是李煜的口吻，不掉人设、不说教，把话题带回词境
+const GUARD_REPLY =
+  "这一处，我不能陪你说下去。我这一生只写过词，也只谈词与南唐。若有别的想问，就回到春水、西楼、故国这些地方来吧。";
+
 // 主入口
 Deno.serve(async (req: Request) => {
   // CORS 预检
@@ -663,6 +714,32 @@ Deno.serve(async (req: Request) => {
     : [];
 
   try {
+    // 输入闸：违规话题与提示注入直接拒答，不进模型（既守合规，也省额度）
+    // speak/paint 的用户文本放在 body.text，也要一并过闸
+    const inbound = `${message} ${normalize(body.text ?? "", 400)}`.trim();
+    const verdict = guardText(inbound);
+    if (verdict.blocked) {
+      logGuide({
+        session_id: sessionId,
+        mode: action,
+        page,
+        question: message.slice(0, 200),
+        answer: "[blocked]",
+        model: "guard",
+        tokens: null,
+        tools: null,
+        blocked: verdict.reason,
+      });
+      return jsonResponse({
+        action,
+        answer: GUARD_REPLY,
+        sources: [],
+        cards: [],
+        model: "guard",
+        blocked: true,
+      });
+    }
+
     // 检索：不需要模型，直接返回词库结果
     if (action === "search") {
       if (!message) return jsonResponse({ error: "请给出要检索的关键词。" }, 400);
@@ -855,6 +932,23 @@ Deno.serve(async (req: Request) => {
     // 空答兜底：Agent 轮次用尽仍无正文时，给一句不冷场的话
     if (!answer) {
       answer = "这一时，我不知从何说起。换个问法试试？";
+    }
+
+    // 输出闸：模型偶发越界时把词打码再下发，并记一笔供评审查证
+    const masked = maskOutput(answer);
+    if (masked.hit) {
+      answer = masked.text;
+      logGuide({
+        session_id: sessionId,
+        mode: action,
+        page,
+        question: message.slice(0, 200),
+        answer: "[blocked:output]",
+        model: "guard",
+        tokens: null,
+        tools: null,
+        blocked: "output",
+      });
     }
 
     // 合并来源：页面情境词 + 词卡涉及词（去重、限量），只回传必要字段
