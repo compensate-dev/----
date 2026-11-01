@@ -51,6 +51,29 @@
         { sel: ".timeline-item", text: "937 年，我出生在金陵。往下走，是我的一生。", question: "你出生那年，南唐是什么样子？" },
         { sel: ".trail-guide", text: "故事到这里断了一截。剩下的路，你可以问我。", question: "978 年之后，你的故事是怎样的？" },
       ],
+      // 段落语境：读到哪一段，快捷问题与解读就跟到哪一段（sel 指向时间轴各节点）
+      sections: [
+        { sel: "#y937", key: "937", chips: ["重瞳是怎么回事", "你出生时南唐是什么样子", "小时候在宫里读什么书"],
+          interpret: "我生在七夕。宫里人说重瞳是圣人之相，可排行第六的孩子，原轮不到江山。", question: "你出生时，真的一目重瞳吗？" },
+        { sel: "#y954", key: "954", chips: ["大周后人物史", "《霓裳羽衣》是怎么重订的", "那时候的宫宴是什么样子"],
+          interpret: "娥皇嫁进来那年，我十八岁。我们一起把《霓裳羽衣》的残谱一段段补回去，那是最亮的日子。", question: "大周后娥皇是怎样的人？" },
+        { sel: "#y961", key: "961", chips: ["你不是长子为什么继位", "即位那年宋朝已经多强", "父亲为什么迁都洪州"],
+          interpret: "父亲在洪州去了，我二十五岁，在灵前接的这个位子。说是皇帝，其实已经要对北边称臣。", question: "你即位时南唐的处境有多难？" },
+        { sel: "#y964", key: "964", chips: ["大周后人物史", "娥皇病重时发生了什么", "小周后是那时候进宫的吗"],
+          interpret: "昭惠走的那年，仲宣也没保住。我写诔文，落款是「鳏夫煜」——那是我第一次知道，词救不了人。", question: "大周后病逝对你意味着什么？" },
+        { sel: "#y971", key: "971", chips: ["从善为什么被扣在汴京", "江南国主和皇帝差在哪", "那几年为什么还要岁贡"],
+          interpret: "从善被扣在汴京回不来。我上表削了唐号，改叫江南国主——名分这种东西，是让出去的。", question: "削去唐号是哪一年的事？" },
+        { sel: "#y974", key: "974", chips: ["樊若水是谁", "长江天险为什么没守住", "金陵被围了多久"],
+          interpret: "樊若水把江面量给宋人看，浮桥一架，天险就成了路。三千里山河，输在一道桥上。", question: "采石浮桥是怎么一回事？" },
+        { sel: "#y975", key: "975", chips: ["《破阵子》写的是这一天吗", "辞庙是什么意思", "城破后宫里人去了哪里"],
+          interpret: "城破那天，我肉袒出降。教坊的乐工还在奏别离歌，我听着，直到听不见。", question: "金陵城破那天是怎样的？" },
+        { sel: "#y976", key: "976", chips: ["「违命侯」是什么意思", "只以眼泪洗面是真的吗", "《相见欢》写于汴京吗"],
+          interpret: "「违命侯」三个字，是人家给的院子，也是给的罪名。西楼的月亮，我在汴京看了三年。", question: "汴京囚居的日子是怎样的？" },
+        { sel: "#y978", key: "978", chips: ["牵机药是史实还是传说", "《虞美人》哪句惹怒了宋太宗", "最后一夜还有谁在场"],
+          interpret: "七夕，我四十二岁。故伎唱了《虞美人》，词传到墙外。那一夜的事，你们都知道了。", question: "《虞美人》为什么成了绝命词？" },
+        { sel: "#y978b", key: "978b", chips: ["小周后后来怎样", "北邙山为什么是名士归处", "后人怎么凭吊你"],
+          interpret: "北邙山下，他们以王礼葬我。洛阳往北，再也望不见金陵——好在词替我回去了。", question: "你葬在北邙山哪里？" },
+      ],
     },
     ci: {
       name: "词间春水",
@@ -87,6 +110,23 @@
       chips: ["李煜一生去过哪些地方", "金陵为什么守不住", "北邙在哪儿"],
       hints: [
         { sel: ".map-guide-card", text: "按图索骥，顺着我的脚步走一遍南唐。", question: "按你的足迹，最该先看哪一站？" },
+      ],
+      // 地图页没有滚动段落：当前「读到的地方」= 笺卡上展开的站点（match 匹配站点名）
+      sections: [
+        { match: "金陵", key: "jinling", chips: ["金陵宫苑是什么样子", "975 年金陵城怎么破的", "今天的南京还有南唐遗迹吗"],
+          interpret: "金陵是我一辈子的开头和结尾。宫苑、城破、辞庙，都在这一城。", question: "金陵对你来说意味着什么？" },
+        { match: "钟山", key: "zhongshan", chips: ["钟山在哪里", "南唐人游山是什么景象", "你写过钟山吗"],
+          interpret: "钟山在金陵城外。我当年登高远望的地方，如今只剩一片青。", question: "钟山和南唐有什么关系？" },
+        { match: "洪州", key: "hongzhou", chips: ["洪州是现在的哪里", "迁都没起到作用吗", "父亲是个怎样的君主"],
+          interpret: "父亲把都城迁去洪州，说是避其锋芒。他死在那里，我从那里被抬回金陵即位。", question: "南唐为什么迁都洪州？" },
+        { match: "采石", key: "caishi", chips: ["采石矶在哪", "浮桥渡江有多快", "当时守军在做什么"],
+          interpret: "采石矶的江面最窄。樊若水就在那里，替宋人量出了一条浮桥。", question: "采石矶之战是怎么输的？" },
+        { match: "江舟", key: "jiangzhou", chips: ["北上走了多久", "《望江南》是在江上写的吗", "随行的还有谁"],
+          interpret: "辞庙北上那条船，走的就是这段江。两岸还是江南，我已经不是江南国主了。", question: "辞庙北上时你在船上想什么？" },
+        { match: "汴京", key: "bianjing", chips: ["违命侯府在哪里", "为什么囚居反而词写得最好", "宋太宗对你怎样"],
+          interpret: "汴京的宅子叫府，其实是笼子。我的好词，多半是在那三年里熬出来的。", question: "汴京囚居的日子是怎样的？" },
+        { match: "北邙", key: "beimang", chips: ["北邙山葬了哪些名人", "墓今天还在吗", "洛阳和金陵哪个更像归宿"],
+          interpret: "北邙山多的是王侯将相的土。我添了一座，挨着洛阳。", question: "你为什么会葬在北邙山？" },
       ],
     },
     finale: {
@@ -366,6 +406,15 @@
     else bubbleQueue.push({ text, question });
   };
 
+  // 语境解读专用：面板没开就直接顶掉当前气泡（如进站招呼），不排队。
+  // 读者已经停在某一段，这段的解读比泛泛的招呼更要紧；面板开着则照常入队不打扰
+  const sayNow = (key, text, question) => {
+    if (store.get(key)) return;
+    store.set(key, "1");
+    if (panel.hidden) showBubbleNow(text, question);
+    else bubbleQueue.push({ text, question });
+  };
+
   // 追加一条消息气泡：who 为 me / seer（李煜） / system
   const appendMessage = (who, text) => {
     const wrap = document.createElement("div");
@@ -479,10 +528,12 @@
     body.scrollTop = body.scrollHeight;
   };
 
-  // 快捷追问：按当前页面给三条
-  const renderChips = () => {
+  // 快捷追问：默认按当前页面给三条；读到具体段落时换成该段的语境关键词
+  // liveChips 由「段落语境」模块维护：null = 用页面默认
+  let liveChips = null;
+  const renderChips = (list) => {
     chips.innerHTML = "";
-    page.chips.forEach((text) => {
+    (list || liveChips || page.chips).forEach((text) => {
       const chip = document.createElement("button");
       chip.type = "button";
       chip.className = "ai-guide-chip";
@@ -767,9 +818,87 @@
     });
   };
 
+  // ---------- 段落语境：读到哪一段，关键词与解读跟到哪一段 ----------
+  // life 等长页：取「离视口中心最近」的段落为正在读的段落；
+  // map 页没有滚动段落：取笺卡上展开的站点名为正在读的段落。
+  // 进入段落时立即换快捷问题；在同一段停留 1.2 秒以上，印章旁才浮出这段的解读
+  //（停留门槛防止快速划过时气泡连珠炮；解读内容本地预写，零延迟零花费）
+  const initSectionGuide = () => {
+    const sections = page.sections;
+    if (!sections || !sections.length) return;
+    let activeKey = "";
+    let dwellTimer = 0;
+
+    const applySection = (sec) => {
+      if (!sec || sec.key === activeKey) return;
+      activeKey = sec.key;
+      liveChips = sec.chips;
+      // 面板开过客才需要即时刷新快捷问题；没开过则等首次打开时自然生效
+      if (body.dataset.ready) renderChips();
+      window.clearTimeout(dwellTimer);
+      dwellTimer = window.setTimeout(() => {
+        if (activeKey === sec.key) {
+          sayNow(`liyu-ai-sec-${pageKey}-${sec.key}`, sec.interpret, sec.question);
+        }
+      }, 1200);
+    };
+
+    // 地图页：监听笺卡上的站点名变化
+    if (pageKey === "map") {
+      const nameEl = document.querySelector("[data-spot-name]");
+      if (!nameEl) return;
+      const sync = () => {
+        const name = (nameEl.textContent || "").trim();
+        if (!name) return;
+        const sec = sections.find((s) => name.includes(s.match));
+        if (sec) applySection(sec);
+      };
+      new MutationObserver(sync).observe(nameEl, { childList: true, characterData: true, subtree: true });
+      sync();
+      return;
+    }
+
+    // 长页：滚动时找离视口中心最近的段落
+    const items = sections
+      .map((s) => ({ ...s, el: document.querySelector(s.sel) }))
+      .filter((s) => s.el);
+    if (!items.length) return;
+    let ticking = false;
+    const check = () => {
+      ticking = false;
+      const mid = window.innerHeight / 2;
+      let best = null;
+      let bestDist = Infinity;
+      items.forEach((s) => {
+        const rect = s.el.getBoundingClientRect();
+        const dist = Math.abs(rect.top + rect.height / 2 - mid);
+        if (dist < bestDist) {
+          bestDist = dist;
+          best = s;
+        }
+      });
+      // 最近的段落也得在大半屏之内才算「正在读」；都不在就恢复页面默认关键词
+      if (best && bestDist < window.innerHeight * 0.75) {
+        applySection(best);
+      } else if (activeKey) {
+        activeKey = "";
+        liveChips = null;
+        if (body.dataset.ready) renderChips();
+      }
+    };
+    window.addEventListener("scroll", () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(check);
+      }
+    }, { passive: true });
+    check();
+  };
+
   // ---------- 启动 ----------
   initPos();
   initWriteTools();
   initGreeting();
   initScrollHints();
+  initSectionGuide();
 })();
