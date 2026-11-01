@@ -23,11 +23,16 @@ const jsonResponse = (data: unknown, status = 200): Response =>
 // 服务端密钥：仅用于函数内部访问网关与数据库，绝不下发到浏览器
 const SERVICE_KEY = readEnv("SUPABASE_SERVICE_ROLE_KEY") || readEnv("SUPABASE_SERVICE_ROLE");
 const SUPABASE_URL = readEnv("SUPABASE_URL");
+// 外部模型优先：配了 GUIDE_API_KEY（如智谱 GLM-4-Flash 免费 key）就走外部免费额度，
+// 平台 AI Gateway 留作兜底；密钥只存在于服务端 secrets，绝不下发到浏览器
+const EXTERNAL_KEY = readEnv("GUIDE_API_KEY");
+const EXTERNAL_BASE = readEnv("GUIDE_API_BASE") || "https://open.bigmodel.cn/api/paas/v4";
+const EXTERNAL_MODEL = readEnv("GUIDE_MODEL") || "glm-4-flash";
 // AI Gateway 与 Supabase 同域，默认走 ${SUPABASE_URL}/v1；若平台注入的是内网地址，可用该环境变量覆盖
 const GATEWAY_BASE = readEnv("AI_GATEWAY_BASE") || `${SUPABASE_URL}/v1`;
 const REST_BASE = `${SUPABASE_URL}/rest/v1`;
-// 默认走速度更稳的 mini；需要更长思考时前端可指定 pro
-const DEFAULT_MODEL = readEnv("GUIDE_MODEL") || "bytedance/doubao-seed-2.0-mini";
+// 平台兜底默认走速度更稳的 mini；需要更长思考时前端可指定 pro
+const DEFAULT_MODEL = readEnv("PLATFORM_MODEL") || "bytedance/doubao-seed-2.0-mini";
 const PRO_MODEL = "bytedance/doubao-seed-2.1-pro";
 
 // 站点的叙事底盘：让模型知道“这是哪儿、在讲什么”，回答才贴合页面
@@ -133,33 +138,37 @@ const buildSourceBlock = (poems: any[]): string => {
     .join("\n\n");
 };
 
-// 调用 AI Gateway 的 OpenAI 兼容接口
+// 调用模型的 OpenAI 兼容接口：外部 key 存在就走外部（智谱等免费额度），否则回落平台 AI Gateway
 const callGateway = async (
   messages: { role: string; content: string }[],
   options: { model?: string; maxTokens?: number; temperature?: number } = {},
 ): Promise<{ text: string; model: string; usage: any }> => {
-  const model = options.model || DEFAULT_MODEL;
+  const useExternal = Boolean(EXTERNAL_KEY);
+  const base = useExternal ? EXTERNAL_BASE : GATEWAY_BASE;
+  const key = useExternal ? EXTERNAL_KEY : SERVICE_KEY;
+  const model = useExternal ? EXTERNAL_MODEL : options.model || DEFAULT_MODEL;
   const controller = new AbortController();
   // 边缘函数有总超时，这里留出余量
   const timer = setTimeout(() => controller.abort(), 50_000);
+  // 请求体按提供方组装：thinking 参数只有豆包系列支持，外部模型不传以免报错
+  const payload: Record<string, unknown> = {
+    model,
+    messages,
+    max_tokens: options.maxTokens ?? 420,
+    temperature: options.temperature ?? 0.75,
+  };
+  if (!useExternal) payload.thinking = { type: "disabled" }; // Doubao 系列默认会产出思考过程，关闭以降低延迟
   try {
-    const res = await fetch(`${GATEWAY_BASE}/chat/completions`, {
+    const res = await fetch(`${base}/chat/completions`, {
       method: "POST",
       signal: controller.signal,
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${SERVICE_KEY}`,
+        Authorization: `Bearer ${key}`,
       },
-      body: JSON.stringify({
-        model,
-        messages,
-        max_tokens: options.maxTokens ?? 420,
-        temperature: options.temperature ?? 0.75,
-        // Doubao 系列默认会产出思考过程；站内问答不需要，关闭以降低延迟
-        thinking: { type: "disabled" },
-      }),
+      body: JSON.stringify(payload),
     });
-    if (!res.ok) throw new Error(`AI 网关返回 ${res.status}`);
+    if (!res.ok) throw new Error(`模型服务返回 ${res.status}`);
     const data = await res.json();
     const text = data?.choices?.[0]?.message?.content ?? "";
     return { text: String(text).trim(), model, usage: data?.usage ?? null };
