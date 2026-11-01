@@ -2596,38 +2596,149 @@
   initializeMagneticButtons();
   initializeTimelineStories();
   initializeMemoryStories();
+  // f130 多模态诵读：优先调 guide 函数的 GLM-TTS（服务端真人感语音），
+  // 失败（限流/未开通/超时）自动降级到浏览器 speechSynthesis，保证按钮永远能发声
+  const TTS_ENDPOINT = "https://br-right-lynx-d7283c56.supabase.aidap-global.cn-beijing.volces.com/functions/v1/guide";
+  const READ_LABEL = "为我诵读　▶";
   let speaking = false;
+  let currentAudio = null; // 正在播放的服务端语音（Audio 对象）
+  let currentButton = null; // 正在发声的按钮，再点一次即停止
   // f68 诵读呼吸：同一时刻只允许一枚诵读按钮处于 .is-speaking 态，切换前先统一清除
   const clearSpeakingButtons = () => {
     document.querySelectorAll(".read-aloud.is-speaking").forEach((b) => b.classList.remove("is-speaking"));
   };
+  // 停掉一切发声：服务端音频 + 浏览器语音
+  const stopAllSpeech = () => {
+    if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+    if (currentAudio) {
+      currentAudio.pause();
+      URL.revokeObjectURL(currentAudio.src);
+      currentAudio = null;
+    }
+    speaking = false;
+    currentButton = null;
+    clearSpeakingButtons();
+  };
+  // 浏览器兜底通道（原 f68 逻辑原样保留）
+  const speakByBrowser = (button) => {
+    if (!("speechSynthesis" in window)) {
+      button.textContent = "此浏览器暂不支持语音诵读";
+      return;
+    }
+    const utterance = new SpeechSynthesisUtterance(button.dataset.poem || "");
+    utterance.lang = "zh-CN";
+    utterance.rate = 0.82;
+    utterance.onstart = () => {
+      speaking = true;
+      currentButton = button;
+      button.textContent = "正在诵读　■";
+      clearSpeakingButtons();
+      button.classList.add("is-speaking");
+    };
+    utterance.onend = () => {
+      speaking = false;
+      currentButton = null;
+      button.textContent = READ_LABEL;
+      clearSpeakingButtons();
+    };
+    utterance.onerror = () => {
+      speaking = false;
+      currentButton = null;
+      button.textContent = "诵读未能播放，请重试";
+      clearSpeakingButtons();
+    };
+    window.speechSynthesis.speak(utterance);
+  };
   document.querySelectorAll(".read-aloud").forEach((button) => {
-    button.addEventListener("click", () => {
-      if (!("speechSynthesis" in window)) {
-        button.textContent = "此浏览器暂不支持语音诵读";
+    button.addEventListener("click", async () => {
+      // 再点同一枚按钮 = 停止
+      if (currentButton === button) {
+        stopAllSpeech();
+        button.textContent = READ_LABEL;
         return;
       }
-      if (speaking) window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(button.dataset.poem || "");
-      utterance.lang = "zh-CN";
-      utterance.rate = 0.82;
-      utterance.onstart = () => {
-        speaking = true;
-        button.textContent = "正在诵读　■";
-        clearSpeakingButtons();
-        button.classList.add("is-speaking"); // 当前诵读中的按钮挂呼吸态（CSS 让它朱砂色呼吸）
-      };
-      utterance.onend = () => {
-        speaking = false;
-        button.textContent = "为我诵读　▶";
-        clearSpeakingButtons(); // 诵读结束，撤掉呼吸态
-      };
-      utterance.onerror = () => {
-        speaking = false;
-        button.textContent = "诵读未能播放，请重试";
-        clearSpeakingButtons(); // 播报失败同样不能把按钮留在呼吸态
-      };
-      window.speechSynthesis.speak(utterance);
+      stopAllSpeech();
+      button.textContent = "请稍候…";
+      try {
+        // 服务端 TTS：20 秒超时保护，wav 一次性返回
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 20000);
+        const res = await fetch(TTS_ENDPOINT, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "speak", text: button.dataset.poem || "", page: "listen" }),
+          signal: ctrl.signal,
+        });
+        clearTimeout(timer);
+        if (!res.ok || !(res.headers.get("content-type") || "").includes("audio")) throw new Error("tts unavailable");
+        const blob = await res.blob();
+        const audio = new Audio(URL.createObjectURL(blob));
+        currentAudio = audio;
+        audio.onplay = () => {
+          speaking = true;
+          currentButton = button;
+          button.textContent = "正在诵读　■";
+          clearSpeakingButtons();
+          button.classList.add("is-speaking");
+        };
+        audio.onended = () => {
+          stopAllSpeech();
+          button.textContent = READ_LABEL;
+        };
+        audio.onerror = () => {
+          stopAllSpeech();
+          speakByBrowser(button); // 音频解码失败也走兜底
+        };
+        await audio.play();
+      } catch (error) {
+        // TTS 不可用：静默降级到浏览器诵读
+        speakByBrowser(button);
+      }
+    });
+  });
+
+  // f131 词意画：把词文发给 guide 函数的 Seedream 图像生成，拿回一张水墨意境图
+  // 生成约 30 秒，90 秒超时；成功后可「再画一幅」换新图（每次生成都计费，谨慎连点）
+  document.querySelectorAll(".paint-poem").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const card = button.closest(".recite-card");
+      const result = card ? card.querySelector(".paint-result") : null;
+      const poemText = card?.querySelector(".read-aloud")?.dataset.poem || "";
+      if (!result || !poemText) return;
+      button.disabled = true;
+      button.classList.add("is-painting");
+      button.textContent = "研墨作画中…";
+      try {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 90000);
+        const res = await fetch(TTS_ENDPOINT, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "paint", text: poemText, page: "listen" }),
+          signal: ctrl.signal,
+        });
+        clearTimeout(timer);
+        const data = await res.json().catch(() => null);
+        if (!res.ok || !data?.image) throw new Error(data?.error || "paint unavailable");
+        result.innerHTML = "";
+        const figure = document.createElement("figure");
+        const img = document.createElement("img");
+        img.src = data.image;
+        img.alt = "AI 为这首词生成的水墨意境图";
+        const cap = document.createElement("figcaption");
+        cap.textContent = "AI 词意画 · 水墨写意（每次生成皆不同）";
+        figure.append(img, cap);
+        result.append(figure);
+        result.hidden = false;
+        button.textContent = "再画一幅　✦";
+      } catch (error) {
+        result.hidden = false;
+        result.textContent = "这一幅暂时画不出来，稍后再试。";
+      } finally {
+        button.disabled = false;
+        button.classList.remove("is-painting");
+        if (button.textContent === "研墨作画中…") button.textContent = "为它入画　✦";
+      }
     });
   });
 

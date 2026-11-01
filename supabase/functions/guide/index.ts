@@ -1,5 +1,8 @@
-/// <reference types="https://esm.sh/v135/@supabase/functions-js@2.4.1/src/edge-runtime.d.ts" />
-// ↑ 仅给编辑器看的类型引用：让 VS Code 认识 Deno 全局（Supabase Edge Runtime 官方声明文件），不影响运行
+/// <reference path="./deno.d.ts" />
+// ↑ 仅给编辑器看的类型引用：本地最小 Deno 声明（离线可用），不影响运行
+
+// 标记为模块：让顶层声明进入模块作用域，避免与其它文件在全局脚本作用域互相冲突
+export {};
 
 // 一江春水 · AI 侍读边缘函数（Deno 运行时）
 // 作用：站内所有 AI 能力统一从这里进入，前端不直接持有任何密钥。
@@ -113,6 +116,51 @@ const restGet = async (path: string): Promise<any[]> => {
   return await res.json();
 };
 
+// 调智谱 Embedding-3 把文本变成向量（RAG 检索用）
+// 失败（限流/欠费/超时）返回 null——调用方静默回退到纯关键词检索，保证功能不死
+const embedText = async (text: string): Promise<number[] | null> => {
+  if (!EXTERNAL_KEY) return null;
+  try {
+    const res = await fetch(`${EXTERNAL_BASE}/embeddings`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${EXTERNAL_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ model: "embedding-3", input: text.slice(0, 1500) }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const vec = data?.data?.[0]?.embedding;
+    return Array.isArray(vec) && vec.length ? vec : null;
+  } catch (_error) {
+    return null;
+  }
+};
+
+// 向量语义检索：问题取向量后调 match_poems RPC，按余弦距离取前 6 首
+// 返回 null 表示向量通道不可用（调用方回退纯关键词）
+const vectorSearchPoems = async (query: string): Promise<any[] | null> => {
+  const vec = await embedText(query);
+  if (!vec) return null;
+  try {
+    const res = await fetch(`${REST_BASE}/rpc/match_poems`, {
+      method: "POST",
+      headers: {
+        apikey: SERVICE_KEY,
+        Authorization: `Bearer ${SERVICE_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ query_embedding: vec, match_count: 6 }),
+    });
+    if (!res.ok) return null;
+    const rows = await res.json();
+    return Array.isArray(rows) ? rows : null;
+  } catch (_error) {
+    return null;
+  }
+};
+
 // 按 slug 取单首词，供“问某一首”的场景引用原文
 const fetchPoem = async (slug: string) => {
   if (!slug) return null;
@@ -130,35 +178,47 @@ const loadPoems = async (): Promise<any[]> => {
   return poemCache;
 };
 
-// 关键词检索：标题 / 正文 / 背景 / 关键词四路匹配，最多取 6 首
-// 整句提问时先拆掉疑问词与标点，再按片段匹配，避免「李煜为什么亡国」这类长句一首也命中不了
+// 混合检索（RAG）：向量语义优先、关键词兜底补满 6 首、按 slug 去重。
+// 向量通道能命中「没有字面关键词但语义相近」的词（如「亡国哀愁」→《虞美人》）；
+// 向量不可用（限流/欠费）时静默退化为纯关键词检索，功能不死。
 const searchPoems = async (keyword: string) => {
-  const cleaned = keyword
-    .replace(/[%*(),。，？?！!、；;：:「」《》"'']/g, " ")
-    .replace(/(为什么|为什么说|怎么|怎么样|什么|哪些|哪里|哪|如何|是否|是不是|能不能|可以|请问|帮我|告诉|一下|吗|呢|啊|吧|的|了|是|有|在|我|你|他|她)/g, " ")
-    .trim();
-  // 候选词：原句 → 去疑问词后的整段 → 各片段
-  const candidates = [keyword.trim(), cleaned];
-  cleaned.split(/\s+/).forEach((seg) => {
-    if (seg.length >= 2) candidates.push(seg);
-  });
-  const all = await loadPoems();
   const hitSlugs = new Set<string>();
   const results: any[] = [];
-  candidates.filter(Boolean).forEach((term) => {
-    const lower = term.toLowerCase();
-    all.forEach((p) => {
-      if (hitSlugs.has(p.slug)) return;
-      const haystack = [p.title, p.content, p.background, (p.keywords ?? []).join(" ")]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
-      if (haystack.includes(lower)) {
-        hitSlugs.add(p.slug);
-        results.push(p);
-      }
+  const pushPoem = (p: any) => {
+    if (!p || hitSlugs.has(p.slug)) return;
+    hitSlugs.add(p.slug);
+    results.push(p);
+  };
+
+  // 第一路：向量语义检索（match_poems RPC，返回的是 poems 全列行）
+  const vectorHits = await vectorSearchPoems(keyword);
+  (vectorHits ?? []).forEach(pushPoem);
+
+  // 第二路：关键词检索——标题 / 正文 / 背景 / 关键词四路匹配，
+  // 整句提问时先拆掉疑问词与标点，再按片段匹配，避免「李煜为什么亡国」这类长句一首也命中不了
+  if (results.length < 6) {
+    const cleaned = keyword
+      .replace(/[%*(),。，？?！!、；;：:「」《》"'']/g, " ")
+      .replace(/(为什么|为什么说|怎么|怎么样|什么|哪些|哪里|哪|如何|是否|是不是|能不能|可以|请问|帮我|告诉|一下|吗|呢|啊|吧|的|了|是|有|在|我|你|他|她)/g, " ")
+      .trim();
+    // 候选词：原句 → 去疑问词后的整段 → 各片段
+    const candidates = [keyword.trim(), cleaned];
+    cleaned.split(/\s+/).forEach((seg) => {
+      if (seg.length >= 2) candidates.push(seg);
     });
-  });
+    const all = await loadPoems();
+    candidates.filter(Boolean).forEach((term) => {
+      const lower = term.toLowerCase();
+      all.forEach((p) => {
+        if (hitSlugs.has(p.slug)) return;
+        const haystack = [p.title, p.content, p.background, (p.keywords ?? []).join(" ")]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+        if (haystack.includes(lower)) pushPoem(p);
+      });
+    });
+  }
   return results.slice(0, 6);
 };
 
@@ -607,13 +667,112 @@ Deno.serve(async (req: Request) => {
     if (action === "search") {
       if (!message) return jsonResponse({ error: "请给出要检索的关键词。" }, 400);
       const rows = await searchPoems(message);
+      // 向量通道捞到的行带 2048 维 embedding，回前端前剥掉，免得响应体膨胀
+      const clean = rows.map(({ embedding: _embedding, ...rest }: any) => rest);
       return jsonResponse({
         action,
         answer: rows.length
           ? `在词库里找到 ${rows.length} 首相关的词。`
           : "词库里暂时没有直接对应的词作，换个意象试试，比如「春水」「西楼」「梧桐」。",
-        sources: rows,
+        sources: clean,
       });
+    }
+
+    // 多模态朗读：文本 → 智谱 GLM-TTS → wav 音频流
+    // 前端拿到二进制直接播放；任何一步失败都回 502 JSON，前端自动降级到浏览器 speechSynthesis
+    if (action === "speak") {
+      const text = normalize(body.text ?? message, 400);
+      if (!text) return jsonResponse({ error: "请给出要朗读的文本。" }, 400);
+      if (!EXTERNAL_KEY) return jsonResponse({ error: "TTS 未配置" }, 502);
+      try {
+        const ttsRes = await fetch(`${EXTERNAL_BASE}/audio/speech`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${EXTERNAL_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "glm-tts",
+            input: text,
+            voice: "female", // 文档示例音色；0.9 倍速更适合词的吟诵节奏
+            speed: 0.9,
+            response_format: "wav",
+          }),
+        });
+        if (!ttsRes.ok) {
+          const upstreamBody = await ttsRes.text().catch(() => "");
+          console.warn("GLM-TTS 失败", ttsRes.status, upstreamBody);
+          // detail 只放截断后的上游错误，便于排障，不含密钥
+          return jsonResponse({ error: "朗读服务暂时不可用", detail: `upstream ${ttsRes.status}: ${upstreamBody.slice(0, 200)}` }, 502);
+        }
+        const audio = await ttsRes.arrayBuffer();
+        if (!audio.byteLength) return jsonResponse({ error: "朗读服务返回为空" }, 502);
+        logGuide({
+          session_id: sessionId,
+          mode: "speak",
+          page,
+          question: text.slice(0, 200),
+          answer: "[tts]",
+          model: "glm-tts",
+          tokens: null,
+          tools: null,
+        });
+        return new Response(audio, {
+          headers: { ...corsHeaders, "Content-Type": "audio/wav", "Cache-Control": "no-store" },
+        });
+      } catch (error) {
+        console.warn("GLM-TTS 调用异常", error);
+        return jsonResponse({ error: "朗读服务暂时不可用" }, 502);
+      }
+    }
+
+    // 多模态词意画：词文 → 豆包 Seedream（平台 AI Gateway）→ 水墨意境图（base64）
+    // 走平台额度而非智谱，密钥只在服务端；失败回 502，前端提示后不影响其它功能
+    if (action === "paint") {
+      const text = normalize(body.text ?? message, 400);
+      if (!text) return jsonResponse({ error: "请给出要入画的词文。" }, 400);
+      if (!GATEWAY_KEY) return jsonResponse({ error: "图像服务未配置" }, 502);
+      // 固定水墨审美：留白、淡彩、无文字无水印，避免模型自由发挥跑题
+      const prompt =
+        `中国水墨画，宣纸质感，大面积留白，淡彩晕染，宋代美学，意境悠远。` +
+        `画面表现这首词的意象与情绪（不要在画中出现任何文字、印章、人物正面特写）：${text}`;
+      try {
+        const imgRes = await fetch(`${GATEWAY_BASE}/images/generations`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${GATEWAY_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "bytedance/doubao-seedream-5.0-pro",
+            prompt,
+            size: "1024x1024",
+            response_format: "b64_json",
+          }),
+        });
+        if (!imgRes.ok) {
+          const upstreamBody = await imgRes.text().catch(() => "");
+          console.warn("seedream 失败", imgRes.status, upstreamBody);
+          return jsonResponse({ error: "入画服务暂时不可用", detail: `upstream ${imgRes.status}: ${upstreamBody.slice(0, 200)}` }, 502);
+        }
+        const data = await imgRes.json();
+        const b64 = data?.data?.[0]?.b64_json;
+        if (!b64) return jsonResponse({ error: "入画服务返回为空" }, 502);
+        logGuide({
+          session_id: sessionId,
+          mode: "paint",
+          page,
+          question: text.slice(0, 200),
+          answer: "[paint]",
+          model: "bytedance/doubao-seedream-5.0-pro",
+          tokens: data?.usage?.total_tokens ?? null,
+          tools: null,
+        });
+        return jsonResponse({ action, image: `data:image/jpeg;base64,${b64}` });
+      } catch (error) {
+        console.warn("seedream 调用异常", error);
+        return jsonResponse({ error: "入画服务暂时不可用" }, 502);
+      }
     }
 
     // 定位当前情境：页面里的词作作为一手资料
