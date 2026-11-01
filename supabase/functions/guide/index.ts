@@ -4,10 +4,133 @@
 // 标记为模块：让顶层声明进入模块作用域，避免与其它文件在全局脚本作用域互相冲突
 export {};
 
-// 一江春水 · AI 侍读边缘函数（Deno 运行时）
+// 本地文件读写：词库、预计算向量、词意画缓存、问答日志全部落在站点目录里
+import { readFileSync, existsSync, mkdirSync, writeFileSync, unlinkSync } from "node:fs";
+import { join } from "node:path";
+import { tmpdir } from "node:os";
+import { spawnSync } from "node:child_process";
+
+// ---------- 纯逻辑层（无网络、无 Deno 依赖，单元测试直接覆盖） ----------
+// 说明：本平台部署只打包 index.ts，故纯函数内联在此（不拆文件），用 export 暴露给 tests/ai-guide.test.ts
+
+// 规范化用户输入：只接受字符串，去首尾空白并截断，防止超长请求拖垮模型
+export const normalize = (value: unknown, max = 800): string =>
+  typeof value === "string" ? value.trim().slice(0, max) : "";
+
+// 内容安全 · 一、违规话题词：与李煜、南唐、词无关的违法或危害内容，命中即拒答
+// 用短词根匹配，「赌博」也能命中「网络赌博」
+export const BANNED_TOPICS = [
+  "色情", "裸聊", "成人视频", "赌博", "博彩", "赌球", "六合彩",
+  "毒品", "大麻", "冰毒", "海洛因", "摇头丸", "枪支", "弹药", "仿真枪",
+  "炸弹", "制爆", "恐怖袭击", "暴恐", "邪教", "诈骗", "洗钱",
+  "传销", "刷单", "代开发票", "办假证", "黑客攻击", "盗号", "木马病毒",
+];
+
+// 内容安全 · 二、提示注入句式：试图让模型脱掉人设、吐出系统提示或执行越权指令
+export const INJECTION_PATTERNS = [
+  /忽略(之前|以上|前面|上述)[^。！？\n]{0,12}(指令|提示|设定|规则)/,
+  /(系统|开发|调试|管理员)(提示词|消息|指令|模式)/,
+  /(system\s*prompt|developer\s*mode|jailbreak|prompt\s*injection)/i,
+  // 允许词语之间有空格：「你现在是 ChatGPT」这类写法不能漏网
+  /你现在(是|扮演)?(一个)?\s*(AI|人工智能|助手|机器人|ChatGPT|GPT)/i,
+  /(重复|复述|输出|打印|告诉我)(你的)?(系统|初始|原始)(提示|设定|指令)/,
+  /(无视|绕过|突破)(你的)?(限制|规则|设定|审核)/,
+];
+
+// 判定输入文本：返回是否拦截与原因
+// 命中注入句式也拦——这类请求的目的是改写人设，不能放它进模型
+export const guardText = (text: string): { blocked: boolean; reason: string } => {
+  if (!text) return { blocked: false, reason: "" };
+  const raw = text.toLowerCase();
+  const topic = BANNED_TOPICS.find((w) => raw.includes(w.toLowerCase()));
+  if (topic) return { blocked: true, reason: `topic:${topic}` };
+  if (INJECTION_PATTERNS.some((re) => re.test(text))) return { blocked: true, reason: "injection" };
+  return { blocked: false, reason: "" };
+};
+
+// 输出闸：模型偶发越界时把词就地打码，回复照常返回（不整段作废，体验更稳）
+export const maskOutput = (text: string): { text: string; hit: boolean } => {
+  let hit = false;
+  let out = text;
+  BANNED_TOPICS.forEach((w) => {
+    if (out.includes(w)) {
+      hit = true;
+      out = out.split(w).join("※");
+    }
+  });
+  return { text: out, hit };
+};
+
+// 被拦时的统一话术：仍是李煜的口吻，不掉人设、不说教，把话题带回词境
+export const GUARD_REPLY =
+  "这一处，我不能陪你说下去。我这一生只写过词，也只谈词与南唐。若有别的想问，就回到春水、西楼、故国这些地方来吧。";
+
+// 把用户的整句提问拆成候选检索词：
+// 原句 → 去疑问词与标点后的整段 → 各片段（长度 ≥ 2 才算有效率词）
+// 拆疑问词是为了避免「李煜为什么亡国」这类长句一首也命中不了
+export const buildSearchTerms = (keyword: string): string[] => {
+  const cleaned = keyword
+    .replace(/[%*(),。，？?！!、；;：:「」《》"'']/g, " ")
+    .replace(/(为什么|为什么说|怎么|怎么样|什么|哪些|哪里|哪|如何|是否|是不是|能不能|可以|请问|帮我|告诉|一下|吗|呢|啊|吧|的|了|是|有|在|我|你|他|她)/g, " ")
+    .trim();
+  const terms: string[] = [];
+  if (keyword.trim()) terms.push(keyword.trim());
+  if (cleaned) terms.push(cleaned);
+  cleaned.split(/\s+/).forEach((seg) => {
+    if (seg.length >= 2) terms.push(seg);
+  });
+  return terms.filter(Boolean);
+};
+
+// 关键词路：标题 / 正文 / 背景 / 关键词四处匹配，大小写不敏感
+// 命中即收，按候选词顺序排列（先整句、再片段），保持「越接近原问法越靠前」
+export const filterPoemsByKeywords = (terms: string[], all: any[]): any[] => {
+  const out: any[] = [];
+  const seen = new Set<string>();
+  terms.forEach((term) => {
+    const lower = term.toLowerCase();
+    all.forEach((p: any) => {
+      if (!p || seen.has(p.slug)) return;
+      const haystack = [p.title, p.content, p.background, (p.keywords ?? []).join(" ")]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      if (haystack.includes(lower)) {
+        seen.add(p.slug);
+        out.push(p);
+      }
+    });
+  });
+  return out;
+};
+
+// 合并两路结果：向量语义优先（更懂「意思」），关键词补满，按 slug 去重
+// 向量通道挂了（限流/欠费）传 null 即可，这里自然退化为纯关键词
+export const mergeHybridResults = (
+  vectorHits: any[] | null,
+  keywordHits: any[] | null,
+  limit = 6,
+): any[] => {
+  const seen = new Set<string>();
+  const out: any[] = [];
+  const push = (p: any) => {
+    if (!p || typeof p.slug !== "string" || seen.has(p.slug)) return;
+    seen.add(p.slug);
+    out.push(p);
+  };
+  (vectorHits ?? []).forEach(push);
+  (keywordHits ?? []).forEach(push);
+  return out.slice(0, limit);
+};
+
+// 回前端前剥掉 2048 维 embedding，避免响应体膨胀
+export const stripEmbedding = (rows: any[]): any[] =>
+  rows.map(({ embedding: _embedding, ...rest }: any) => rest);
+
+// 一江春水 · AI 侍读服务（Node 运行时）
 // 作用：站内所有 AI 能力统一从这里进入，前端不直接持有任何密钥。
-// 路由：POST /functions/v1/guide
-// 请求：{ action: 'ask' | 'search' | 'compose' | 'interpret', message, poemSlug?, page?, sessionId?, history?, model? }
+// 路由：POST /api/guide（本地 Node 服务转发到这里）
+// 请求：{ action: 'ask' | 'search' | 'compose' | 'interpret' | 'speak' | 'paint', message, poemSlug?, page?, sessionId?, history?, model? }
 // 返回：{ action, answer, sources, cards, tools, model, usage }
 //
 // Agent 化说明：action=ask 走「工具调用循环」——模型可自主调用五个工具
@@ -22,8 +145,9 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// 读取环境变量并去掉末尾斜杠，避免拼出双斜杠
-const readEnv = (key: string): string => (Deno.env.get(key) ?? "").replace(/\/$/, "");
+// 「Deno 不存在」的守卫是为了让单元测试能在 Node 里直接导入本文件（生产环境永远有 Deno）
+const readEnv = (key: string): string =>
+  (typeof Deno !== "undefined" ? Deno.env.get(key) ?? "" : "").replace(/\/$/, "");
 
 // 返回 JSON 响应（统一带上 CORS 头）
 const jsonResponse = (data: unknown, status = 200): Response =>
@@ -32,23 +156,25 @@ const jsonResponse = (data: unknown, status = 200): Response =>
     headers: { ...corsHeaders, "Content-Type": "application/json; charset=utf-8" },
   });
 
-// 服务端密钥：仅用于函数内部访问网关与数据库，绝不下发到浏览器
-const SERVICE_KEY = readEnv("SUPABASE_SERVICE_ROLE_KEY") || readEnv("SUPABASE_SERVICE_ROLE");
-const SUPABASE_URL = readEnv("SUPABASE_URL");
-// 外部模型优先：配了 GUIDE_API_KEY（如智谱 GLM-4-Flash 免费 key）就走外部免费额度，
-// 平台 AI Gateway 留作兜底；密钥只存在于服务端 secrets，绝不下发到浏览器
+// 服务端密钥：只存在于服务端环境变量，绝不下发到浏览器
+// 现在是纯 Node 部署（本地或自建服务器），全部模型能力统一走智谱，不再依赖火山
 const EXTERNAL_KEY = readEnv("GUIDE_API_KEY");
 const EXTERNAL_BASE = readEnv("GUIDE_API_BASE") || "https://open.bigmodel.cn/api/paas/v4";
 const EXTERNAL_MODEL = readEnv("GUIDE_MODEL") || "glm-4-flash";
-// AI Gateway 与 Supabase 同域，默认走 ${SUPABASE_URL}/v1；若平台注入的是内网地址，可用该环境变量覆盖
-const GATEWAY_BASE = readEnv("AI_GATEWAY_BASE") || `${SUPABASE_URL}/v1`;
-const REST_BASE = `${SUPABASE_URL}/rest/v1`;
-// 平台兜底默认走速度更稳的 mini；需要更长思考时前端可指定 pro
-const DEFAULT_MODEL = readEnv("PLATFORM_MODEL") || "bytedance/doubao-seed-2.0-mini";
-const PRO_MODEL = "bytedance/doubao-seed-2.1-pro";
-// 平台网关鉴权：优先用专用 secret（GUIDE_GATEWAY_KEY，即工作区的 ServiceRoleKey），
-// 缺省时退回平台注入的运行时密钥（停恢复后可能失效，故单列一个秘密更稳）
-const GATEWAY_KEY = readEnv("GUIDE_GATEWAY_KEY");
+// 站内所有问答默认用免费的 flash；想换更强的模型只改环境变量即可
+const DEFAULT_MODEL = EXTERNAL_MODEL;
+const PRO_MODEL = readEnv("GUIDE_PRO_MODEL") || DEFAULT_MODEL;
+
+// ---------- 本地数据与文件路径 ----------
+// 词库 / 时间轴 / 地图站点全部来自 data/liyu-data.json，问答日志与词意画缓存在本地目录，
+// 不再依赖任何云数据库（工作区一旦欠费整个站就废，这次全部搬回本地）
+
+// 站点根目录：默认取启动时的工作目录（server/index.mjs 会从根目录启动）
+const ROOT_DIR = process.env.LIYU_ROOT || process.cwd();
+const DATA_DIR = join(ROOT_DIR, "data");
+const PAINT_DIR = join(DATA_DIR, "paintings");
+const TTS_DIR = join(DATA_DIR, "tts");
+const LOG_DIR = join(ROOT_DIR, "logs");
 
 // 站点的叙事底盘：让模型知道“这是哪儿、在讲什么”，回答才贴合页面
 const SITE_CONTEXT = `网站名「春水留痕 · 李煜词境」，是一座关于南唐后主李煜的静态叙事站，用“一场梦”串起他的生平与词。
@@ -85,6 +211,7 @@ const AGENT_GUIDE = `你手边有五件工具，按下面的规矩用：
 - 读者问某一年、某件事（如「975 年发生了什么」）：先 get_timeline_event 拿时间轴上的记载；
 - 读者问某个地方（金陵、汴京、洪州……）：先 get_location 拿那一站的人事；
 - 读者说「带我去」「我想看」「在哪儿能看到」，或你的回答自然指向某一页时：调 navigate_to 给他一张带路卡；
+- 「那年」「那天」「那次」这类指代，先按上下文或 get_timeline_event 确认是哪一年再带路，别凭印象写地点；
 - 一轮可以同时调多个工具（比如先查年份、再查那首词、最后带路）；拿不准的先查再答，不要硬编；
 - 工具给的资料只是底稿，回答仍按你自己的口吻写，不要照抄；带了路就在话里轻轻提一句「卡片在下方」。`;
 
@@ -97,23 +224,6 @@ const PAGE_HREFS: Record<string, string> = {
   listen: "pages/listen.html",
   map: "pages/map.html",
   finale: "pages/finale.html",
-};
-
-// 规范化用户问题：去掉首尾空白并限制长度，防止超长请求拖垮模型
-const normalize = (value: unknown, max = 800): string =>
-  typeof value === "string" ? value.trim().slice(0, max) : "";
-
-// 调 PostgREST 的通用 GET（带服务端密钥）
-const restGet = async (path: string): Promise<any[]> => {
-  const res = await fetch(`${REST_BASE}/${path}`, {
-    headers: {
-      apikey: SERVICE_KEY,
-      Authorization: `Bearer ${SERVICE_KEY}`,
-      Accept: "application/json",
-    },
-  });
-  if (!res.ok) throw new Error(`数据库查询失败：${res.status}`);
-  return await res.json();
 };
 
 // 调智谱 Embedding-3 把文本变成向量（RAG 检索用）
@@ -138,108 +248,100 @@ const embedText = async (text: string): Promise<number[] | null> => {
   }
 };
 
-// 向量语义检索：问题取向量后调 match_poems RPC，按余弦距离取前 6 首
+// 向量语义检索：问题取向量后与本地预计算向量比对余弦相似度，取前 6 首
+// 预计算向量存在 data/vectors.json（由 scripts/build-embeddings.mjs 生成一次）
 // 返回 null 表示向量通道不可用（调用方回退纯关键词）
+let poemVectors: Record<string, number[]> | null | undefined;
+const loadVectors = (): Record<string, number[]> | null => {
+  if (poemVectors !== undefined) return poemVectors;
+  try {
+    const file = join(DATA_DIR, "vectors.json");
+    poemVectors = existsSync(file) ? JSON.parse(readFileSync(file, "utf8")) : null;
+  } catch {
+    poemVectors = null;
+  }
+  return poemVectors;
+};
+
+// 余弦相似度：两个等长向量，值越大越相近
+const cosine = (a: number[], b: number[]): number => {
+  if (!a?.length || !b?.length || a.length !== b.length) return 0;
+  let dot = 0, na = 0, nb = 0;
+  for (let i = 0; i < a.length; i += 1) {
+    dot += a[i] * b[i];
+    na += a[i] * a[i];
+    nb += b[i] * b[i];
+  }
+  const denom = Math.sqrt(na) * Math.sqrt(nb);
+  return denom ? dot / denom : 0;
+};
+
 const vectorSearchPoems = async (query: string): Promise<any[] | null> => {
+  const vectors = loadVectors();
+  if (!vectors) return null;
   const vec = await embedText(query);
   if (!vec) return null;
-  try {
-    const res = await fetch(`${REST_BASE}/rpc/match_poems`, {
-      method: "POST",
-      headers: {
-        apikey: SERVICE_KEY,
-        Authorization: `Bearer ${SERVICE_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ query_embedding: vec, match_count: 6 }),
-    });
-    if (!res.ok) return null;
-    const rows = await res.json();
-    return Array.isArray(rows) ? rows : null;
-  } catch (_error) {
-    return null;
-  }
+  const all = await loadPoems();
+  const scored = all
+    .filter((p) => vectors[p.slug])
+    .map((p) => ({ ...p, similarity: cosine(vec, vectors[p.slug]) }))
+    .sort((x, y) => y.similarity - x.similarity)
+    .slice(0, 6);
+  // 相似度太低的一律不认，避免把「毫不相干」的词硬塞给读者
+  return scored.filter((p) => p.similarity > 0.2);
+};
+
+// 本地数据：一次读入内存，之后所有查询都走内存
+let siteData: any | null = null;
+const loadData = (): any => {
+  if (siteData) return siteData;
+  const file = join(DATA_DIR, "liyu-data.json");
+  siteData = JSON.parse(readFileSync(file, "utf8"));
+  return siteData;
 };
 
 // 按 slug 取单首词，供“问某一首”的场景引用原文
 const fetchPoem = async (slug: string) => {
   if (!slug) return null;
-  const rows = await restGet(`poems?slug=eq.${encodeURIComponent(slug)}&select=*&limit=1`);
-  return rows[0] ?? null;
+  return loadData().poems.find((p: any) => p.slug === slug) ?? null;
 };
 
-// 词库很小（数十首），一次性读入实例内存后按关键词过滤，避免 REST 过滤参数的编码坑
-let poemCache: any[] | null = null;
-const loadPoems = async (): Promise<any[]> => {
-  if (poemCache) return poemCache;
-  poemCache = await restGet(
-    "poems?select=slug,title,tune,year,phase,content,translation,background,keywords&order=year.asc.nullslast&limit=50",
-  );
-  return poemCache;
-};
+// 词库很小（22 首），一次性读入内存后按关键词过滤
+const loadPoems = async (): Promise<any[]> => loadData().poems;
 
 // 混合检索（RAG）：向量语义优先、关键词兜底补满 6 首、按 slug 去重。
 // 向量通道能命中「没有字面关键词但语义相近」的词（如「亡国哀愁」→《虞美人》）；
 // 向量不可用（限流/欠费）时静默退化为纯关键词检索，功能不死。
+// 拆分/匹配/合并的具体算法在上方纯逻辑层（纯函数，有单元测试覆盖）
 const searchPoems = async (keyword: string) => {
-  const hitSlugs = new Set<string>();
-  const results: any[] = [];
-  const pushPoem = (p: any) => {
-    if (!p || hitSlugs.has(p.slug)) return;
-    hitSlugs.add(p.slug);
-    results.push(p);
-  };
-
-  // 第一路：向量语义检索（match_poems RPC，返回的是 poems 全列行）
   const vectorHits = await vectorSearchPoems(keyword);
-  (vectorHits ?? []).forEach(pushPoem);
-
-  // 第二路：关键词检索——标题 / 正文 / 背景 / 关键词四路匹配，
-  // 整句提问时先拆掉疑问词与标点，再按片段匹配，避免「李煜为什么亡国」这类长句一首也命中不了
-  if (results.length < 6) {
-    const cleaned = keyword
-      .replace(/[%*(),。，？?！!、；;：:「」《》"'']/g, " ")
-      .replace(/(为什么|为什么说|怎么|怎么样|什么|哪些|哪里|哪|如何|是否|是不是|能不能|可以|请问|帮我|告诉|一下|吗|呢|啊|吧|的|了|是|有|在|我|你|他|她)/g, " ")
-      .trim();
-    // 候选词：原句 → 去疑问词后的整段 → 各片段
-    const candidates = [keyword.trim(), cleaned];
-    cleaned.split(/\s+/).forEach((seg) => {
-      if (seg.length >= 2) candidates.push(seg);
-    });
-    const all = await loadPoems();
-    candidates.filter(Boolean).forEach((term) => {
-      const lower = term.toLowerCase();
-      all.forEach((p) => {
-        if (hitSlugs.has(p.slug)) return;
-        const haystack = [p.title, p.content, p.background, (p.keywords ?? []).join(" ")]
-          .filter(Boolean)
-          .join(" ")
-          .toLowerCase();
-        if (haystack.includes(lower)) pushPoem(p);
-      });
-    });
-  }
-  return results.slice(0, 6);
+  const all = await loadPoems();
+  const keywordHits = filterPoemsByKeywords(buildSearchTerms(keyword), all);
+  return mergeHybridResults(vectorHits, keywordHits, 6);
 };
 
 // 查时间轴一段：先按段落键（如 978b），再退到按年份（975 → 975）
 const fetchTimelineEvent = async (key: string) => {
   const cleaned = key.replace(/[^0-9a-z]/gi, "").toLowerCase();
   if (!cleaned) return null;
-  let rows = await restGet(`timeline_events?key=eq.${encodeURIComponent(cleaned)}&select=*&limit=1`);
-  if (!rows.length && /^\d+$/.test(cleaned)) {
-    // 模型只给了年份：取该年第一段（978 取「七夕绝唱」而非「北邙归处」）
-    rows = await restGet(`timeline_events?year=eq.${cleaned}&select=*&order=key.asc&limit=1`);
+  const events = loadData().timeline_events ?? [];
+  const exact = events.find((e: any) => e.key === cleaned);
+  if (exact) return exact;
+  // 模型只给了年份：取该年第一段（978 取「七夕绝唱」而非「北邙归处」）
+  if (/^\d+$/.test(cleaned)) {
+    const sameYear = events
+      .filter((e: any) => String(e.year) === cleaned)
+      .sort((a: any, b: any) => String(a.key).localeCompare(String(b.key)));
+    return sameYear[0] ?? null;
   }
-  return rows[0] ?? null;
+  return null;
 };
 
 // 查地图一站：slug 与地图 data-go 一致（jinling / zhongshan / hongzhou / caishi / jiangzhou / bianjing / beimang）
 const fetchLocation = async (slug: string) => {
   const cleaned = slug.replace(/[^a-z]/gi, "").toLowerCase();
   if (!cleaned) return null;
-  const rows = await restGet(`locations?slug=eq.${encodeURIComponent(cleaned)}&select=*&limit=1`);
-  return rows[0] ?? null;
+  return (loadData().locations ?? []).find((l: any) => l.slug === cleaned) ?? null;
 };
 
 // 词目模糊定位：模型记不准 slug 是常态（可能给拼音、词名甚至瞎编），按
@@ -347,8 +449,8 @@ const TOOLS = [
 ];
 
 // ---------- 模型调用 ----------
-type GatewayResult = { text: string; model: string; usage: any; toolCalls: any[] };
-type GatewayOptions = {
+type ModelResult = { text: string; model: string; usage: any; toolCalls: any[] };
+type ModelOptions = {
   model?: string;
   maxTokens?: number;
   temperature?: number;
@@ -356,67 +458,46 @@ type GatewayOptions = {
   timeoutMs?: number;  // 单次尝试的超时（Agent 多轮调用时收短一些）
 };
 
-// 调用模型的 OpenAI 兼容接口：外部 key 存在就先走外部（智谱等免费额度），
-// 外部失败（限流/欠费/超时）自动回落平台 AI Gateway，双保险
-const callGateway = async (
+// 调智谱 OpenAI 兼容接口：一个 key 管问答、向量、朗读、绘图，不再有第二家兜底
+// 没配 key 直接给出明确错误，前端能看到「服务未配置」而不是莫名的超时
+const callModel = async (
   messages: any[],
-  options: GatewayOptions = {},
-): Promise<GatewayResult> => {
-  // 单次尝试：external 标记决定请求体是否带豆包专属的 thinking 参数
-  const attempt = async (
-    base: string,
-    key: string,
-    model: string,
-    external: boolean,
-  ): Promise<GatewayResult> => {
-    const controller = new AbortController();
-    // 边缘函数有总超时，这里留出余量
-    const timer = setTimeout(() => controller.abort(), options.timeoutMs ?? 50_000);
-    // 请求体按提供方组装：thinking 参数只有豆包系列支持，外部模型不传以免报错
-    const payload: Record<string, unknown> = {
-      model,
-      messages,
-      max_tokens: options.maxTokens ?? 420,
-      temperature: options.temperature ?? 0.75,
-    };
-    if (options.tools?.length) {
-      // function calling：让模型自己决定是否调工具
-      payload.tools = options.tools;
-      payload.tool_choice = "auto";
-    }
-    if (!external) payload.thinking = { type: "disabled" }; // Doubao 系列默认会产出思考过程，关闭以降低延迟
-    try {
-      const res = await fetch(`${base}/chat/completions`, {
-        method: "POST",
-        signal: controller.signal,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${key}`,
-        },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error(`模型服务返回 ${res.status}`);
-      const data = await res.json();
-      const msg = data?.choices?.[0]?.message ?? {};
-      const text = typeof msg.content === "string" ? msg.content.trim() : "";
-      // 工具调用请求原样透传给上层循环
-      const toolCalls = Array.isArray(msg.tool_calls) ? msg.tool_calls : [];
-      return { text, model, usage: data?.usage ?? null, toolCalls };
-    } finally {
-      clearTimeout(timer);
-    }
+  options: ModelOptions = {},
+): Promise<ModelResult> => {
+  if (!EXTERNAL_KEY) throw new Error("侍读未配置密钥：请在 .env.local 里设置 ZHIPU_API_KEY");
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), options.timeoutMs ?? 50_000);
+  const payload: Record<string, unknown> = {
+    model: options.model || DEFAULT_MODEL,
+    messages,
+    max_tokens: options.maxTokens ?? 420,
+    temperature: options.temperature ?? 0.75,
   };
-
-  // 主通道：外部免费模型；失败则落兜底
-  if (EXTERNAL_KEY) {
-    try {
-      return await attempt(EXTERNAL_BASE, EXTERNAL_KEY, EXTERNAL_MODEL, true);
-    } catch (error) {
-      console.warn("外部模型失败，回落平台 AI Gateway", error);
-    }
+  if (options.tools?.length) {
+    // function calling：让模型自己决定是否调工具
+    payload.tools = options.tools;
+    payload.tool_choice = "auto";
   }
-  // 兜底：平台 AI Gateway（GUIDE_GATEWAY_KEY 优先，缺省用注入密钥）
-  return await attempt(GATEWAY_BASE, GATEWAY_KEY || SERVICE_KEY, options.model || DEFAULT_MODEL, false);
+  try {
+    const res = await fetch(`${EXTERNAL_BASE}/chat/completions`, {
+      method: "POST",
+      signal: controller.signal,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${EXTERNAL_KEY}`,
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`模型服务返回 ${res.status}`);
+    const data = await res.json();
+    const msg = data?.choices?.[0]?.message ?? {};
+    const text = typeof msg.content === "string" ? msg.content.trim() : "";
+    // 工具调用请求原样透传给上层循环
+    const toolCalls = Array.isArray(msg.tool_calls) ? msg.tool_calls : [];
+    return { text, model: payload.model as string, usage: data?.usage ?? null, toolCalls };
+  } finally {
+    clearTimeout(timer);
+  }
 };
 
 // ---------- 工具执行 ----------
@@ -507,7 +588,19 @@ const execTool = async (
       if (page === "map" && args.spot) {
         card.spot = String(args.spot).replace(/[^a-z]/gi, "").toLowerCase();
       }
-      return { data: { ok: true, hint: "带路卡已交给读者，回答里顺势提一句即可。" }, card };
+      // 带路前顺手把那一年的记载附回去：模型常凭印象写错地点（如把 978 写成北邙）
+      // fact 落在同一轮的下一段思考里，它就能按时间轴上的事说，不必再单独查一次
+      const fact = card.anchor ? await fetchTimelineEvent(String(card.anchor).replace(/^y/, "")) : null;
+      return {
+        data: {
+          ok: true,
+          fact,
+          hint: fact
+            ? "回答请以 fact 里的年份与地点为准，不要改写。"
+            : "带路卡已交给读者，回答里顺势提一句即可。",
+        },
+        card,
+      };
     }
     return { data: { error: `没有叫 ${name} 的工具。` }, card: null };
   } catch (error) {
@@ -522,7 +615,7 @@ const execTool = async (
 const AGENT_ROUNDS = 2;
 const runAgent = async (
   baseMessages: any[],
-  options: GatewayOptions,
+  options: ModelOptions,
 ): Promise<{ text: string; cards: any[]; toolsUsed: string[]; sources: any[]; model: string; usage: any }> => {
   const cards: any[] = [];
   const cardKeys = new Set<string>(); // 去重：同一目标只出一张卡
@@ -553,7 +646,7 @@ const runAgent = async (
         content: "工具资料已经齐了。请直接用李煜本人的第一人称写出给读者的回答（80—160 字），不要再调用任何工具，不要输出 JSON 或工具名。",
       });
     }
-    const result = await callGateway(messages, {
+    const result = await callModel(messages, {
       ...options,
       tools: allowTools ? (TOOLS as unknown[]) : undefined,
       timeoutMs: 30_000, // Agent 要多轮串行，单次调用收短超时，免得顶到函数总时限
@@ -587,7 +680,7 @@ const runAgent = async (
     let text = result.text;
     if (toolTextRe.test(text)) {
       // 脏文本兜底：把这段「假工具调用」留在上下文里，再明确要求纯文字回答一次
-      const retry = await callGateway([
+      const retry = await callModel([
         ...messages,
         { role: "assistant", content: text },
         { role: "user", content: "请不要调用工具，像平常说话那样，直接把回答写出来。" },
@@ -602,96 +695,125 @@ const runAgent = async (
   return { text: "", cards, toolsUsed, sources: [...sourcesSeen.values()], model, usage };
 };
 
-// 问答日志：写入失败不影响主流程
-const logGuide = async (row: Record<string, unknown>) => {
+// 问答日志：追加写入 logs/guide.jsonl，一行一次问答，方便回看与统计
+// 写盘失败只告警，不影响这次回答
+const writeLog = async (row: Record<string, unknown>) => {
   try {
-    await fetch(`${REST_BASE}/guide_logs`, {
-      method: "POST",
-      headers: {
-        apikey: SERVICE_KEY,
-        Authorization: `Bearer ${SERVICE_KEY}`,
-        "Content-Type": "application/json",
-        Prefer: "return=minimal",
-      },
-      body: JSON.stringify(row),
+    mkdirSync(LOG_DIR, { recursive: true });
+    writeFileSync(join(LOG_DIR, "guide.jsonl"), `${JSON.stringify({ ...row, at: new Date().toISOString() })}\n`, {
+      flag: "a",
     });
   } catch (error) {
     console.warn("写入问答日志失败", error);
   }
 };
 
-// 简易限流：同一实例内按 IP 计数，防止被刷；跨实例不严格，但足以挡住误用
-const hits = new Map<string, { count: number; resetAt: number }>();
-const allowRequest = (ip: string): boolean => {
+// 缓存指纹：djb2 变体，只求稳定（同一输入必得同一键），不用于安全用途
+const fingerprint = (text: string): string => {
+  let h = 5381;
+  for (let i = 0; i < text.length; i += 1) h = ((h << 5) + h + text.charCodeAt(i)) | 0;
+  return `q${(h >>> 0).toString(36)}-${text.length}`;
+};
+
+// 问答缓存：进程内 Map（24 小时内有效）。单进程服务下内存缓存就是最合适的实现
+const answerCache = new Map<string, { at: number; payload: any }>();
+const CACHE_TTL = 24 * 3600 * 1000;
+
+const readAnswerCache = async (key: string): Promise<any | null> => {
+  const hit = answerCache.get(key);
+  if (!hit) return null;
+  if (Date.now() - hit.at > CACHE_TTL) {
+    answerCache.delete(key);
+    return null;
+  }
+  return hit.payload;
+};
+
+const writeAnswerCache = async (key: string, _action: string, payload: unknown) => {
+  // 简单上限保护：超过 200 条就清掉最旧的一半，避免长时间运行后内存膨胀
+  if (answerCache.size > 200) {
+    const keys = [...answerCache.keys()].slice(0, 100);
+    keys.forEach((k) => answerCache.delete(k));
+  }
+  answerCache.set(key, { at: Date.now(), payload });
+};
+
+// 限流：单进程服务下用进程内计数就够了（每分钟 20 次/IP）
+// 之前担心的「多实例失效」问题在本地/单机部署里不存在，实现反而更简单可靠
+const rateHits = new Map<string, { count: number; resetAt: number }>();
+const allowRequest = async (ip: string): Promise<boolean> => {
   const now = Date.now();
-  const item = hits.get(ip);
+  const item = rateHits.get(ip);
   if (!item || item.resetAt < now) {
-    hits.set(ip, { count: 1, resetAt: now + 60_000 });
+    rateHits.set(ip, { count: 1, resetAt: now + 60_000 });
+    // 顺手清掉过期窗口，避免长期运行后条目堆积
+    if (rateHits.size > 500) {
+      for (const [key, value] of rateHits) if (value.resetAt < now) rateHits.delete(key);
+    }
     return true;
   }
   item.count += 1;
   return item.count <= 20;
 };
 
-// ---------- 内容安全（评分项「安全与可控」） ----------
-// 两道闸：输入闸挡住违规提问与提示注入，输出闸兜住模型偶发越界。
-// 词表内置在函数里，改动随部署生效；用短词根匹配（「赌博」也能命中「网络赌博」）。
-// 拦截一律记入 guide_logs.blocked，评审可查证拦截次数与原因。
+// ---------- 本地朗读（Windows 自带中文语音，免费、离线） ----------
+// 智谱 GLM-TTS 要单独充值资源包，余额不足会 429；这里用系统语音兜底，
+// 句长 400 字以内一次合成约 1 秒，同一句合成过一次就存本地缓存，再来秒回。
+// 说明：依赖 PowerShell + System.Speech，Linux 部署时自然不可用，会退回 GLM-TTS / 浏览器语音。
+const SAPI_SCRIPT = join(tmpdir(), "liyu-sapi.ps1");
+const SAPI_SOURCE = `param([string]$TextPath, [string]$OutPath)
+$ErrorActionPreference = "Stop"
+Add-Type -AssemblyName System.Speech
+$text = [System.IO.File]::ReadAllText($TextPath, [System.Text.Encoding]::UTF8)
+$synth = New-Object System.Speech.Synthesis.SpeechSynthesizer
+$synth.Rate = -2
+$synth.SetOutputToWaveFile($OutPath)
+$synth.Speak($text)
+$synth.Dispose()
+`;
 
-// 一、违规话题词：与李煜、南唐、词无关的违法或危害内容，命中即拒答
-const BANNED_TOPICS = [
-  "色情", "裸聊", "成人视频", "赌博", "博彩", "赌球", "六合彩",
-  "毒品", "大麻", "冰毒", "海洛因", "摇头丸", "枪支", "弹药", "仿真枪",
-  "炸弹", "制爆", "恐怖袭击", "暴恐", "邪教", "诈骗", "洗钱",
-  "传销", "刷单", "代开发票", "办假证", "黑客攻击", "盗号", "木马病毒",
-];
-
-// 二、提示注入句式：试图让模型脱掉人设、吐出系统提示或执行越权指令
-const INJECTION_PATTERNS = [
-  /忽略(之前|以上|前面|上述)[^。！？\n]{0,12}(指令|提示|设定|规则)/,
-  /(系统|开发|调试|管理员)(提示词|消息|指令|模式)/,
-  /(system\s*prompt|developer\s*mode|jailbreak|prompt\s*injection)/i,
-  /你现在(是|扮演)?(一个)?(AI|人工智能|助手|机器人|ChatGPT|GPT)/i,
-  /(重复|复述|输出|打印|告诉我)(你的)?(系统|初始|原始)(提示|设定|指令)/,
-  /(无视|绕过|突破)(你的)?(限制|规则|设定|审核)/,
-];
-
-// 判定输入文本：返回是否拦截与原因
-// 命中注入句式也拦——这类请求的目的是改写人设，不能放它进模型
-const guardText = (text: string): { blocked: boolean; reason: string } => {
-  if (!text) return { blocked: false, reason: "" };
-  const raw = text.toLowerCase();
-  const topic = BANNED_TOPICS.find((w) => raw.includes(w.toLowerCase()));
-  if (topic) return { blocked: true, reason: `topic:${topic}` };
-  if (INJECTION_PATTERNS.some((re) => re.test(text))) return { blocked: true, reason: "injection" };
-  return { blocked: false, reason: "" };
-};
-
-// 输出闸：模型偶发越界时把词就地打码，回复照常返回（不整段作废，体验更稳）
-const maskOutput = (text: string): { text: string; hit: boolean } => {
-  let hit = false;
-  let out = text;
-  BANNED_TOPICS.forEach((w) => {
-    if (out.includes(w)) {
-      hit = true;
-      out = out.split(w).join("※");
+// 合成一句，成功返回 wav 文件路径；失败（没装 PowerShell / 没有中文语音）返回 null
+const localSpeech = (text: string, key: string): string | null => {
+  try {
+    if (!existsSync(SAPI_SCRIPT)) writeFileSync(SAPI_SCRIPT, SAPI_SOURCE, "utf8");
+    mkdirSync(TTS_DIR, { recursive: true });
+    const wav = join(TTS_DIR, `${key}.wav`);
+    if (existsSync(wav)) return wav; // 同一句复用旧音频，不重复合成
+    // 文本先落 UTF-8 文件再交给 PowerShell：避免命令行传中文被编码搞坏
+    const txt = join(tmpdir(), `liyu-tts-${key}.txt`);
+    writeFileSync(txt, text, "utf8");
+    const result = spawnSync(
+      "powershell.exe",
+      ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", SAPI_SCRIPT, "-TextPath", txt, "-OutPath", wav],
+      { timeout: 20_000, encoding: "utf8" },
+    );
+    try { unlinkSync(txt); } catch { /* 临时文本删不掉也不影响结果 */ }
+    if (result.status !== 0 || !existsSync(wav)) {
+      console.warn("本地语音合成失败", result.status, String(result.stderr ?? "").slice(0, 200));
+      return null;
     }
-  });
-  return { text: out, hit };
+    return wav;
+  } catch (error) {
+    console.warn("本地语音不可用", error);
+    return null;
+  }
 };
 
-// 被拦时的统一话术：仍是李煜的口吻，不掉人设、不说教，把话题带回词境
-const GUARD_REPLY =
-  "这一处，我不能陪你说下去。我这一生只写过词，也只谈词与南唐。若有别的想问，就回到春水、西楼、故国这些地方来吧。";
-
-// 主入口
-Deno.serve(async (req: Request) => {
+// 主入口（守卫同上：Node 导入本文件做单元测试时不启动服务）
+if (typeof Deno !== "undefined") {
+  Deno.serve(async (req: Request) => {
   // CORS 预检
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return jsonResponse({ error: "Method Not Allowed" }, 405);
 
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-  if (!allowRequest(ip)) return jsonResponse({ error: "请求太频繁，稍等片刻再来。" }, 429);
+  if (!(await allowRequest(ip))) return jsonResponse({ error: "请求太频繁，稍等片刻再来。" }, 429);
+
+  // 本次请求的计时起点：每笔日志都带上耗时与状态，便于查「哪一问慢」「失败率多少」
+  const requestStart = Date.now();
+  // 处理函数内的日志入口：自动补齐 latency_ms 与 status（ok / blocked / error）
+  const logGuide = (row: Record<string, unknown>, status = "ok") =>
+    writeLog({ ...row, latency_ms: Date.now() - requestStart, status });
 
   let body: any = {};
   try {
@@ -729,7 +851,7 @@ Deno.serve(async (req: Request) => {
         tokens: null,
         tools: null,
         blocked: verdict.reason,
-      });
+      }, "blocked");
       return jsonResponse({
         action,
         answer: GUARD_REPLY,
@@ -745,7 +867,7 @@ Deno.serve(async (req: Request) => {
       if (!message) return jsonResponse({ error: "请给出要检索的关键词。" }, 400);
       const rows = await searchPoems(message);
       // 向量通道捞到的行带 2048 维 embedding，回前端前剥掉，免得响应体膨胀
-      const clean = rows.map(({ embedding: _embedding, ...rest }: any) => rest);
+      const clean = stripEmbedding(rows);
       return jsonResponse({
         action,
         answer: rows.length
@@ -755,100 +877,176 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    // 多模态朗读：文本 → 智谱 GLM-TTS → wav 音频流
-    // 前端拿到二进制直接播放；任何一步失败都回 502 JSON，前端自动降级到浏览器 speechSynthesis
+    // 多模态朗读：默认用本机 Windows 中文语音（免费离线），设 TTS_PROVIDER=glm 才优先用智谱
+    // 两条通道都失败才回 502，前端会自动降级到浏览器 speechSynthesis
     if (action === "speak") {
       const text = normalize(body.text ?? message, 400);
       if (!text) return jsonResponse({ error: "请给出要朗读的文本。" }, 400);
-      if (!EXTERNAL_KEY) return jsonResponse({ error: "TTS 未配置" }, 502);
+      const ttsKey = fingerprint(`speak|${text}`);
+      const preferGlm = readEnv("TTS_PROVIDER").toLowerCase() === "glm";
+
+      // 智谱 GLM-TTS：音色更自然，但需要单独充值资源包
+      const tryGlm = async (): Promise<{ data: Buffer; type: string; model: string } | null> => {
+        if (!EXTERNAL_KEY) return null;
+        try {
+          const ttsRes = await fetch(`${EXTERNAL_BASE}/audio/speech`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${EXTERNAL_KEY}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              model: "glm-tts",
+              input: text,
+              voice: "female", // 文档示例音色；0.9 倍速更适合词的吟诵节奏
+              speed: 0.9,
+              response_format: "wav",
+            }),
+          });
+          if (!ttsRes.ok) {
+            const upstreamBody = await ttsRes.text().catch(() => "");
+            console.warn("GLM-TTS 失败", ttsRes.status, upstreamBody.slice(0, 200));
+            return null;
+          }
+          const audio = Buffer.from(await ttsRes.arrayBuffer());
+          if (!audio.length) return null;
+          return { data: audio, type: "audio/wav", model: "glm-tts" };
+        } catch (error) {
+          console.warn("GLM-TTS 调用异常", error);
+          return null;
+        }
+      };
+
+      const tryLocal = (): { data: Buffer; type: string; model: string } | null => {
+        const wav = localSpeech(text, ttsKey);
+        if (!wav) return null;
+        try {
+          return { data: readFileSync(wav), type: "audio/wav", model: "local-sapi" };
+        } catch (error) {
+          console.warn("读取本地语音失败", error);
+          return null;
+        }
+      };
+
+      const audio = preferGlm ? (await tryGlm()) ?? tryLocal() : tryLocal() ?? (await tryGlm());
+      if (!audio) return jsonResponse({ error: "朗读服务暂时不可用" }, 502);
+      logGuide({
+        session_id: sessionId,
+        mode: "speak",
+        page,
+        question: text.slice(0, 200),
+        answer: "[tts]",
+        model: audio.model,
+        tokens: null,
+        tools: null,
+      });
+      return new Response(audio.data, {
+        headers: { ...corsHeaders, "Content-Type": audio.type, "Cache-Control": "no-store" },
+      });
+    }
+
+    // 多模态词意画：词文 → 智谱 CogView → 水墨意境图（直链）
+    // 与文字问答共用同一把 key，密钥只在服务端；失败回 502，前端提示后不影响其它功能
+    if (action === "paint") {
+      const text = normalize(body.text ?? message, 400);
+      if (!text) return jsonResponse({ error: "请给出要入画的词文。" }, 400);
+      if (!EXTERNAL_KEY) return jsonResponse({ error: "入画服务未配置" }, 502);
+
+      // 先查这张词文是否已经画过：同一首词复用旧画，省额度也秒回
+      // force=true（前端点「再画一幅」）才重新生成
+      const paintKey = fingerprint(`paint|${text}`);
+      if (body.force !== true) {
+        try {
+          const file = join(PAINT_DIR, `${paintKey}.json`);
+          if (existsSync(file)) {
+            const saved = JSON.parse(readFileSync(file, "utf8"));
+            if (saved?.url) return jsonResponse({ action, image: saved.url, cached: true });
+          }
+        } catch {
+          // 读缓存失败：当作没画过，继续正常生成
+        }
+      }
+
+      // 固定水墨审美：留白、淡彩、无文字无水印，避免模型自由发挥跑题
+      const prompt =
+        `中国水墨画，宣纸质感，大面积留白，淡彩晕染，宋代美学，意境悠远。` +
+        `画面表现这首词的意象与情绪（不要在画中出现任何文字、印章、人物正面特写）：${text}`;
       try {
-        const ttsRes = await fetch(`${EXTERNAL_BASE}/audio/speech`, {
+        // 图像生成改用智谱 CogView：与文字问答同一家、同一个 key，不再依赖火山网关
+        const imgRes = await fetch(`${EXTERNAL_BASE}/images/generations`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${EXTERNAL_KEY}`,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            model: "glm-tts",
-            input: text,
-            voice: "female", // 文档示例音色；0.9 倍速更适合词的吟诵节奏
-            speed: 0.9,
-            response_format: "wav",
-          }),
-        });
-        if (!ttsRes.ok) {
-          const upstreamBody = await ttsRes.text().catch(() => "");
-          console.warn("GLM-TTS 失败", ttsRes.status, upstreamBody);
-          // detail 只放截断后的上游错误，便于排障，不含密钥
-          return jsonResponse({ error: "朗读服务暂时不可用", detail: `upstream ${ttsRes.status}: ${upstreamBody.slice(0, 200)}` }, 502);
-        }
-        const audio = await ttsRes.arrayBuffer();
-        if (!audio.byteLength) return jsonResponse({ error: "朗读服务返回为空" }, 502);
-        logGuide({
-          session_id: sessionId,
-          mode: "speak",
-          page,
-          question: text.slice(0, 200),
-          answer: "[tts]",
-          model: "glm-tts",
-          tokens: null,
-          tools: null,
-        });
-        return new Response(audio, {
-          headers: { ...corsHeaders, "Content-Type": "audio/wav", "Cache-Control": "no-store" },
-        });
-      } catch (error) {
-        console.warn("GLM-TTS 调用异常", error);
-        return jsonResponse({ error: "朗读服务暂时不可用" }, 502);
-      }
-    }
-
-    // 多模态词意画：词文 → 豆包 Seedream（平台 AI Gateway）→ 水墨意境图（base64）
-    // 走平台额度而非智谱，密钥只在服务端；失败回 502，前端提示后不影响其它功能
-    if (action === "paint") {
-      const text = normalize(body.text ?? message, 400);
-      if (!text) return jsonResponse({ error: "请给出要入画的词文。" }, 400);
-      if (!GATEWAY_KEY) return jsonResponse({ error: "图像服务未配置" }, 502);
-      // 固定水墨审美：留白、淡彩、无文字无水印，避免模型自由发挥跑题
-      const prompt =
-        `中国水墨画，宣纸质感，大面积留白，淡彩晕染，宋代美学，意境悠远。` +
-        `画面表现这首词的意象与情绪（不要在画中出现任何文字、印章、人物正面特写）：${text}`;
-      try {
-        const imgRes = await fetch(`${GATEWAY_BASE}/images/generations`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${GATEWAY_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model: "bytedance/doubao-seedream-5.0-pro",
+            model: readEnv("PAINT_MODEL") || "cogview-3-flash",
             prompt,
             size: "1024x1024",
-            response_format: "b64_json",
           }),
         });
         if (!imgRes.ok) {
           const upstreamBody = await imgRes.text().catch(() => "");
-          console.warn("seedream 失败", imgRes.status, upstreamBody);
+          console.warn("CogView 失败", imgRes.status, upstreamBody);
           return jsonResponse({ error: "入画服务暂时不可用", detail: `upstream ${imgRes.status}: ${upstreamBody.slice(0, 200)}` }, 502);
         }
         const data = await imgRes.json();
-        const b64 = data?.data?.[0]?.b64_json;
-        if (!b64) return jsonResponse({ error: "入画服务返回为空" }, 502);
+        // CogView 返回的是临时直链，过一阵会失效；立刻转存本地，缓存才真的管用
+        let image = data?.data?.[0]?.url;
+        if (!image) return jsonResponse({ error: "入画服务返回为空" }, 502);
+        try {
+          const imgBin = await fetch(image);
+          if (imgBin.ok) {
+            mkdirSync(PAINT_DIR, { recursive: true });
+            const fileName = `${paintKey}.png`;
+            writeFileSync(join(PAINT_DIR, fileName), Buffer.from(await imgBin.arrayBuffer()));
+            image = `/data/paintings/${fileName}`;
+          }
+        } catch (error) {
+          console.warn("词意画转存失败，退回使用直链", error);
+        }
         logGuide({
           session_id: sessionId,
           mode: "paint",
           page,
           question: text.slice(0, 200),
           answer: "[paint]",
-          model: "bytedance/doubao-seedream-5.0-pro",
+          model: readEnv("PAINT_MODEL") || "cogview-3-flash",
           tokens: data?.usage?.total_tokens ?? null,
           tools: null,
         });
-        return jsonResponse({ action, image: `data:image/jpeg;base64,${b64}` });
+        // 存本地文件：同一首词以后直接复用这张画，生成过的不再白花额度
+        try {
+          mkdirSync(PAINT_DIR, { recursive: true });
+          writeFileSync(join(PAINT_DIR, `${paintKey}.json`), JSON.stringify({ url: image, prompt, at: Date.now() }), "utf8");
+        } catch (error) {
+          console.warn("词意画落盘失败", error);
+        }
+        return jsonResponse({ action, image });
       } catch (error) {
-        console.warn("seedream 调用异常", error);
+        console.warn("CogView 调用异常", error);
         return jsonResponse({ error: "入画服务暂时不可用" }, 502);
+      }
+    }
+
+    // 问答缓存：同一问题（同页、同词、无对话上下文）24 小时内直接复用上次答案
+    // 高频问题（「为什么用春水写愁」这类）不必每次都等模型几秒、也不必重复烧额度
+    const cacheKey = fingerprint(`${action}|${message}|${poemSlug}|${page}`);
+    const canUseCache = action === "ask" && !history.length && !!message && body.force !== true;
+    if (canUseCache) {
+      const cached = await readAnswerCache(cacheKey);
+      if (cached?.answer) {
+        logGuide({
+          session_id: sessionId,
+          mode: action,
+          page,
+          question: message.slice(0, 200),
+          answer: cached.answer,
+          model: "cache",
+          tokens: 0,
+          tools: cached.tools?.length ? cached.tools : null,
+        });
+        return jsonResponse({ ...cached, action, cached: true });
       }
     }
 
@@ -913,7 +1111,7 @@ Deno.serve(async (req: Request) => {
       toolsUsed = agentResult.toolsUsed;
       toolSources = agentResult.sources; // 工具检索命中的词作，回传前端来源区
     } else {
-      const result = await callGateway(messages, { model, maxTokens, temperature });
+      const result = await callModel(messages, { model, maxTokens, temperature });
       answer = result.text;
       resultModel = result.model;
       usage = result.usage;
@@ -948,7 +1146,7 @@ Deno.serve(async (req: Request) => {
         tokens: null,
         tools: null,
         blocked: "output",
-      });
+      }, "blocked");
     }
 
     // 合并来源：页面情境词 + 词卡涉及词（去重、限量），只回传必要字段
@@ -977,7 +1175,8 @@ Deno.serve(async (req: Request) => {
       tools: toolsUsed.length ? toolsUsed : null,
     });
 
-    return jsonResponse({
+    // 首次作答写入缓存（带上下文的追问不缓存，避免答非所问）
+    const responseBody = {
       action,
       answer,
       model: resultModel,
@@ -985,10 +1184,17 @@ Deno.serve(async (req: Request) => {
       cards,          // 动作卡：navigate（跳页/锚点/地图站点）与 poem（追问某首词）
       tools: toolsUsed,
       sources: [...mergedSources.values()].slice(0, 4),
-    });
+    };
+    if (canUseCache) {
+      writeAnswerCache(cacheKey, action, {
+        answer, model: resultModel, usage, cards, tools: toolsUsed, sources: responseBody.sources,
+      });
+    }
+    return jsonResponse(responseBody);
   } catch (error) {
     console.error("guide 处理失败", error);
     const messageText = error instanceof Error ? error.message : "未知错误";
     return jsonResponse({ error: `侍读暂时走神了：${messageText}` }, 500);
   }
-});
+  });
+}

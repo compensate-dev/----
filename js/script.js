@@ -2596,9 +2596,9 @@
   initializeMagneticButtons();
   initializeTimelineStories();
   initializeMemoryStories();
-  // f130 多模态诵读：优先调 guide 函数的 GLM-TTS（服务端真人感语音），
+  // f130 多模态诵读：优先调站内 /api/guide 的 GLM-TTS（服务端真人感语音），
   // 失败（限流/未开通/超时）自动降级到浏览器 speechSynthesis，保证按钮永远能发声
-  const TTS_ENDPOINT = "https://br-right-lynx-d7283c56.supabase.aidap-global.cn-beijing.volces.com/functions/v1/guide";
+  const TTS_ENDPOINT = "/api/guide";
   const READ_LABEL = "为我诵读　▶";
   let speaking = false;
   let currentAudio = null; // 正在播放的服务端语音（Audio 对象）
@@ -2714,7 +2714,13 @@
         const res = await fetch(TTS_ENDPOINT, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "paint", text: poemText, page: "listen" }),
+          body: JSON.stringify({
+            action: "paint",
+            text: poemText,
+            page: "listen",
+            // 已经画过一幅后再点「再画一幅」：带上 force，要求重新生成而不是复用旧画
+            force: button.dataset.painted === "1",
+          }),
           signal: ctrl.signal,
         });
         clearTimeout(timer);
@@ -2726,10 +2732,14 @@
         img.src = data.image;
         img.alt = "AI 为这首词生成的水墨意境图";
         const cap = document.createElement("figcaption");
-        cap.textContent = "AI 词意画 · 水墨写意（每次生成皆不同）";
+        // 复用旧画时如实说明，免得读者以为卡住了
+        cap.textContent = data.cached
+          ? "AI 词意画 · 旧画复用（点「再画一幅」可换新）"
+          : "AI 词意画 · 水墨写意（每次生成皆不同）";
         figure.append(img, cap);
         result.append(figure);
         result.hidden = false;
+        button.dataset.painted = "1";
         button.textContent = "再画一幅　✦";
       } catch (error) {
         result.hidden = false;

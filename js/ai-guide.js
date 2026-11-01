@@ -1,11 +1,23 @@
 // 一江春水 · AI 侍读（前端组件）
 // 职责：一枚可拖拽的「侍」印陪读全站——点开可问答/检索词库；
 // 读到关键段落时，印章旁会浮出一句李煜本人的话，点「问问他」自动替你发问。
-// 所有请求统一发到 guide 边缘函数，前端不接触任何密钥。
+// 所有请求统一发到站内的 /api/guide（由 Node 服务代理到智谱），前端不接触任何密钥。
 // 依赖：无（原生 JS），样式见 css/style.css 末尾的 .ai-guide 段。
 (() => {
-  // 边缘函数地址：workspace tough-lemon-8d35881h 的默认分支
-  const ENDPOINT = "https://br-right-lynx-d7283c56.supabase.aidap-global.cn-beijing.volces.com/functions/v1/guide";
+  // 同源接口：本地 Node 服务（server/index.mjs）托管整站并转发到这里
+  const ENDPOINT = "/api/guide";
+
+  // 请求失败时把真正的原因说出来：file:// 直开时浏览器只会给一句 "Failed to fetch"，
+  // 读者容易以为断网；这里改成「要先起本地服务」的明确提示
+  const explainError = (error) => {
+    if (location.protocol === "file:") {
+      return "当前是直接打开的 html 文件。AI 需要本地服务：先运行 scripts\\start.ps1，再从 http://localhost:53422 打开本站";
+    }
+    if (/Failed to fetch|NetworkError|Load failed/i.test(error?.message || "")) {
+      return "连不上本地服务 http://localhost:53422，请确认启动服务的窗口还开着";
+    }
+    return (error && error.message) || "未知错误";
+  };
 
   // 会话标识：同一标签页内复用，便于把问答日志串起来（匿名，不含任何个人信息）
   let sessionId = "";
@@ -684,7 +696,7 @@
       }
     } catch (error) {
       loading.remove();
-      appendMessage("system", `暂时没接上：${error.message}。稍后再问，或换一句试试。`);
+      appendMessage("system", `暂时没接上：${explainError(error)}`);
     } finally {
       busy = false;
       send.disabled = false;
@@ -796,7 +808,7 @@
           if (!response.ok) throw new Error(data.error || "请求失败");
           renderAnswer(action, data.answer || "这一句我没有接上。");
         } catch (error) {
-          setHint(`暂时没接上：${error.message}。稍后再试。`, true);
+          setHint(`暂时没接上：${explainError(error)}`, true);
         } finally {
           tools.querySelectorAll("button").forEach((button) => (button.disabled = false));
         }

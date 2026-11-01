@@ -2,3 +2,11 @@
 .trae-html-share-packages/
 # Trae 截图/临时输出目录，同样属于工具缓存
 .screenshots/
+
+# 本地密钥：只留在本机，绝不进仓库
+.env.local
+
+# 运行时产物：问答日志与词意画/朗读缓存（画一次、读一次就存一份，属于本机缓存）
+logs/
+data/paintings/
+data/tts/
