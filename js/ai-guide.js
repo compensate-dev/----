@@ -409,6 +409,76 @@
     body.scrollTop = body.scrollHeight;
   };
 
+  // ---------- Agent 动作卡 ----------
+  // 后端 guide 函数的 Agent 循环会产出两类卡：
+  //   navigate：带路卡（跳某一页 / life 年份锚点 / map 站点直达）
+  //   poem：词卡（点击自动追问这首词）
+  const inPages = /\/pages\//.test(location.pathname);
+
+  // 跟随带路卡：同页走平滑交互（不整页刷新），跨页拼相对站点根的路径
+  const followNavigate = (card) => {
+    if (card.page === pageKey) {
+      // 同在月色故人：滚到对应年份段落
+      if (card.page === "life" && card.anchor) {
+        const el = document.getElementById(card.anchor);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "start" });
+          return;
+        }
+      }
+      // 同在水墨行迹：直接触发该站的镜头飞行（等同点朱砂点）
+      if (card.page === "map" && card.spot) {
+        const dot = document.querySelector(`.dot-btn[data-go="${card.spot}"]`);
+        if (dot) {
+          dot.click();
+          return;
+        }
+      }
+    }
+    let href = (inPages ? "../" : "") + (card.href || "index.html");
+    if (card.page === "map" && card.spot) href += `#spot=${card.spot}`;
+    else if (card.anchor) href += `#${card.anchor}`;
+    location.href = href;
+  };
+
+  // 渲染动作卡组：排在回答之后、来源词之前
+  const appendCards = (cards) => {
+    if (!Array.isArray(cards) || !cards.length) return;
+    const group = document.createElement("div");
+    group.className = "ai-guide-cards";
+    cards.forEach((card) => {
+      if (!card || typeof card !== "object") return;
+      const btn = document.createElement("button");
+      btn.type = "button";
+      const label = document.createElement("span");
+      label.className = "ai-guide-card-label";
+      const arrow = document.createElement("i");
+      if (card.type === "navigate") {
+        btn.className = "ai-guide-card is-navigate";
+        label.textContent = card.label || "去看看";
+        arrow.textContent = "↗";
+        btn.append(label, arrow);
+        btn.addEventListener("click", () => followNavigate(card));
+      } else if (card.type === "poem") {
+        btn.className = "ai-guide-card is-poem";
+        label.textContent = `读《${card.title}》`;
+        arrow.textContent = card.year ? `${card.year} 年` : "";
+        btn.append(label, arrow);
+        // 词卡：把追问写进输入框并直接发问
+        btn.addEventListener("click", () => {
+          input.value = `《${card.title}》写了什么？`;
+          submit("ask");
+        });
+      } else {
+        return; // 未知卡型直接跳过
+      }
+      group.append(btn);
+    });
+    if (!group.children.length) return;
+    body.append(group);
+    body.scrollTop = body.scrollHeight;
+  };
+
   // 快捷追问：按当前页面给三条
   const renderChips = () => {
     chips.innerHTML = "";
@@ -516,6 +586,8 @@
       if (action === "search") {
         appendSources(`检索到 ${(data.sources || []).length} 阕相关词作`, data.sources);
       } else {
+        // Agent 动作卡（带路 / 词卡）排在来源词之前
+        appendCards(data.cards);
         // 问答也附上引用的词作，便于顺着读下去
         appendSources("可继续读的词作", data.sources);
         // 记录上下文，供下一轮追问

@@ -2271,6 +2271,17 @@ body.home-page.stage-mode .poem-card:hover .poem-arrow{transform:translate(3px,-
 .ai-guide-source b{font-family:"Xuandong Kaishu",var(--serif);font-weight:400;font-size:13px;color:#2c3f34;letter-spacing:.03em}
 .ai-guide-source small{font:9px var(--sans);color:#8d967f;letter-spacing:.08em;margin-left:8px}
 .ai-guide-source em{display:block;font-style:normal;font-size:11.5px;color:#66735f;line-height:1.7;margin-top:2px}
+/* Agent 动作卡：带路（navigate）与词卡（poem），排在回答之后 */
+.ai-guide-cards{display:flex;flex-direction:column;gap:7px;margin:0 0 14px;animation:ai-guide-rise .32s ease both}
+.ai-guide-card{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;text-align:left;border:1px solid rgba(169,104,76,.42);background:linear-gradient(150deg,#fbf8ee,#f4f1e4);padding:9px 12px;cursor:pointer;transition:border-color .2s,background .2s,box-shadow .2s}
+.ai-guide-card:hover{border-color:rgba(169,104,76,.78);background:#fbf6ea;box-shadow:0 6px 16px rgba(30,45,36,.1)}
+.ai-guide-card-label{font-family:"Xuandong Kaishu",var(--serif);font-size:13.5px;letter-spacing:.03em;color:#8a4f39}
+.ai-guide-card i{font-style:normal;font:10px var(--sans);letter-spacing:.08em;color:#a9805f}
+/* 词卡：墨色标题 + 年份 */
+.ai-guide-card.is-poem .ai-guide-card-label{color:#2c3f34}
+.ai-guide-card.is-poem i{color:#8d967f}
+/* 时间轴锚点：AI 带路卡跳转定位时给 sticky 头部留出余量 */
+.timeline-item{scroll-margin-top:110px}
 /* 快捷问题：横排小药丸，可换行 */
 .ai-guide-chips{display:flex;flex-wrap:wrap;gap:7px;padding:0 16px 12px}
 .ai-guide-chip{border:1px solid rgba(48,77,63,.22);background:rgba(250,249,242,.86);color:#4b5f50;font:11.5px var(--serif);letter-spacing:.02em;padding:6px 10px;cursor:pointer;transition:.2s;border-radius:99px}
