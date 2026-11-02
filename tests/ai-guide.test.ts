@@ -21,6 +21,9 @@ import {
   directFactReply,
   checkKnownFacts,
   cnToNumber,
+  HISTORY_TOPICS,
+  buildHistoryTerms,
+  scoreHistoryChunks,
 } from "../supabase/functions/guide/index.ts";
 
 // 统一的假词条工厂，只造测试用得上的字段
@@ -496,5 +499,84 @@ describe("checkKnownFacts（年岁正向核对）", () => {
     assert.equal(cnToNumber("五十六"), 56);
     assert.equal(cnToNumber("987"), 987);
     assert.equal(cnToNumber(""), null);
+  });
+});
+
+describe("HISTORY_TOPICS（五代十国放行）", () => {
+  test("五代十国的人物、政权与年号放行", () => {
+    assert.equal(guardText("柴荣是谁？").blocked, false);
+    assert.equal(guardText("后周世宗为什么北伐").blocked, false);
+    assert.equal(guardText("吴越国后来怎样了").blocked, false);
+    assert.equal(guardText("显德二年发生了什么").blocked, false);
+  });
+
+  test("白名单里确有五代十国词条，不是空放行", () => {
+    assert.ok(HISTORY_TOPICS.includes("柴荣"));
+    assert.ok(HISTORY_TOPICS.includes("后周"));
+    assert.ok(HISTORY_TOPICS.includes("吴越"));
+  });
+
+  test("明代以后与无关话题仍判无关", () => {
+    assert.equal(guardText("明朝张居正变法").blocked, true);
+    assert.equal(guardText("清朝乾隆下江南").reason, "offtopic");
+  });
+});
+
+describe("buildHistoryTerms（史书拆词）", () => {
+  test("去掉疑问词，保留原句并拆出实词", () => {
+    assert.deepEqual(buildHistoryTerms("柴荣是谁"), ["柴荣是谁", "柴荣"]);
+  });
+
+  test("按标点分段，年号与事件各成一段", () => {
+    const terms = buildHistoryTerms("显德二年，世宗北伐");
+    assert.equal(terms[0], "显德二年，世宗北伐");
+    assert.deepEqual(terms, ["显德二年，世宗北伐", "显德二年 世宗北伐", "显德二年", "世宗北伐"]);
+  });
+
+  test("空输入返回空数组", () => {
+    assert.deepEqual(buildHistoryTerms("   "), []);
+  });
+});
+
+describe("scoreHistoryChunks（正史关键词路）", () => {
+  const chunks = [
+    {
+      id: "1", book: "新五代史", juan: "卷12", title: "周本纪",
+      url: "u1", text: "世宗柴荣，太祖养子。", searchText: "世宗柴荣，太祖养子。",
+    },
+    {
+      id: "2", book: "新五代史", juan: "卷62", title: "南唐世家",
+      url: "u2", text: "李昪，徐州人。", searchText: "李昪，徐州人。",
+    },
+    {
+      id: "3", book: "宋史", juan: "卷478", title: "列国世家",
+      url: "u3", text: "柴荣既立，南唐震恐。", searchText: "柴荣既立，南唐震恐。",
+    },
+  ];
+
+  test("命中正文的块排在前面，未命中的块不返回", () => {
+    const rows = scoreHistoryChunks(chunks, "柴荣");
+    assert.equal(rows.length, 2);
+    assert.ok(rows.every((row) => row.id !== "2"));
+    assert.ok((rows[0].score ?? 0) > 0);
+  });
+
+  test("命中篇名的块加权更高", () => {
+    const rows = scoreHistoryChunks(chunks, "南唐世家");
+    assert.equal(rows[0].id, "2");
+    assert.ok((rows[0].score ?? 0) >= 12);
+  });
+
+  test("按书名过滤，只返回指定史书", () => {
+    const rows = scoreHistoryChunks(chunks, "柴荣", "宋史");
+    assert.deepEqual(rows.map((row) => row.id), ["3"]);
+  });
+
+  test("limit 截断结果", () => {
+    assert.equal(scoreHistoryChunks(chunks, "柴荣", undefined, 1).length, 1);
+  });
+
+  test("没有命中返回空数组", () => {
+    assert.deepEqual(scoreHistoryChunks(chunks, "王安石"), []);
   });
 });

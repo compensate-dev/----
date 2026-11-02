@@ -577,6 +577,51 @@
     body.scrollTop = body.scrollHeight;
   };
 
+  // ---------- Agent 步骤与正史出处 ----------
+  // 后端把每次工具调用记成一步（tool / args / hits），这里折成一行小字，
+  // 让读者看见「侍读查过什么」；查到正史的，再附上可回溯的出处链接。
+  const TOOL_LABELS = {
+    search_poems: "词库",
+    get_poem_detail: "词卡",
+    get_timeline_event: "年表",
+    get_location: "行迹",
+    navigate_to: "带路",
+    search_history: "正史",
+  };
+
+  const appendSteps = (steps, history) => {
+    const rows = (Array.isArray(steps) ? steps : []).filter((step) => step && step.tool);
+    const cites = (Array.isArray(history) ? history : []).filter((item) => item && item.book);
+    if (!rows.length && !cites.length) return;
+    const group = document.createElement("div");
+    group.className = "ai-guide-steps";
+    const label = document.createElement("span");
+    label.className = "ai-guide-steps-label";
+    label.textContent = "侍读查过";
+    group.append(label);
+    rows.slice(0, 6).forEach((step) => {
+      const chip = document.createElement("span");
+      chip.className = "ai-guide-step" + (step.ok === false ? " is-miss" : "");
+      const name = TOOL_LABELS[step.tool] || "工具";
+      const arg = step.args ? `「${step.args}」` : "";
+      const result = step.ok === false ? "未查到" : `${step.hits} 条`;
+      chip.textContent = `${name}${arg} · ${result}`;
+      group.append(chip);
+    });
+    cites.slice(0, 3).forEach((item) => {
+      const link = document.createElement("a");
+      link.className = "ai-guide-cite";
+      link.href = item.url || "#";
+      link.target = "_blank";
+      link.rel = "noopener";
+      link.textContent = `《${item.book}·${item.juan}》`;
+      link.title = item.title ? `《${item.book}》${item.juan} · ${item.title}` : `《${item.book}》${item.juan}`;
+      group.append(link);
+    });
+    body.append(group);
+    body.scrollTop = body.scrollHeight;
+  };
+
   // 快捷追问：默认按当前页面给三条；读到具体段落时换成该段的语境关键词
   // liveChips 由「段落语境」模块维护：null = 用页面默认
   let liveChips = null;
@@ -683,6 +728,8 @@
 
       const answer = data.answer || "这一处我没有答上来。";
       appendMessage("seer", answer);
+      // 先交代查过什么（与正史出处），再给动作卡与可读的词
+      if (action === "ask") appendSteps(data.steps, data.history);
       if (action === "search") {
         appendSources(`检索到 ${(data.sources || []).length} 阕相关词作`, data.sources);
       } else {

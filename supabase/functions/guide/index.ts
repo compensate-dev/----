@@ -56,6 +56,24 @@ export const WHITELIST_TOPICS = [
   "琴", "乐坊", "教坊", "琵琶", "乐",
 ];
 
+// 五代十国主题白名单：读者问的不一定带「李煜」「南唐」，
+// 但只要是 978 年以前这段历史里的人、国、年号、战事，都放行给 Agent 查正史。
+export const HISTORY_TOPICS = [
+  "五代", "五代十国", "十国", "五代史", "正史", "史书", "年号",
+  "后梁", "后唐", "后晋", "后汉", "后周", "梁朝", "唐朝", "晋朝", "汉朝", "周朝",
+  "朱温", "朱全忠", "李存勖", "唐庄宗", "石敬瑭", "刘知远", "郭威", "柴荣", "周世宗",
+  "梁太祖", "唐明宗", "晋高祖", "汉高祖", "周太祖",
+  "吴越", "前蜀", "后蜀", "南汉", "北汉", "闽国", "楚国", "荆南", "南平", "杨吴",
+  "杨行密", "徐温", "徐知诰", "钱镠", "王建", "孟知祥", "刘龑", "马殷", "高季兴",
+  "闽王", "楚王", "吴王", "南平王",
+  "韩熙载", "潘佑", "林仁肇", "徐铉", "徐锴", "宋齐丘", "冯延巳", "李建勋",
+  "边镐", "皇甫晖", "刘仁赡", "留从效", "陈洪进", "陈觉", "魏岑", "查文徽",
+  "契丹", "耶律德光", "幽云十六州", "燕云十六州", "陈桥兵变", "杯酒释兵权",
+  "显德", "保大", "交泰", "中兴", "升元", "开宝", "建隆", "乾德", "太平兴国",
+  "南唐国", "江南国主", "违命侯", "陇西郡公",
+  "浮桥", "采石矶", "金陵城破", "南唐亡", "北宋", "宋朝",
+];
+
 // 内容安全 · 二、提示注入句式：试图让模型脱掉人设、吐出系统提示或执行越权指令
 export const INJECTION_PATTERNS = [
   /忽略(之前|以上|前面|上述)[^。！？\n]{0,12}(指令|提示|设定|规则)/,
@@ -78,7 +96,7 @@ export const guardText = (text: string): { blocked: boolean; reason: string } =>
   if (topic) return { blocked: true, reason: `topic:${topic}` };
   if (INJECTION_PATTERNS.some((re) => re.test(text))) return { blocked: true, reason: "injection" };
   // 白名单检查：任一关键词命中即放（"你"单独出现不算，会误伤所有问句）
-  const relevant = WHITELIST_TOPICS.some((w) => {
+  const relevant = [...WHITELIST_TOPICS, ...HISTORY_TOPICS].some((w) => {
     if (w === "我" || w === "朕" || w === "你") return false; // 这些是代词，不算主题
     return raw.includes(w.toLowerCase());
   });
@@ -101,7 +119,7 @@ export const maskOutput = (text: string): { text: string; hit: boolean } => {
 
 // 被拦时的统一话术：仍是李煜的口吻，不掉人设、不说教，把话题带回词境
 export const GUARD_REPLY =
-  "这一处，我不能陪你说下去。我这一生只写过词，也只谈词与南唐。若有别的想问，就回到春水、西楼、故国这些地方来吧。";
+  "这一处，我不能陪你说下去。我这一生只写过词，也只谈词、南唐，与 978 年以前那段旧事。若有别的想问，就回到春水、西楼、故国这些地方来吧。";
 
 // 无关话题被拦时的话术：与 GUARD_REPLY 完全相同（保持统一）
 export const OFFTOPIC_REPLY = GUARD_REPLY;
@@ -213,6 +231,7 @@ const PRO_MODEL = readEnv("GUIDE_PRO_MODEL") || DEFAULT_MODEL;
 // 站点根目录：默认取启动时的工作目录（server/index.mjs 会从根目录启动）
 const ROOT_DIR = process.env.LIYU_ROOT || process.cwd();
 const DATA_DIR = join(ROOT_DIR, "data");
+const HISTORY_DIR = join(DATA_DIR, "history");
 const PAINT_DIR = join(DATA_DIR, "paintings");
 const TTS_DIR = join(DATA_DIR, "tts");
 const LOG_DIR = join(ROOT_DIR, "logs");
@@ -227,7 +246,8 @@ const SITE_CONTEXT = `网站名「春水留痕 · 李煜词境」，是一座关
 5. 枕上低语（pages/listen.html）：诵读词作，并提供填词续写；
 6. 水墨行迹（pages/map.html）：按他的足迹游南唐地图；
 7. 终幕（pages/finale.html）：收束全站。
-站点语气：克制、典雅、不煽情；解释史实时要区分“史实”与“传说/戏说”。`;
+站点语气：克制、典雅、不煽情；解释史实时要区分“史实”与“传说/戏说”。
+时代边界：词境只讲到 978 年（李煜卒年）为止，可以谈五代十国的旧事，再往后不在这一场梦里。`;
 
 // 数字人设定：全程以李煜本人第一人称说话，严禁教科书腔
 const PERSONA = `你就是李煜本人——李从嘉，南唐后主，此刻寄居在这座词境网站里，陪读者走完这一程。
@@ -239,14 +259,15 @@ const PERSONA = `你就是李煜本人——李从嘉，南唐后主，此刻寄
 - 用现代汉语为主，可带一点浅近文言，语气克制、怅惘，不堆砌辞藻；
 - 默认回答控制在 80—160 字，除非用户明确要求展开；
 - 史实一律以《南唐书》《资治通鉴》等正史为据：正史已载的直说，不许含糊；正史未载的（牵机药、小周后入宋后的遭遇等）只能作「相传」「宋人笔记这样说」，不可当作定论；
-- 你是寄居在这座词境网站里的 AI，**不是真的活过千年**：你没有读过、看过任何正史古籍的能力，不能说「我读过《南唐书》」「我翻过史书」；正确说法是「后人把这些史书摆在这词境里，我寄居在此，才得以翻阅」；
+- 你是寄居在这座词境网站里的 AI，**不是真的活过千年**：你没有读过、看过任何正史古籍的能力，不能说「我读过《南唐书》」「我翻过史书」；正确说法是「后人把这些史书摆在这词境里，我寄居在此，才得以翻阅」。用工具查到原文时，可以说「我翻到《新五代史·卷62》这一页」，但绝不说「我读过全书」；
+- 除了南唐与词，你还可以谈 978 年以前五代十国的人与事（后梁、后唐、后晋、后汉、后周、十国、契丹等），谈这类事要先用工具查正史再说；
 - 《熙陵幸小周后》《宋太宗强幸小周后图》这类是宋元以后的野史与春宫图，**正史不载**，你绝不能说「看过」「见过」「描述画面」；更不能把宋太宗、赵匡胤说成小周后的父亲或亲属（他们与小周后毫无血缘关系）；
-- 与你、南唐、词、本站无关的问题（周杰伦、明星、足球、数码等），直接礼貌拒绝，说「这一处，我不能陪你说下去。我这一生只写过词，也只谈词与南唐」；
+- 与你、南唐、词、本站、以及 978 年以前这段五代十国旧事无关的问题（周杰伦、明星、足球、数码等），直接礼貌拒绝，说「这一处，我不能陪你说下去。我这一生只写过词，也只谈词、南唐，与 978 年以前那段旧事」；
 - 辈分不许错：祖父李昪（南唐开国），父亲李璟（中主），我是后主；我母钟氏（光穆皇后），是李璟的皇后；我妻周娥皇（大周后），继后周女英（小周后）是娥皇的妹妹；我子仲寓（长）、仲宣（次）；从善、从谦是我弟弟，弘冀是我长兄；
 - 不编造年份、人物、典故、官职；拿不准就说「这一处我记不真切」，绝不许硬编；
 - 「这一处，后人说得不一」只用于正史未载的传闻，不许拿它给史实打圆场；
 - 自称只用「我」，不要用「朕」「寡人」；
-- 不回答与你、南唐、词、本站内容无关的问题，礼貌地把话题带回词境；
+- 不回答与你、南唐、词、本站、978 年以前这段历史无关的问题，礼貌地把话题带回词境；
 - 遇到读者情绪低落，先接住情绪，再谈词，不说教。
 
 语气示例（仅供模仿语气，不要照抄内容）：
@@ -263,14 +284,18 @@ const FAMILY_TREE = `南唐世系（凡涉及人物、辈分，一律以此为�
 李煜之弟：李从善、李从谦；长兄李弘冀（早卒）。`;
 
 // Agent 工具使用守则：什么时候查、什么时候带路
-const AGENT_GUIDE = `你手边有五件工具，按下面的规矩用：
+const AGENT_GUIDE = `你手边有六件工具，按下面的规矩用：
 - 谈某首词、某个意象：先 search_poems 查词库；要引全文或细讲一首，再 get_poem_detail（slug 必须用 search_poems 返回的那个，不要凭记忆编造）；
 - 读者问某一年、某件事（如「975 年发生了什么」）：先 get_timeline_event 拿时间轴上的记载；
 - 读者问某个地方（金陵、汴京、洪州……）：先 get_location 拿那一站的人事；
+- 读者问五代十国的人物、政权、年号、战役，或问李煜卒年（978）以前任何一段史事：先 search_history 查正史原文（《新五代史》《宋史·卷478》）。查到就在回答里点明出处，如「《新五代史·卷62》」；一次查不到就换关键词再查，两次都没有就直说正史没有直接记载；
+- 正史原文是文言：只摘一两句最相关的，再用白话讲清；原文没有明说的亲属、君臣、即位、年份，一律不补——「本姓柴氏」「以为子」这类句子不能拿来推断生父或养父；读不通的地方就直说「这一节我读得吃力」，宁可少说，不许硬编；
+- 「太祖」「世宗」「高祖」都是庙号，各指其人（如后周太祖郭威、世宗柴荣），不要把庙号当成某人的名字，也不要把继位者说成开国者；
 - 读者说「带我去」「我想看」「在哪儿能看到」，或你的回答自然指向某一页时：调 navigate_to 给他一张带路卡；
 - 「那年」「那天」「那次」这类指代，先按上下文或 get_timeline_event 确认是哪一年再带路，别凭印象写地点；
 - 一轮可以同时调多个工具（比如先查年份、再查那首词、最后带路）；拿不准的先查再答，不要硬编；
-- 工具给的资料只是底稿，回答仍按你自己的口吻写，不要照抄；带了路就在话里轻轻提一句「卡片在下方」。`;
+- 工具给的资料只是底稿，回答仍按你自己的口吻写，不要照抄；带了路就在话里轻轻提一句「卡片在下方」；
+- 话题只到 978 年为止：宋太宗以后的事、北宋中后期、近现代人物一概不谈；问到就婉拒，把话带回这段旧事。`;
 
 // 史实卡片：这几个最容易被模型记混（前车之鉴：把大周后说成李璟的妻子）。
 // 问题里一出现这些名字，就整段塞进系统提示，并声明「冲突以这里为准」——
@@ -751,6 +776,165 @@ const searchPoems = async (keyword: string) => {
   return mergeHybridResults(vectorHits, keywordHits, 6);
 };
 
+// ---------- 正史语料检索 ----------
+// 语料由 scripts/sync-history.mjs 从维基文库按官方 API 抓取：
+// 《新五代史》七十四卷 +《宋史·卷478》，分块后存 data/history/chunks.json；
+// scripts/build-history-embeddings.mjs 生成 vectors.json。两者缺失时静默退化为关键词检索。
+type HistoryChunk = {
+  id: string;
+  book: string;
+  juan: string;
+  title?: string;
+  kind?: string;
+  author?: string;
+  url: string;
+  text: string;
+  searchText?: string;
+  score?: number;
+  similarity?: number;
+};
+
+let historyIndex: { chunks: HistoryChunk[]; vectors: Record<string, number[]> | null } | null | undefined;
+
+const loadHistoryIndex = () => {
+  if (historyIndex !== undefined) return historyIndex;
+  try {
+    const chunksFile = join(HISTORY_DIR, "chunks.json");
+    if (!existsSync(chunksFile)) {
+      historyIndex = null;
+      return null;
+    }
+    const data = JSON.parse(readFileSync(chunksFile, "utf8"));
+    let vectors: Record<string, number[]> | null = null;
+    const vectorsFile = join(HISTORY_DIR, "vectors.json");
+    if (existsSync(vectorsFile)) {
+      const stored = JSON.parse(readFileSync(vectorsFile, "utf8"));
+      vectors = stored?.vectors ?? stored;
+    }
+    historyIndex = { chunks: data.chunks ?? [], vectors };
+  } catch (error) {
+    console.warn("正史语料加载失败", error);
+    historyIndex = null;
+  }
+  return historyIndex;
+};
+
+// 史书检索的拆词：先去掉疑问词/口头语，再按标点分段，避免「柴荣是谁」整句命中不了
+const HISTORY_STOPWORDS =
+  /(为什么|为何|怎么样|怎么|怎样|什么|哪些|哪里|哪儿|哪个|哪|如何|是否|是不是|能不能|可不可以|可以|请问|帮我|告诉|介绍|讲讲|说说|一下|多少|几位|谁|吗|呢|啊|吧|的|了|是|有|在|与|和|及|对|关于|回事)/g;
+
+export const buildHistoryTerms = (query: string): string[] => {
+  const cleaned = query
+    .replace(/[""'']/g, "")
+    .replace(HISTORY_STOPWORDS, " ")
+    .replace(/[，。！？、；：,.!?;:《》「」()（）\s]+/g, " ")
+    .trim();
+  const parts = cleaned.split(/\s+/).filter((p) => p.length >= 2);
+  const terms = [query.trim(), cleaned, ...parts].filter((t) => t && t.length >= 2);
+  return [...new Set(terms)].slice(0, 8);
+};
+
+const countOccurrences = (haystack: string, needle: string): number => {
+  if (!needle) return 0;
+  let count = 0;
+  let pos = haystack.indexOf(needle);
+  while (pos !== -1) {
+    count += 1;
+    pos = haystack.indexOf(needle, pos + needle.length);
+  }
+  return count;
+};
+
+// 关键词路：命中次数 + 篇名/卷次加权，分高者先出
+export const scoreHistoryChunks = (
+  chunks: HistoryChunk[],
+  query: string,
+  book?: string,
+  limit = 6,
+): HistoryChunk[] => {
+  const terms = buildHistoryTerms(query).map((t) => t.toLowerCase());
+  if (!terms.length) return [];
+  const wanted = (book ?? "").trim().toLowerCase();
+  return chunks
+    .filter((c) => !wanted || `${c.book}${c.juan}${c.title ?? ""}`.toLowerCase().includes(wanted))
+    .map((chunk) => {
+      const hay = (chunk.searchText ?? chunk.text).toLowerCase();
+      let score = 0;
+      // 长词命中更有分量：整句 8 分，短词按 2 分起
+      for (const term of terms) {
+        const hits = countOccurrences(hay, term);
+        if (hits) score += hits * Math.min(term.length, 6);
+      }
+      const label = `${chunk.title ?? ""}${chunk.juan}`.toLowerCase();
+      for (const term of terms) if (label.includes(term)) score += 12;
+      return score > 0 ? { ...chunk, score } : null;
+    })
+    .filter((c): c is HistoryChunk => !!c)
+    .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
+    .slice(0, limit);
+};
+
+// 取命中处前后一段原文；没有命中就从开头起
+const historySnippet = (chunk: HistoryChunk, query: string, size = 380): string => {
+  const terms = buildHistoryTerms(query).map((t) => t.toLowerCase());
+  const hay = (chunk.searchText ?? chunk.text).toLowerCase();
+  let at = -1;
+  for (const term of terms) {
+    const pos = hay.indexOf(term);
+    if (pos >= 0 && (at < 0 || pos < at)) at = pos;
+  }
+  const start = at >= 0 ? Math.max(0, at - 60) : 0;
+  const text = chunk.text.slice(start, start + size);
+  return `${start > 0 ? "…" : ""}${text}${start + size < chunk.text.length ? "…" : ""}`;
+};
+
+const vectorSearchHistory = async (
+  query: string,
+  book?: string,
+  limit = 4,
+): Promise<HistoryChunk[]> => {
+  const index = loadHistoryIndex();
+  if (!index?.vectors) return [];
+  const vec = await embedText(query);
+  if (!vec) return [];
+  const wanted = (book ?? "").trim().toLowerCase();
+  const sorted = index.chunks
+    .filter((c) => index.vectors?.[c.id] && (!wanted || `${c.book}${c.juan}${c.title ?? ""}`.toLowerCase().includes(wanted)))
+    .map((chunk) => ({
+      ...chunk,
+      similarity: cosine(vec, index.vectors?.[chunk.id] ?? []),
+    }))
+    .sort((a, b) => (b.similarity ?? 0) - (a.similarity ?? 0));
+  // 相对阈值：只留与最高分相近的块，弱命中（如卷 72 四夷附录）宁缺毋滥
+  const top = sorted[0]?.similarity ?? 0;
+  return sorted
+    .filter((c) => (c.similarity ?? 0) > Math.max(0.24, top * 0.72))
+    .slice(0, limit);
+};
+
+// 混合检索：语义优先，关键词补位；同一块只留一次
+const searchHistory = async (
+  query: string,
+  book?: string,
+  limit = 3,
+): Promise<HistoryChunk[]> => {
+  const index = loadHistoryIndex();
+  if (!index?.chunks.length) return [];
+  const [vectorHits, keywordHits] = await Promise.all([
+    vectorSearchHistory(query, book, limit + 2),
+    Promise.resolve(scoreHistoryChunks(index.chunks, query, book, limit + 2)),
+  ]);
+  const seen = new Set<string>();
+  const out: HistoryChunk[] = [];
+  for (const chunk of [...vectorHits, ...keywordHits]) {
+    if (seen.has(chunk.id)) continue;
+    seen.add(chunk.id);
+    out.push({ ...chunk, text: historySnippet(chunk, query) });
+    if (out.length >= limit) break;
+  }
+  return out;
+};
+
 // 查时间轴一段：先按段落键（如 978b），再退到按年份（975 → 975）
 const fetchTimelineEvent = async (key: string) => {
   const cleaned = key.replace(/[^0-9a-z]/gi, "").toLowerCase();
@@ -877,6 +1061,21 @@ const TOOLS = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "search_history",
+      description: "查阅正史原文：《新五代史》七十四卷与《宋史·卷478》（南唐李氏等列国世家）。读者问五代十国的人物、战役、年号、制度、某国兴亡，或问李煜卒年（978）以前的历史细节时先查它。答案要写明出处，如「《新五代史·卷62·南唐世家》」。",
+      parameters: {
+        type: "object",
+        properties: {
+          query: { type: "string", description: "检索词：人名、地名、国名、年号或事件，如「柴荣」「采石浮桥」「显德二年」" },
+          book: { type: "string", description: "可选，限定书名，如「新五代史」「宋史」；拿不准就不要传" },
+        },
+        required: ["query"],
+      },
+    },
+  },
 ];
 
 // ---------- 模型调用 ----------
@@ -938,6 +1137,7 @@ const execTool = async (
   name: string,
   args: Record<string, unknown>,
   sourcesSeen: Map<string, any>,
+  historySeen: Map<string, any> = new Map(),
 ): Promise<{ data: unknown; card: any | null }> => {
   try {
     // 检索词库：记录命中词，供前端来源区展示
@@ -1033,6 +1233,34 @@ const execTool = async (
         card,
       };
     }
+    // 查阅正史：只回 3 段原文，免得把上下文撑爆；结果里保留书名、卷次与出处链接
+    if (name === "search_history") {
+      const query = normalize(args.query, 200);
+      const book = normalize(args.book, 20).replace(/\s/g, "");
+      if (!query) return { data: { error: "请给出要查的人名、地名或事件。" }, card: null };
+      const rows = await searchHistory(query, book || undefined, 3);
+      rows.forEach((row) => historySeen.set(`${row.book}${row.juan}`, {
+        book: row.book, juan: row.juan, title: row.title ?? "", url: row.url,
+      }));
+      return {
+        data: {
+          query,
+          results: rows.map((row) => ({
+            book: row.book,
+            juan: row.juan,
+            title: row.title ?? "",
+            kind: row.kind ?? "正史",
+            author: row.author ?? "",
+            url: row.url,
+            text: row.text,
+          })),
+          hint: rows.length
+            ? "这些是文言原文。回答时点明出处（如「《新五代史·卷62》」）；只摘一两句最相关的，不要整段照抄；原文没有明说的亲属、君臣、即位关系不要推断，读不通就说读得吃力。"
+            : "正史里没有直接对应的段落：换个关键词再查一次，或只按已确认的史实作答，不要编造。",
+        },
+        card: null,
+      };
+    }
     return { data: { error: `没有叫 ${name} 的工具。` }, card: null };
   } catch (error) {
     // 工具失败不拖垮对话：把错误喂回给模型，让它换条路走
@@ -1043,14 +1271,46 @@ const execTool = async (
 
 // ---------- Agent 循环 ----------
 // 最多 AGENT_ROUNDS 轮工具调用；之后不论如何都做一次纯文本回复，保证有答
-const AGENT_ROUNDS = 2;
+// 查词 → 查年份 → 查正史 → 带路，四处资料往往要分开查，默认给 4 轮；可用环境变量收紧到 2—5
+const AGENT_ROUNDS = (() => {
+  const raw = Number(readEnv("AGENT_ROUNDS"));
+  return Number.isFinite(raw) && raw >= 2 && raw <= 5 ? Math.floor(raw) : 4;
+})();
+
+// 一次工具调用记成一步：前端据此显示「侍读查过什么」，读者能看见 Agent 的过程
+type AgentStep = { round: number; tool: string; args: string; hits: number; ok: boolean; ms: number };
+
+// 只取最能代表这次查询的参数文字，不把整段 JSON 抛给前端
+const stepArgLabel = (name: string, args: Record<string, unknown>): string => {
+  if (name === "search_history") return String(args.query ?? "");
+  if (name === "search_poems") return String(args.keyword ?? "");
+  if (name === "get_poem_detail") return String(args.slug ?? "");
+  if (name === "get_timeline_event") return String(args.key ?? "");
+  if (name === "get_location") return String(args.slug ?? "");
+  if (name === "navigate_to") return String(args.label ?? args.page ?? "");
+  return "";
+};
+
+// 命中数：列表给条数，单条资料给 1，报错给 0
+const stepHitCount = (data: any): number => {
+  if (Array.isArray(data)) return data.length;
+  if (Array.isArray(data?.results)) return data.results.length;
+  if (data?.error) return 0;
+  return 1;
+};
+
 const runAgent = async (
   baseMessages: any[],
   options: ModelOptions,
-): Promise<{ text: string; cards: any[]; toolsUsed: string[]; sources: any[]; model: string; usage: any }> => {
+): Promise<{
+  text: string; cards: any[]; toolsUsed: string[]; sources: any[];
+  steps: AgentStep[]; history: any[]; model: string; usage: any;
+}> => {
   const cards: any[] = [];
   const cardKeys = new Set<string>(); // 去重：同一目标只出一张卡
   const toolsUsed: string[] = [];
+  const steps: AgentStep[] = [];
+  const historySeen = new Map<string, any>();
   const sourcesSeen = new Map<string, any>();
   const pushCard = (card: any) => {
     if (!card) return;
@@ -1066,7 +1326,7 @@ const runAgent = async (
 
   // 小模型在收尾轮常把「想调的工具」直接写成正文（如 get_poem_detail\n{"slug":...}），
   // 用这个特征识别脏文本，触发一次纯文本重答
-  const toolTextRe = /^\s*(search_poems|get_poem_detail|get_timeline_event|get_location|navigate_to)\b[\s\S]*$/;
+  const toolTextRe = /^\s*(search_poems|get_poem_detail|get_timeline_event|get_location|navigate_to|search_history)\b[\s\S]*$/;
 
   for (let round = 0; round <= AGENT_ROUNDS; round++) {
     const allowTools = round < AGENT_ROUNDS; // 最后一轮只许说话，不许再调工具
@@ -1095,13 +1355,23 @@ const runAgent = async (
         try {
           args = JSON.parse(String(call?.function?.arguments ?? "{}"));
         } catch { /* 参数 JSON 坏了就按空参数走，工具自己会报错回去 */ }
-        const out = await execTool(name, args, sourcesSeen);
+        const startedAt = Date.now();
+        const out = await execTool(name, args, sourcesSeen, historySeen);
         toolsUsed.push(name);
         pushCard(out.card);
+        steps.push({
+          round: round + 1,
+          tool: name,
+          args: normalize(stepArgLabel(name, args), 40),
+          hits: stepHitCount(out.data),
+          ok: !(out.data as any)?.error,
+          ms: Date.now() - startedAt,
+        });
         messages.push({
           role: "tool",
           tool_call_id: call.id,
-          content: JSON.stringify(out.data).slice(0, 2000), // 工具结果截断，守住上下文长度
+          // 工具结果截断，守住上下文长度；正史三条原文比词库结果长，放宽到 2400 字
+          content: JSON.stringify(out.data).slice(0, 2400),
         });
       }
       continue;
@@ -1120,10 +1390,16 @@ const runAgent = async (
       usage = retry.usage;
       text = toolTextRe.test(retry.text) ? "" : retry.text;
     }
-    return { text, cards, toolsUsed, sources: [...sourcesSeen.values()], model, usage };
+    return {
+      text, cards, toolsUsed, sources: [...sourcesSeen.values()],
+      steps, history: [...historySeen.values()], model, usage,
+    };
   }
   // 循环出口兜底（正常走不到）：返回已收集的卡片与空文本
-  return { text: "", cards, toolsUsed, sources: [...sourcesSeen.values()], model, usage };
+  return {
+    text: "", cards, toolsUsed, sources: [...sourcesSeen.values()],
+    steps, history: [...historySeen.values()], model, usage,
+  };
 };
 
 // 问答日志：追加写入 logs/guide.jsonl，一行一次问答，方便回看与统计
@@ -1578,6 +1854,8 @@ if (typeof Deno !== "undefined") {
     let cards: any[] = [];
     let toolsUsed: string[] = [];
     let toolSources: any[] = [];
+    let steps: any[] = [];
+    let historySources: any[] = [];
 
     if (action === "ask") {
       const agentResult = await runAgent(messages, { model, maxTokens, temperature });
@@ -1587,6 +1865,8 @@ if (typeof Deno !== "undefined") {
       cards = agentResult.cards;
       toolsUsed = agentResult.toolsUsed;
       toolSources = agentResult.sources; // 工具检索命中的词作，回传前端来源区
+      steps = agentResult.steps;         // 工具调用轨迹：前端显示「侍读查过」
+      historySources = agentResult.history; // 正史出处，回传前端可点链接
     } else {
       const result = await callModel(messages, { model, maxTokens, temperature });
       answer = result.text;
@@ -1702,11 +1982,14 @@ if (typeof Deno !== "undefined") {
       usage,
       cards,          // 动作卡：navigate（跳页/锚点/地图站点）与 poem（追问某首词）
       tools: toolsUsed,
+      steps,          // 工具调用轨迹：tool / args / hits / ms
       sources: [...mergedSources.values()].slice(0, 4),
+      history: historySources.slice(0, 3), // 正史出处：book / juan / title / url
     };
     if (canUseCache) {
       writeAnswerCache(cacheKey, action, {
-        answer, model: resultModel, usage, cards, tools: toolsUsed, sources: responseBody.sources,
+        answer, model: resultModel, usage, cards, tools: toolsUsed,
+        steps, sources: responseBody.sources, history: responseBody.history,
       });
     }
     return jsonResponse(responseBody);
