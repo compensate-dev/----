@@ -9,6 +9,7 @@ import { readFileSync, existsSync, mkdirSync, writeFileSync, unlinkSync } from "
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
+import { request as httpsRequest } from "node:https";
 
 // ---------- 纯逻辑层（无网络、无 Deno 依赖，单元测试直接覆盖） ----------
 // 说明：本平台部署只打包 index.ts，故纯函数内联在此（不拆文件），用 export 暴露给 tests/ai-guide.test.ts
@@ -74,6 +75,22 @@ export const HISTORY_TOPICS = [
   "浮桥", "采石矶", "金陵城破", "南唐亡", "北宋", "宋朝",
 ];
 
+// 站内导引与网站使用类话题：页面名、导航说法、常用寒暄。
+// 这些原本不在白名单里，「带我去看看」「打开地图」被封成无关话题，导引直接失效。
+export const SITE_TOPICS = [
+  "首页", "书封", "开场", "五幕", "页面", "站内", "导航", "导览", "带路", "地图", "足迹",
+  "时间轴", "年表", "月色故人", "梦里词话", "帘外余音", "枕上低语", "水墨行迹", "终幕",
+  "怎么用", "如何使用", "能做什么", "你会什么", "有什么功能", "功能", "帮助", "指南", "教程",
+  "你好", "您好", "在吗", "谢谢", "再见", "你是谁", "介绍一下",
+];
+
+// 站内导引句式：不点名页面也能识别（「带我去看看」「打开地图」「切换到年表」）
+export const NAV_PATTERNS = [
+  /带(我|你)?(去|到|看看|看)/,
+  /(去|到|打开|切换到|逛逛|看看)[^。！？\n]{0,10}(页|地图|时间轴|年表|词话|故人|余音|低语|行迹|终幕|首页|站)/,
+  /(怎么用|如何使用|能做什么|你会什么|有什么功能|你是谁|介绍一下)/,
+];
+
 // 内容安全 · 二、提示注入句式：试图让模型脱掉人设、吐出系统提示或执行越权指令
 export const INJECTION_PATTERNS = [
   /忽略(之前|以上|前面|上述)[^。！？\n]{0,12}(指令|提示|设定|规则)/,
@@ -86,21 +103,23 @@ export const INJECTION_PATTERNS = [
 ];
 
 // 判定输入文本：返回是否拦截与原因
-// 三段式：① BANNED_TOPICS 命中即拦（违法/敏感/明确无关主题）
-//         ② 注入句式命中即拦
-//         ③ 既不命中黑名单也不命中白名单，视作与本站无关，礼貌拒绝
+// 只硬拦两类：① 违法/敏感/明确无关主题；② 提示注入句式。
+// 其余一律放行——站内导引、寒暄、泛泛的文史问题不再被判「无关」，
+// 真跑题时由侍读按人设自己婉拒，不靠前置闸门一刀切。
 export const guardText = (text: string): { blocked: boolean; reason: string } => {
   if (!text) return { blocked: false, reason: "" };
   const raw = text.toLowerCase();
   const topic = BANNED_TOPICS.find((w) => raw.includes(w.toLowerCase()));
   if (topic) return { blocked: true, reason: `topic:${topic}` };
   if (INJECTION_PATTERNS.some((re) => re.test(text))) return { blocked: true, reason: "injection" };
-  // 白名单检查：任一关键词命中即放（"你"单独出现不算，会误伤所有问句）
-  const relevant = [...WHITELIST_TOPICS, ...HISTORY_TOPICS].some((w) => {
+  // 白名单只用于标记「明确相关」，不再作为拦截条件；保留类型判断避免代词误命中
+  const relevant = [...WHITELIST_TOPICS, ...HISTORY_TOPICS, ...SITE_TOPICS].some((w) => {
     if (w === "我" || w === "朕" || w === "你") return false; // 这些是代词，不算主题
     return raw.includes(w.toLowerCase());
   });
-  if (!relevant) return { blocked: true, reason: "offtopic" };
+  if (!relevant && !NAV_PATTERNS.some((re) => re.test(text))) {
+    return { blocked: false, reason: "offtopic" };
+  }
   return { blocked: false, reason: "" };
 };
 
@@ -284,13 +303,14 @@ const FAMILY_TREE = `南唐世系（凡涉及人物、辈分，一律以此为�
 李煜之弟：李从善、李从谦；长兄李弘冀（早卒）。`;
 
 // Agent 工具使用守则：什么时候查、什么时候带路
-const AGENT_GUIDE = `你手边有六件工具，按下面的规矩用：
+const AGENT_GUIDE = `你手边有七件工具，按下面的规矩用：
 - 谈某首词、某个意象：先 search_poems 查词库；要引全文或细讲一首，再 get_poem_detail（slug 必须用 search_poems 返回的那个，不要凭记忆编造）；
 - 读者问某一年、某件事（如「975 年发生了什么」）：先 get_timeline_event 拿时间轴上的记载；
 - 读者问某个地方（金陵、汴京、洪州……）：先 get_location 拿那一站的人事；
 - 读者问五代十国的人物、政权、年号、战役，或问李煜卒年（978）以前任何一段史事：先 search_history 查正史原文（《新五代史》《宋史·卷478》）。查到就在回答里点明出处，如「《新五代史·卷62》」；一次查不到就换关键词再查，两次都没有就直说正史没有直接记载；
 - 正史原文是文言：只摘一两句最相关的，再用白话讲清；原文没有明说的亲属、君臣、即位、年份，一律不补——「本姓柴氏」「以为子」这类句子不能拿来推断生父或养父；读不通的地方就直说「这一节我读得吃力」，宁可少说，不许硬编；
 - 「太祖」「世宗」「高祖」都是庙号，各指其人（如后周太祖郭威、世宗柴荣），不要把庙号当成某人的名字，也不要把继位者说成开国者；
+- 本地语料查不到、或读者点名《宋史》《资治通鉴》某一卷时，才用 fetch_history_online 按需抓取（只限《新五代史》1–74 卷、《宋史》1–496 卷、《资治通鉴》1–294 卷，较慢）；抓不到就明说这一节没查着，改用本地资料或直说不知道，不要编；
 - 读者说「带我去」「我想看」「在哪儿能看到」，或你的回答自然指向某一页时：调 navigate_to 给他一张带路卡；
 - 「那年」「那天」「那次」这类指代，先按上下文或 get_timeline_event 确认是哪一年再带路，别凭印象写地点；
 - 一轮可以同时调多个工具（比如先查年份、再查那首词、最后带路）；拿不准的先查再答，不要硬编；
@@ -935,6 +955,242 @@ const searchHistory = async (
   return out;
 };
 
+// ---------- 在线按需抓取（维基文库，白名单 + 本地缓存） ----------
+// 只补本地语料没有的部分：《新五代史》1–74 卷、《宋史》1–496 卷。
+// 域名固定为 zh.wikisource.org 的官方 api.php，不接受任意 URL；抓到的正文清洗后落盘缓存，
+// 命中缓存不再联网；失败时返回空，由 Agent 回退到本地 search_history。
+
+const ONLINE_API = "https://zh.wikisource.org/w/api.php";
+const ONLINE_UA = "ChunshuiLiuhenHistoryBot/1.0 (non-commercial history site; rate-limited; MediaWiki API)";
+const ONLINE_GAP_MS = 1200;
+const ONLINE_TIMEOUT_MS = 20_000;
+const PAGE_DIR = join(HISTORY_DIR, "pages");
+
+// page 是维基文库上的实际页面前缀（《资治通鉴》存的是繁体）
+const ONLINE_BOOKS: Record<string, { max: number; pad: number; page: string }> = {
+  新五代史: { max: 74, pad: 2, page: "新五代史" },
+  宋史: { max: 496, pad: 3, page: "宋史" },
+  资治通鉴: { max: 294, pad: 3, page: "資治通鑑" },
+};
+
+// 校验书名与卷次，产出可能的分页标题（本地站点卷 1 常写作卷01 / 卷001）
+export const normalizeHistoryPage = (
+  book: unknown,
+  juan: unknown,
+): { book: string; juan: number; pages: string[] } | null => {
+  const rawName = normalize(book, 10);
+  const name = rawName === "資治通鑑" ? "资治通鉴" : rawName;
+  const meta = ONLINE_BOOKS[name];
+  if (!meta) return null;
+  // 卷次可能写成「62」「卷62」「卷一」「卷六十二」，统一转成阿拉伯数字
+  const digits = String(juan ?? "").replace(/[^0-9零〇一二三四五六七八九十百千]/g, "");
+  const n = cnToNumber(digits);
+  if (n === null || !Number.isInteger(n) || n < 1 || n > meta.max) return null;
+  const padded = String(n).padStart(meta.pad, "0");
+  const pages = [`${meta.page}/卷${padded}`];
+  if (padded !== String(n)) pages.push(`${meta.page}/卷${n}`);
+  return { book: name, juan: n, pages };
+};
+
+// 从「卷294」「卷一」这类自然语言里认出卷次（模型常把卷次写进 query 而不传 juan）
+const extractJuanFromText = (text: string): number | null => {
+  const match = String(text ?? "").match(/卷\s*([0-9零〇一二三四五六七八九十百千]{1,6})/);
+  if (!match) return null;
+  return cnToNumber(match[1].replace(/[^0-9零〇一二三四五六七八九十百千]/g, ""));
+};
+
+// 站点外链（node:https）：Node 26 的全局 fetch 对本机连不上该站，这里统一超时与 UA
+const httpsGetText = (urlString: string, redirects = 0): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const url = new URL(urlString);
+    const req = httpsRequest(
+      {
+        hostname: url.hostname,
+        port: url.port || 443,
+        path: `${url.pathname}${url.search}`,
+        method: "GET",
+        headers: { "User-Agent": ONLINE_UA, "Accept-Encoding": "identity", "Accept-Language": "zh-CN,zh;q=0.9" },
+      },
+      (res) => {
+        const status = res.statusCode ?? 0;
+        if ([301, 302, 303, 307, 308].includes(status) && res.headers.location && redirects < 3) {
+          res.resume();
+          resolve(httpsGetText(new URL(res.headers.location, url).toString(), redirects + 1));
+          return;
+        }
+        if (status !== 200) {
+          res.resume();
+          reject(new Error(`HTTP ${status}`));
+          return;
+        }
+        let body = "";
+        res.setEncoding("utf8");
+        res.on("data", (chunk) => { body += chunk; });
+        res.on("end", () => resolve(body));
+      },
+    );
+    req.setTimeout(ONLINE_TIMEOUT_MS, () => req.destroy(new Error("在线抓取超时")));
+    req.on("error", reject);
+    req.end();
+  });
+
+// 串行限速：同一进程内两次外网请求至少隔 1.2 秒，避免给维基文库添压
+let lastOnlineAt = 0;
+const onlinePause = async () => {
+  const wait = Math.max(0, lastOnlineAt + ONLINE_GAP_MS - Date.now());
+  if (wait) await new Promise((resolve) => setTimeout(resolve, wait));
+  lastOnlineAt = Date.now();
+};
+
+const queryWikiApi = async (params: Record<string, string>, attempt = 0): Promise<any> => {
+  await onlinePause();
+  try {
+    const url = new URL(ONLINE_API);
+    url.search = new URLSearchParams({ format: "json", formatversion: "2", maxlag: "5", ...params }).toString();
+    const data = JSON.parse(await httpsGetText(url.toString()));
+    if (data?.error) throw new Error(`${data.error.code}: ${data.error.info ?? ""}`);
+    return data;
+  } catch (error) {
+    if (attempt < 1) {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      return queryWikiApi(params, attempt + 1);
+    }
+    throw error;
+  }
+};
+
+// 去掉站点导航与页脚，保留正文（与离线脚本同一套清洗口径）
+const cleanWikiText = (raw: string): string =>
+  raw
+    .replace(/\r/g, "")
+    .replace(/\u00a0/g, " ")
+    .replace(/[ \t]+/g, " ")
+    .split("\n")
+    .filter((line) => {
+      const t = line.trim();
+      if (!t) return true;
+      return !/^(姊妹计划|參閱維基|閲文言維基|维基百科|维基文库|目録|目次)/.test(t)
+        && !/^卷[零〇一二三四五六七八九十百千]+/.test(t)
+        && !/^[◄►]+$/.test(t);
+    })
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+
+type OnlinePage = {
+  book: string; juan: number; title: string; url: string;
+  text: string; chars: number; fetchedAt: number;
+};
+
+const pageCachePath = (book: string, juan: number) => join(PAGE_DIR, `${book}-${juan}.json`);
+
+const readPageCache = (book: string, juan: number): OnlinePage | null => {
+  try {
+    const file = pageCachePath(book, juan);
+    if (!existsSync(file)) return null;
+    const row = JSON.parse(readFileSync(file, "utf8")) as OnlinePage;
+    return row?.text ? row : null;
+  } catch {
+    return null;
+  }
+};
+
+const writePageCache = (row: OnlinePage) => {
+  try {
+    mkdirSync(PAGE_DIR, { recursive: true });
+    writeFileSync(pageCachePath(row.book, row.juan), JSON.stringify(row));
+  } catch {
+    // 缓存写失败不影响本次回答
+  }
+};
+
+// 取一卷正文；先试带零的标题，再试不带的，最后退回 redirects
+const fetchRemotePage = async (book: string, juan: number, titles: string[]): Promise<OnlinePage | null> => {
+  for (const title of titles) {
+    try {
+      const data = await queryWikiApi({
+        action: "query", prop: "extracts", explaintext: "1", exsectionformat: "plain",
+        exlimit: "1", redirects: "1", titles: title,
+      });
+      const page = data?.query?.pages?.[0];
+      if (!page || page.missing || !page.extract) continue;
+      return {
+        book, juan, title: page.title, url: `https://zh.wikisource.org/wiki/${encodeURIComponent(page.title)}`,
+        text: cleanWikiText(page.extract), chars: cleanWikiText(page.extract).length,
+        fetchedAt: Date.now(),
+      };
+    } catch {
+      // 单次失败继续试下一个标题；全失败由调用方回退
+    }
+  }
+  return null;
+};
+
+// 不知道卷次时，用维基文库站内搜索定位到某一卷（只认这两本书的卷页）
+const locateVolume = async (query: string, book?: string): Promise<{ book: string; juan: number; titles: string[] } | null> => {
+  const data = await queryWikiApi({
+    action: "query", list: "search", srsearch: book ? `${query} ${book}` : query,
+    srlimit: "10", srnamespace: "0",
+  });
+  const hits: any[] = data?.query?.search ?? [];
+  const prefixes: Record<string, string> = {
+    新五代史: "新五代史", 宋史: "宋史", "資治通鑑": "资治通鉴", "资治通鉴": "资治通鉴",
+  };
+  for (const hit of hits) {
+    const match = String(hit.title ?? "").match(/^(新五代史|宋史|資治通鑑|资治通鉴)\/卷([0-9]{1,3})$/);
+    if (!match) continue;
+    const canonical = prefixes[match[1]];
+    if (book && canonical !== book) continue;
+    const target = normalizeHistoryPage(canonical, match[2]);
+    if (target) return target;
+  }
+  return null;
+};
+
+// 在线抓取入口：query 用于定位/摘段，juan 可省；返回一段不超过 1200 字的正文
+const fetchHistoryOnline = async (
+  query: string,
+  book?: string,
+  juan?: unknown,
+): Promise<{ book: string; juan: string; title: string; url: string; chars: number; text: string; source: string } | null> => {
+  if (!query && juan === undefined) return null;
+  let target = normalizeHistoryPage(book || "", juan);
+  if (!target && book && juan !== undefined) return null;
+
+  if (target) {
+    const cached = readPageCache(target.book, target.juan);
+    if (cached?.text) {
+      return {
+        book: cached.book, juan: `卷${cached.juan}`, title: cached.title, url: cached.url,
+        chars: cached.chars,
+        text: historySnippet({ id: `${cached.book}${cached.juan}`, book: cached.book, juan: `卷${cached.juan}`, title: "", url: cached.url, text: cached.text } as HistoryChunk, query, 1200),
+        source: "cache",
+      };
+    }
+  } else if (query) {
+    target = await locateVolume(query, book);
+    if (!target) return null;
+    const cached = readPageCache(target.book, target.juan);
+    if (cached?.text) {
+      return {
+        book: cached.book, juan: `卷${cached.juan}`, title: cached.title, url: cached.url,
+        chars: cached.chars,
+        text: historySnippet({ id: `${cached.book}${cached.juan}`, book: cached.book, juan: `卷${cached.juan}`, title: "", url: cached.url, text: cached.text } as HistoryChunk, query, 1200),
+        source: "cache",
+      };
+    }
+  }
+
+  const row = await fetchRemotePage(target.book, target.juan, target.pages);
+  if (!row?.text) return null;
+  writePageCache(row);
+  return {
+    book: row.book, juan: `卷${row.juan}`, title: row.title, url: row.url, chars: row.chars,
+    text: historySnippet({ id: `${row.book}${row.juan}`, book: row.book, juan: `卷${row.juan}`, title: "", url: row.url, text: row.text } as HistoryChunk, query, 1200),
+    source: "live",
+  };
+};
+
 // 查时间轴一段：先按段落键（如 978b），再退到按年份（975 → 975）
 const fetchTimelineEvent = async (key: string) => {
   const cleaned = key.replace(/[^0-9a-z]/gi, "").toLowerCase();
@@ -1076,6 +1332,22 @@ const TOOLS = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "fetch_history_online",
+      description: "按需从维基文库抓取正史卷页（只允许《新五代史》1–74 卷、《宋史》1–496 卷、《资治通鉴》1–294 卷），命中本地缓存则秒回。本地 search_history 查不到、或读者点名某一卷/某位宋初人物时再用；它比本地检索慢，不要一上来就抓。",
+      parameters: {
+        type: "object",
+        properties: {
+          query: { type: "string", description: "人名、事件或关键词，用于在卷内摘取相关段落" },
+          book: { type: "string", enum: ["新五代史", "宋史", "资治通鉴"], description: "可选，限定书名；拿不准就不要传" },
+          juan: { type: "string", description: "可选，卷次，如 62 或 卷62；不传则用 query 在维基文库站内搜索定位" },
+        },
+        required: ["query"],
+      },
+    },
+  },
 ];
 
 // ---------- 模型调用 ----------
@@ -1138,6 +1410,7 @@ const execTool = async (
   args: Record<string, unknown>,
   sourcesSeen: Map<string, any>,
   historySeen: Map<string, any> = new Map(),
+  userText = "",
 ): Promise<{ data: unknown; card: any | null }> => {
   try {
     // 检索词库：记录命中词，供前端来源区展示
@@ -1261,6 +1534,44 @@ const execTool = async (
         card: null,
       };
     }
+    // 按需抓取：本地语料没有的卷页才走外网；抓到的正文落盘，下次直接命中缓存
+    if (name === "fetch_history_online") {
+      const query = normalize(args.query, 60);
+      // 模型偶尔漏传 book：从读者原话里认一下书名，避免「卷一」等卷次落空
+      const askedBook = /新五代史|五代史/.test(userText)
+        ? "新五代史"
+        : /资治通鉴|資治通鑑|通鑑|通鉴/.test(userText)
+          ? "资治通鉴"
+          : /宋史/.test(userText) ? "宋史" : "";
+      const rawBook = normalize(args.book, 10) || askedBook;
+      const book = rawBook === "資治通鑑" ? "资治通鉴" : rawBook;
+      // 卷次可能写在 juan，也可能写在 query（「卷294 后周世宗北伐」）；两处都认
+      const juanArg = String(args.juan ?? "").trim() ? args.juan : extractJuanFromText(query);
+      const searchQuery = query.replace(/卷\s*[0-9零〇一二三四五六七八九十百千]+/g, "").trim() || query;
+      if (!searchQuery && juanArg === null) {
+        return { data: { error: "请给出要查的人名、事件或卷次。" }, card: null };
+      }
+      const row = await fetchHistoryOnline(searchQuery, book || undefined, juanArg);
+      if (!row) {
+        return {
+          data: {
+            error: "维基文库没有找到对应的卷页，或这次没能连上。",
+            hint: "改用 search_history 查本地七十四卷语料，或告诉读者这一节正史没有查到。工具没查到时，不许说「我翻到某卷」，也不许引用或编造原文。",
+          },
+          card: null,
+        };
+      }
+      historySeen.set(`${row.book}${row.juan}`, {
+        book: row.book, juan: row.juan, title: row.title, url: row.url,
+      });
+      return {
+        data: {
+          ...row,
+          hint: "这是文言原文的节选。回答时点明出处（如「《宋史·卷XXX》」）；只摘一两句，不要整段照抄；原文没写明的关系不要推断。",
+        },
+        card: null,
+      };
+    }
     return { data: { error: `没有叫 ${name} 的工具。` }, card: null };
   } catch (error) {
     // 工具失败不拖垮对话：把错误喂回给模型，让它换条路走
@@ -1282,7 +1593,10 @@ type AgentStep = { round: number; tool: string; args: string; hits: number; ok: 
 
 // 只取最能代表这次查询的参数文字，不把整段 JSON 抛给前端
 const stepArgLabel = (name: string, args: Record<string, unknown>): string => {
-  if (name === "search_history") return String(args.query ?? "");
+  if (name === "search_history" || name === "fetch_history_online") {
+    const juan = String(args.juan ?? "").replace(/[^0-9零〇一二三四五六七八九十百千]/g, "");
+    return String(args.query ?? "") + (juan ? `·卷${juan}` : "");
+  }
   if (name === "search_poems") return String(args.keyword ?? "");
   if (name === "get_poem_detail") return String(args.slug ?? "");
   if (name === "get_timeline_event") return String(args.key ?? "");
@@ -1312,6 +1626,8 @@ const runAgent = async (
   const steps: AgentStep[] = [];
   const historySeen = new Map<string, any>();
   const sourcesSeen = new Map<string, any>();
+  // 读者原话：部分工具（如在线抓取）在模型漏传参数时，从这里补认书名
+  const userText = String([...baseMessages].reverse().find((m) => m?.role === "user")?.content ?? "");
   const pushCard = (card: any) => {
     if (!card) return;
     const key = `${card.type}:${card.slug ?? ""}:${card.page ?? ""}:${card.anchor ?? ""}:${card.spot ?? ""}`;
@@ -1326,7 +1642,7 @@ const runAgent = async (
 
   // 小模型在收尾轮常把「想调的工具」直接写成正文（如 get_poem_detail\n{"slug":...}），
   // 用这个特征识别脏文本，触发一次纯文本重答
-  const toolTextRe = /^\s*(search_poems|get_poem_detail|get_timeline_event|get_location|navigate_to|search_history)\b[\s\S]*$/;
+  const toolTextRe = /^\s*(search_poems|get_poem_detail|get_timeline_event|get_location|navigate_to|search_history|fetch_history_online)\b[\s\S]*$/;
 
   for (let round = 0; round <= AGENT_ROUNDS; round++) {
     const allowTools = round < AGENT_ROUNDS; // 最后一轮只许说话，不许再调工具
@@ -1356,7 +1672,7 @@ const runAgent = async (
           args = JSON.parse(String(call?.function?.arguments ?? "{}"));
         } catch { /* 参数 JSON 坏了就按空参数走，工具自己会报错回去 */ }
         const startedAt = Date.now();
-        const out = await execTool(name, args, sourcesSeen, historySeen);
+        const out = await execTool(name, args, sourcesSeen, historySeen, userText);
         toolsUsed.push(name);
         pushCard(out.card);
         steps.push({

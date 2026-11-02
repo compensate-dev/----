@@ -587,6 +587,7 @@
     get_location: "行迹",
     navigate_to: "带路",
     search_history: "正史",
+    fetch_history_online: "在线",
   };
 
   const appendSteps = (steps, history) => {

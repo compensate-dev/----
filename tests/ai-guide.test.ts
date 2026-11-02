@@ -24,6 +24,7 @@ import {
   HISTORY_TOPICS,
   buildHistoryTerms,
   scoreHistoryChunks,
+  normalizeHistoryPage,
 } from "../supabase/functions/guide/index.ts";
 
 // 统一的假词条工厂，只造测试用得上的字段
@@ -516,9 +517,53 @@ describe("HISTORY_TOPICS（五代十国放行）", () => {
     assert.ok(HISTORY_TOPICS.includes("吴越"));
   });
 
-  test("明代以后与无关话题仍判无关", () => {
-    assert.equal(guardText("明朝张居正变法").blocked, true);
+  test("明代以后与无关话题不再硬拦，只标记 offtopic", () => {
+    assert.equal(guardText("明朝张居正变法").blocked, false);
     assert.equal(guardText("清朝乾隆下江南").reason, "offtopic");
+  });
+});
+
+describe("normalizeHistoryPage（在线抓取白名单）", () => {
+  test("《新五代史》补两位零，并保留不带零的候选", () => {
+    assert.deepEqual(normalizeHistoryPage("新五代史", 5)?.pages, ["新五代史/卷05", "新五代史/卷5"]);
+    assert.deepEqual(normalizeHistoryPage("新五代史", 62)?.pages, ["新五代史/卷62"]);
+  });
+
+  test("《宋史》补三位零，478 卷原样", () => {
+    assert.deepEqual(normalizeHistoryPage("宋史", "卷62")?.pages, ["宋史/卷062", "宋史/卷62"]);
+    assert.deepEqual(normalizeHistoryPage("宋史", 478)?.pages, ["宋史/卷478"]);
+  });
+
+  test("中文卷次也能解析（卷一 / 卷六十二）", () => {
+    assert.equal(normalizeHistoryPage("宋史", "卷一")?.juan, 1);
+    assert.equal(normalizeHistoryPage("新五代史", "卷六十二")?.juan, 62);
+  });
+
+  test("《资治通鉴》用繁体页面前缀，1–294 卷", () => {
+    assert.deepEqual(normalizeHistoryPage("资治通鉴", 5)?.pages, ["資治通鑑/卷005", "資治通鑑/卷5"]);
+    assert.deepEqual(normalizeHistoryPage("資治通鑑", 294)?.pages, ["資治通鑑/卷294"]);
+    assert.equal(normalizeHistoryPage("资治通鉴", 295), null);
+  });
+
+  test("书名与卷次越界一律拒绝", () => {
+    assert.equal(normalizeHistoryPage("旧五代史", 10), null);
+    assert.equal(normalizeHistoryPage("新五代史", 75), null);
+    assert.equal(normalizeHistoryPage("宋史", 497), null);
+    assert.equal(normalizeHistoryPage("宋史", 0), null);
+    assert.equal(normalizeHistoryPage("宋史", "abc"), null);
+  });
+});
+
+describe("站内导引（SITE_TOPICS / NAV_PATTERNS）", () => {
+  test("页面名与常用寒暄放行", () => {
+    ["你好", "你能做什么", "首页怎么走", "枕上低语是什么", "打开地图"].forEach((q) => {
+      assert.equal(guardText(q).blocked, false, q);
+    });
+  });
+
+  test("导引句式不点名页面也放行", () => {
+    assert.equal(guardText("带我去看看").blocked, false);
+    assert.equal(guardText("切换到年表").blocked, false);
   });
 });
 
