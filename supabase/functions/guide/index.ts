@@ -43,6 +43,8 @@ export const WHITELIST_TOPICS = [
   "李昪", "李璟", "元宗", "烈祖",
   "大周后", "小周后", "周娥皇", "周女英", "昭惠",
   "钟皇后", "光穆皇后", "周宗",
+  "母亲", "母后", "先母", "父亲", "父王", "父皇", "先皇", "妻子", "结发",
+  "丈夫", "儿子", "女儿", "弟弟", "哥哥", "姐姐", "妹妹", "祖父", "祖母", "皇后", "国后",
   "弘冀", "从善", "从谦", "仲寓", "仲宣",
   "赵匡胤", "赵光义", "宋太祖", "宋太宗",
   "樊若水", "樊知古", "采石",
@@ -296,7 +298,7 @@ const FIGURE_FACTS: { names: string[]; fact: string; reply: string; patterns?: R
   },
   {
     names: ["李从善", "从善", "郑王"],
-    fact: "李从善是李煜的弟弟（李璟第七子），封郑王；971 年入宋被留汴京不遣，李煜为此写《清平乐·别来春半》；975 年南唐亡后归宋，降封南楚国公，累迁右千牛卫上将军、通许监军。940 年生，987 年（宋太宗雍熙四年）卒，年四十八——比李煜（978 年卒）晚死九年；李煜去世时他还在世，绝不能说他死于 978 年或任何早于 987 年的年份。",
+    fact: "李从善是李煜的弟弟（李璟第七子，李煜是第六子），封郑王；971 年入宋被留汴京不遣，李煜为此写《清平乐·别来春半》；975 年南唐亡后归宋，降封南楚国公，累迁右千牛卫上将军、通许监军。940 年生，987 年（宋太宗雍熙四年）卒，年四十八——比李煜（978 年卒）晚死九年；李煜去世时他还在世，绝不能说他死于 978 年或任何早于 987 年的年份。",
     reply: "从善是我弟弟，封郑王。971 年他入宋朝贡被留汴京，我写《清平乐》就是为这回事。后来南唐亡，他归了宋，在通许做监军；他 987 年才去世，比我晚九年。",
   },
   {
@@ -510,6 +512,8 @@ export type FactEntry = {
   cautions?: string[];
   reply?: string;
   source?: string;
+  // 可机读的关键年岁：答案里出现与之冲突的数字即判违规（比正则逐个补句式可靠）
+  known?: { birth?: number; death?: number; age?: number; year?: number };
 };
 
 let factLibraryCache: FactEntry[] | null = null;
@@ -566,6 +570,80 @@ ${body}
 - 只许用上面写明的年份、人物、关系，不许补条目以外的细节；
 - 条目未载的，就答「史载不详」或「这一处我记不真切」，不要推演；
 - 正史不载的传说（如牵机药、小周后入宋后事），只能作「相传」或「宋人笔记说」，不可当定论。`;
+};
+
+// L1 · 命中即直答：问句只涉及一个条目、且是「问事实」时，直接返回库里写好的答复。
+// 不调模型，就没有幻觉的余地——这条覆盖人物关系、生卒、亡国年份这类最常被问错的问题。
+const FACT_QUESTION = /(何时|什么时候|哪一年|哪年|几年|多少年|几岁|多少岁|多大|享年|生年|生于|出生|卒|去世|病逝|死因|怎么死|活了|是谁|何人|什么人|什么关系|什么辈分|谁的|妻子|丈夫|儿子|女儿|父亲|母亲|父王|母后|弟弟|哥哥|姐姐|妹妹|祖父|兄弟|建立|开国|建国|灭亡|亡国|覆灭)/;
+// 带议论、创作、感受的问法不直答：这类要组织语言，库里的固定答复会答非所问
+const NOT_PURE_FACT = /(为什么|如何评价|评价|赏析|怎么理解|有什么感受|心情|体会|你觉得|你怎么看|谈谈|说说你|帮我写|写一首|续写)/;
+
+export const directFactReply = (text: string, entries: FactEntry[]): string | null => {
+  if (!text || entries.length !== 1) return null;
+  const entry = entries[0];
+  if (!entry.reply) return null;
+  if (!FACT_QUESTION.test(text)) return null;
+  if (NOT_PURE_FACT.test(text)) return null;
+  // 「李煜是怎么死的」会命中人物条目，但问的是死因：改走「李煜之死」事件条目，
+  // 免得答成生平概况，也免得模型自己补上牵机药
+  if (entry.id === "li-yu" && /(怎么死|死因|死在哪里|卒于何处)/.test(text)) {
+    const death = loadFactLibrary().find((e) => e.id === "death");
+    if (death?.reply) return death.reply;
+  }
+  return entry.reply;
+};
+
+// 中文数字转阿拉伯（只处理 0—99，够覆盖年龄场景）
+const CN_DIGIT: Record<string, number> = {
+  零: 0, 一: 1, 二: 2, 三: 3, 四: 4, 五: 5, 六: 6, 七: 7, 八: 8, 九: 9,
+};
+export const cnToNumber = (raw: string): number | null => {
+  const s = raw.trim();
+  if (!s) return null;
+  if (/^\d+$/.test(s)) return Number(s);
+  const tens = s.match(/^([一二三四五六七八九])?十([一二三四五六七八九])?$/);
+  if (tens) return (tens[1] ? CN_DIGIT[tens[1]] : 1) * 10 + (tens[2] ? CN_DIGIT[tens[2]] : 0);
+  if (s.length === 1 && CN_DIGIT[s] !== undefined) return CN_DIGIT[s];
+  return null;
+};
+
+const NUM_CHARS = "一二三四五六七八九十";
+
+// L2 · 正向核对：拿条目里的 known 年岁去比对答案。只看「提到这个人」的那一段窗口，
+// 卒年不符、享年不符都算违规——这样不必为每种错句都写一条正则。
+export const checkKnownFacts = (text: string, entries: FactEntry[]): string | null => {
+  if (!text) return null;
+  for (const entry of entries) {
+    const known = entry.known;
+    if (!known) continue;
+    const names = [entry.name, ...(entry.aliases ?? [])].filter((a) => a && a.length >= 2);
+    const at = names.reduce((min, name) => {
+      const i = text.indexOf(name);
+      return i >= 0 && (min < 0 || i < min) ? i : min;
+    }, -1);
+    if (at < 0) continue;
+    const win = text.slice(at, at + 110);
+
+    if (known.death) {
+      const dies = /(卒|去世|病逝|病亡|薨|终|死)/.test(win);
+      if (dies) {
+        const years = [...win.matchAll(/(\d{3,4})\s*年/g)].map((m) => Number(m[1]));
+        if (years.length && !years.includes(known.death)) {
+          return `${entry.name}的卒年应为 ${known.death}`;
+        }
+      }
+    }
+
+    if (known.age) {
+      const ageM = win.match(new RegExp(`(?:享年|时年|年)\\s*(\\d+|[${NUM_CHARS}]+)\\s*岁?`))
+        || win.match(new RegExp(`(\\d+|[${NUM_CHARS}]+)\\s*岁`));
+      if (ageM) {
+        const age = cnToNumber(ageM[1]);
+        if (age !== null && age !== known.age) return `${entry.name}年岁应为 ${known.age}`;
+      }
+    }
+  }
+  return null;
 };
 
 // 站内页面 → 相对站点根目录的路径（前端按当前所在目录自行解析）
@@ -1406,6 +1484,36 @@ if (typeof Deno !== "undefined") {
     // 定位当前情境：页面里的词作作为一手资料
     const poem = poemSlug ? await fetchPoem(poemSlug) : null;
 
+    // 先取史实库条目：L1 直答与后面的注入都用它
+    const factEntries = matchFactEntries(message);
+
+    // L1 · 命中即直答：单一条目 + 纯事实问法 → 用库里写好的答复，完全不调模型
+    // 只在没有对话上下文时启用：带上下文时问法可能指代前文，固定答复会答偏
+    if (action === "ask" && !history.length) {
+      const direct = directFactReply(message, factEntries);
+      if (direct) {
+        logGuide({
+          session_id: sessionId,
+          mode: action,
+          page,
+          question: message.slice(0, 200),
+          answer: direct,
+          model: "fact-library",
+          tokens: 0,
+          tools: null,
+        });
+        return jsonResponse({
+          action,
+          answer: direct,
+          sources: [],
+          cards: [],
+          tools: [],
+          model: "fact-library",
+          usage: null,
+        });
+      }
+    }
+
     // 拼装系统提示：站点底盘 + 数字人设定 +（问答追加工具守则）+ 本轮资料 + 所在页面
     const systemParts = [SITE_CONTEXT, PERSONA];
     if (action === "ask") {
@@ -1413,7 +1521,6 @@ if (typeof Deno !== "undefined") {
     }
     // 提问碰到易混人物时准备一份史实硬约束：放在最后一轮用户消息之前，模型才盯得住
     const figureFacts = matchFigureFacts(message);
-    const factEntries = matchFactEntries(message);
     const factLibraryBlock = buildFactBlock(factEntries);
     const factsBlock = factLibraryBlock
       ? `${factLibraryBlock}${figureFacts.length ? `\n\n补充卡片：\n- ${figureFacts.join("\n- ")}` : ""}`
@@ -1500,7 +1607,10 @@ if (typeof Deno !== "undefined") {
     // 事实闸：小模型有时仍把关系写反（实测把周娥皇说成李璟的皇后）。
     // 注意不能只在问句点名人物时才查——「你的母亲是谁」这种问法不含「大周后」「李璟」，
     // 模型照样会答成「我母亲是周娥皇」，所以这里无条件过闸。
-    if (hasFactViolation(answer)) {
+    // 两道一起过：正则抓已知错句，checkKnownFacts 用条目里的年岁做正向核对。
+    const knownIssue = checkKnownFacts(answer, factEntries);
+    if (knownIssue) console.warn(`事实闸（年岁核对）：${knownIssue}`);
+    if (hasFactViolation(answer) || knownIssue) {
       const answerFacts = matchFigureFacts(answer);
       const gateFacts = figureFacts.length ? figureFacts : answerFacts;
       // 史实库命中的条目优先当重答底稿，卡片只作补充；两者都没有才用兜底关系
@@ -1525,7 +1635,7 @@ if (typeof Deno !== "undefined") {
         { model, maxTokens: 240, temperature: 0.3 },
       );
       answer = repair.text || answer;
-      if (hasFactViolation(answer)) {
+      if (hasFactViolation(answer) || checkKnownFacts(answer, factEntries)) {
         // 只按「问句」挑卡片：按回答挑会挑到被写错的那张卡（问儿子却答成李璟的介绍）
         answer =
           factEntries[0]?.reply

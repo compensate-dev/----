@@ -18,6 +18,9 @@ import {
   hasFactViolation,
   matchFactEntries,
   buildFactBlock,
+  directFactReply,
+  checkKnownFacts,
+  cnToNumber,
 } from "../supabase/functions/guide/index.ts";
 
 // 统一的假词条工厂，只造测试用得上的字段
@@ -437,5 +440,61 @@ describe("matchFactEntries（史实库检索）", () => {
       "南唐开国", "南唐亡国", "采石浮桥", "北邙山", "牵机药", "霓裳羽衣曲",
     ];
     ids.forEach((q) => assert.ok(matchFactEntries(q).length > 0, `${q} 应有条目`));
+  });
+});
+
+describe("directFactReply（命中即直答）", () => {
+  test("单一条目 + 纯事实问法 → 直接给库里的答复", () => {
+    const entries = matchFactEntries("李从善什么时候去世的？");
+    assert.equal(directFactReply("李从善什么时候去世的？", entries), entries[0].reply);
+    assert.match(directFactReply("李从善什么时候去世的？", entries)!, /987/);
+  });
+
+  test("议论式问法不直答，交给模型组织", () => {
+    const entries = matchFactEntries("大周后是个怎样的人，为什么你那么怀念她？");
+    assert.equal(directFactReply("大周后是个怎样的人，为什么你那么怀念她？", entries), null);
+  });
+
+  test("同时命中多个条目不直答，避免答漏一方", () => {
+    const entries = matchFactEntries("大周后和小周后是什么关系？");
+    assert.ok(entries.length > 1);
+    assert.equal(directFactReply("大周后和小周后是什么关系？", entries), null);
+  });
+
+  test("没有命中条目时返回 null", () => {
+    assert.equal(directFactReply("春水这个意象怎么理解", []), null);
+    assert.equal(directFactReply("", []), null);
+  });
+});
+
+describe("checkKnownFacts（年岁正向核对）", () => {
+  test("卒年写错判违规，写对放行", () => {
+    const entries = matchFactEntries("李从善");
+    assert.equal(checkKnownFacts("李从善 978 年就去世了。", entries), "李从善的卒年应为 987");
+    assert.equal(checkKnownFacts("李从善 987 年才去世，比我晚九年。", entries), null);
+  });
+
+  test("享年写错判违规", () => {
+    const entries = matchFactEntries("李昪");
+    assert.equal(checkKnownFacts("李昪 943 年去世，享年五十四岁。", entries), "李昪年岁应为 56");
+  });
+
+  test("没有 known 字段的条目不做核对", () => {
+    const entries = matchFactEntries("樊若水");
+    assert.equal(checkKnownFacts("樊若水 978 年去世。", entries), null);
+  });
+
+  test("答案没点这个人的名字就不核对，避免误伤", () => {
+    const entries = matchFactEntries("李从善");
+    assert.equal(checkKnownFacts("975 年金陵破，南唐亡。", entries), null);
+  });
+
+  test("中文数字能正确解析", () => {
+    assert.equal(cnToNumber("四十八"), 48);
+    assert.equal(cnToNumber("二十九"), 29);
+    assert.equal(cnToNumber("四"), 4);
+    assert.equal(cnToNumber("五十六"), 56);
+    assert.equal(cnToNumber("987"), 987);
+    assert.equal(cnToNumber(""), null);
   });
 });
