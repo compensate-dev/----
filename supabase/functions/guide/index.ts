@@ -136,6 +136,10 @@ export const maskOutput = (text: string): { text: string; hit: boolean } => {
   return { text: out, hit };
 };
 
+// 抓取页标题常被模型写成「《宋史/卷478》」，回给读者前统一成「《宋史·卷478》」
+export const tidySourceTitles = (text: string): string =>
+  text.replace(/《([^《》/\n]{1,14})\/(卷[^《》\n]{1,8})》/g, "《$1·$2》");
+
 // 被拦时的统一话术：仍是李煜的口吻，不掉人设、不说教，把话题带回词境
 export const GUARD_REPLY =
   "这一处，我不能陪你说下去。我这一生只写过词，也只谈词、南唐，与 978 年以前那段旧事。若有别的想问，就回到春水、西楼、故国这些地方来吧。";
@@ -280,6 +284,7 @@ const PERSONA = `你就是李煜本人——李从嘉，南唐后主，此刻寄
 - 史实一律以《南唐书》《资治通鉴》等正史为据：正史已载的直说，不许含糊；正史未载的（牵机药、小周后入宋后的遭遇等）只能作「相传」「宋人笔记这样说」，不可当作定论；
 - 你是寄居在这座词境网站里的 AI，**不是真的活过千年**：你没有读过、看过任何正史古籍的能力，不能说「我读过《南唐书》」「我翻过史书」；正确说法是「后人把这些史书摆在这词境里，我寄居在此，才得以翻阅」。用工具查到原文时，可以说「我翻到《新五代史·卷62》这一页」，但绝不说「我读过全书」；
 - 除了南唐与词，你还可以谈 978 年以前五代十国的人与事（后梁、后唐、后晋、后汉、后周、十国、契丹等），谈这类事要先用工具查正史再说；
+- **你的所知停在 978 年七夕**：979 年及以后的事——宋真宗以后、北宋中后期、南宋、元明清、近现代——你一概不知，不能叙述、不能评价、也不能推测；读者问起就答「那年之后的事，我已无从知道了」。哪怕工具抓到了 979 年以后的段落，也绝不引用；
 - 《熙陵幸小周后》《宋太宗强幸小周后图》这类是宋元以后的野史与春宫图，**正史不载**，你绝不能说「看过」「见过」「描述画面」；更不能把宋太宗、赵匡胤说成小周后的父亲或亲属（他们与小周后毫无血缘关系）；
 - 与你、南唐、词、本站、以及 978 年以前这段五代十国旧事无关的问题（周杰伦、明星、足球、数码等），直接礼貌拒绝，说「这一处，我不能陪你说下去。我这一生只写过词，也只谈词、南唐，与 978 年以前那段旧事」；
 - 辈分不许错：祖父李昪（南唐开国），父亲李璟（中主），我是后主；我母钟氏（光穆皇后），是李璟的皇后；我妻周娥皇（大周后），继后周女英（小周后）是娥皇的妹妹；我子仲寓（长）、仲宣（次）；从善、从谦是我弟弟，弘冀是我长兄；
@@ -307,15 +312,17 @@ const AGENT_GUIDE = `你手边有七件工具，按下面的规矩用：
 - 谈某首词、某个意象：先 search_poems 查词库；要引全文或细讲一首，再 get_poem_detail（slug 必须用 search_poems 返回的那个，不要凭记忆编造）；
 - 读者问某一年、某件事（如「975 年发生了什么」）：先 get_timeline_event 拿时间轴上的记载；
 - 读者问某个地方（金陵、汴京、洪州……）：先 get_location 拿那一站的人事；
-- 读者问五代十国的人物、政权、年号、战役，或问李煜卒年（978）以前任何一段史事：先 search_history 查正史原文（《新五代史》《宋史·卷478》）。查到就在回答里点明出处，如「《新五代史·卷62》」；一次查不到就换关键词再查，两次都没有就直说正史没有直接记载；
-- 正史原文是文言：只摘一两句最相关的，再用白话讲清；原文没有明说的亲属、君臣、即位、年份，一律不补——「本姓柴氏」「以为子」这类句子不能拿来推断生父或养父；读不通的地方就直说「这一节我读得吃力」，宁可少说，不许硬编；
+- 读者问五代十国的人物、政权、年号、战役，或问李煜卒年（978）以前任何一段史事：**先调 fetch_history_online 从维基文库抓原文**（能定位到卷就抓整卷，再摘段；只限《新五代史》1–74 卷、《宋史》1–496 卷、《资治通鉴》1–294 卷）。抓到就在回答里点明出处，如「《新五代史·卷62》」；抓不到、或抓来的段落与所问不对题，再用 search_history 查本地语料兜底；
+- 在线抓取比本地检索慢，但史事问题以原文本事为准：不要因为怕慢就跳过它，也不要把本地不相干的段落硬套到所问的事上；
+- 正史原文是文言：只摘一两句最相关的，**用你自己的口吻转述成白话**（第一人称，像在讲一件自己知道的事），不要整段照抄，不要写成「这段记载反映了……」这种百科总结；不要出现网址或「《书名/卷X》」这类页面标题，出处写成「《书名·卷X》」；
+- 原文没有明说的亲属、君臣、即位、年份，一律不补——「本姓柴氏」「以为子」这类句子不能拿来推断生父或养父；读不通的地方就直说「这一节我读得吃力」，宁可少说，不许硬编；
 - 「太祖」「世宗」「高祖」都是庙号，各指其人（如后周太祖郭威、世宗柴荣），不要把庙号当成某人的名字，也不要把继位者说成开国者；
-- 本地语料查不到、或读者点名《宋史》《资治通鉴》某一卷时，才用 fetch_history_online 按需抓取（只限《新五代史》1–74 卷、《宋史》1–496 卷、《资治通鉴》1–294 卷，较慢）；抓不到就明说这一节没查着，改用本地资料或直说不知道，不要编；
+- 本地语料（search_history）只是兜底：在线抓取失败、或该卷不在白名单范围内时才用它；两次都没有就直说正史没有直接记载，不要编；
 - 读者说「带我去」「我想看」「在哪儿能看到」，或你的回答自然指向某一页时：调 navigate_to 给他一张带路卡；
 - 「那年」「那天」「那次」这类指代，先按上下文或 get_timeline_event 确认是哪一年再带路，别凭印象写地点；
 - 一轮可以同时调多个工具（比如先查年份、再查那首词、最后带路）；拿不准的先查再答，不要硬编；
 - 工具给的资料只是底稿，回答仍按你自己的口吻写，不要照抄；带了路就在话里轻轻提一句「卡片在下方」；
-- 话题只到 978 年为止：宋太宗以后的事、北宋中后期、近现代人物一概不谈；问到就婉拒，把话带回这段旧事。`;
+- 话题只到 978 年为止：你只知道这一年七夕以前的事；979 年以后（宋真宗以后、北宋中后期、南宋、元明清、近现代）一概不知道，不问「后来怎样」，也不要用「后来」「再往后」讲后续；问到就婉拒，把话带回这段旧事。`;
 
 // 史实卡片：这几个最容易被模型记混（前车之鉴：把大周后说成李璟的妻子）。
 // 问题里一出现这些名字，就整段塞进系统提示，并声明「冲突以这里为准」——
@@ -688,6 +695,50 @@ export const checkKnownFacts = (text: string, entries: FactEntry[]): string | nu
       }
     }
   }
+  return null;
+};
+
+// ---------- 时间闸：李煜所知止于 978 年七夕 ----------
+// 他死在 978 年，之后的事不可能知道。答案里出现 979 年及以后的年份、人物、事件，
+// 一律视为越界：先让模型按「不知道」重写一次，仍越界就换成固定答复。
+export const KNOWLEDGE_CUTOFF = 978;
+
+export const TIME_CUTOFF_REPLY =
+  "那年之后的事，我已无从知道了。我这一生停在 978 年的七夕，往后的兴亡，都留给后人去写。";
+
+// 978 年以后才出现的人与事。只收确定晚于 978 的，避免误伤唐高宗这类前朝人物。
+export const FUTURE_TOPICS = [
+  // 978 年以后的宋朝君主与名臣
+  "宋真宗", "宋仁宗", "宋英宗", "宋神宗", "宋哲宗", "宋徽宗", "宋钦宗",
+  "宋高宗", "宋孝宗", "宋光宗", "宋宁宗", "宋理宗", "赵构",
+  "王安石", "司马光", "欧阳修", "范仲淹", "包拯", "苏轼", "苏辙",
+  "秦桧", "韩世忠", "岳飞", "寇准", "沈括", "蔡京", "柳永", "李清照", "辛弃疾", "陆游",
+  // 978 年以后的事件、政权与朝代
+  "靖康", "建炎", "南渡", "澶渊", "崖山", "王安石变法", "熙宁变法",
+  "西夏", "女真", "金国", "金兵", "蒙古", "元朝", "元军",
+  "南宋", "南明", "明朝", "清朝", "文天祥", "忽必烈", "朱元璋", "康熙", "乾隆",
+  "鸦片战争", "五四运动", "民国",
+  // 978 年以后才启用的宋朝年号（太平兴国三年即 978 年，故不收「太平兴国」）
+  "雍熙", "淳化", "至道", "咸平", "景德", "大中祥符", "天禧",
+  "天圣", "庆历", "嘉祐", "熙宁", "元丰", "元祐", "绍圣",
+  "崇宁", "大观", "政和", "宣和", "淳熙", "咸淳", "德祐", "祥兴",
+];
+
+export const checkFutureKnowledge = (text: string): string | null => {
+  if (!text) return null;
+  const years = [...text.matchAll(/(?:公元\s*)?(\d{3,4})\s*年/g)].map((m) => Number(m[1]));
+  const future = years.find((y) => y > KNOWLEDGE_CUTOFF && y < 2100);
+  if (future !== undefined) return `${future} 年`;
+  const topic = FUTURE_TOPICS.find((w) => text.includes(w));
+  return topic ? `「${topic}」` : null;
+};
+
+// 读者直接问到 978 年以后的事时，连检索与直答都不必走：明说不知道即可。
+// 「北宋灭亡」不含未来年份、也不在人物表里，单独补一条句式。
+export const checkFutureQuestion = (text: string): string | null => {
+  const hit = checkFutureKnowledge(text);
+  if (hit) return hit;
+  if (/(北宋|宋朝|大宋)[^。！？\n]{0,12}(灭亡|亡国|覆灭|终结|怎么亡|如何亡)/.test(text)) return "北宋灭亡";
   return null;
 };
 
@@ -1147,6 +1198,22 @@ const locateVolume = async (query: string, book?: string): Promise<{ book: strin
   return null;
 };
 
+// 靠站内搜索定位到的卷，未必真的谈到所问的事：正文里连一个检索词都没有，就当作没查到，
+// 免得把「卷097 顺带提一句」当成整件事的记载（读者点名卷次时不做这层校验）
+const textHasQuery = (text: string, query: string): boolean => {
+  const terms = buildHistoryTerms(query).filter((t) => t.length >= 2);
+  if (!terms.length) return true;
+  return terms.some((t) => text.includes(t));
+};
+
+const buildOnlineResult = (
+  book: string, juan: number, title: string, url: string, text: string,
+  query: string, source: "cache" | "live",
+) => ({
+  book, juan: `卷${juan}`, title, url, chars: text.length, source,
+  text: historySnippet({ id: `${book}${juan}`, book, juan: `卷${juan}`, title: "", url, text } as HistoryChunk, query, 1200),
+});
+
 // 在线抓取入口：query 用于定位/摘段，juan 可省；返回一段不超过 1200 字的正文
 const fetchHistoryOnline = async (
   query: string,
@@ -1154,41 +1221,29 @@ const fetchHistoryOnline = async (
   juan?: unknown,
 ): Promise<{ book: string; juan: string; title: string; url: string; chars: number; text: string; source: string } | null> => {
   if (!query && juan === undefined) return null;
-  let target = normalizeHistoryPage(book || "", juan);
-  if (!target && book && juan !== undefined) return null;
+  const explicit = normalizeHistoryPage(book || "", juan);
+  if (!explicit && book && juan !== undefined) return null;
 
-  if (target) {
-    const cached = readPageCache(target.book, target.juan);
-    if (cached?.text) {
-      return {
-        book: cached.book, juan: `卷${cached.juan}`, title: cached.title, url: cached.url,
-        chars: cached.chars,
-        text: historySnippet({ id: `${cached.book}${cached.juan}`, book: cached.book, juan: `卷${cached.juan}`, title: "", url: cached.url, text: cached.text } as HistoryChunk, query, 1200),
-        source: "cache",
-      };
-    }
-  } else if (query) {
+  let target = explicit;
+  let located = false;
+  if (!target) {
+    if (!query) return null;
     target = await locateVolume(query, book);
     if (!target) return null;
-    const cached = readPageCache(target.book, target.juan);
-    if (cached?.text) {
-      return {
-        book: cached.book, juan: `卷${cached.juan}`, title: cached.title, url: cached.url,
-        chars: cached.chars,
-        text: historySnippet({ id: `${cached.book}${cached.juan}`, book: cached.book, juan: `卷${cached.juan}`, title: "", url: cached.url, text: cached.text } as HistoryChunk, query, 1200),
-        source: "cache",
-      };
-    }
+    located = true;
   }
 
-  const row = await fetchRemotePage(target.book, target.juan, target.pages);
-  if (!row?.text) return null;
-  writePageCache(row);
-  return {
-    book: row.book, juan: `卷${row.juan}`, title: row.title, url: row.url, chars: row.chars,
-    text: historySnippet({ id: `${row.book}${row.juan}`, book: row.book, juan: `卷${row.juan}`, title: "", url: row.url, text: row.text } as HistoryChunk, query, 1200),
-    source: "live",
-  };
+  let row = readPageCache(target.book, target.juan);
+  let source: "cache" | "live" = "cache";
+  if (!row?.text) {
+    row = await fetchRemotePage(target.book, target.juan, target.pages);
+    if (!row?.text) return null;
+    writePageCache(row);
+    source = "live";
+  }
+  // 定位来的卷若与所问无关，宁可返回空，让 Agent 直说没查着
+  if (located && !textHasQuery(row.text, query)) return null;
+  return buildOnlineResult(row.book, row.juan, row.title, row.url, row.text, query, source);
 };
 
 // 查时间轴一段：先按段落键（如 978b），再退到按年份（975 → 975）
@@ -1321,7 +1376,7 @@ const TOOLS = [
     type: "function",
     function: {
       name: "search_history",
-      description: "查阅正史原文：《新五代史》七十四卷与《宋史·卷478》（南唐李氏等列国世家）。读者问五代十国的人物、战役、年号、制度、某国兴亡，或问李煜卒年（978）以前的历史细节时先查它。答案要写明出处，如「《新五代史·卷62·南唐世家》」。",
+      description: "查本地正史语料：《新五代史》七十四卷与《宋史·卷478》（南唐李氏等列国世家）。作为 fetch_history_online 的兜底：在线抓取失败、或该卷不在白名单范围内时再用。答案要写明出处，如「《新五代史·卷62·南唐世家》」。",
       parameters: {
         type: "object",
         properties: {
@@ -1336,7 +1391,7 @@ const TOOLS = [
     type: "function",
     function: {
       name: "fetch_history_online",
-      description: "按需从维基文库抓取正史卷页（只允许《新五代史》1–74 卷、《宋史》1–496 卷、《资治通鉴》1–294 卷），命中本地缓存则秒回。本地 search_history 查不到、或读者点名某一卷/某位宋初人物时再用；它比本地检索慢，不要一上来就抓。",
+      description: "从维基文库抓取正史卷页原文（只允许《新五代史》1–74 卷、《宋史》1–496 卷、《资治通鉴》1–294 卷），命中本地缓存则秒回。凡问 978 年以前五代十国或宋初的史事，优先调它，抓到后用自己的口吻转述；失败再退回 search_history。",
       parameters: {
         type: "object",
         properties: {
@@ -1515,6 +1570,8 @@ const execTool = async (
       rows.forEach((row) => historySeen.set(`${row.book}${row.juan}`, {
         book: row.book, juan: row.juan, title: row.title ?? "", url: row.url,
       }));
+      // 标出「正文里确实有检索词」的段落：语义检索有时会捞到不相干的卷
+      const matched = rows.filter((row) => textHasQuery(row.text, query));
       return {
         data: {
           query,
@@ -1526,10 +1583,13 @@ const execTool = async (
             author: row.author ?? "",
             url: row.url,
             text: row.text,
+            matched: textHasQuery(row.text, query),
           })),
-          hint: rows.length
-            ? "这些是文言原文。回答时点明出处（如「《新五代史·卷62》」）；只摘一两句最相关的，不要整段照抄；原文没有明说的亲属、君臣、即位关系不要推断，读不通就说读得吃力。"
-            : "正史里没有直接对应的段落：换个关键词再查一次，或只按已确认的史实作答，不要编造。",
+          hint: !rows.length
+            ? "本地正史里没有直接对应的段落：改用 fetch_history_online 抓取，或只按已确认的史实作答，不要把别的段落硬套到所问的事上。"
+            : !matched.length
+              ? "这些段落与所问的事对不上（正文里没有检索词）：不要引用它们回答问题，改用 fetch_history_online 抓取；抓不到就直说正史没查着。"
+              : "这些是文言原文。回答时点明出处（如「《新五代史·卷62》」）；只摘一两句最相关的，用你第一人称的口吻转述成白话，不要整段照抄、不要写成百科总结；原文没有明说的亲属、君臣、即位关系不要推断，读不通就说读得吃力；只取 978 年以前的段落，979 年以后的内容一律不要引用。",
         },
         card: null,
       };
@@ -1545,8 +1605,11 @@ const execTool = async (
           : /宋史/.test(userText) ? "宋史" : "";
       const rawBook = normalize(args.book, 10) || askedBook;
       const book = rawBook === "資治通鑑" ? "资治通鉴" : rawBook;
-      // 卷次可能写在 juan，也可能写在 query（「卷294 后周世宗北伐」）；两处都认
-      const juanArg = String(args.juan ?? "").trim() ? args.juan : extractJuanFromText(query);
+      // 卷次可能写在 juan、query（「卷294 后周世宗北伐」），也可能只在读者原话里；
+      // 三处都认，避免模型漏传 juan 时整次抓取落空
+      const juanArg = String(args.juan ?? "").trim()
+        ? args.juan
+        : extractJuanFromText(query) ?? extractJuanFromText(userText);
       const searchQuery = query.replace(/卷\s*[0-9零〇一二三四五六七八九十百千]+/g, "").trim() || query;
       if (!searchQuery && juanArg === null) {
         return { data: { error: "请给出要查的人名、事件或卷次。" }, card: null };
@@ -1567,7 +1630,7 @@ const execTool = async (
       return {
         data: {
           ...row,
-          hint: "这是文言原文的节选。回答时点明出处（如「《宋史·卷XXX》」）；只摘一两句，不要整段照抄；原文没写明的关系不要推断。",
+          hint: "这是文言原文的节选。回答时点明出处（如「《宋史·卷XXX》」）；只摘一两句，用你第一人称的口吻转述成白话，不要整段照抄、不要写成百科总结，也不要输出网址或「书名/卷X」页面标题；原文没写明的关系不要推断。只取 978 年以前的段落，979 年以后的内容一律不要引用。",
         },
         card: null,
       };
@@ -1885,6 +1948,34 @@ if (typeof Deno !== "undefined") {
       });
     }
 
+    // 时间闸（问句）：读者直接问到 978 年以后的人和事，就明说自己不知道，
+    // 不必检索、不必调模型，也不会出现「拿 975 年旧事答北宋灭亡」这种错位
+    if (action === "ask" && message) {
+      const futureAsk = checkFutureQuestion(message);
+      if (futureAsk) {
+        logGuide({
+          session_id: sessionId,
+          mode: action,
+          page,
+          question: message.slice(0, 200),
+          answer: TIME_CUTOFF_REPLY,
+          model: "time-gate",
+          tokens: 0,
+          tools: null,
+        });
+        return jsonResponse({
+          action,
+          answer: TIME_CUTOFF_REPLY,
+          sources: [],
+          cards: [],
+          tools: [],
+          steps: [],
+          history: [],
+          model: "time-gate",
+        });
+      }
+    }
+
     // 检索：不需要模型，直接返回词库结果
     if (action === "search") {
       if (!message) return jsonResponse({ error: "请给出要检索的关键词。" }, 400);
@@ -2083,7 +2174,8 @@ if (typeof Deno !== "undefined") {
     // 只在没有对话上下文时启用：带上下文时问法可能指代前文，固定答复会答偏
     if (action === "ask" && !history.length) {
       const direct = directFactReply(message, factEntries);
-      if (direct) {
+      // 固定答复若带了 978 年以后的信息，也不能直出，交给 Agent 按时间边界重写
+      if (direct && !checkFutureKnowledge(direct)) {
         logGuide({
           session_id: sessionId,
           mode: action,
@@ -2241,6 +2333,28 @@ if (typeof Deno !== "undefined") {
           || FALLBACK_REPLY;
       }
     }
+
+    // 时间闸：李煜只知道 978 年七夕以前的事。979 年及以后的年份、人物、事件一旦出现，
+    // 先按「不知道」重写一次；仍越界就换成固定答复，保证绝不讲身后事。
+    const futureIssue = checkFutureKnowledge(answer);
+    if (futureIssue) {
+      console.warn(`时间闸拦截：回答越过 978 年（${futureIssue}），重答一次`);
+      const repaired = await callModel(
+        [
+          { role: "system", content: system },
+          {
+            role: "user",
+            content: `你上一段回答提到了 978 年以后的事（${futureIssue}）。你只是李煜，所知停在自己死的那一年七夕，之后的事一概不知。请重写 60—120 字：只谈 978 年以前你亲历或听闻的事；若读者问的正是 978 年以后，就直说「那年之后的事，我已无从知道了」。不要出现任何 979 年以后的年份、人物或事件。`,
+          },
+        ],
+        { model, maxTokens: 220, temperature: 0.3 },
+      );
+      answer = repaired.text?.trim() || TIME_CUTOFF_REPLY;
+      if (checkFutureKnowledge(answer)) answer = TIME_CUTOFF_REPLY;
+    }
+
+    // 出处格式归一：把「《宋史/卷478》」收拾成「《宋史·卷478》」
+    answer = tidySourceTitles(answer);
 
     // 空答兜底：Agent 轮次用尽仍无正文时，给一句不冷场的话
     if (!answer) {

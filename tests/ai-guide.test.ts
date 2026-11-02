@@ -25,6 +25,9 @@ import {
   buildHistoryTerms,
   scoreHistoryChunks,
   normalizeHistoryPage,
+  checkFutureKnowledge,
+  checkFutureQuestion,
+  tidySourceTitles,
 } from "../supabase/functions/guide/index.ts";
 
 // 统一的假词条工厂，只造测试用得上的字段
@@ -451,7 +454,9 @@ describe("directFactReply（命中即直答）", () => {
   test("单一条目 + 纯事实问法 → 直接给库里的答复", () => {
     const entries = matchFactEntries("李从善什么时候去世的？");
     assert.equal(directFactReply("李从善什么时候去世的？", entries), entries[0].reply);
-    assert.match(directFactReply("李从善什么时候去世的？", entries)!, /987/);
+    // 李煜死在 978 年，不可能知道从善 987 年才去世；固定答复也不能带出身后事
+    assert.doesNotMatch(directFactReply("李从善什么时候去世的？", entries)!, /987/);
+    assert.match(directFactReply("李从善什么时候去世的？", entries)!, /我走的时候/);
   });
 
   test("议论式问法不直答，交给模型组织", () => {
@@ -520,6 +525,65 @@ describe("HISTORY_TOPICS（五代十国放行）", () => {
   test("明代以后与无关话题不再硬拦，只标记 offtopic", () => {
     assert.equal(guardText("明朝张居正变法").blocked, false);
     assert.equal(guardText("清朝乾隆下江南").reason, "offtopic");
+  });
+});
+
+describe("时间闸（李煜所知止于 978 年）", () => {
+  test("979 年及以后判越界", () => {
+    assert.ok(checkFutureKnowledge("979 年，宋太宗即位"));
+    assert.ok(checkFutureKnowledge("公元 1004 年，澶渊之盟"));
+  });
+
+  test("978 年及以前放行", () => {
+    assert.equal(checkFutureKnowledge("978 年七夕，我死在汴京"), null);
+    assert.equal(checkFutureKnowledge("937 年我生在金陵"), null);
+  });
+
+  test("宋以后的人物与事件判越界", () => {
+    assert.ok(checkFutureKnowledge("后来岳飞北伐"));
+    assert.ok(checkFutureKnowledge("靖康之变"));
+  });
+
+  test("唐高宗这类前朝人物不误伤", () => {
+    assert.equal(checkFutureKnowledge("唐高宗时，李义府当权"), null);
+  });
+
+  test("978 年以后才启用的年号也判越界", () => {
+    assert.ok(checkFutureKnowledge("熙宁年间，王安石推行新法"));
+    assert.ok(checkFutureKnowledge("淳熙年间的词人"));
+    assert.ok(checkFutureKnowledge("建炎南渡以后"));
+  });
+
+  test("978 当年及以前的年号不误伤", () => {
+    assert.equal(checkFutureKnowledge("太平兴国三年，我死在汴京"), null);
+    assert.equal(checkFutureKnowledge("显德六年，父皇病重"), null);
+    assert.equal(checkFutureKnowledge("开宝七年，宋军造浮桥"), null);
+  });
+
+  test("读者直接问 978 年以后的事，问句闸也拦下", () => {
+    assert.ok(checkFutureQuestion("靖康之变是怎么回事？"));
+    assert.ok(checkFutureQuestion("熙宁变法讲什么？"));
+    assert.ok(checkFutureQuestion("979 年以后发生了什么？"));
+    assert.ok(checkFutureQuestion("北宋后来是怎么灭亡的？"));
+  });
+
+  test("问南唐、五代与词时不误判为越界", () => {
+    assert.equal(checkFutureQuestion("南唐是怎么灭亡的？"), null);
+    assert.equal(checkFutureQuestion("北宋初年与南唐是什么关系？"), null);
+    assert.equal(checkFutureQuestion("李煜是怎么死的？"), null);
+    assert.equal(checkFutureQuestion("大周后是谁？"), null);
+  });
+});
+
+describe("tidySourceTitles（出处格式归一）", () => {
+  test("把抓取页标题改写成「书名·卷次」", () => {
+    assert.equal(tidySourceTitles("见《宋史/卷478》。"), "见《宋史·卷478》。");
+    assert.equal(tidySourceTitles("《资治通鉴/卷294》有载"), "《资治通鉴·卷294》有载");
+  });
+
+  test("正常出处与普通书名不动", () => {
+    assert.equal(tidySourceTitles("《新五代史·卷62·南唐世家》"), "《新五代史·卷62·南唐世家》");
+    assert.equal(tidySourceTitles("《南唐书》里写过"), "《南唐书》里写过");
   });
 });
 
