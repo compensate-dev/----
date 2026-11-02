@@ -374,6 +374,29 @@ describe("hasFactViolation（事实闸）", () => {
     assert.equal(hasFactViolation("南唐是祖父李昪于 937 年建立的，父皇李璟 943 年继位。"), false);
     assert.equal(hasFactViolation("从善、从谦是我的弟弟，不是我的儿子。"), false);
   });
+
+  test("「非也」开头的回答不能把后面的错误一起当否定句剪掉", () => {
+    assert.equal(
+      hasFactViolation("非也，大周后，即周娥皇，是先帝中主李璟的皇后，也是我的结发妻子。"),
+      true,
+    );
+    assert.equal(hasFactViolation("非也，李从善乃我弟，他是先帝中主之子，我父之弟。"), true);
+  });
+
+  test("被否定句剪掉后只剩「她」的错句也能识别", () => {
+    assert.equal(
+      hasFactViolation(
+        "不是的，大周后，也就是周娥皇，是我的结发妻子，也是南唐国后。她是李璟的皇后，我的母亲是钟氏。",
+      ),
+      true,
+    );
+    // 说钟皇后是李璟的皇后，是对的
+    assert.equal(hasFactViolation("我的母亲是钟氏，她是中主李璟的皇后。"), false);
+  });
+
+  test("「并未亲历」这类否定仍不误判", () => {
+    assert.equal(hasFactViolation("相传牵机药是宋太宗所赐，正史不载，我并未亲历。"), false);
+  });
 });
 
 describe("matchFactEntries（史实库检索）", () => {

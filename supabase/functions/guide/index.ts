@@ -389,6 +389,9 @@ const FACT_VIOLATIONS: RegExp[] = [
   // 把弟弟李从谦说成哥哥（李煜是李璟第六子，从谦比他年幼）
   /(哥哥|兄长|大哥|长兄)[^。！？\n]{0,10}(李从谦|从谦)/,
   /李从谦[^。！？\n]{0,10}(是我哥|我哥哥|兄长|比我年长|年长于我)/,
+  // 把弟弟说成父亲的弟弟（「从善是先帝中主之子，我父之弟」——应是「我之弟」）；
+  // 这里跨句匹配：实测错误会落在下一句，用 [^。！？] 会被句号挡住
+  /(从善|从谦)[\s\S]{0,40}(父之弟|父亲的弟弟|我叔叔|叔父)/,
   /975[^。！？\n]{0,14}(去世|病逝|卒于|死去)/,
   // 父皇 961 年去世，大周后 964 年才病逝，不是「父皇一走她也随之而去」
   /父皇[^。！？\n]{0,10}(去世|崩|驾崩)[^。！？\n]{0,20}(她|娥皇|大周后)[^。！？\n]{0,10}(去世|病逝|离开人世|随之)/,
@@ -396,12 +399,30 @@ const FACT_VIOLATIONS: RegExp[] = [
 ];
 
 // 否定句是正写的常态（「不是父皇的妻子」「不是我的儿子」），先剪掉再判，
-// 否则「她叫周娥皇，是我的结发妻子，不是父皇的妻子」会被误判成违规
-const NEGATED_TAIL = /(?:不是|并非|非|未)[^。！？\n]{0,24}/g;
+// 否则「她叫周娥皇，是我的结发妻子，不是父皇的妻子」会被误判成违规。
+// 注意只剪「不是/并非」这类完整否定词：裸「非」会把「非也，大周后是先帝李璟的皇后」
+// 整句吞进否定范围，反而放过真错（实测踩过）。
+const NEGATED_TAIL = /(?:不是|并非)[^。！？\n]{0,24}/g;
+
+// 「李璟的皇后/妻子」只有指钟氏才成立；指周娥皇、或承前用「她」，就是关系写反。
+// 为什么不能只靠名字正则：实测回答常写成「不是的，大周后…。她是李璟的皇后」，
+// 前半句被否定预处理剪掉后只剩一个「她」，按名字匹配永远抓不到。
+const WRONG_EMPRESS = /李璟的(?:皇后|妻子)/g;
+const hasWrongEmpress = (text: string): boolean => {
+  for (const m of text.matchAll(WRONG_EMPRESS)) {
+    const at = m.index ?? 0;
+    const before = text.slice(Math.max(0, at - 16), at);
+    if (/钟|光穆/.test(before)) continue;              // 指钟皇后，正确
+    if (/(?:不是|并非|非)$/.test(before.trim())) continue; // 明说「非李璟的皇后」，正确
+    if (/周娥皇|娥皇|大周后|昭惠|她/.test(before)) return true;
+  }
+  return false;
+};
 
 // 检出与史实卡片相违的表述
 export const hasFactViolation = (text: string): boolean => {
   const affirmative = text.replace(NEGATED_TAIL, " ");
+  if (hasWrongEmpress(affirmative)) return true;
   return FACT_VIOLATIONS.some((re) => re.test(affirmative));
 };
 
