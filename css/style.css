@@ -696,10 +696,6 @@ body.home-page.book-opened>.site-header,body.home-page.book-opened>main,body.hom
 .calligraphy-sequence{position:fixed;inset:0;z-index:1001;overflow:hidden;visibility:hidden;opacity:0;pointer-events:none;background:#e8eee4;transition:opacity .4s ease}
 .calligraphy-sequence.is-active{visibility:visible;opacity:1}
 .calligraphy-sequence.is-revealing{opacity:0}
-.calligraphy-sequence.is-particle-phase .calligraphy-background{opacity:.08;transition:opacity .9s ease}
-.calligraphy-sequence.is-particle-phase .calligraphy-flight{visibility:hidden}
-.calligraphy-particle-canvas{position:absolute;inset:0;z-index:5;width:100%;height:100%;opacity:0;transition:opacity .8s ease}
-.calligraphy-sequence.is-particle-phase .calligraphy-particle-canvas{opacity:1}
 .calligraphy-background,.calligraphy-sequence:after{position:absolute;inset:0;width:100%;height:100%}
 .calligraphy-background{z-index:0;object-fit:cover;object-position:center;opacity:.94;transition:opacity .9s ease}
 .calligraphy-sequence:after{content:"";z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(242,244,237,.26),rgba(242,244,237,.12) 50%,rgba(242,244,237,.26))}
@@ -710,9 +706,7 @@ body.home-page.book-opened>.site-header,body.home-page.book-opened>main,body.hom
 @keyframes calligraphy-rain-fall{from{background-position:0 0}to{background-position:-37px 210px}}
 .calligraphy-inkmotes{position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden}
 .calligraphy-inkmotes canvas{position:absolute;inset:0;width:100%;height:100%}
-.calligraphy-sequence.is-particle-phase .calligraphy-mist{opacity:.96;transition:opacity 1.1s ease}
 @keyframes calligraphy-mist-drift{0%{transform:scale(1.14) translate3d(-2.2%,1%,0)}100%{transform:scale(1.2) translate3d(2.4%,-1.4%,0)}}
-.calligraphy-flight.is-shattering{animation-play-state:paused!important;opacity:0;visibility:hidden;transition:opacity .3s ease}
 /* 幕间墨戏（ink-interlude）：全屏墨底题字，衔接序章与入词境 */
 .ink-interlude{position:fixed;inset:0;z-index:1002;overflow:hidden;display:grid;place-items:center;background:#0e0f12;color:#e8e6e1;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .6s ease,visibility .6s;will-change:opacity}
 .ink-interlude.is-visible{opacity:1;visibility:visible}
@@ -927,7 +921,7 @@ body.arrival-lock{overflow:hidden}
 @keyframes calligraphy-fall{0%{opacity:.34;transform:translate3d(-50%,calc(-100% + 52px),0)}18%{opacity:.94}76%{opacity:.94}100%{opacity:0;transform:translate3d(-50%,calc(100vh - 52px),0)}}
 @keyframes calligraphy-fall-final{0%{opacity:.34;transform:translate3d(-50%,calc(-100% + 52px),0)}18%,100%{opacity:.94;transform:translate3d(-50%,calc(100vh - 52px),0)}}
 @media(max-width:700px){.calligraphy-flight{max-width:48vw;max-height:62vh}}
-@media(prefers-reduced-motion:reduce){.calligraphy-sequence{display:none!important}.calligraphy-flight{animation:none!important}.ink-interlude{transition:none}.calligraphy-particle-canvas{display:none}.calligraphy-mist{animation:none}.calligraphy-rain{animation:none;opacity:.3}.calligraphy-inkmotes{display:none}}
+@media(prefers-reduced-motion:reduce){.calligraphy-sequence{display:none!important}.calligraphy-flight{animation:none!important}.ink-interlude{transition:none}.calligraphy-mist{animation:none}.calligraphy-rain{animation:none;opacity:.3}.calligraphy-inkmotes{display:none}}
 /* 大屏增强：首页与小传区放大、留白收紧 */
 @media(min-width:1100px) and (min-height:700px){
   .hero{min-height:min(820px,calc(100svh - 86px))}
