@@ -14,6 +14,8 @@ import {
   filterPoemsByKeywords,
   mergeHybridResults,
   stripEmbedding,
+  matchFigureFacts,
+  hasFactViolation,
 } from "../supabase/functions/guide/index.ts";
 
 // 统一的假词条工厂，只造测试用得上的字段
@@ -220,5 +222,141 @@ describe("stripEmbedding（响应瘦身）", () => {
 
   test("原本就没有 embedding 的行不受影响", () => {
     assert.deepEqual(stripEmbedding([poem("s")]), [poem("s")]);
+  });
+});
+
+describe("matchFigureFacts（史实卡片注入）", () => {
+  test("提到大周后/周娥皇时，卡片明确她是李煜的妻子而非李璟的妻子", () => {
+    const facts = matchFigureFacts("大周后是谁的妻子？");
+    assert.equal(facts.length, 1);
+    assert.match(facts[0], /李煜的结发妻子/);
+    assert.match(facts[0], /不是李璟的妻子/);
+  });
+
+  test("提到李璟时，卡片说明他是李煜的父亲", () => {
+    const facts = matchFigureFacts("我父皇李璟在位多少年");
+    assert.equal(facts.length, 1);
+    assert.match(facts[0], /李煜的父亲/);
+  });
+
+  test("一句话涉及两个人，返回两张卡", () => {
+    const facts = matchFigureFacts("大周后和小周后是什么关系");
+    assert.equal(facts.length, 2);
+  });
+
+  test("没有人物名时返回空数组，不额外占用上下文", () => {
+    assert.deepEqual(matchFigureFacts("春水这个意象怎么理解"), []);
+    assert.deepEqual(matchFigureFacts(""), []);
+  });
+
+  test("问母亲是谁时，卡片说明母亲是钟皇后，周娥皇是妻子", () => {
+    const facts = matchFigureFacts("你的母亲是谁？");
+    assert.equal(facts.length, 1);
+    assert.match(facts[0], /钟氏（光穆皇后）/);
+    assert.match(facts[0], /不是李煜的母亲/);
+  });
+
+  test("问「谁建立了南唐」时，即使不含人名也能按句式命中李昪", () => {
+    const facts = matchFigureFacts("谁建立了南唐？");
+    assert.equal(facts.length, 1);
+    assert.match(facts[0], /李昪（南唐烈祖）是李璟的父亲、李煜的祖父/);
+  });
+
+  test("问儿子时，卡片区分亲子与弟弟", () => {
+    const facts = matchFigureFacts("你一共有几个儿子？");
+    assert.equal(facts.length, 1);
+    assert.match(facts[0], /长子李仲寓/);
+    assert.match(facts[0], /次子李仲宣/);
+    assert.match(facts[0], /李从善、李从谦是李煜的弟弟/);
+  });
+});
+
+describe("hasFactViolation（事实闸）", () => {
+  test("钟皇后、小周后的辈分错位判定为违规，正写不误判", () => {
+    assert.equal(hasFactViolation("钟皇后是我的结发妻子。"), true);
+    assert.equal(hasFactViolation("小周后是我的亲妹妹。"), true);
+    assert.equal(hasFactViolation("我母亲是钟氏，光穆皇后，父皇李璟的皇后。"), false);
+    assert.equal(hasFactViolation("小周后是娥皇的妹妹，我的妻妹。"), false);
+  });
+
+  test("把周娥皇说成李璟的皇后/妻子，判定为违规", () => {
+    assert.equal(hasFactViolation("周娥皇是我父亲中主李璟的皇后，也是我南唐的皇后。"), true);
+    assert.equal(hasFactViolation("娥皇后来成了李璟的妻子。"), true);
+  });
+
+  test("自称朕/寡人，判定为违规（人设要求第一人称「我」）", () => {
+    assert.equal(hasFactViolation("是朕的结发妻子。"), true);
+  });
+
+  test("正确的公媳关系与夫妻关系不误判", () => {
+    assert.equal(hasFactViolation("她叫周娥皇，是我的结发妻子，不是父皇的妻子。"), false);
+    assert.equal(hasFactViolation("周娥皇是李璟的儿媳，李煜是李璟的儿子。"), false);
+  });
+
+  test("把母亲说成周娥皇，判定为违规", () => {
+    assert.equal(hasFactViolation("我的母亲是周娥皇，她是我的结发妻子，也是我父亲李璟的结发妻子。"), true);
+  });
+
+  test("把南唐开国说成李璟，判定为违规", () => {
+    assert.equal(hasFactViolation("南唐的建立，是我父亲李璟的事。他在 937 年称帝。"), true);
+  });
+
+  test("把弟弟李从善/李从谦当成儿子，判定为违规", () => {
+    assert.equal(hasFactViolation("我共有三个儿子：长子李贞元，次子李从善，幼子李从谦。"), true);
+  });
+
+  test("时间线错位（978 被囚 / 975 去世）判定为违规", () => {
+    assert.equal(hasFactViolation("978 年，我被迫离开南唐，被囚于汴京。"), true);
+    assert.equal(hasFactViolation("975 年，我病逝于汴京。"), true);
+    assert.equal(hasFactViolation("978 年，我南唐亡国后，他成了我的新主。"), true);
+  });
+
+  test("把李璟说成自己的弟弟，判定为违规", () => {
+    assert.equal(hasFactViolation("李从善、李从谦，乃我弟李璟之子，非我亲生。"), true);
+  });
+
+  test("把弟弟李从谦说成哥哥，判定为违规", () => {
+    assert.equal(hasFactViolation("我哥哥名叫李从谦，比我年长。"), true);
+  });
+
+  test("把仲宣说成长子或太子，判定为违规", () => {
+    assert.equal(hasFactViolation("仲宣，他是我的长子，本应继承南唐江山。"), true);
+    assert.equal(hasFactViolation("仲宣封为太子，却不幸早夭。"), true);
+    // 正写：次子、宣城公
+    assert.equal(hasFactViolation("仲宣是我与娥皇的次子，封宣城公，四岁夭折。"), false);
+  });
+
+  test("死地与葬地混说判定为违规，分开写不误判", () => {
+    assert.equal(hasFactViolation("我最后的归宿在北邙山，死在了洛阳。"), true);
+    assert.equal(hasFactViolation("978 年七夕，我死在汴京；后来葬在洛阳北邙山。"), false);
+  });
+
+  test("编造小周后入宋后去世，判定为违规；标明史载不详不误判", () => {
+    assert.equal(hasFactViolation("小周后随我北迁入宋，不久便去世了。"), true);
+    assert.equal(hasFactViolation("小周后 975 年随我北迁入宋，此后的事史载不详。"), false);
+  });
+
+  test("把牵机药野史写成本人亲历，判定为违规；标明相传不误判", () => {
+    assert.equal(hasFactViolation("我饮下牵机药，这一幕是我亲历的。"), true);
+    assert.equal(hasFactViolation("相传牵机药是宋太宗所赐，正史不载，我并未亲历。"), false);
+  });
+
+  test("南唐灭亡年份错位、牵机药按到后周，判定为违规", () => {
+    assert.equal(hasFactViolation("978 年，七夕之夜，南唐便灭亡了。"), true);
+    assert.equal(hasFactViolation("978 年的七夕，那是一个风清月明的夜晚，南唐终究还是走到了尽头。"), true);
+    assert.equal(hasFactViolation("牵机药是后周的臣子所用的毒药。"), true);
+  });
+
+  test("问南唐灭亡年份时，卡片明确是 975 年而非 978 年", () => {
+    const facts = matchFigureFacts("南唐是哪一年灭亡的？");
+    assert.equal(facts.length, 1);
+    assert.match(facts[0], /975 年被宋军攻破金陵/);
+    assert.match(facts[0], /978 年是他的卒年/);
+  });
+
+  test("正确写法不误判：母亲钟氏、李昪开国、从善是从弟", () => {
+    assert.equal(hasFactViolation("我母亲是钟氏，光穆皇后，父皇李璟的皇后。"), false);
+    assert.equal(hasFactViolation("南唐是祖父李昪于 937 年建立的，父皇李璟 943 年继位。"), false);
+    assert.equal(hasFactViolation("从善、从谦是我的弟弟，不是我的儿子。"), false);
   });
 });

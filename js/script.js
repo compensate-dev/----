@@ -1629,7 +1629,6 @@
     }
   }
 
-  let navigationVersion = 0;
   let activePageRipple = null;
   const startPageRipple = (origin = {}) => {
     if (reducedMotion) return { ready: Promise.resolve(), finish: () => {} };
@@ -1655,7 +1654,7 @@
       }
     };
   };
-  if (location.protocol === "file:") {
+  {
     const savedOrigin = sessionStorage.getItem("liyu-page-ripple-origin");
     if (savedOrigin) {
       sessionStorage.removeItem("liyu-page-ripple-origin");
@@ -1667,59 +1666,20 @@
       window.setTimeout(ripple.finish, 240);
     }
   }
-  const updateActiveNavigation = (url) => {
-    document.querySelectorAll(".main-nav a").forEach((link) => {
-      const active = new URL(link.href, location.href).pathname === url.pathname;
-      link.classList.toggle("active", active);
-      if (active) link.setAttribute("aria-current", "page");
-      else link.removeAttribute("aria-current");
-    });
-  };
-  const navigateTo = async (url, addHistory = true, origin) => {
-    const version = ++navigationVersion;
-    let ripple;
-    try {
-      const response = await fetch(url.href, { headers: { "X-Requested-With": "fetch" } });
-      if (!response.ok) throw new Error(`Navigation failed: ${response.status}`);
-      const nextPage = new DOMParser().parseFromString(await response.text(), "text/html");
-      const nextMain = nextPage.querySelector("main");
-      const currentMain = document.querySelector("main");
-      if (!nextMain || !currentMain) throw new Error("The destination page is missing its main content.");
-      if (version !== navigationVersion) return;
-      ripple = startPageRipple(origin);
-      await ripple.ready;
-      if (version !== navigationVersion) {
-        ripple.finish();
-        return;
-      }
-      currentMain.replaceWith(nextMain);
-      document.title = nextPage.title;
-      document.body.classList.toggle("home-page", nextPage.body.classList.contains("home-page"));
-      updateActiveNavigation(url);
-      document.querySelector(".main-nav")?.classList.remove("open");
-      document.querySelector(".menu-toggle")?.setAttribute("aria-expanded", "false");
-      if (addHistory) history.pushState({}, "", url.href);
-      initializePageContent();
-      if (url.hash) {
-        requestAnimationFrame(() => {
-          const anchor = document.getElementById(decodeURIComponent(url.hash.slice(1)));
-          if (anchor) anchor.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth" });
-        });
-      } else {
-        window.scrollTo({ top: 0, behavior: reducedMotion ? "auto" : "smooth" });
-      }
-      ripple.finish();
-    } catch (error) {
-      ripple?.finish();
-      console.error("Unable to navigate without reloading:", error);
-      location.assign(url.href);
-    }
-  };
   // 整页跳转前先让声音淡出，避免旧页音乐被瞬间掐断；新页面的音乐再从零淡入
   const fadeSiteAudioBeforeExit = (duration = 340) => {
     document.querySelectorAll(".background-audio, .finale-audio").forEach((element) => {
       window.liyuAudio.fadeOut(element, duration);
     });
+  };
+  // 站内翻页一律整页加载（水波动效照旧，只是不再就地替换 <main>）。
+  // 之前那版只换 main：新页面的脚本不会重新执行，首页的滚轮接管会一直留在 body 上
+  // （子页滚不动、却出现首页换幕效果），页头的相对链接也还按旧目录解析（子页再点就 404）。
+  const goWithRipple = (url, origin) => {
+    sessionStorage.setItem("liyu-page-ripple-origin", `${origin.x},${origin.y}`);
+    startPageRipple(origin);
+    fadeSiteAudioBeforeExit();
+    window.setTimeout(() => location.assign(url.href), 360);
   };
   document.addEventListener("click", (event) => {
     const link = event.target.closest("a[href]");
@@ -1729,28 +1689,11 @@
     if (url.origin !== location.origin || !url.pathname.endsWith(".html")) return;
     if (url.pathname === location.pathname && url.search === location.search) return;
     event.preventDefault();
-    const origin = { x: event.clientX, y: event.clientY };
-    // 终幕页有独立的配乐与整页动效，进出都走整页加载，才能接上尾声曲并淡出旧曲
-    const fullReload = location.protocol === "file:"
-      || url.pathname.endsWith("finale.html")
-      || Boolean(document.querySelector(".finale-audio"));
-    if (fullReload) {
-      sessionStorage.setItem("liyu-page-ripple-origin", `${origin.x},${origin.y}`);
-      startPageRipple(origin);
-      fadeSiteAudioBeforeExit();
-      window.setTimeout(() => location.assign(url.href), 360);
-      return;
-    }
-    navigateTo(url, true, origin);
+    goWithRipple(url, { x: event.clientX, y: event.clientY });
   });
+  // 后退/前进同样整页重载，避免沿用上一页替换过的 DOM 与旧监听
   window.addEventListener("popstate", () => {
-    if (location.protocol !== "file:" && location.pathname.endsWith(".html")) {
-      if (document.querySelector(".finale-audio")) {
-        location.reload();
-        return;
-      }
-      navigateTo(new URL(location.href), false);
-    }
+    if (location.protocol !== "file:" && location.pathname.endsWith(".html")) location.reload();
   });
 
   let timelineScrollTicking = false;
