@@ -28,6 +28,10 @@ import {
   checkFutureKnowledge,
   checkFutureQuestion,
   tidySourceTitles,
+  isHistoryAsk,
+  isSpeechAsk,
+  unverifiedQuotes,
+  longestVerbatimRun,
 } from "../supabase/functions/guide/index.ts";
 
 // 统一的假词条工厂，只造测试用得上的字段
@@ -572,6 +576,37 @@ describe("时间闸（李煜所知止于 978 年）", () => {
     assert.equal(checkFutureQuestion("北宋初年与南唐是什么关系？"), null);
     assert.equal(checkFutureQuestion("李煜是怎么死的？"), null);
     assert.equal(checkFutureQuestion("大周后是谁？"), null);
+  });
+});
+
+describe("史事问题前置检索与引文核对", () => {
+  test("能识别史事问题", () => {
+    assert.equal(isHistoryAsk("你在被宋军围攻时，向钱俶说了什么"), true);
+    assert.equal(isHistoryAsk("后周世宗北伐打到了哪里"), true);
+    assert.equal(isHistoryAsk("虞美人写于什么时候"), false);
+    assert.equal(isHistoryAsk("李煜被围攻时向谁求援"), true);
+  });
+
+  test("能识别「问原话」的问题", () => {
+    assert.equal(isSpeechAsk("你在被宋军围攻时，向钱俶说了什么"), true);
+    assert.equal(isSpeechAsk("他信里写了什么"), true);
+    assert.equal(isSpeechAsk("南唐是怎么灭亡的"), false);
+  });
+
+  test("史料里没有的长引文会被抓出来", () => {
+    const answer = "我写信说「俶公，我国南唐面临危难，金陵城破在即」，他没有回。";
+    assert.equal(unverifiedQuotes(answer, []).length, 1);
+  });
+
+  test("史料里有的引文放行", () => {
+    const src = "今日无我，明日岂有君？一旦天子易地赏功，王亦大梁一布衣耳。";
+    assert.equal(unverifiedQuotes("我写给他「今日无我，明日岂有君」", [src]).length, 0);
+  });
+
+  test("整段照抄文言会被量出来，白话转述不会", () => {
+    const src = "世宗睿武孝文皇帝下顯德五年春正月乙酉廢匡國軍唐改元中興丁亥右龍武將軍王漢璋奏克海州己丑以侍衛馬軍都指揮使韓令坤權揚州軍府事上欲引戰艦自淮入江阻北神堰不得渡";
+    assert.ok(longestVerbatimRun(src, [src]) >= 60);
+    assert.ok(longestVerbatimRun("那年正月，世宗废了匡国军，唐改元中兴，王汉璋又报克海州，局面一时吃紧。", [src]) < 60);
   });
 });
 

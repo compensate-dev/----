@@ -5,7 +5,7 @@
 export {};
 
 // 本地文件读写：词库、预计算向量、词意画缓存、问答日志全部落在站点目录里
-import { readFileSync, existsSync, mkdirSync, writeFileSync, unlinkSync } from "node:fs";
+import { readFileSync, existsSync, mkdirSync, writeFileSync, unlinkSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
@@ -315,6 +315,7 @@ const AGENT_GUIDE = `你手边有七件工具，按下面的规矩用：
 - 读者问五代十国的人物、政权、年号、战役，或问李煜卒年（978）以前任何一段史事：**先调 fetch_history_online 从维基文库抓原文**（能定位到卷就抓整卷，再摘段；只限《新五代史》1–74 卷、《宋史》1–496 卷、《资治通鉴》1–294 卷）。抓到就在回答里点明出处，如「《新五代史·卷62》」；抓不到、或抓来的段落与所问不对题，再用 search_history 查本地语料兜底；
 - 在线抓取比本地检索慢，但史事问题以原文本事为准：不要因为怕慢就跳过它，也不要把本地不相干的段落硬套到所问的事上；
 - 正史原文是文言：只摘一两句最相关的，**用你自己的口吻转述成白话**（第一人称，像在讲一件自己知道的事），不要整段照抄，不要写成「这段记载反映了……」这种百科总结；不要出现网址或「《书名/卷X》」这类页面标题，出处写成「《书名·卷X》」；
+- 史书没有写的情节、场景、动作、对话、心理，一律不许补写；读者问的事若史书不载，就直说「正史里没有这一节」，不要另编一段故事顶上；
 - 原文没有明说的亲属、君臣、即位、年份，一律不补——「本姓柴氏」「以为子」这类句子不能拿来推断生父或养父；读不通的地方就直说「这一节我读得吃力」，宁可少说，不许硬编；
 - 「太祖」「世宗」「高祖」都是庙号，各指其人（如后周太祖郭威、世宗柴荣），不要把庙号当成某人的名字，也不要把继位者说成开国者；
 - 本地语料（search_history）只是兜底：在线抓取失败、或该卷不在白名单范围内时才用它；两次都没有就直说正史没有直接记载，不要编；
@@ -775,6 +776,35 @@ const embedText = async (text: string): Promise<number[] | null> => {
   }
 };
 
+// 批量向量化：在线抓到的整卷一次切成多块，一次请求把整批变成向量
+// 返回 null 表示向量通道不可用，调用方退回关键词
+const embedTexts = async (texts: string[]): Promise<number[][] | null> => {
+  if (!EXTERNAL_KEY || !texts.length) return null;
+  const out: number[][] = [];
+  try {
+    // 一次最多 16 块，整卷动辄几十块，得分批送
+    for (let i = 0; i < texts.length; i += 16) {
+      const batch = texts.slice(i, i + 16);
+      const res = await fetch(`${EXTERNAL_BASE}/embeddings`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${EXTERNAL_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ model: "embedding-3", input: batch.map((t) => t.slice(0, 1500)) }),
+      });
+      if (!res.ok) return null;
+      const data = await res.json();
+      const rows = data?.data;
+      if (!Array.isArray(rows) || rows.length !== batch.length) return null;
+      rows.forEach((r: any) => out.push(r?.embedding));
+    }
+    return out.every((v) => Array.isArray(v) && v.length) ? out : null;
+  } catch (_error) {
+    return null;
+  }
+};
+
 // 向量语义检索：问题取向量后与本地预计算向量比对余弦相似度，取前 6 首
 // 预计算向量存在 data/vectors.json（由 scripts/build-embeddings.mjs 生成一次）
 // 返回 null 表示向量通道不可用（调用方回退纯关键词）
@@ -890,6 +920,87 @@ const loadHistoryIndex = () => {
   return historyIndex;
 };
 
+// ---------- 运行时 RAG：在线抓到的卷即时切块、向量化，并入同一套检索 ----------
+// 抓取不再只是「摘一段塞给模型」：整卷切块后用 embedding-3 算向量，
+// 落盘到 pages/<书名>-<卷>.rag.json，下次开机直接并回索引；
+// 本次回答也从这批新块里做语义检索，模型看到的是检索结果，不是随手截的一段。
+const RUNTIME_DIR = join(HISTORY_DIR, "pages");
+const runtimeChunks: HistoryChunk[] = [];
+const runtimeVectors = new Map<string, number[]>();
+let runtimeLoaded = false;
+
+const chunkForRag = (text: string, max = 620): string[] => {
+  const clean = text.replace(/\r/g, "").replace(/\n{3,}/g, "\n\n").trim();
+  const out: string[] = [];
+  let buf = "";
+  const flush = () => {
+    const t = buf.trim();
+    if (t.length >= 40) out.push(t);
+    buf = "";
+  };
+  for (const para of clean.split(/\n+/)) {
+    if (para.length > max) {
+      for (const sentence of para.split(/(?<=[。！？；])/)) {
+        if (buf.length + sentence.length > max) flush();
+        buf += sentence;
+      }
+    } else {
+      if (buf.length + para.length > max) flush();
+      buf += para;
+    }
+  }
+  flush();
+  return out;
+};
+
+const loadRuntimeRag = () => {
+  if (runtimeLoaded) return;
+  runtimeLoaded = true;
+  try {
+    if (!existsSync(RUNTIME_DIR)) return;
+    for (const name of readdirSync(RUNTIME_DIR)) {
+      if (!name.endsWith(".rag.json")) continue;
+      const data = JSON.parse(readFileSync(join(RUNTIME_DIR, name), "utf8"));
+      for (const c of data.chunks ?? []) runtimeChunks.push(c);
+      for (const [id, vec] of Object.entries(data.vectors ?? {})) {
+        if (Array.isArray(vec)) runtimeVectors.set(id, vec as number[]);
+      }
+    }
+  } catch (error) {
+    console.warn("在线卷 RAG 缓存加载失败", error);
+  }
+};
+
+// 把一卷正文切块、向量化、写盘；同一卷只入一次
+const ingestHistoryPage = async (row: { book: string; juan: number; title: string; url: string; text: string }) => {
+  loadRuntimeRag();
+  if (runtimeChunks.some((c) => c.book === row.book && c.juan === `卷${row.juan}`)) return;
+  const parts = chunkForRag(row.text);
+  const chunks: HistoryChunk[] = parts.map((text, i) => ({
+    id: `rt-${row.book}-${row.juan}-${i}`,
+    book: row.book,
+    juan: `卷${row.juan}`,
+    title: row.title,
+    url: row.url,
+    text,
+  }));
+  const vectors = await embedTexts(parts);
+  if (vectors && vectors.length === parts.length) {
+    chunks.forEach((c, i) => runtimeVectors.set(c.id, vectors[i]));
+  }
+  runtimeChunks.push(...chunks);
+  try {
+    mkdirSync(RUNTIME_DIR, { recursive: true });
+    const store: Record<string, number[]> = {};
+    chunks.forEach((c) => { const v = runtimeVectors.get(c.id); if (v) store[c.id] = v; });
+    writeFileSync(join(RUNTIME_DIR, `${row.book}-${row.juan}.rag.json`), JSON.stringify({
+      book: row.book, juan: row.juan, title: row.title, url: row.url, chunks, vectors: store,
+    }));
+  } catch (error) {
+    console.warn("在线卷 RAG 缓存写入失败", error);
+  }
+};
+
 // 史书检索的拆词：先去掉疑问词/口头语，再按标点分段，避免「柴荣是谁」整句命中不了
 const HISTORY_STOPWORDS =
   /(为什么|为何|怎么样|怎么|怎样|什么|哪些|哪里|哪儿|哪个|哪|如何|是否|是不是|能不能|可不可以|可以|请问|帮我|告诉|介绍|讲讲|说说|一下|多少|几位|谁|吗|呢|啊|吧|的|了|是|有|在|与|和|及|对|关于|回事)/g;
@@ -903,6 +1014,54 @@ export const buildHistoryTerms = (query: string): string[] => {
   const parts = cleaned.split(/\s+/).filter((p) => p.length >= 2);
   const terms = [query.trim(), cleaned, ...parts].filter((t) => t && t.length >= 2);
   return [...new Set(terms)].slice(0, 8);
+};
+
+// 是不是「史事问题」：是的话，调模型之前先检索一次，不让模型凭记忆编
+// 覆盖五代十国、宋初人物与战事；本机语料里最容易缺的是钱俶、曹彬这一类
+export const isHistoryAsk = (text: string): boolean =>
+  HISTORY_TOPICS.some((w) => text.includes(w)) ||
+  /(钱俶|錢俶|宋军|宋軍|宋将|宋將|曹彬|潘美|李重进|李重進|钱弘俶|錢弘俶|围攻|圍攻|求援|出降|城破)/.test(text);
+
+// 问「说了什么/写了什么/信里/原话」这类：史料里没有原句，就不许替古人拟话
+export const isSpeechAsk = (text: string): boolean =>
+  /(说了什么|说了些|写过什么|写了什么|信里|信中|原话|口谕|诏书|诏令|对话)/.test(text);
+
+// 回答与史料的最长连续重合字数：用来抓「整段照抄文言」
+export const longestVerbatimRun = (answer: string, sources: string[]): number => {
+  const a = answer.replace(/\s/g, "");
+  let best = 0;
+  for (const src of sources) {
+    const s = src.replace(/\s/g, "");
+    if (!s) continue;
+    for (let i = 0; i + 12 <= a.length && best < 60; i += 1) {
+      const at = s.indexOf(a.slice(i, i + 12));
+      if (at < 0) continue;
+      let len = 12;
+      while (i + len < a.length && at + len < s.length && a[i + len] === s[at + len] && len < 400) len += 1;
+      let back = 0;
+      while (i - back - 1 >= 0 && at - back - 1 >= 0 && a[i - back - 1] === s[at - back - 1] && back < 100) back += 1;
+      best = Math.max(best, len + back);
+    }
+    if (best >= 60) break;
+  }
+  return best;
+};
+
+// 从回答里抠出「」/“”包住的长引文（≥12 字），核对是否真出现在检索到的史料里；
+// 没出现的返回原文，供上层要求重写——这是「不许编造书信、对话、诏令」的兜底
+export const unverifiedQuotes = (answer: string, sources: string[]): string[] => {
+  const joined = sources.join("\n").replace(/[\s，。！？、；：…·]/g, "");
+  const out: string[] = [];
+  for (const m of answer.matchAll(/「([^」]{12,})」|“([^”]{12,})”/g)) {
+    const quote = (m[1] ?? m[2] ?? "").replace(/[\s，。！？、；：…·]/g, "");
+    if (!quote) continue;
+    let found = false;
+    for (let i = 0; i + 8 <= quote.length && !found; i += 1) {
+      found = joined.includes(quote.slice(i, i + 8));
+    }
+    if (!found) out.push(m[0]);
+  }
+  return out;
 };
 
 const countOccurrences = (haystack: string, needle: string): number => {
@@ -964,16 +1123,19 @@ const vectorSearchHistory = async (
   book?: string,
   limit = 4,
 ): Promise<HistoryChunk[]> => {
+  loadRuntimeRag();
   const index = loadHistoryIndex();
-  if (!index?.vectors) return [];
+  const all = [...(index?.chunks ?? []), ...runtimeChunks];
+  if (!all.length) return [];
   const vec = await embedText(query);
   if (!vec) return [];
   const wanted = (book ?? "").trim().toLowerCase();
-  const sorted = index.chunks
-    .filter((c) => index.vectors?.[c.id] && (!wanted || `${c.book}${c.juan}${c.title ?? ""}`.toLowerCase().includes(wanted)))
+  const vecOf = (id: string) => index?.vectors?.[id] ?? runtimeVectors.get(id);
+  const sorted = all
+    .filter((c) => vecOf(c.id) && (!wanted || `${c.book}${c.juan}${c.title ?? ""}`.toLowerCase().includes(wanted)))
     .map((chunk) => ({
       ...chunk,
-      similarity: cosine(vec, index.vectors?.[chunk.id] ?? []),
+      similarity: cosine(vec, vecOf(chunk.id) ?? []),
     }))
     .sort((a, b) => (b.similarity ?? 0) - (a.similarity ?? 0));
   // 相对阈值：只留与最高分相近的块，弱命中（如卷 72 四夷附录）宁缺毋滥
@@ -989,11 +1151,13 @@ const searchHistory = async (
   book?: string,
   limit = 3,
 ): Promise<HistoryChunk[]> => {
+  loadRuntimeRag();
   const index = loadHistoryIndex();
-  if (!index?.chunks.length) return [];
+  const all = [...(index?.chunks ?? []), ...runtimeChunks];
+  if (!all.length) return [];
   const [vectorHits, keywordHits] = await Promise.all([
     vectorSearchHistory(query, book, limit + 2),
-    Promise.resolve(scoreHistoryChunks(index.chunks, query, book, limit + 2)),
+    Promise.resolve(scoreHistoryChunks(all, query, book, limit + 2)),
   ]);
   const seen = new Set<string>();
   const out: HistoryChunk[] = [];
@@ -1243,7 +1407,16 @@ const fetchHistoryOnline = async (
   }
   // 定位来的卷若与所问无关，宁可返回空，让 Agent 直说没查着
   if (located && !textHasQuery(row.text, query)) return null;
-  return buildOnlineResult(row.book, row.juan, row.title, row.url, row.text, query, source);
+  // 抓到的整卷先切块进 RAG（embedding-3），再从这批新块里做语义检索；
+  // 检索不成（向量通道不可用）才退回关键词截段
+  await ingestHistoryPage(row);
+  const ragHits = await searchHistory(query, `${row.book}卷${row.juan}`, 3);
+  const result = buildOnlineResult(row.book, row.juan, row.title, row.url, row.text, query, source);
+  if (ragHits.length) {
+    result.text = ragHits.map((c) => c.text).join("\n…\n").slice(0, 1200);
+    result.chars = result.text.length;
+  }
+  return result;
 };
 
 // 查时间轴一段：先按段落键（如 978b），再退到按年份（975 → 975）
@@ -1466,6 +1639,8 @@ const execTool = async (
   sourcesSeen: Map<string, any>,
   historySeen: Map<string, any> = new Map(),
   userText = "",
+  // 本轮工具给出的原文：回答后用来核对引文，防止模型编造书信、对话、诏令
+  toolTexts: string[] = [],
 ): Promise<{ data: unknown; card: any | null }> => {
   try {
     // 检索词库：记录命中词，供前端来源区展示
@@ -1567,9 +1742,12 @@ const execTool = async (
       const book = normalize(args.book, 20).replace(/\s/g, "");
       if (!query) return { data: { error: "请给出要查的人名、地名或事件。" }, card: null };
       const rows = await searchHistory(query, book || undefined, 3);
-      rows.forEach((row) => historySeen.set(`${row.book}${row.juan}`, {
-        book: row.book, juan: row.juan, title: row.title ?? "", url: row.url,
-      }));
+      rows.forEach((row) => {
+        historySeen.set(`${row.book}${row.juan}`, {
+          book: row.book, juan: row.juan, title: row.title ?? "", url: row.url,
+        });
+        toolTexts.push(row.text);
+      });
       // 标出「正文里确实有检索词」的段落：语义检索有时会捞到不相干的卷
       const matched = rows.filter((row) => textHasQuery(row.text, query));
       return {
@@ -1627,6 +1805,7 @@ const execTool = async (
       historySeen.set(`${row.book}${row.juan}`, {
         book: row.book, juan: row.juan, title: row.title, url: row.url,
       });
+      toolTexts.push(row.text);
       return {
         data: {
           ...row,
@@ -1681,11 +1860,12 @@ const runAgent = async (
   options: ModelOptions,
 ): Promise<{
   text: string; cards: any[]; toolsUsed: string[]; sources: any[];
-  steps: AgentStep[]; history: any[]; model: string; usage: any;
+  steps: AgentStep[]; history: any[]; toolTexts: string[]; model: string; usage: any;
 }> => {
   const cards: any[] = [];
   const cardKeys = new Set<string>(); // 去重：同一目标只出一张卡
   const toolsUsed: string[] = [];
+  const toolTexts: string[] = []; // 工具返回的原文，供回答后核对引文
   const steps: AgentStep[] = [];
   const historySeen = new Map<string, any>();
   const sourcesSeen = new Map<string, any>();
@@ -1735,7 +1915,7 @@ const runAgent = async (
           args = JSON.parse(String(call?.function?.arguments ?? "{}"));
         } catch { /* 参数 JSON 坏了就按空参数走，工具自己会报错回去 */ }
         const startedAt = Date.now();
-        const out = await execTool(name, args, sourcesSeen, historySeen, userText);
+        const out = await execTool(name, args, sourcesSeen, historySeen, userText, toolTexts);
         toolsUsed.push(name);
         pushCard(out.card);
         steps.push({
@@ -1771,13 +1951,13 @@ const runAgent = async (
     }
     return {
       text, cards, toolsUsed, sources: [...sourcesSeen.values()],
-      steps, history: [...historySeen.values()], model, usage,
+      steps, history: [...historySeen.values()], toolTexts, model, usage,
     };
   }
   // 循环出口兜底（正常走不到）：返回已收集的卡片与空文本
   return {
     text: "", cards, toolsUsed, sources: [...sourcesSeen.values()],
-    steps, history: [...historySeen.values()], model, usage,
+    steps, history: [...historySeen.values()], toolTexts, model, usage,
   };
 };
 
@@ -2224,6 +2404,25 @@ if (typeof Deno !== "undefined") {
     // 问句命中史实卡片/史实库时压低温度：这类问题怕的不是不好看，是关系写错
     if (figureFacts.length || factEntries.length) temperature = Math.min(temperature, 0.35);
 
+    // 史事问题先检索一次：模型不调工具也能拿到原文，避免它凭记忆编造书信、对话
+    let evidenceTexts: string[] = [];
+    let retrievalBlock = "";
+    if (action === "ask" && isHistoryAsk(message)) {
+      const hits = await searchHistory(message, undefined, 3);
+      evidenceTexts = hits.map((h) => h.text);
+      retrievalBlock = hits.length
+        ? `正史检索结果（回答只能依据这些段落）：
+${hits.map((h) => `-《${h.book}·${h.juan}》：${h.text}`).join("\n")}
+作答要求：
+- **不要整段照抄文言**：用自己的话转述，控制在 80—140 字；最多引一句，且不超过 20 字；
+- 回答里至少要点出检索段落中的一个具体人名、地名或年份，不要只作「反映了……」式概括；
+- 史书没写的情节、场景、动作、对话、心理，一律不许补写；也不要推断两人有过往来、私交或书信；
+- 读者问的事若不在这些段落里，就直说「正史里没有这一节」。`
+        : "正史检索结果：没有找到与所问直接相关的段落。不要编造书信、对话、诏令、原话，也不要补写场景、动作或心理；可以说「这一节正史没查着」。";
+      temperature = Math.min(temperature, 0.3);
+      maxTokens = Math.min(maxTokens, 260); // 史事回答只留 80—140 字的空间，防整段照抄
+    }
+
     if (action === "compose") {
       // 伴写：按李煜的语气，把用户写下的半句续下去
       instruction = `读者正在「枕上低语」页续写自己的句子：
@@ -2250,6 +2449,7 @@ if (typeof Deno !== "undefined") {
       { role: "system", content: system },
       ...history,
       ...(factsBlock ? [{ role: "system", content: factsBlock }] : []),
+      ...(retrievalBlock ? [{ role: "system", content: retrievalBlock }] : []),
       { role: "user", content: instruction },
     ];
 
@@ -2264,6 +2464,7 @@ if (typeof Deno !== "undefined") {
     let toolSources: any[] = [];
     let steps: any[] = [];
     let historySources: any[] = [];
+    let toolEvidence: string[] = [];
 
     if (action === "ask") {
       const agentResult = await runAgent(messages, { model, maxTokens, temperature });
@@ -2275,6 +2476,7 @@ if (typeof Deno !== "undefined") {
       toolSources = agentResult.sources; // 工具检索命中的词作，回传前端来源区
       steps = agentResult.steps;         // 工具调用轨迹：前端显示「侍读查过」
       historySources = agentResult.history; // 正史出处，回传前端可点链接
+      toolEvidence = agentResult.toolTexts; // 工具给出的原文，供引文核对
     } else {
       const result = await callModel(messages, { model, maxTokens, temperature });
       answer = result.text;
@@ -2290,6 +2492,69 @@ if (typeof Deno !== "undefined") {
         .replaceAll(message, "")
         .replace(/^[\s，。、；：:,.]+/, "")
         .trim();
+    }
+
+    // 引文闸：史事问题里的长引文必须能在检索结果/工具原文里找到，
+    // 找不到就重写；再犯就删掉引号原话——宁可少说，不许编造书信、对话、诏令
+    if (action === "ask" && isHistoryAsk(message)) {
+      const quoteSources = [
+        factsBlock,
+        ...evidenceTexts,
+        ...toolEvidence,
+        poem?.content ?? "",
+        ...toolSources.map((p: any) => String(p?.content ?? "")),
+      ].filter(Boolean);
+      const badQuotes = unverifiedQuotes(answer, quoteSources);
+      if (badQuotes.length) {
+        console.warn(`引文闸拦截：${badQuotes.length} 处引文不在检索结果中，重答一次`);
+        const repaired = await callModel([
+          ...messages,
+          { role: "assistant", content: answer },
+          {
+            role: "user",
+            content: `你上一段里的这些引文，在检索到的史料中并不存在：${badQuotes.join("；")}。请重写 60—120 字：删去所有引号里的原话，只按检索到的段落转述；史书没有留下原话，就直说「这一处正史没有留下原话」。不要另编一句补上。`,
+          },
+        ], { model: resultModel, maxTokens: 240, temperature: 0.2 }).catch(() => null);
+        answer = repaired?.text?.trim() || answer;
+        if (unverifiedQuotes(answer, quoteSources).length) {
+          answer = answer
+            .replace(/「[^」]{12,}」/g, "")
+            .replace(/“[^”]{12,}”/g, "")
+            .replace(/[ \t]{2,}/g, " ")
+            .trim();
+          if (!answer) answer = "这一处，正史没有留下原话，我记不真切。";
+        }
+      }
+    }
+
+    // 照抄闸：史事回答若整段搬文言（与史料连续重合 ≥60 字），要求改成白话转述
+    if (action === "ask" && isHistoryAsk(message)) {
+      const sourcePool = [...evidenceTexts, ...toolEvidence].filter(Boolean);
+      const run = longestVerbatimRun(answer, sourcePool);
+      if (run >= 60) {
+        console.warn(`照抄闸：连续照抄 ${run} 字，要求转述`);
+        const rewritten = await callModel([
+          ...messages,
+          { role: "assistant", content: answer },
+          {
+            role: "user",
+            content: "上面这段几乎照抄了文言原文。请改成你自己的话，用第一人称转述，80—140 字；只保留最关键的一两处人名、地名或年份，不要逐句翻译，也不要加引号。",
+          },
+        ], { model: resultModel, maxTokens: 240, temperature: 0.25 }).catch(() => null);
+        const clean = tidySourceTitles(String(rewritten?.text ?? "").replace(/【[^】]{1,30}】/g, "").trim());
+        if (clean) answer = clean;
+      } else {
+        answer = answer.replace(/【[^】]{1,30}】/g, "").trim();
+      }
+    }
+
+    // 拟话闸：问「说了什么/写了什么/信里」时，回答若拿不出与史料重合的原句，
+    // 就是在替古人拟话——宁可说没留下，不许编一封书信或一段对话
+    if (action === "ask" && isHistoryAsk(message) && isSpeechAsk(message)) {
+      const quoted = longestVerbatimRun(answer, [...evidenceTexts, ...toolEvidence].filter(Boolean));
+      if (quoted < 12) {
+        answer = "我查到的那几卷里没有留下这段原话，我不便编一句给你。";
+      }
     }
 
     // 事实闸：小模型有时仍把关系写反（实测把周娥皇说成李璟的皇后）。
@@ -2338,19 +2603,33 @@ if (typeof Deno !== "undefined") {
     // 先按「不知道」重写一次；仍越界就换成固定答复，保证绝不讲身后事。
     const futureIssue = checkFutureKnowledge(answer);
     if (futureIssue) {
-      console.warn(`时间闸拦截：回答越过 978 年（${futureIssue}），重答一次`);
-      const repaired = await callModel(
-        [
-          { role: "system", content: system },
-          {
-            role: "user",
-            content: `你上一段回答提到了 978 年以后的事（${futureIssue}）。你只是李煜，所知停在自己死的那一年七夕，之后的事一概不知。请重写 60—120 字：只谈 978 年以前你亲历或听闻的事；若读者问的正是 978 年以后，就直说「那年之后的事，我已无从知道了」。不要出现任何 979 年以后的年份、人物或事件。`,
-          },
-        ],
-        { model, maxTokens: 220, temperature: 0.3 },
-      );
-      answer = repaired.text?.trim() || TIME_CUTOFF_REPLY;
-      if (checkFutureKnowledge(answer)) answer = TIME_CUTOFF_REPLY;
+      // 先只删掉越界的那几句，保住其余对题的回答；删完仍有内容就不必整段重写
+      const kept = answer
+        .split(/(?<=[。！？\n])/)
+        .filter((sentence) => !checkFutureKnowledge(sentence))
+        .join("")
+        .trim();
+      if (kept.length >= 40 && !checkFutureKnowledge(kept)) {
+        console.warn(`时间闸：删去越界句（${futureIssue}）`);
+        answer = kept;
+      } else {
+        console.warn(`时间闸拦截：回答越过 978 年（${futureIssue}），重答一次`);
+        const repaired = await callModel(
+          [
+            { role: "system", content: system },
+            {
+              role: "user",
+              content: `你上一段回答提到了 978 年以后的事（${futureIssue}）。读者问的是：「${message}」。你只是李煜，所知停在自己死的那一年七夕，之后的事一概不知。请重写 60—120 字，用第一人称直接回答读者的问题：
+- 保留 978 年以前的史实，不要改写成身世感慨，也不要提自己的卒年；
+- 删去所有 979 年以后的年份、人物、事件；
+- 若读者问的正是 978 年以后的事，只答「那年之后的事，我已无从知道了」。`,
+            },
+          ],
+          { model: resultModel, maxTokens: 240, temperature: 0.3 },
+        ).catch(() => null);
+        const rewritten = repaired?.text?.trim() || "";
+        answer = rewritten && !checkFutureKnowledge(rewritten) ? rewritten : (kept || TIME_CUTOFF_REPLY);
+      }
     }
 
     // 出处格式归一：把「《宋史/卷478》」收拾成「《宋史·卷478》」
