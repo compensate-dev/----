@@ -16,6 +16,8 @@ import {
   stripEmbedding,
   matchFigureFacts,
   hasFactViolation,
+  matchFactEntries,
+  buildFactBlock,
 } from "../supabase/functions/guide/index.ts";
 
 // 统一的假词条工厂，只造测试用得上的字段
@@ -331,6 +333,11 @@ describe("hasFactViolation（事实闸）", () => {
     assert.equal(hasFactViolation("978 年七夕，我死在汴京；后来葬在洛阳北邙山。"), false);
   });
 
+  test("把樊若水写成宫中才女，判定为违规；正写不误判", () => {
+    assert.equal(hasFactViolation("樊若水，她是江南的一位才女，我召她入宫吟诗作对。"), true);
+    assert.equal(hasFactViolation("樊若水是南唐士人，献采石浮桥之策，不是宫中才女。"), false);
+  });
+
   test("编造小周后入宋后去世，判定为违规；标明史载不详不误判", () => {
     assert.equal(hasFactViolation("小周后随我北迁入宋，不久便去世了。"), true);
     assert.equal(hasFactViolation("小周后 975 年随我北迁入宋，此后的事史载不详。"), false);
@@ -347,6 +354,14 @@ describe("hasFactViolation（事实闸）", () => {
     assert.equal(hasFactViolation("牵机药是后周的臣子所用的毒药。"), true);
   });
 
+  test("问到樊若水时，卡片说明他是南唐士人、献采石浮桥之策", () => {
+    const facts = matchFigureFacts("樊若水是谁？");
+    assert.equal(facts.length, 1);
+    assert.match(facts[0], /樊知古/);
+    assert.match(facts[0], /采石矶/);
+    assert.match(facts[0], /不是宫中才女/);
+  });
+
   test("问南唐灭亡年份时，卡片明确是 975 年而非 978 年", () => {
     const facts = matchFigureFacts("南唐是哪一年灭亡的？");
     assert.equal(facts.length, 1);
@@ -358,5 +373,46 @@ describe("hasFactViolation（事实闸）", () => {
     assert.equal(hasFactViolation("我母亲是钟氏，光穆皇后，父皇李璟的皇后。"), false);
     assert.equal(hasFactViolation("南唐是祖父李昪于 937 年建立的，父皇李璟 943 年继位。"), false);
     assert.equal(hasFactViolation("从善、从谦是我的弟弟，不是我的儿子。"), false);
+  });
+});
+
+describe("matchFactEntries（史实库检索）", () => {
+  test("一句话点到两个人，两条都命中", () => {
+    const hits = matchFactEntries("大周后和小周后是什么关系？");
+    assert.deepEqual(hits.map((e) => e.id).sort(), ["xiao-zhouhou", "zhou-ehuang"].sort());
+  });
+
+  test("别名与原名都能命中", () => {
+    assert.equal(matchFactEntries("樊知古是谁？")[0].id, "fan-ruoshui");
+    assert.equal(matchFactEntries("南唐烈祖是谁？")[0].id, "li-bian");
+  });
+
+  test("按出现顺序返回，长别名优先后去重", () => {
+    const hits = matchFactEntries("李璟的儿子李煜，母亲是钟皇后。");
+    assert.deepEqual(hits.map((e) => e.id), ["li-jing", "li-yu", "zhong-hou"]);
+    assert.equal(new Set(hits.map((e) => e.id)).size, hits.length);
+  });
+
+  test("单字别名不命中，避免任意问句误注入", () => {
+    assert.deepEqual(matchFactEntries("唐"), []);
+    assert.deepEqual(matchFactEntries("春水这个意象怎么理解"), []);
+    assert.deepEqual(matchFactEntries(""), []);
+  });
+
+  test("注入块写明关系、史实、慎言与出处", () => {
+    const block = buildFactBlock(matchFactEntries("周娥皇是谁？"));
+    assert.match(block, /李煜之结发妻子/);
+    assert.match(block, /不是李璟的妻子/);
+    assert.match(block, /出处：/);
+    assert.match(block, /史载不详/);
+  });
+
+  test("史实库覆盖易错关系，不再依赖模型记忆", () => {
+    const ids = [
+      "李昪", "李璟", "李煜", "钟皇后", "周娥皇", "小周后", "周宗",
+      "李弘冀", "李从善", "李从谦", "李仲寓", "李仲宣", "赵匡胤", "赵光义", "樊若水",
+      "南唐开国", "南唐亡国", "采石浮桥", "北邙山", "牵机药", "霓裳羽衣曲",
+    ];
+    ids.forEach((q) => assert.ok(matchFactEntries(q).length > 0, `${q} 应有条目`));
   });
 });

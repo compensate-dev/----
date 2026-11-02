@@ -316,6 +316,11 @@ const FIGURE_FACTS: { names: string[]; fact: string; reply: string; patterns?: R
     reply: "南唐亡在 975 年，宋军破金陵，我出降。978 年是我死的年份，不是亡国那年。",
   },
   {
+    names: ["樊若水", "樊知古", "采石", "浮桥", "长江天险"],
+    fact: "樊若水（入宋后名樊知古）是南唐池州人、男子，科举不第后北归宋朝；他在采石矶私量长江宽窄，献浮桥渡江之策。开宝七年（974）冬宋军依其策造浮桥，次年（975）正月桥成，大军渡江，同年十一月金陵破。他不是宫中才女，也不曾入宫侍奉李煜。",
+    reply: "樊若水是南唐的读书人，不是宫中女子。他科场失意，北归宋朝，在采石量了江面，献上浮桥之计。974 年冬宋军造桥，次年正月桥成渡江，金陵才破的。",
+  },
+  {
     names: ["牵机药", "牵机"],
     fact: "李煜 978 年七夕卒于汴京，正史只记「卒」，不载死因；「牵机药」出自宋人笔记（如《默记》），称宋太宗赐药，只能作「相传」讲——不要在同一段里又说成病逝，不要写成自己亲历，也不要描写服药时的感受，更不要把这件事安到后周或别的臣子身上。",
     reply: "牵机药的说法来自宋人笔记，说是宋太宗赐下的，正史不载。这一处，后人说得不一。",
@@ -373,6 +378,9 @@ const FACT_VIOLATIONS: RegExp[] = [
   /(葬|埋)[^。！？；\n]{0,6}汴京/,
   // 把牵机药安到后周/臣子身上
   /牵机药[^。！？\n]{0,14}(后周|周世宗|柴荣|臣子|大臣)/,
+  // 樊若水被写成宫中才女（正史：南唐士人，献采石浮桥之策助宋渡江）
+  /樊若水[\s\S]{0,100}(才女|女子|佳人|美人|宫女)/,
+  /(才女|佳人|美人)[^。！？\n]{0,10}樊若水/,
   // 把野史写成亲历（正史只记「卒」，牵机药只是宋人笔记）
   /牵机药[\s\S]{0,120}(我亲历|是我亲历|我亲见|亲眼)/,
   // 仲宣是次子、封宣城公（实测答成「我的长子」「封为太子」）
@@ -405,6 +413,76 @@ export const matchFigureFacts = (text: string): string[] => {
   return FIGURE_FACTS.filter(
     (item) => item.names.some((name) => text.includes(name)) || item.patterns?.some((re) => re.test(text)),
   ).map((item) => item.fact);
+};
+
+// ---------- 南唐史实库（data/facts.json） ----------
+// 卡片只能覆盖「已知会错」的十几个点；真正的根治是把人物与事件做成可检索的条目，
+// 问句点到谁就注入谁，条目没有的一律不许补——小模型没有可发挥的缝隙。
+export type FactEntry = {
+  id: string;
+  name: string;
+  aliases?: string[];
+  relations?: string[];
+  facts: string[];
+  cautions?: string[];
+  reply?: string;
+  source?: string;
+};
+
+let factLibraryCache: FactEntry[] | null = null;
+
+// 读一次即缓存；文件缺失或格式坏了就退化为空库（卡片与事实闸仍在，功能不塌）
+export const loadFactLibrary = (): FactEntry[] => {
+  if (factLibraryCache) return factLibraryCache;
+  try {
+    const parsed = JSON.parse(readFileSync(join(DATA_DIR, "facts.json"), "utf8"));
+    factLibraryCache = [...(parsed.people ?? []), ...(parsed.events ?? [])] as FactEntry[];
+  } catch {
+    factLibraryCache = [];
+  }
+  return factLibraryCache;
+};
+
+// 按别名检索：取命中的最长别名，避免「小周后」只按「周后」算；
+// 单字别名忽略，防止「唐」「周」这类字在任意问句里误命中
+export const matchFactEntries = (text: string, limit = 3): FactEntry[] => {
+  if (!text) return [];
+  const hits: { entry: FactEntry; at: number; len: number }[] = [];
+  loadFactLibrary().forEach((entry) => {
+    const aliases = [entry.name, ...(entry.aliases ?? [])]
+      .filter((a) => typeof a === "string" && a.length >= 2);
+    const matched = aliases
+      .map((a) => ({ a, at: text.indexOf(a) }))
+      .filter((m) => m.at >= 0)
+      .sort((x, y) => y.a.length - x.a.length)[0];
+    if (matched) hits.push({ entry, at: matched.at, len: matched.a.length });
+  });
+  return hits
+    .sort((x, y) => x.at - y.at || y.len - x.len)
+    .slice(0, limit)
+    .map((h) => h.entry);
+};
+
+// 把命中的条目拼成硬约束块：关系、史实、慎言、出处齐全，并明确「未载不许补」
+export const buildFactBlock = (entries: FactEntry[]): string => {
+  if (!entries.length) return "";
+  const body = entries
+    .map((e) => {
+      const parts = [`【${e.name}】`];
+      if (e.relations?.length) parts.push(`关系：${e.relations.join("；")}`);
+      if (e.facts?.length) parts.push(`史实：${e.facts.join("；")}`);
+      if (e.cautions?.length) parts.push(`慎言：${e.cautions.join("；")}`);
+      if (e.source) parts.push(`出处：${e.source}`);
+      return parts.join("\n");
+    })
+    .join("\n\n");
+  return `史实库（据正史整理，最高优先级；与你的记忆冲突时一律以此为准）：
+${body}
+
+规矩：
+- 只许用上面写明的年份、人物、关系，不许补条目以外的细节；
+- 条目未载的，就答「史载不详」或「这一处我记不真切」，不要推演；
+- 正史不载的传说（如牵机药、小周后入宋后事），只能作「相传」或「宋人笔记说」，不可当定论。`;
 };
 
 // 站内页面 → 相对站点根目录的路径（前端按当前所在目录自行解析）
@@ -1252,12 +1330,16 @@ if (typeof Deno !== "undefined") {
     }
     // 提问碰到易混人物时准备一份史实硬约束：放在最后一轮用户消息之前，模型才盯得住
     const figureFacts = matchFigureFacts(message);
-    const factsBlock = figureFacts.length
-      ? `史实硬约束（最高优先级，与你的记忆冲突时一律以这里为准）：
+    const factEntries = matchFactEntries(message);
+    const factLibraryBlock = buildFactBlock(factEntries);
+    const factsBlock = factLibraryBlock
+      ? `${factLibraryBlock}${figureFacts.length ? `\n\n补充卡片：\n- ${figureFacts.join("\n- ")}` : ""}`
+      : figureFacts.length
+        ? `史实硬约束（最高优先级，与你的记忆冲突时一律以这里为准）：
 - 只能用下面的史实，不得补充卡片以外的亲属关系、年份、地点；
 - 拿不准的细节宁可不说，不要用「想必」「大约」补空白；
 - ${figureFacts.join("\n- ")}`
-      : "";
+        : "";
     if (page) systemParts.push(`读者此刻在「${page}」页面。`);
     if (poem) systemParts.push(`可供引用的词作资料：\n${buildSourceBlock([poem])}`);
     const system = systemParts.join("\n\n");
@@ -1265,8 +1347,8 @@ if (typeof Deno !== "undefined") {
     let instruction = message;
     let maxTokens = 420;
     let temperature = 0.75;
-    // 问句命中史实卡片时压低温度：这类问题怕的不是不好看，是关系写错
-    if (figureFacts.length) temperature = Math.min(temperature, 0.35);
+    // 问句命中史实卡片/史实库时压低温度：这类问题怕的不是不好看，是关系写错
+    if (figureFacts.length || factEntries.length) temperature = Math.min(temperature, 0.35);
 
     if (action === "compose") {
       // 伴写：按李煜的语气，把用户写下的半句续下去
@@ -1338,7 +1420,13 @@ if (typeof Deno !== "undefined") {
     if (hasFactViolation(answer)) {
       const answerFacts = matchFigureFacts(answer);
       const gateFacts = figureFacts.length ? figureFacts : answerFacts;
-      const factText = gateFacts.length ? gateFacts.join("\n") : FALLBACK_FACTS;
+      // 史实库命中的条目优先当重答底稿，卡片只作补充；两者都没有才用兜底关系
+      const factText = [
+        factLibraryBlock,
+        gateFacts.length ? gateFacts.join("\n") : FALLBACK_FACTS,
+      ]
+        .filter(Boolean)
+        .join("\n");
       console.warn("事实闸拦截：回答与史实卡片冲突，重答一次");
       const repair = await callModel(
         [
@@ -1357,9 +1445,11 @@ if (typeof Deno !== "undefined") {
       if (hasFactViolation(answer)) {
         // 只按「问句」挑卡片：按回答挑会挑到被写错的那张卡（问儿子却答成李璟的介绍）
         answer =
-          FIGURE_FACTS.find(
+          factEntries[0]?.reply
+          || FIGURE_FACTS.find(
             (item) => item.names.some((name) => message.includes(name)) || item.patterns?.some((re) => re.test(message)),
-          )?.reply || FALLBACK_REPLY;
+          )?.reply
+          || FALLBACK_REPLY;
       }
     }
 
