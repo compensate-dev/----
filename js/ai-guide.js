@@ -939,7 +939,7 @@
   });
 
   // ---------- 两个写作区的 AI 伴写 / 解读 ----------
-  // 首页「心情笺」与枕上低语「填词」共用同一套工具条：续一句 / 请李煜解读。
+  // 首页「心情笺」与枕上低语「填词」共用同一套工具条：续成一首词 / 请李煜解读。
   // 结果先落在表单下方的小笺里，可一键采纳，不打断原有的「随风去」提交流程。
   const initWriteTools = () => {
     document.querySelectorAll(".mood-form, .poem-form").forEach((formEl) => {
@@ -951,7 +951,7 @@
       const tools = document.createElement("div");
       tools.className = "ai-write-tools";
       tools.innerHTML = `
-        <button type="button" data-ai-action="compose">让李煜续一句</button>
+        <button type="button" data-ai-action="compose">让李煜续成一首词</button>
         <button type="button" data-ai-action="interpret">请李煜解读</button>
       `;
       // 结果笺：默认隐藏，拿到回答后再展开
@@ -979,7 +979,7 @@
         resultBox.innerHTML = "";
         const tag = document.createElement("span");
         tag.className = "ai-write-tag";
-        tag.textContent = action === "compose" ? "李煜续句" : "李煜解读";
+        tag.textContent = action === "compose" ? "李煜续写" : "李煜解读";
         const text = document.createElement("p");
         text.className = "ai-write-text";
         text.textContent = answer;
@@ -988,12 +988,13 @@
         const actions = document.createElement("div");
         actions.className = "ai-write-actions";
         if (action === "compose") {
-          // 采纳续句：接在原文之后，并把光标移回文本末尾
+          // 采纳续写：另起一行接在读者开头之后，并把光标移回文本末尾
           const adopt = document.createElement("button");
           adopt.type = "button";
-          adopt.textContent = "接上这句";
+          adopt.textContent = "接在开头后面";
           adopt.addEventListener("click", () => {
-            field.value = `${field.value.trim()}${answer}`;
+            const base = field.value.trim();
+            field.value = base ? `${base}\n${answer}` : answer;
             field.dispatchEvent(new Event("input", { bubbles: true }));
             field.focus();
             resultBox.hidden = true;
@@ -1018,7 +1019,7 @@
           field.focus();
           return;
         }
-        setHint(action === "compose" ? "李煜正在替你续这一句……" : "李煜正在读这一句……", false);
+        setHint(action === "compose" ? "李煜正在顺着这句续下去……" : "李煜正在读这一句……", false);
         tools.querySelectorAll("button").forEach((button) => (button.disabled = true));
         try {
           const response = await fetch(ENDPOINT, {
