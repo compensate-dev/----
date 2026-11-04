@@ -2570,6 +2570,24 @@
     document.getElementById("line-count").textContent = "0 / 100";
   });
 
+  // 侧栏抽屉的滚轮：抽屉开着时滚轮只归抽屉——正文原生滚动，窗头上也能带着正文走；
+  // 并拦住事件冒泡，免得首页的切幕监听把滚轮当成「翻上一幕/下一幕」
+  const wireDrawerWheel = (drawer) => {
+    drawer.addEventListener("wheel", (event) => {
+      event.stopPropagation();
+      if (event.target.closest && event.target.closest(".shop-drawer-body")) return;
+      const bodyEl = drawer.querySelector(".shop-drawer-body");
+      if (!bodyEl || !event.deltaY) return;
+      const max = bodyEl.scrollHeight - bodyEl.clientHeight;
+      if (max <= 1) return;
+      const atTop = bodyEl.scrollTop <= 0 && event.deltaY < 0;
+      const atEnd = bodyEl.scrollTop >= max - 1 && event.deltaY > 0;
+      if (atTop || atEnd) return;
+      bodyEl.scrollTop += event.deltaY;
+      event.preventDefault();
+    }, { passive: false });
+  };
+
   // 文创笺铺：全站右侧滑出抽屉（概念展示，不存在任何真实下单/支付链路）
   (function initializeShopSidebar() {
     if (document.querySelector(".shop-tab")) return;
@@ -2644,6 +2662,7 @@
       <button class="shop-notice-ok" type="button">我知道了</button>`;
 
     document.body.append(tab, mask, drawer, dialog);
+    wireDrawerWheel(drawer);
 
     let drawerOpen = false;
     let lastFocused = null;
@@ -2758,6 +2777,7 @@
     toast.textContent = "已存入本地笺筒";
 
     document.body.append(tab, mask, drawer, toast);
+    wireDrawerWheel(drawer);
 
     const listEl = drawer.querySelector(".jy-list");
     const renderList = () => {
@@ -2897,6 +2917,7 @@
     toast.setAttribute("role", "status");
 
     document.body.append(tab, mask, drawer, toast);
+    wireDrawerWheel(drawer);
 
     let drawerOpen = false;
     let lastFocused = null;
@@ -3610,8 +3631,12 @@
   /* 输入：滚轮 / 键盘 / 触控 / 右侧章节 */
   let lastWheelAt = 0;
   if (desktopLayout && finePointer) {
+    // 抽屉/AI 面板/弹窗打开时，滚轮与键盘只归它们，首页不切幕
+    const overlayOpen = () => !!document.querySelector(".shop-drawer.is-open, .shop-mask.is-open, .ai-guide-panel.is-on, dialog[open]");
+    const inGuide = (target) => !!(target && target.closest && target.closest(".ai-guide-root"));
     window.addEventListener("wheel", (event) => {
       if (!narrativeReady() || event.ctrlKey || !event.deltaY) return;
+      if (overlayOpen() || inGuide(event.target)) return; // 面板内的滚轮交给面板自己，不切幕
       const dir = event.deltaY > 0 ? 1 : -1;
       if (canScrollContent(scenes[current], dir)) return;
       event.preventDefault();
@@ -3620,6 +3645,7 @@
     }, { passive: false });
     window.addEventListener("keydown", (event) => {
       if (!narrativeReady() || busy) return;
+      if (overlayOpen() || inGuide(event.target)) return; // 面板内键盘翻页不接管
       if (event.target.closest("input, textarea, select, [contenteditable]")) return;
       const dir = event.key === "PageDown" || event.key === "ArrowDown" || event.key === " " ? 1
         : event.key === "PageUp" || event.key === "ArrowUp" ? -1 : 0;
@@ -3637,6 +3663,7 @@
   }, { passive: true });
   window.addEventListener("touchend", (event) => {
     if (!narrativeReady() || busy) return;
+    if (event.target && event.target.closest && event.target.closest(".ai-guide-root, .shop-drawer")) return; // 面板/抽屉内滑动不切幕
     const end = event.changedTouches && event.changedTouches[0];
     if (!end) return;
     const dy = end.clientY - touchY;

@@ -667,6 +667,19 @@
 
   leafClose.addEventListener("click", closeLeaf);
 
+  // 滚轮：在窗头、快捷问、输入区上滚动也带着会话区走；会话区滚到尽头就放行给页面
+  panel.addEventListener("wheel", (event) => {
+    if (event.deltaY === 0) return;
+    if (event.target.closest && event.target.closest(".ai-guide-body, .ai-guide-leaf")) return; // 正文/侧栏原生滚动
+    const max = body.scrollHeight - body.clientHeight;
+    if (max <= 1) return;
+    const atTop = body.scrollTop <= 0 && event.deltaY < 0;
+    const atEnd = body.scrollTop >= max - 1 && event.deltaY > 0;
+    if (atTop || atEnd) return; // 尽头交给页面，继续滚动不会被吞掉
+    body.scrollTop += event.deltaY;
+    event.preventDefault();
+  }, { passive: false });
+
   // 引文条目：回答里点名的卷，点一下展开原文，读者可自行核对
   const appendCitations = (citations) => {
     const list = (Array.isArray(citations) ? citations : []).filter((c) => c && c.text);
