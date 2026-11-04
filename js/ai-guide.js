@@ -49,7 +49,7 @@
       name: "首页",
       greet: "我是李煜。这一程我陪你走——读到哪里，都可以问我。",
       lead: "我是李煜。这一程从一场梦开始，你想先问什么？",
-      chips: ["用一句话介绍李煜", "你为什么被叫作词中之帝", "从哪一幕开始看比较好"],
+      chips: ["用一句话介绍李煜", "你为什么被叫作词中之帝", "从哪一幕开始看比较好", "南唐是个什么样的国家", "你是怎样一步步失去南唐的"],
       hints: [
         { sel: ".mood-form", text: "心里那句说不出的话，写在这里，我替你续。", question: "我心里有一句话却不知怎么落笔，帮我想个开头。" },
       ],
@@ -58,32 +58,32 @@
       name: "月色故人",
       greet: "937 到 978，一生不过四十二年。我陪你慢慢看。",
       lead: "937 到 978，一生不过四十二年。关于这段身世，你可以问我。",
-      chips: ["937 到 978 发生了什么", "你为什么守不住南唐", "小周后是个怎样的人"],
+      chips: ["937 到 978 发生了什么", "你为什么守不住南唐", "小周后是个怎样的人", "韩熙载是个怎样的人", "潘佑是怎么死的"],
       hints: [
         { sel: ".timeline-item", text: "937 年，我出生在金陵。往下走，是我的一生。", question: "你出生那年，南唐是什么样子？" },
         { sel: ".trail-guide", text: "故事到这里断了一截。剩下的路，你可以问我。", question: "978 年之后，你的故事是怎样的？" },
       ],
       // 段落语境：读到哪一段，快捷问题与解读就跟到哪一段（sel 指向时间轴各节点）
       sections: [
-        { sel: "#y937", key: "937", chips: ["重瞳是怎么回事", "你出生时南唐是什么样子", "小时候在宫里读什么书"],
+        { sel: "#y937", key: "937", chips: ["重瞳是怎么回事", "你出生时南唐是什么样子", "小时候在宫里读什么书", "南唐是怎么建国的", "你的祖父李昪是个怎样的人"],
           interpret: "我生在七夕。宫里人说重瞳是圣人之相，可排行第六的孩子，原轮不到江山。", question: "你出生时，真的一目重瞳吗？" },
-        { sel: "#y954", key: "954", chips: ["娥皇是怎样的人", "《霓裳羽衣》是怎么重订的", "那时候的宫宴是什么样子"],
+        { sel: "#y954", key: "954", chips: ["娥皇是怎样的人", "《霓裳羽衣》是怎么重订的", "那时候的宫宴是什么样子", "娥皇和你差了几岁", "《霓裳羽衣》原本是残谱吗"],
           interpret: "娥皇嫁进来那年，我十八岁。我们一起把《霓裳羽衣》的残谱一段段补回去，那是最亮的日子。", question: "大周后娥皇是怎样的人？" },
-        { sel: "#y961", key: "961", chips: ["你不是长子为什么继位", "即位那年宋朝已经多强", "父亲为什么迁都洪州"],
+        { sel: "#y961", key: "961", chips: ["你不是长子为什么继位", "即位那年宋朝已经多强", "父亲为什么迁都洪州", "弘冀是怎么死的", "父亲留给你的是怎样的南唐"],
           interpret: "父亲在洪州去了，我二十五岁，在灵前接的这个位子。说是皇帝，其实已经要对北边称臣。", question: "你即位时南唐的处境有多难？" },
-        { sel: "#y964", key: "964", chips: ["娥皇病重时你在做什么", "仲宣那时候怎么样了", "小周后是那时候进宫的吗"],
+        { sel: "#y964", key: "964", chips: ["娥皇病重时你在做什么", "仲宣那时候怎么样了", "小周后是那时候进宫的吗", "你为娥皇写过挽辞吗", "娥皇死后你过着什么日子"],
           interpret: "昭惠走的那年，仲宣也没保住。我写诔文，落款是「鳏夫煜」——那是我第一次知道，词救不了人。", question: "大周后病逝对你意味着什么？" },
-        { sel: "#y971", key: "971", chips: ["从善为什么被扣在汴京", "江南国主和皇帝差在哪", "那几年为什么还要岁贡"],
+        { sel: "#y971", key: "971", chips: ["从善为什么被扣在汴京", "江南国主和皇帝差在哪", "那几年为什么还要岁贡", "为什么派从善去朝贡", "去国号是哪一年的事"],
           interpret: "从善被扣在汴京回不来。我上表削了唐号，改叫江南国主——名分这种东西，是让出去的。", question: "削去唐号是哪一年的事？" },
-        { sel: "#y974", key: "974", chips: ["樊若水是谁", "长江天险为什么没守住", "金陵被围了多久"],
+        { sel: "#y974", key: "974", chips: ["樊若水是谁", "长江天险为什么没守住", "金陵被围了多久", "林仁肇是怎么死的", "皇甫继勋瞒了什么"],
           interpret: "樊若水把江面量给宋人看，浮桥一架，天险就成了路。三千里山河，输在一道桥上。", question: "采石浮桥是怎么一回事？" },
-        { sel: "#y975", key: "975", chips: ["《破阵子》写的是这一天吗", "辞庙是什么意思", "城破后宫里人去了哪里"],
+        { sel: "#y975", key: "975", chips: ["《破阵子》写的是这一天吗", "辞庙是什么意思", "城破后宫里人去了哪里", "曹彬是怎么待你的", "城破那天你在哪里"],
           interpret: "城破那天，我肉袒出降。教坊的乐工还在奏别离歌，我听着，直到听不见。", question: "金陵城破那天是怎样的？" },
-        { sel: "#y976", key: "976", chips: ["「违命侯」是什么意思", "只以眼泪洗面是真的吗", "《相见欢》写于汴京吗"],
+        { sel: "#y976", key: "976", chips: ["「违命侯」是什么意思", "只以眼泪洗面是真的吗", "《相见欢》写于汴京吗", "汴京的日子是怎么过的", "赵匡胤对你怎样"],
           interpret: "「违命侯」三个字，是人家给的院子，也是给的罪名。西楼的月亮，我在汴京看了三年。", question: "汴京囚居的日子是怎样的？" },
-        { sel: "#y978", key: "978", chips: ["牵机药是史实还是传说", "《虞美人》哪句惹怒了宋太宗", "最后一夜还有谁在场"],
+        { sel: "#y978", key: "978", chips: ["牵机药是史实还是传说", "《虞美人》哪句惹怒了宋太宗", "最后一夜还有谁在场", "七夕对你意味着什么", "你预感到那一夜了吗"],
           interpret: "七夕，我四十二岁。故伎唱了《虞美人》，词传到墙外。那一夜的事，你们都知道了。", question: "《虞美人》为什么成了绝命词？" },
-        { sel: "#y978b", key: "978b", chips: ["小周后后来怎样", "北邙山为什么是名士归处", "后人怎么凭吊你"],
+        { sel: "#y978b", key: "978b", chips: ["小周后后来怎样", "北邙山为什么是名士归处", "后人怎么凭吊你", "《虞美人》是最后一首词吗", "徐铉最后见过你吗"],
           interpret: "北邙山下，他们以王礼葬我。洛阳往北，再也望不见金陵——好在词替我回去了。", question: "你葬在北邙山哪里？" },
       ],
     },
@@ -211,11 +211,13 @@
   const history = [];
 
   // ---------- 构建界面 ----------
+  // 「梦客」印章素材：按本 JS 的位置解析资源路径，首页与 pages/ 子目录都能用
+  const SEAL_IMG = new URL("../assets/image/mengke-seal.png", document.currentScript.src).href;
   const root = document.createElement("div");
   root.className = "ai-guide-root";
   root.innerHTML = `
     <button class="ai-guide-seal" type="button" aria-expanded="false" aria-controls="aiGuidePanel" aria-label="打开 AI 梦客（可拖动）">
-      <span class="ai-guide-seal-word">梦</span>
+      <img class="ai-guide-seal-img" src="${SEAL_IMG}" alt="" aria-hidden="true">
       <span class="ai-guide-seal-label">AI 梦客 · 可拖动</span>
     </button>
     <div class="ai-guide-bubble" role="status" hidden></div>
@@ -240,6 +242,17 @@
         </div>
       </form>
       <p class="ai-guide-note">回答由 AI 生成，史实与原文以词库为准。</p>
+      <section class="ai-guide-leaf" aria-label="引文原文" hidden>
+        <header class="ai-guide-leaf-head">
+          <b class="ai-guide-leaf-title">原文</b>
+          <button class="ai-guide-leaf-close" type="button" aria-label="收起原文">×</button>
+        </header>
+        <p class="ai-guide-leaf-meta"></p>
+        <p class="ai-guide-leaf-text"></p>
+        <footer class="ai-guide-leaf-foot">
+          <a class="ai-guide-leaf-link" href="#" target="_blank" rel="noopener">维基文库 ↗</a>
+        </footer>
+      </section>
     </section>
   `;
   document.body.append(root);
@@ -254,6 +267,12 @@
   const send = root.querySelector(".ai-guide-send");
   const closeBtn = root.querySelector(".ai-guide-close");
   const modeButtons = root.querySelectorAll(".ai-guide-modes button");
+  const leaf = root.querySelector(".ai-guide-leaf");
+  const leafTitle = root.querySelector(".ai-guide-leaf-title");
+  const leafMeta = root.querySelector(".ai-guide-leaf-meta");
+  const leafText = root.querySelector(".ai-guide-leaf-text");
+  const leafLink = root.querySelector(".ai-guide-leaf-link");
+  const leafClose = root.querySelector(".ai-guide-leaf-close");
 
   // 当前模式：问答 / 检索
   let mode = "ask";
@@ -546,6 +565,10 @@
     group.className = "ai-guide-cards";
     cards.forEach((card) => {
       if (!card || typeof card !== "object") return;
+      if (card.type === "person") {
+        group.append(buildPersonCard(card));
+        return;
+      }
       const btn = document.createElement("button");
       btn.type = "button";
       const label = document.createElement("span");
@@ -621,6 +644,137 @@
     });
     body.append(group);
     body.scrollTop = body.scrollHeight;
+  };
+
+  // ---------- 引文展卷 / 四库对照 / 人物卡 ----------
+  // 引文侧栏：点回答里点名的《书名·卷X》，从右侧展开这一卷的原文与文库出处
+  const closeLeaf = () => {
+    leaf.classList.remove("is-on");
+    window.setTimeout(() => {
+      if (!leaf.classList.contains("is-on")) leaf.hidden = true;
+    }, 220);
+  };
+
+  const openLeaf = (title, meta, text, url) => {
+    leafTitle.textContent = title || "原文";
+    leafMeta.textContent = meta || "";
+    leafText.textContent = text || "这一卷原文没有取到。";
+    leafLink.href = url || "#";
+    leafLink.hidden = !url;
+    leaf.hidden = false;
+    requestAnimationFrame(() => leaf.classList.add("is-on"));
+  };
+
+  leafClose.addEventListener("click", closeLeaf);
+
+  // 引文条目：回答里点名的卷，点一下展开原文，读者可自行核对
+  const appendCitations = (citations) => {
+    const list = (Array.isArray(citations) ? citations : []).filter((c) => c && c.text);
+    if (!list.length) return;
+    const group = document.createElement("div");
+    group.className = "ai-guide-cites";
+    const label = document.createElement("span");
+    label.className = "ai-guide-cites-label";
+    label.textContent = "原文核对";
+    group.append(label);
+    list.forEach((c) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "ai-guide-quote";
+      btn.textContent = `《${c.book}·${c.juan}》`;
+      btn.title = "展开这一卷的原文";
+      btn.addEventListener("click", () => openLeaf(`《${c.book}·${c.juan}》`, c.tierLabel || "", c.text, c.url));
+      group.append(btn);
+    });
+    body.append(group);
+    body.scrollTop = body.scrollHeight;
+  };
+
+  // 四库对照：折叠区里按库别并排，每条都可点开原文
+  const appendCompare = (groups, conflict) => {
+    const list = (Array.isArray(groups) ? groups : []).filter((g) => g && Array.isArray(g.items) && g.items.length);
+    if (!list.length) return;
+    const box = document.createElement("details");
+    box.className = "ai-guide-compare";
+    const head = document.createElement("summary");
+    head.textContent = `四库对照 · ${list.length} 库`;
+    box.append(head);
+    if (conflict) {
+      const note = document.createElement("p");
+      note.className = "ai-guide-compare-note";
+      note.textContent = "各库对同一事的记法有出入，可逐条比对。";
+      box.append(note);
+    }
+    list.forEach((g) => {
+      const row = document.createElement("div");
+      row.className = `ai-guide-tier is-${String(g.tier || "A").toLowerCase()}`;
+      const tag = document.createElement("span");
+      tag.className = "ai-guide-tier-tag";
+      tag.textContent = g.tierLabel || `库${g.tier}`;
+      row.append(tag);
+      g.items.forEach((item) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "ai-guide-tier-item";
+        const book = document.createElement("b");
+        book.textContent = `《${item.book}·${item.juan}》`;
+        const text = document.createElement("em");
+        text.textContent = item.text || "";
+        btn.append(book, text);
+        btn.addEventListener("click", () => openLeaf(`《${item.book}·${item.juan}》`, g.tierLabel || "", item.text, item.url));
+        row.append(btn);
+      });
+      box.append(row);
+    });
+    body.append(box);
+    body.scrollTop = body.scrollHeight;
+  };
+
+  // 争议辨析徽标：本轮按「正史记载 / 笔记传闻 / 一般看法」三层作答
+  const appendDispute = () => {
+    const tag = document.createElement("p");
+    tag.className = "ai-guide-dispute";
+    tag.textContent = "争议辨析 · 正史记载 / 笔记传闻 / 一般看法";
+    body.append(tag);
+    body.scrollTop = body.scrollHeight;
+  };
+
+  // 人物档案卡：一句话档案 + 两条可点追问（有年份锚点的可直达时间轴）
+  const buildPersonCard = (card) => {
+    const box = document.createElement("div");
+    box.className = "ai-guide-person";
+    const head = document.createElement("p");
+    head.className = "ai-guide-person-head";
+    const name = document.createElement("b");
+    name.textContent = card.name || "";
+    const title = document.createElement("small");
+    title.textContent = card.title || "";
+    head.append(name, title);
+    const archive = document.createElement("p");
+    archive.className = "ai-guide-person-archive";
+    archive.textContent = card.archive || "";
+    const asks = document.createElement("div");
+    asks.className = "ai-guide-person-asks";
+    (card.asks || []).slice(0, 3).forEach((q) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.textContent = q;
+      btn.addEventListener("click", () => {
+        input.value = q;
+        submit("ask");
+      });
+      asks.append(btn);
+    });
+    if (card.anchor) {
+      const go = document.createElement("button");
+      go.type = "button";
+      go.className = "ai-guide-person-go";
+      go.textContent = "看这一年 ↗";
+      go.addEventListener("click", () => followNavigate({ page: "life", href: "pages/life.html", anchor: card.anchor }));
+      asks.append(go);
+    }
+    box.append(head, archive, asks);
+    return box;
   };
 
   // 快捷追问：默认按当前页面给三条；读到具体段落时换成该段的语境关键词
@@ -729,7 +883,10 @@
 
       const answer = data.answer || "这一处我没有答上来。";
       appendMessage("seer", answer);
-      // 先交代查过什么（与正史出处），再给动作卡与可读的词
+      // 争议辨析徽标 → 引文核对 → 四库对照，再交代查过什么与动作卡
+      if (action === "ask" && data.dispute) appendDispute();
+      if (action === "ask") appendCitations(data.citations);
+      if (action === "ask") appendCompare(data.compare, data.compareConflict);
       if (action === "ask") appendSteps(data.steps, data.history);
       if (action === "search") {
         appendSources(`检索到 ${(data.sources || []).length} 阕相关词作`, data.sources);

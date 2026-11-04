@@ -2280,6 +2280,51 @@ body.home-page.stage-mode .poem-card:hover .poem-arrow{transform:translate(3px,-
 .ai-guide-step.is-miss{color:#9a7f70;background:rgba(169,104,76,.07);border-color:rgba(169,104,76,.18)}
 .ai-guide-cite{font:10px var(--sans);letter-spacing:.03em;color:#8a4f39;text-decoration:none;border-bottom:1px dashed rgba(169,104,76,.5);padding:2px 1px;transition:color .2s,border-color .2s}
 .ai-guide-cite:hover{color:#6f3b29;border-color:rgba(169,104,76,.85)}
+/* 引文核对：回答下方按卷列出，点开即展卷；争议辨析徽标说明本轮分三层作答 */
+.ai-guide-cites{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:-4px 0 12px;animation:ai-guide-rise .32s ease both}
+.ai-guide-cites-label{font:9px var(--sans);letter-spacing:.16em;color:#87907f;margin-right:2px}
+.ai-guide-quote{border:0;background:none;padding:2px 0;font:11px var(--serif);letter-spacing:.02em;color:#8a4f39;border-bottom:1px dashed rgba(169,104,76,.5);cursor:pointer;transition:.2s}
+.ai-guide-quote:hover{color:#6f3b29;border-bottom-color:rgba(169,104,76,.9)}
+.ai-guide-dispute{margin:0 0 10px;font:10px var(--sans);letter-spacing:.1em;color:#8a5a3d;background:rgba(169,104,76,.08);border-left:2px solid rgba(169,104,76,.45);padding:5px 9px}
+/* 四库对照：折叠区按库别着色，每条都可点开原文 */
+.ai-guide-compare{margin:0 0 12px;border:1px dashed rgba(48,77,63,.22);background:rgba(250,249,242,.72);padding:8px 10px;animation:ai-guide-rise .32s ease both}
+.ai-guide-compare>summary{list-style:none;cursor:pointer;font:10px var(--sans);letter-spacing:.14em;color:#6a7a68;display:flex;align-items:center;gap:6px}
+.ai-guide-compare>summary::-webkit-details-marker{display:none}
+.ai-guide-compare>summary:before{content:"▸";font-size:9px;color:#8a4f39;transition:transform .2s}
+.ai-guide-compare[open]>summary:before{transform:rotate(90deg)}
+.ai-guide-compare-note{margin:7px 0 0;font:10px var(--sans);color:#8a5a3d;letter-spacing:.04em}
+.ai-guide-tier{display:flex;flex-direction:column;gap:5px;margin-top:10px;padding-left:8px;border-left:2px solid rgba(48,77,63,.22)}
+.ai-guide-tier.is-a{border-left-color:rgba(48,77,63,.55)}
+.ai-guide-tier.is-b{border-left-color:rgba(115,128,106,.5)}
+.ai-guide-tier.is-c{border-left-color:rgba(169,104,76,.5)}
+.ai-guide-tier.is-d{border-left-color:rgba(140,140,128,.4)}
+.ai-guide-tier-tag{font:9px var(--sans);letter-spacing:.12em;color:#7c877a}
+.ai-guide-tier-item{text-align:left;border:0;background:none;padding:2px 0 4px;cursor:pointer;border-bottom:1px solid rgba(48,77,63,.08)}
+.ai-guide-tier-item:hover b{color:#8a4f39}
+.ai-guide-tier-item b{display:block;font-family:"Xuandong Kaishu",var(--serif);font-weight:400;font-size:11.5px;color:#33463a;transition:color .2s}
+.ai-guide-tier-item em{display:block;font-style:normal;font-size:10.5px;line-height:1.7;color:#6b7768;margin-top:1px}
+/* 人物档案卡：一句话档案 + 可点追问 + 年份直达 */
+.ai-guide-person{border:1px solid rgba(48,77,63,.16);background:rgba(251,250,244,.9);padding:10px 12px}
+.ai-guide-person-head{display:flex;align-items:baseline;gap:8px;margin:0 0 4px}
+.ai-guide-person-head b{font-family:"Xuandong Kaishu",var(--serif);font-weight:400;font-size:14.5px;color:#2c3f34;letter-spacing:.04em}
+.ai-guide-person-head small{font:9px var(--sans);letter-spacing:.1em;color:#8d967f}
+.ai-guide-person-archive{margin:0;font-size:11.5px;line-height:1.75;color:#5c6a5d}
+.ai-guide-person-asks{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.ai-guide-person-asks button{border:1px solid rgba(48,77,63,.2);background:rgba(250,249,242,.9);font:10.5px var(--serif);color:#4b5f50;padding:4px 8px;border-radius:99px;cursor:pointer;transition:.2s}
+.ai-guide-person-asks button:hover{border-color:rgba(169,104,76,.6);color:#8a4f39}
+.ai-guide-person-go{color:#8a4f39!important;border-color:rgba(169,104,76,.4)!important}
+/* 引文侧栏：从面板右侧展开，覆盖正文，读完可回原对话 */
+.ai-guide-leaf{position:absolute;inset:0;display:flex;flex-direction:column;background:linear-gradient(160deg,#fbfaf4,#f1f2e9);border-left:1px solid rgba(48,77,63,.18);box-shadow:-12px 0 34px rgba(24,39,30,.12);translate:100% 0;transition:translate .3s cubic-bezier(.2,.7,.25,1);z-index:3;padding:14px 16px 12px}
+.ai-guide-leaf.is-on{translate:0 0}
+.ai-guide-leaf[hidden]{display:none}
+.ai-guide-leaf-head{display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px solid rgba(48,77,63,.14);padding-bottom:8px}
+.ai-guide-leaf-title{font-family:"Xuandong Kaishu",var(--serif);font-weight:400;font-size:14px;color:#2c3f34;letter-spacing:.03em}
+.ai-guide-leaf-close{border:0;background:none;font-size:16px;color:#8d967f;cursor:pointer;padding:0 2px}
+.ai-guide-leaf-meta{margin:8px 0 0;font:9px var(--sans);letter-spacing:.12em;color:#8a6a56}
+.ai-guide-leaf-text{flex:1;min-height:0;overflow-y:auto;margin:8px 0 0;font-family:"Xuandong Kaishu",var(--serif);font-size:12.5px;line-height:2;color:#2e4336;white-space:pre-wrap;scrollbar-width:thin}
+.ai-guide-leaf-foot{margin-top:10px;padding-top:8px;border-top:1px solid rgba(48,77,63,.12)}
+.ai-guide-leaf-link{font:10px var(--sans);letter-spacing:.08em;color:#8a4f39;border-bottom:1px dashed rgba(169,104,76,.5);text-decoration:none}
+.ai-guide-leaf-link:hover{color:#6f3b29}
 /* Agent 动作卡：带路（navigate）与词卡（poem），排在回答之后 */
 .ai-guide-cards{display:flex;flex-direction:column;gap:7px;margin:0 0 14px;animation:ai-guide-rise .32s ease both}
 .ai-guide-card{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;text-align:left;border:1px solid rgba(169,104,76,.42);background:linear-gradient(150deg,#fbf8ee,#f4f1e4);padding:9px 12px;cursor:pointer;transition:border-color .2s,background .2s,box-shadow .2s}

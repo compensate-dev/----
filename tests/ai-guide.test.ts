@@ -39,6 +39,12 @@ import {
   isSpeechAsk,
   unverifiedQuotes,
   longestVerbatimRun,
+  isDisputeAsk,
+  extractCitationRefs,
+  findCitationText,
+  groupCompareByTier,
+  detectTierConflict,
+  detectPeopleMentions,
 } from "../supabase/functions/guide/index.ts";
 
 // 统一的假词条工厂，只造测试用得上的字段
@@ -849,5 +855,118 @@ describe("scoreHistoryChunks（正史关键词路）", () => {
 
   test("没有命中返回空数组", () => {
     assert.deepEqual(scoreHistoryChunks(chunks, "王安石"), []);
+  });
+});
+
+describe("isDisputeAsk（争议辨析识别）", () => {
+  test("「是史实还是传说」类问句命中", () => {
+    assert.equal(isDisputeAsk("牵机药是史实还是传说？"), true);
+    assert.equal(isDisputeAsk("李煜到底是不是真的被毒死的？"), true);
+    assert.equal(isDisputeAsk("这件事可信吗"), true);
+    assert.equal(isDisputeAsk("野史里怎么说"), true);
+    assert.equal(isDisputeAsk("李煜到底是怎么死的？"), true);
+  });
+
+  test("普通问句不命中", () => {
+    assert.equal(isDisputeAsk("李煜是哪一年即位的？"), false);
+    assert.equal(isDisputeAsk("《虞美人》写了什么"), false);
+  });
+});
+
+describe("extractCitationRefs（引文出处抽取）", () => {
+  test("抽《书名·卷X》写法", () => {
+    const refs = extractCitationRefs("《宋史·卷478》里说，他出降后被封为违命侯。");
+    assert.deepEqual(refs, [{ book: "宋史", juan: "卷478" }]);
+  });
+
+  test("抽《书名》卷X 写法", () => {
+    const refs = extractCitationRefs("《新五代史》卷62 有南唐世家的记载");
+    assert.deepEqual(refs, [{ book: "新五代史", juan: "卷62" }]);
+  });
+
+  test("同一卷只留一次，最多四条", () => {
+    const refs = extractCitationRefs(
+      "《宋史·卷478》在此。《宋史·卷478》又在此。《十国春秋·卷1》《南唐书·卷2》《五代会要·卷3》《资治通鉴·卷294》《江南别录·卷4》",
+    );
+    assert.equal(refs[0].book, "宋史");
+    assert.equal(refs.filter((r) => r.book === "宋史").length, 1);
+    assert.equal(refs.length, 4);
+  });
+
+  test("没有出处返回空数组", () => {
+    assert.deepEqual(extractCitationRefs("这一处史书没有留下原话。"), []);
+  });
+});
+
+// 引文与四库对照测试用的本纪块
+const historyRows = [
+  { id: "1", book: "宋史", juan: "卷478", url: "u1", tier: "A", text: "李煜，字重光，南唐后主。" },
+  { id: "2", book: "宋史", juan: "卷478", url: "u1", tier: "A", text: "八年，卒，年四十二。" },
+  { id: "3", book: "陆游南唐书", juan: "卷3", url: "u3", tier: "B", text: "后主之殂，人颇疑之。" },
+  { id: "4", book: "南唐近事", juan: "卷1", url: "u4", tier: "C", text: "相传赐牵机药，手足相就而卒。" },
+  { id: "5", book: "十国春秋", juan: "卷17", url: "u5", tier: "D", text: "后主以疾卒于汴京。" },
+] as any[];
+
+describe("findCitationText（按书名卷次取原文）", () => {
+  test("书名卷次都对得上，返回原文与出处链接", () => {
+    const found = findCitationText({ book: "宋史", juan: "卷478" }, historyRows);
+    assert.ok(found);
+    assert.equal(found.book, "宋史");
+    assert.equal(found.url, "u1");
+    assert.equal(found.tierLabel, "库A·正史");
+  });
+
+  test("书名只写简称也能对上（南唐书 → 陆游南唐书）", () => {
+    const found = findCitationText({ book: "南唐书", juan: "卷3" }, historyRows);
+    assert.equal(found?.book, "陆游南唐书");
+  });
+
+  test("卷次对不上返回 null", () => {
+    assert.equal(findCitationText({ book: "宋史", juan: "卷479" }, historyRows), null);
+  });
+});
+
+describe("groupCompareByTier（四库对照分组）", () => {
+  test("按库别分组，同一部书只留一段", () => {
+    const groups = groupCompareByTier(historyRows);
+    assert.deepEqual(groups.map((g) => g.tier), ["A", "B", "C", "D"]);
+    const a = groups.find((g) => g.tier === "A");
+    assert.equal(a?.items.length, 1);
+    assert.equal(a?.items[0].book, "宋史");
+    assert.equal(a?.items[0].juan, "卷478");
+  });
+
+  test("空库不出现在结果里", () => {
+    const groups = groupCompareByTier([historyRows[0], historyRows[3]]);
+    assert.deepEqual(groups.map((g) => g.tier), ["A", "C"]);
+  });
+});
+
+describe("detectTierConflict（各库记法冲突）", () => {
+  test("病死与毒杀并存时标出出入", () => {
+    assert.equal(detectTierConflict([{ text: "八年，卒，年四十二。" }, { text: "相传赐牵机药而卒。" }]), true);
+  });
+
+  test("只有一种说法时不算冲突", () => {
+    assert.equal(detectTierConflict([{ text: "八年，卒，年四十二。" }]), false);
+  });
+});
+
+describe("detectPeopleMentions（人物档案卡）", () => {
+  test("回答里提到谁就浮谁的卡，最多两张", () => {
+    const people = detectPeopleMentions("韩熙载这个人，当年在金陵颇有声名。");
+    assert.equal(people.length, 1);
+    assert.equal(people[0].name, "韩熙载");
+    assert.ok(people[0].asks.length >= 2);
+  });
+
+  test("同一人多个写法只浮一张卡", () => {
+    const people = detectPeopleMentions("大周后就是周娥皇，娥皇她……", 2);
+    assert.equal(people.length, 1);
+    assert.equal(people[0].name, "周娥皇");
+  });
+
+  test("没提到就不返回", () => {
+    assert.deepEqual(detectPeopleMentions("这一处史书没有留下原话。"), []);
   });
 });

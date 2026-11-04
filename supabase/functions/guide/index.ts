@@ -1082,6 +1082,106 @@ export const allowChunk = (chunk: HistoryChunk, query: string): boolean => {
   return true;
 };
 
+// ---------- 争议辨析 · 四库对照 · 引文核对 · 人物卡（纯逻辑，单测直测） ----------
+// 以下函数不碰网络与文件：handler 只负责取候选块、组装返回体。
+
+// 「是史实还是传说」式问句：这类回答要分三段（正史记载 / 笔记传闻 / 一般看法）
+export const isDisputeAsk = (text: string): boolean =>
+  /(史实|是不是真的|是真的吗|真有其事|确有此事|确有其事|是否属实|可信|可靠|靠得住|到底|怎么死|如何死|死因|毒死|传说|传闻|野史|笔记|逸闻|异闻|真相|正史怎么记)/.test(text);
+
+// 从回答里抽《书名·卷X》与《书名》卷X 两种写法，读者点开后核对原文
+export const extractCitationRefs = (answer: string): { book: string; juan: string }[] => {
+  const refs: { book: string; juan: string }[] = [];
+  const add = (book: string, juan: string) => {
+    const b = book.trim();
+    const j = juan.replace(/^第/, "").trim();
+    if (!b || !j || j.length < 2) return;
+    if (refs.some((r) => r.book === b && r.juan === j)) return;
+    refs.push({ book: b, juan: j });
+  };
+  const patterns = [
+    /《([^《》\n]{1,12})[·・/／](卷[0-9零〇一二三四五六七八九十百]{1,6})》/g,
+    /《([^《》\n]{1,12})》\s*第?(卷[0-9零〇一二三四五六七八九十百]{1,6})/g,
+  ];
+  patterns.forEach((re) => {
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(answer)) !== null) add(m[1], m[2]);
+  });
+  return refs.slice(0, 4);
+};
+
+// 按书名 + 卷次取回该卷原文，供读者展开核对；找不到就返回 null（前端不显示引文按钮）
+export const findCitationText = (
+  ref: { book: string; juan: string },
+  chunks: HistoryChunk[],
+  size = 320,
+): { book: string; juan: string; text: string; url: string; tier: HistoryTier; tierLabel: string } | null => {
+  const juan = ref.juan.replace(/^第/, "");
+  const found = chunks.find((c) => {
+    if (c.juan.replace(/^第/, "") !== juan) return false;
+    const b = c.book;
+    return b === ref.book || b.includes(ref.book) || ref.book.includes(b);
+  });
+  if (!found) return null;
+  const text = found.text.length > size ? `${found.text.slice(0, size)}…` : found.text;
+  return { book: found.book, juan: found.juan, text, url: found.url, tier: chunkTier(found), tierLabel: tierName(chunkTier(found)) };
+};
+
+// 四库对照：按库别分组，每库最多取 perTier 段（同一部书只留一段），
+// 组内保持检索先后；空库不返回，前端只画有条目的库
+export const groupCompareByTier = (
+  chunks: HistoryChunk[],
+  perTier = 2,
+): { tier: HistoryTier; tierLabel: string; items: { book: string; juan: string; text: string; url: string }[] }[] => {
+  const tiers: HistoryTier[] = ["A", "B", "C", "D"];
+  const groups: { tier: HistoryTier; tierLabel: string; items: { book: string; juan: string; text: string; url: string }[] }[] = [];
+  tiers.forEach((tier) => {
+    const seen = new Set<string>();
+    const items: { book: string; juan: string; text: string; url: string }[] = [];
+    chunks.forEach((c) => {
+      if (chunkTier(c) !== tier || seen.has(`${c.book}${c.juan}`)) return;
+      seen.add(`${c.book}${c.juan}`);
+      const text = c.text.length > 220 ? `${c.text.slice(0, 220)}…` : c.text;
+      items.push({ book: c.book, juan: c.juan, text, url: c.url });
+    });
+    if (items.length) groups.push({ tier, tierLabel: tierName(tier), items: items.slice(0, perTier) });
+  });
+  return groups;
+};
+
+// 各库对同一件事是否记法有出入：一段说病死、另一段说毒杀/赐死，就在界面上标「记载有出入」
+export const detectTierConflict = (chunks: Pick<HistoryChunk, "text">[]): boolean => {
+  const text = chunks.map((c) => c.text).join("\n");
+  const violent = /(牵机|鸩|酖|毒药|赐死|杀之|被杀|遇害|缢死|自缢|诛死|缢杀)/.test(text);
+  const natural = /(寝疾|病死|病卒|以疾|暴卒|殂|卒，年)/.test(text);
+  return violent && natural;
+};
+
+// 人物档案卡：答完把提到的人浮成一张小卡，附两条可点的追问
+// 只写 978 年以前能确知的事，拿不准的一律不写
+const PEOPLE: { names: string[]; name: string; title: string; archive: string; anchor?: string; asks: string[] }[] = [
+  { names: ["李昪", "烈祖", "先主"], name: "李昪", title: "南唐烈祖", archive: "南唐开国之君，937 年称帝，庙号烈祖。", anchor: "y937", asks: ["李昪是怎么起家的", "南唐是怎么建国的"] },
+  { names: ["李璟", "中主", "父皇"], name: "李璟", title: "南唐中主", archive: "李煜之父，943 年即位，958 年去帝号称国主，961 年卒。", anchor: "y961", asks: ["李璟在位时南唐是什么局面", "南唐为什么去帝号"] },
+  { names: ["周娥皇", "娥皇", "大周后", "昭惠"], name: "周娥皇", title: "昭惠国后", archive: "李煜的结发妻子，通书史、善音律，二人重订《霓裳羽衣曲》残谱，964 年卒，年二十九。", anchor: "y954", asks: ["娥皇是怎样的人", "《霓裳羽衣》是怎么重订的"] },
+  { names: ["小周后", "周女英", "女英"], name: "小周后", title: "继后", archive: "周娥皇之妹，姐姐去世后入宫，后被立为国后；975 年随李煜北迁。", anchor: "y975", asks: ["小周后是何时入宫的", "小周后后来怎样"] },
+  { names: ["仲宣", "宣城公"], name: "李仲宣", title: "宣城公", archive: "李煜与周娥皇的次子，961 年生；964 年四岁，在佛前受惊得疾而卒。", anchor: "y964", asks: ["仲宣是怎么夭折的", "娥皇是何时病逝的"] },
+  { names: ["弘冀", "李弘冀"], name: "李弘冀", title: "太子", archive: "李煜的长兄，曾被立为太子，959 年卒；此后李煜才被立为储。", asks: ["弘冀是个怎样的人", "李煜为什么能继位"] },
+  { names: ["从善", "李从善", "郑王"], name: "李从善", title: "郑王", archive: "李煜之弟，李璟第七子；971 年入宋朝贡被留汴京，未得归。", anchor: "y971", asks: ["从善为什么被扣在汴京", "《清平乐》是写给谁的"] },
+  { names: ["韩熙载"], name: "韩熙载", title: "南唐名臣", archive: "南唐重臣，官至中书侍郎；好宾客、通音律，970 年卒。", asks: ["韩熙载是个怎样的人", "韩熙载为什么纵情声色"] },
+  { names: ["潘佑"], name: "潘佑", title: "内史舍人", archive: "南唐文臣，屡上书言事，言辞切直；973 年下狱，自尽而死。", asks: ["潘佑是怎么死的", "潘佑上书说了什么"] },
+  { names: ["林仁肇"], name: "林仁肇", title: "南唐名将", archive: "南唐勇将，官至润州节度使；宋人用反间，后主鸩杀之，事在 973 年前后，各书记载不一。", asks: ["林仁肇是怎么死的", "林仁肇若在能守住南唐吗"] },
+  { names: ["樊若水", "樊知古"], name: "樊若水", title: "南唐进士", archive: "南唐落第进士，后归宋；在采石测江面宽窄，献浮桥之策。", anchor: "y974", asks: ["樊若水是谁", "采石浮桥是怎么架起来的"] },
+  { names: ["徐铉"], name: "徐铉", title: "南唐文臣", archive: "南唐文臣，与弟徐锴并称「二徐」；975 年随李煜入宋。", asks: ["徐铉是个怎样的人", "徐铉出使宋朝谈了什么"] },
+  { names: ["曹彬"], name: "曹彬", title: "宋将", archive: "宋将，975 年统兵攻破金陵，受命不许妄杀。", anchor: "y975", asks: ["曹彬是怎么攻下金陵的", "城破时曹彬待李煜如何"] },
+  { names: ["赵匡胤", "宋太祖"], name: "赵匡胤", title: "宋太祖", archive: "宋朝开国之君，975 年灭南唐，封李煜为违命侯。", anchor: "y975", asks: ["赵匡胤为什么先伐南唐", "违命侯是什么意思"] },
+  { names: ["赵光义", "宋太宗"], name: "赵光义", title: "宋太宗", archive: "宋朝第二位皇帝，978 年李煜卒于汴京；「牵机药」之说见于宋人笔记，正史未载。", anchor: "y978", asks: ["牵机药是史实还是传说", "宋太宗为什么容不下李煜"] },
+  { names: ["钟皇后", "钟氏", "光穆皇后"], name: "钟皇后", title: "光穆皇后", archive: "李煜生母，李璟的皇后，在李煜成年之后才去世。", asks: ["李煜的母亲是谁", "钟皇后是怎样的人"] },
+  { names: ["周宗"], name: "周宗", title: "南唐司徒", archive: "周娥皇、小周后之父，南唐重臣，官至司徒。", asks: ["周宗是什么人", "周家与南唐宗室是什么关系"] },
+];
+
+export const detectPeopleMentions = (text: string, limit = 2): typeof PEOPLE => {
+  return PEOPLE.filter((p) => p.names.some((n) => text.includes(n))).slice(0, limit);
+};
 
 let historyIndex: { chunks: HistoryChunk[]; vectors: Record<string, number[]> | null } | null | undefined;
 
@@ -2846,7 +2946,11 @@ if (typeof Deno !== "undefined") {
     // 史事问题先检索一次：模型不调工具也能拿到原文，避免它凭记忆编造书信、对话
     let evidenceTexts: string[] = [];
     let retrievalBlock = "";
+    let disputeBlock = "";
     let preHits: any[] = [];
+    let compare: { tier: string; tierLabel: string; items: { book: string; juan: string; text: string; url: string }[] }[] = [];
+    let compareConflict = false;
+    const dispute = action === "ask" && isDisputeAsk(message);
     if (action === "ask" && (needsGrounding(message) || factEntries.length)) {
       // 史实问题一律「先爬、再进 RAG、再让模型转述」：
       // 先按问句在线定位卷页（命中 pages 缓存则秒回），抓到的整卷即时切块入 RAG；
@@ -2876,6 +2980,26 @@ ${hits.map((h) => `-《${h.book}·${h.juan}》〔${tierName(chunkTier(h))}〕：
         : "史书检索结果：没有找到与所问直接相关的段落。不要编造书信、对话、诏令、原话，也不要补写场景、动作或心理；可以说「这一节史书没查着」。";
       temperature = Math.min(temperature, 0.3);
       maxTokens = Math.min(maxTokens, 260); // 史事回答只留 80—140 字的空间，防整段照抄
+
+      // 四库对照：同一问句在四库里各取一两段，并排给读者看（只作展示，不参与作答）
+      // 这里用本地关键词打分（不调向量），四库都能进候选；库C 仍受 allowChunk 门控
+      loadRuntimeRag();
+      const pool = [...(loadHistoryIndex()?.chunks ?? []), ...runtimeChunks];
+      const ranked = scoreHistoryChunks(pool, groundQuery, undefined, 24, true)
+        .filter((c) => (c.score ?? 0) >= 2.5);
+      // 前置检索命中的卷（含宋史等正史）也并进来，免得四库对照里缺了库A
+      const comparePool = [...ranked, ...preHits];
+      compare = groupCompareByTier(comparePool, 2);
+      compareConflict = detectTierConflict(comparePool.slice(0, 8));
+      if (dispute) {
+        // 争议辨析：三段式作答——正史记载 / 笔记传闻 / 一般看法
+        disputeBlock = `这是一句「争议辨析」的提问，请分三层作答，仍用你第一人称的口吻，不要写成百科小标题：
+① 先说自己确切知道的：只用上面检索到的段落，点明《书名·卷X》，说正史怎么记；
+② 再说另有一说：若检索到笔记、野史里的不同说法，注明「传闻异说，不作定论」；没检索到就直说「笔记里另有说法，这一层我没查到」；
+③ 最后一句分判：哪一层可信、哪一层只是相传，不要替读者下定论。
+总长 120—180 字，不要编造检索段落以外的情节。`;
+        maxTokens = Math.max(maxTokens, 320);
+      }
     }
 
     if (action === "compose") {
@@ -2905,6 +3029,7 @@ ${hits.map((h) => `-《${h.book}·${h.juan}》〔${tierName(chunkTier(h))}〕：
       ...history,
       ...(factsBlock ? [{ role: "system", content: factsBlock }] : []),
       ...(retrievalBlock ? [{ role: "system", content: retrievalBlock }] : []),
+      ...(disputeBlock ? [{ role: "system", content: disputeBlock }] : []),
       { role: "user", content: instruction },
     ];
 
@@ -3144,6 +3269,32 @@ ${hits.map((h) => `-《${h.book}·${h.juan}》〔${tierName(chunkTier(h))}〕：
       answer = "这一时，我不知从何说起。换个问法试试？";
     }
 
+    // 引文核对 + 人物卡：回答定稿后再抽，保证点开的原文与回答里说的出处一致
+    let citations: { book: string; juan: string; text: string; url: string; tier: string; tierLabel: string }[] = [];
+    if (action === "ask") {
+      // 只认回答里点明的卷：没点名就没有可核对的原文，不拿不相干的卷凑数
+      const refs = extractCitationRefs(answer);
+      if (refs.length) {
+        loadRuntimeRag();
+        const pool = [...(loadHistoryIndex()?.chunks ?? []), ...runtimeChunks];
+        citations = refs
+          .map((ref) => findCitationText(ref, pool))
+          .filter((c): c is NonNullable<typeof c> => !!c)
+          .slice(0, 3);
+      }
+      // 被提到的人物浮成档案卡（最多两张），附两条可点追问
+      detectPeopleMentions(answer, 2).forEach((person) => {
+        cards.push({
+          type: "person",
+          name: person.name,
+          title: person.title,
+          archive: person.archive,
+          anchor: person.anchor ?? "",
+          asks: person.asks,
+        });
+      });
+    }
+
     // 输出闸：模型偶发越界时把词打码再下发，并记一笔供评审查证
     const masked = maskOutput(answer);
     if (masked.hit) {
@@ -3198,11 +3349,17 @@ ${hits.map((h) => `-《${h.book}·${h.juan}》〔${tierName(chunkTier(h))}〕：
       steps,          // 工具调用轨迹：tool / args / hits / ms
       sources: [...mergedSources.values()].slice(0, 4),
       history: historySources.slice(0, 3), // 正史出处：book / juan / title / url
+      compare,          // 四库对照：按库别分组，同一条记载并排展示
+      compareConflict,  // 各库记法有出入（如病死 vs 毒杀）
+      citations,        // 引文核对：回答里点名的卷，展开即可读原文
+      dispute,          // 争议辨析：本轮按「正史 / 笔记 / 一般看法」三层作答
     };
     if (canUseCache) {
       writeAnswerCache(cacheKey, action, {
         answer, model: resultModel, usage, cards, tools: toolsUsed,
         steps, sources: responseBody.sources, history: responseBody.history,
+        compare: responseBody.compare, compareConflict: responseBody.compareConflict,
+        citations: responseBody.citations, dispute: responseBody.dispute,
       });
     }
     return jsonResponse(responseBody);
