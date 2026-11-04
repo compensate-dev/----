@@ -1264,11 +1264,18 @@ button:not(.book-open-button):active,.button:active{translate:0 1px}
 .finale-copy{margin:0;font-family:"Liyu Xingkai UI","Liyu Xingkai",var(--serif);font-size:clamp(15px,1.6vw,19px);line-height:2.2;letter-spacing:.12em;color:rgba(244,240,230,.86)}
 .finale-copy .finale-line{display:block}
 .finale-actions{display:flex;flex-direction:column;align-items:center;gap:15px;margin-top:42px}
+/* 三枚入口在桌面并排，别把终幕撑出屏；窄屏仍纵向排列 */
+@media(min-width:701px){.finale-actions{flex-direction:row;flex-wrap:wrap;justify-content:center;gap:12px 18px}}
 /* 终幕「梦外」余白：按钮之后一行极小的收束语，随 --finale-p 最晚一档显影 */
 .finale-signoff{margin:20px 0 0;font-family:"Xuandong Kaishu",var(--serif);font-size:clamp(12px,1.15vw,14px);letter-spacing:.2em;line-height:1.8;color:rgba(232,216,186,.58)}
 .finale-signoff .finale-line{display:block}
 .finale-return,.finale-gate-button{display:inline-flex;align-items:center;gap:10px;padding:13px 32px;border:1px solid rgba(228,199,149,.55);border-radius:99px;color:#f0e6cf;font-family:"Liyu Xingkai",var(--serif);font-size:17px;letter-spacing:.14em;transition:background .3s ease,border-color .3s ease,letter-spacing .3s ease}
 .finale-return:hover,.finale-return:focus-visible,.finale-gate-button:hover,.finale-gate-button:focus-visible{background:rgba(228,199,149,.12);border-color:rgba(228,199,149,.85);letter-spacing:.2em}
+.finale-wall{display:inline-flex;align-items:center;gap:10px;padding:13px 32px;background:rgba(228,199,149,.1);border:1px solid rgba(228,199,149,.72);border-radius:99px;color:#f0e6cf;font-family:"Liyu Xingkai",var(--serif);font-size:17px;letter-spacing:.14em;transition:background .3s ease,border-color .3s ease,letter-spacing .3s ease}
+.finale-wall:hover,.finale-wall:focus-visible{background:rgba(228,199,149,.2);border-color:rgba(232,206,160,.95);letter-spacing:.2em}
+.finale-share{margin-top:16px;justify-content:center;gap:8px}
+.finale-share .share-inline-btn{min-height:0;padding:4px 10px;font-size:10px;letter-spacing:.08em;color:rgba(228,202,158,.72);border-color:rgba(228,199,149,.26)}
+.finale-share .share-inline-btn:hover,.finale-share .share-inline-btn:focus-visible{color:#f5d9b8;border-color:rgba(232,206,160,.7);background:rgba(255,255,255,.06)}
 .finale-again{color:rgba(228,202,158,.75)}
 .finale-again:hover,.finale-again:focus-visible{color:#e4c795}
 @media(prefers-reduced-motion:no-preference){
@@ -1392,10 +1399,6 @@ body.home-page:not(.book-opened) .shop-tab{display:none}
 @media(prefers-reduced-motion:reduce){.shop-tab,.shop-drawer,.shop-mask,.shop-card,.shop-art img{transition:none}}
 
 /* ========== 笺语留言（全站侧边栏 · localStorage 本地笺筒） ========== */
-/* 第二枚小签：位于「文创笺铺」下方 */
-.jy-tab{top:calc(50% + 128px);background:linear-gradient(160deg,#8a4a34,#6e3826);border-color:rgba(210,185,144,.45)}
-.jy-tab:hover{background:#98583f}
-body.home-page:not(.book-opened) .jy-tab{display:none}
 /* 面板主体复用 .shop-drawer 骨架，仅覆写配色细节 */
 .jy-drawer .shop-drawer-seal{border-color:#8a4a34;color:#8a4a34}
 /* 留言列表：笺纸/木简质感 */
@@ -1426,15 +1429,6 @@ body.home-page:not(.book-opened) .jy-tab{display:none}
 @media(prefers-reduced-motion:reduce){.jy-toast{transition:none}}
 
 /* ========== 分享词境（全站侧边栏 · 微信扫码 / QQ空间 / QQ好友 / 微博 / 复制链接） ========== */
-.share-tab{top:calc(50% + 256px);background:linear-gradient(160deg,#41626f,#2c4450);border-color:rgba(210,185,144,.45)}
-.share-tab:hover{background:#4a7080}
-body.home-page:not(.book-opened) .share-tab{display:none}
-/* 矮屏时三枚小签改为右下角纵向排列 */
-@media(max-height:720px){
-  .shop-tab,.jy-tab,.share-tab{top:auto;bottom:24px;transform:none}
-  .shop-tab:hover,.jy-tab:hover,.share-tab:hover{transform:translateX(-3px)}
-  .shop-tab{bottom:212px}.jy-tab{bottom:118px}.share-tab{bottom:24px}
-}
 .share-drawer .shop-drawer-seal{border-color:#33546b;color:#33546b}
 /* 二维码卡：微信「扫码后转发」入口 */
 .share-qr{display:flex;gap:14px;align-items:center;padding:13px;margin-bottom:14px;background:rgba(251,250,244,.92);border:1px solid rgba(122,84,58,.3)}
@@ -1449,6 +1443,102 @@ body.home-page:not(.book-opened) .share-tab{display:none}
 .share-btn:hover{border-color:#33546b;color:#22404e;background:#eef2ee}
 .share-btn-wx-tip,.share-btn-sys{grid-column:1 / -1}
 .share-footnote{margin:12px 2px 0;font-size:10px;line-height:1.9;color:#8a9387;text-align:center}
+
+/* ========== 从词到物（帘外余音页末 · 文创概念陈列，非卖） ========== */
+.concept-section{padding-top:90px;padding-bottom:100px}
+.concept-head{display:flex;align-items:flex-end;justify-content:space-between;gap:clamp(26px,5vw,70px);margin:14px 0 30px}
+.concept-head h2{margin:0;font-family:"HongLei Calligraphy",var(--serif);font-weight:400;font-size:clamp(28px,3.4vw,42px);line-height:1.55;letter-spacing:.06em}
+.concept-head h2 em{font-style:normal;color:var(--rust)}
+.concept-head p{max-width:470px;margin:0;font-family:"Xuandong Kaishu",var(--serif);font-size:14.5px;line-height:2.05;color:#56645a}
+.concept-gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.concept-card{display:flex;flex-direction:column;background:linear-gradient(180deg,#fbfaf4,#f0f1e8);border:1px solid rgba(122,84,58,.22);box-shadow:0 6px 18px rgba(43,61,48,.07);transition:transform .35s cubic-bezier(.2,.75,.25,1),box-shadow .35s,border-color .35s}
+@media(hover:hover){.concept-card:hover{transform:translateY(-4px);border-color:rgba(169,104,76,.5);box-shadow:0 14px 30px rgba(43,61,48,.14)}}
+.concept-art{position:relative;aspect-ratio:4/3;overflow:hidden;background:#e4e8df}
+.concept-art img{width:100%;height:100%;object-fit:cover;filter:saturate(.92);transition:transform .6s cubic-bezier(.2,.7,.25,1)}
+@media(hover:hover){.concept-card:hover .concept-art img{transform:scale(1.05)}}
+.concept-ribbon{position:absolute;top:9px;left:0;z-index:2;padding:3px 9px;background:rgba(169,104,76,.94);color:#fdf9f0;font:8.5px/1.6 var(--sans);letter-spacing:.14em}
+.concept-body{display:flex;flex-direction:column;flex:1;padding:16px 17px 17px}
+.concept-meta{margin:0 0 5px;font:8.5px var(--sans);letter-spacing:.12em;color:#8d7b63;text-transform:uppercase}
+.concept-body h3{margin:0 0 7px;font-family:"Liyu Xingkai UI",var(--serif);font-weight:400;font-size:19px;letter-spacing:.08em;color:#2a3b30}
+.concept-desc{margin:0;font-size:12px;line-height:1.9;color:#5f6c61}
+.concept-ask{margin-top:auto;padding:12px 0 3px;background:none;border:0;border-bottom:1px solid #a9b6a7;align-self:flex-start;cursor:pointer;font:10.5px var(--sans);letter-spacing:.14em;color:var(--pine);transition:color .3s,border-color .3s}
+.concept-ask span{display:inline-block;margin-left:5px;color:var(--rust);transition:transform .3s}
+@media(hover:hover){.concept-ask:hover{color:#8a4a34;border-color:var(--rust)}.concept-ask:hover span{transform:translate(2px,-2px)}}
+.concept-foot{margin:26px 2px 0;font:10px var(--sans);letter-spacing:.16em;color:#8a9387;text-align:center}
+
+/* ========== 行内分享（内页页末 / 首页页脚 / 终幕） ========== */
+.share-section{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-top:42px;padding-bottom:48px;border-top:1px solid rgba(122,84,58,.2)}
+.share-section-copy p{margin:8px 0 0;font-family:"Xuandong Kaishu",var(--serif);font-size:14px;letter-spacing:.06em;color:#657063}
+.share-inline{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.share-inline-btn{min-height:38px;padding:8px 16px;background:transparent;border:1px solid rgba(122,84,58,.4);border-radius:2px;color:#3d5044;font:11px var(--sans);letter-spacing:.12em;cursor:pointer;transition:background .3s,border-color .3s,color .3s}
+.share-inline-btn:hover,.share-inline-btn:focus-visible{background:rgba(169,104,76,.08);border-color:var(--rust);color:#8a4a34}
+.share-inline-dark .share-inline-btn{color:#e6dfd0;border-color:rgba(199,170,119,.45);background:rgba(255,255,255,.03)}
+.share-inline-dark .share-inline-btn:hover,.share-inline-dark .share-inline-btn:focus-visible{color:#f5d9b8;border-color:rgba(232,206,160,.8);background:rgba(255,255,255,.08)}
+/* 首页页脚：整屏叙事不另起一节，把分享收成一行小字 */
+.share-inline-foot{gap:7px}
+.share-inline-foot .share-inline-btn{min-height:0;padding:3px 9px;font-size:10px;letter-spacing:.08em;border-color:rgba(122,84,58,.26)}
+body.home-page.stage-mode .share-inline-foot .share-inline-btn{font-size:10px;padding:3px 8px}
+/* 拟语浮笺 */
+.share-draft-toast{position:fixed;left:50%;bottom:10vh;z-index:95;transform:translateX(-50%);width:min(470px,calc(100vw - 32px));padding:16px 18px 14px;background:linear-gradient(160deg,#2f463a,#24362e);color:#f2ecdd;border:1px solid rgba(199,170,119,.45);box-shadow:0 16px 44px rgba(24,39,30,.4)}
+.share-draft-toast[hidden]{display:none}
+.share-draft-toast.is-error{border-color:rgba(190,120,88,.7)}
+.share-draft-text{margin:0 0 12px;font-family:"Xuandong Kaishu",var(--serif);font-size:15px;line-height:1.95;letter-spacing:.04em}
+.share-draft-actions{display:flex;justify-content:flex-end;gap:10px}
+.share-draft-actions button{min-height:34px;padding:6px 15px;background:transparent;border:1px solid rgba(199,170,119,.5);border-radius:2px;color:#f2ecdd;font:10.5px var(--sans);letter-spacing:.12em;cursor:pointer;transition:background .3s,border-color .3s}
+.share-draft-actions button:hover{background:rgba(255,255,255,.08);border-color:rgba(232,206,160,.85)}
+
+/* ========== 笺语墙（终幕页末 · 本地留言） ========== */
+.jianyu-section{position:relative;padding:110px 8% 120px;background:linear-gradient(180deg,#101917,#0d1412);border-top:1px solid rgba(199,170,119,.16)}
+.jianyu-inner{max-width:1120px;margin:0 auto}
+.jianyu-kicker{font:10px var(--sans);letter-spacing:.3em;color:#b89a6b}
+.jianyu-section h1,.jianyu-section h2{margin:16px 0 18px;font-family:"HongLei Calligraphy",var(--serif);font-weight:400;font-size:clamp(30px,4vw,48px);line-height:1.45;letter-spacing:.08em;color:#f2ecdd}
+/* 独立成页：给固定顶栏让出高度，并在页首页尾各留一条回终幕的路 */
+.jianyu-page .jianyu-section{padding-top:calc(86px + 56px);padding-bottom:96px}
+.jianyu-back{display:inline-flex;align-items:center;gap:6px;margin-bottom:20px;color:rgba(228,202,158,.78);font:11px var(--sans);letter-spacing:.16em;transition:color .3s,letter-spacing .3s}
+.jianyu-back:hover,.jianyu-back:focus-visible{color:#f5d9b8;letter-spacing:.22em}
+.jianyu-back-foot{margin:40px 0 0;text-align:center}
+.jianyu-back-foot a{display:inline-block;padding-bottom:2px;border-bottom:1px solid rgba(199,170,119,.4);color:rgba(228,202,158,.7);font:11px var(--sans);letter-spacing:.14em;transition:color .3s,border-color .3s}
+.jianyu-back-foot a:hover,.jianyu-back-foot a:focus-visible{color:#f5d9b8;border-color:rgba(232,206,160,.85)}
+.jianyu-lead{max-width:620px;margin:0;color:rgba(244,240,230,.72);font-family:"Liyu Xingkai UI",var(--serif);font-size:14.5px;line-height:2;letter-spacing:.06em}
+.jianyu-wall{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin:36px 0 30px}
+.jianyu-msg{position:relative;padding:17px 18px 14px 21px;background:linear-gradient(180deg,#f6efdd,#ebe0c6);color:#33443a;border:1px solid rgba(199,170,119,.4);box-shadow:0 8px 20px rgba(0,0,0,.22)}
+.jianyu-msg:before{content:"";position:absolute;left:8px;top:12px;bottom:12px;width:2px;background:linear-gradient(180deg,rgba(169,104,76,.75),rgba(169,104,76,.25))}
+.jianyu-msg.is-mine{background:linear-gradient(180deg,#f3ecd8,#e7dbc0);border-color:rgba(169,104,76,.55)}
+.jianyu-msg-text{margin:0;font-family:"Xuandong Kaishu",var(--serif);font-size:15px;line-height:1.95;word-break:break-word}
+.jianyu-msg-meta{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:8px}
+.jianyu-msg-name{font-family:"Liyu Xingkai UI",var(--serif);font-size:13px;letter-spacing:.12em;color:#8a4a34}
+.jianyu-msg-time{font:9.5px var(--sans);letter-spacing:.08em;color:#9a8f79}
+.jianyu-mine-tag{margin-left:6px;padding:1px 6px;background:var(--rust);color:#fbf7ee;font:8.5px var(--sans);letter-spacing:.14em;vertical-align:1px}
+.jianyu-msg-actions{display:flex;align-items:center;gap:9px;margin-top:11px;flex-wrap:wrap}
+.jianyu-ask{padding:4px 0;background:none;border:0;border-bottom:1px solid #a9b6a7;color:var(--pine);font:10.5px var(--sans);letter-spacing:.12em;cursor:pointer}
+.jianyu-ask:hover,.jianyu-ask:focus-visible{color:#8a4a34;border-color:var(--rust)}
+.jianyu-ask:disabled{opacity:.6;cursor:wait}
+.jianyu-ask-hint{font:9px var(--sans);letter-spacing:.08em;color:#9a8f79}
+.jianyu-reply{margin-top:11px;padding-top:10px;border-top:1px dashed rgba(122,84,58,.4)}
+.jianyu-reply[hidden]{display:none}
+.jianyu-reply b{display:block;font-family:"Liyu Xingkai UI",var(--serif);font-size:13px;font-weight:400;letter-spacing:.1em;color:#8a4a34}
+.jianyu-reply p{margin:5px 0 0;font-family:"Xuandong Kaishu",var(--serif);font-size:14px;line-height:1.9;color:#3a4a3f}
+.jianyu-reply p.is-loading{color:#9a8f79}
+.jianyu-reply p.is-error{color:#8a4a34}
+.jianyu-wall-foot{display:flex;flex-wrap:wrap;align-items:center;gap:18px;padding-top:22px;border-top:1px solid rgba(199,170,119,.2)}
+.jianyu-open{min-height:44px;padding:10px 24px;background:#8a4a34;border:1px solid #8a4a34;border-radius:2px;color:#fbf7ee;font:12px var(--sans);letter-spacing:.16em;cursor:pointer;transition:background .3s,letter-spacing .3s}
+.jianyu-open:hover{background:#9d5a40;letter-spacing:.22em}
+.jianyu-note{margin:0;font:10px var(--sans);letter-spacing:.14em;color:#8a9387}
+
+/* 窄屏：概念卡与笺语墙改为单列，页面留白同步收紧 */
+@media(max-width:980px){
+  .concept-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .concept-head{flex-direction:column;align-items:flex-start}
+}
+@media(max-width:700px){
+  .concept-gallery{grid-template-columns:1fr}
+  .concept-section{padding-top:64px;padding-bottom:70px}
+  .share-section{padding-top:30px;padding-bottom:36px}
+  .jianyu-section{padding:76px 7% 84px}
+  .jianyu-wall{grid-template-columns:1fr}
+  .share-draft-toast{bottom:14vh}
+}
+@media(prefers-reduced-motion:reduce){.concept-card,.concept-art img,.share-inline-btn,.share-draft-toast{transition:none}}
 
 /* ========== 水墨行迹（map.html · 南唐疆域水墨地图） ========== */
 /* 月色故人专属板块（f52）：仅月色故人页弹出——侧栏置顶、朱砂底、带「迹」印、右缘跳出动画 */

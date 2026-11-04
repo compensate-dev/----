@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<!-- 基础 meta：笺语墙为终幕的独立一页，沿用暗色基调 -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101917">
+<!-- 页面描述与 OG 分享信息 -->
+  <meta name="description" content="终幕之后的笺语墙：写下此刻读到的一句，或请梦客为墙上的某一笺回一句。留言只存本机，不公开发布。">
+  <meta property="og:site_name" content="春水留痕·李煜词境">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="笺语墙｜春水留痕·李煜词境">
+  <meta property="og:description" content="梦醒了，把一句话留在墙上。">
+  <meta property="og:image" content="../assets/image/finale-glyph-art.jpg">
+  <meta property="og:locale" content="zh_CN">
+  <title>笺语墙｜春水留痕·李煜词境</title>
+<!-- 全站样式与脚本 -->
+  <link rel="stylesheet" href="../css/style.css?v=f138">
+  <script src="../js/script.js?v=f138" defer></script>
+</head>
+<!-- body 沿用 finale-page 的暗色顶栏，另挂 jianyu-page 调整首屏留白 -->
+<body class="finale-page jianyu-page">
+  <a class="skip-link" href="#main-content">跳至主要内容</a>
+<!-- 顶栏：品牌 / 移动端菜单 / 导航 / 声音开关 -->
+  <header class="site-header">
+    <a class="brand" href="../index.html"><span class="brand-seal">煜</span><span>一江春水<small>李煜词境 · 南唐旧梦</small></span></a>
+    <button class="menu-toggle" aria-label="打开导航" aria-expanded="false">☰</button>
+    <nav class="main-nav" aria-label="主导航">
+      <a href="../index.html">首页</a><a href="life.html">月色故人</a><a href="ci.html">词间春水</a><a href="wanxiang.html">帘外余音</a><a href="listen.html">枕上低语</a>
+    </nav>
+    <div class="sound-controls"><button class="sound-toggle" type="button" aria-label="关闭背景音乐" aria-pressed="true"><span class="sound-icon">♫</span><span class="sound-status">音乐开启</span></button><label class="volume-control"><span class="visually-hidden">背景音乐音量</span><input class="volume-slider" type="range" min="0" max="1" step="0.01" value="0.6"></label></div>
+  </header>
+<!-- 主内容：笺语墙。留言只存本机；每条可单独请梦客回一句，不上传整墙 -->
+  <main id="main-content" tabindex="-1">
+    <section class="jianyu-section" id="jianyu-wall">
+      <div class="jianyu-inner">
+        <a class="jianyu-back" href="finale.html">← 回到终幕</a>
+        <span class="jianyu-kicker">LETTERS AFTER THE DREAM · 笺语墙</span>
+        <h1>梦醒了，<br>把一句话留在墙上。</h1>
+        <p class="jianyu-lead">本墙是互动原型：你写下的笺语只保存在自己的浏览器里，不公开发布。也可以点某一条，请梦客只就这一条回一句。</p>
+        <div class="jianyu-wall" data-jianyu-wall aria-live="polite"></div>
+        <div class="jianyu-wall-foot">
+          <button type="button" class="jianyu-open" data-jianyu-open>提笔留一句 <span>↗</span></button>
+          <div class="share-inline share-inline-dark" aria-label="分享词境">
+            <button type="button" class="share-inline-btn" data-share="link">复制链接</button>
+            <button type="button" class="share-inline-btn" data-share="system" hidden>系统分享</button>
+            <button type="button" class="share-inline-btn" data-share="draft">请梦客拟分享语</button>
+          </div>
+          <p class="jianyu-note">本地存储 · 仅存本机 · 不公开</p>
+        </div>
+        <p class="jianyu-back-foot"><a href="finale.html">← 回到终幕，再看一眼那场梦</a></p>
+      </div>
+    </section>
+  </main>
+</body></html>

@@ -214,7 +214,7 @@ export const stripEmbedding = (rows: any[]): any[] =>
 // 一江春水 · AI 侍读服务（Node 运行时）
 // 作用：站内所有 AI 能力统一从这里进入，前端不直接持有任何密钥。
 // 路由：POST /api/guide（本地 Node 服务转发到这里）
-// 请求：{ action: 'ask' | 'search' | 'compose' | 'interpret' | 'speak', message, poemSlug?, page?, sessionId?, history?, model? }
+// 请求：{ action: 'ask' | 'search' | 'compose' | 'interpret' | 'reply' | 'share' | 'speak', message, poemSlug?, page?, sessionId?, history?, model? }
 // 返回：{ action, answer, sources, cards, tools, model, usage }
 //
 // Agent 化说明：action=ask 走「工具调用循环」——模型可自主调用五个工具
@@ -2848,6 +2848,13 @@ if (typeof Deno !== "undefined") {
         : "";
     if (page) systemParts.push(`读者此刻在「${page}」页面。`);
     if (poem) systemParts.push(`可供引用的词作资料：\n${buildSourceBlock([poem])}`);
+    // 回笺与分享语只许引用现存词句：把全量词作原文给模型，并留作引文核对底本
+    if (action === "reply" || action === "share") {
+      const allPoems = await loadPoems();
+      systemParts.push(
+        `可供引用的词作原文（只能从这些句子里引用，不许自撰、仿写或改写）：\n${allPoems.map((p: any) => `《${p.title}》：${p.content}`).join("\n")}`,
+      );
+    }
     const system = systemParts.join("\n\n");
 
     let instruction = message;
@@ -2936,6 +2943,28 @@ ${hits.map((h) => `-《${h.book}·${h.juan}》〔${tierName(chunkTier(h))}〕：
 若它并非李煜原作，请把它当作读者习作来点评，不要强行归到李煜名下。控制在 120—200 字。`;
       maxTokens = 360;
       temperature = 0.6;
+    } else if (action === "reply") {
+      // 回笺：只就墙上这一条留言回一句，回复必须落在现存词句上
+      instruction = `墙上有一笺读者留言：
+「${message || "（空）"}」
+请以你（李煜）的第一人称，就这一笺回一句，40—80 字：
+① 先接住留言里的情绪，再回话；不要评价留言写得好不好；
+② 必须引用一句你自己的词作原句，用「」括起，6—14 字，并在引文后点明出自哪一阕；
+③ 只能引用上面「可供引用的词作原文」里的句子，不得自撰、仿写或改写；
+④ 不写赏析，不用「借景抒情」「表达了」这类评论腔；
+⑤ 只输出回笺正文，不加标题、不加解释。`;
+      maxTokens = 220;
+      temperature = 0.65;
+    } else if (action === "share") {
+      // 分享语：一页一句，只从站内词句里取
+      instruction = `请为「${page || message || "这一页"}」拟一句分享语，20—40 字：
+① 一句话，不解释、不加说明，不加标题；
+② 必须包含一句你自己的词作原句，用「」括起，6—14 字，并点明出自哪一阕；
+③ 只能引用上面「可供引用的词作原文」里的句子，不得自撰、仿写；
+④ 语气克制、有余味，适合发给朋友；
+⑤ 只输出这一句分享语。`;
+      maxTokens = 140;
+      temperature = 0.7;
     } else if (!message) {
       // 空问题：给一句情境引导，不空耗模型
       return jsonResponse({ error: "请先写下你想问的话。" }, 400);
@@ -2999,6 +3028,24 @@ ${hits.map((h) => `-《${h.book}·${h.juan}》〔${tierName(chunkTier(h))}〕：
         .replaceAll(message, "")
         .replace(/^[\s，。、；：:,.]+/, "")
         .trim();
+    }
+
+    // 回笺/分享语守门：引号里的话必须是现存词作原句，而且至少有一句。
+    // 有一句不合原文，就整段换成现成词句兜底——宁可平实，不许替李煜写新词。
+    if (action === "reply" || action === "share") {
+      const normalizeLine = (text: string) => text.replace(/[\s，。！？、；：…·「」“”《》（）]/g, "");
+      const corpus = (await loadPoems()).map((p: any) => normalizeLine(String(p.content ?? "")));
+      const quoted = [...answer.matchAll(/「([^」]{4,})」/g)].map((match) => match[1]);
+      const unverified = quoted.filter((line) => {
+        const clean = normalizeLine(line);
+        return !clean || !corpus.some((source) => source.includes(clean));
+      });
+      if (!quoted.length || unverified.length) {
+        console.warn(`回笺/分享语引文不在词作原文：${unverified.join("；") || "无引用"}`);
+        answer = action === "reply"
+          ? "你这一笺，我收下了。我写过一句「一江春水向东流」（《虞美人》），愁到极处，也只能由它流去。愿你今夜安睡。"
+          : "「一江春水向东流」（《虞美人》）——千年之后，仍有人在这条江边读他的词。";
+      }
     }
 
     // 引文闸：史事问题里的长引文必须能在检索结果/工具原文里找到，

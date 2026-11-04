@@ -2533,136 +2533,41 @@
     }, { passive: false });
   };
 
-  // 文创笺铺：全站右侧滑出抽屉（概念展示，不存在任何真实下单/支付链路）
-  (function initializeShopSidebar() {
-    if (document.querySelector(".shop-tab")) return;
+  // 从词到物：帘外余音页末的文创概念展示。只陈列概念，不标价、不导购、不设购买通道；
+  // 每张卡片的「问梦客」把问题交给站内 AI，由李煜本人谈谈这个意象
+  (function initializeConceptGallery() {
+    const gallery = document.querySelector("[data-concept-gallery]");
+    if (!gallery) return;
     const goods = [
-      { img: ASSET_IMAGE + "shop-paper.jpg", alt: "浣花春水笺概念图：带春水暗纹的宣纸信笺", meta: "文房信笺 · 灵感《虞美人》", name: "浣花春水笺", desc: "一套八张的仿古宣笺，以「一江春水」波纹作暗纹，落梅点缀纸角。提笔写信时，愁绪也化作了东流的水。" },
-      { img: ASSET_IMAGE + "shop-bookmark.jpg", alt: "月钩梧桐书签概念图：弯月梧桐造型的黄铜楠木书签", meta: "流苏书签 · 灵感《相见欢》", name: "月钩梧桐签", desc: "黄铜为钩月，楠木作梧桐，垂一缕墨色流苏。「无言独上西楼」的那夜月色，从此夹在正在读的那一页。" },
-      { img: ASSET_IMAGE + "shop-scroll.jpg", alt: "春水东流卷轴概念图：绘有江山孤舟的中式水墨挂轴", meta: "卷轴壁纸 · 灵感《虞美人》", name: "春水东流卷", desc: "一款可打印的数字长卷壁纸，亦可装裱为案头小挂轴。远山、孤舟与东流江水展开在屏幕上，愁有了形状，也有了归处。" },
-      { img: ASSET_IMAGE + "shop-postcard.jpg", alt: "春花秋月明信片概念图：四张一套的水墨词意明信片", meta: "词意明信片 · 灵感四阕代表作", name: "春花秋月帖", desc: "四阕词、四帧景：春水花月、深院梧桐、暮雨归梦、落梅春草。背面印词，正面入画，寄给此刻想念的人。" },
-      { img: ASSET_IMAGE + "shop-tape.jpg", alt: "落花流水胶带概念图：绘有落花春水纹样的三卷和纸胶带", meta: "和纸胶带 · 灵感《浪淘沙令》", name: "落花流水纹", desc: "「流水落花春去也」化作两卷手账胶带：一卷落花，一卷水纹。贴在日记边角，给普通的一天盖上词的落款。" },
-      { img: ASSET_IMAGE + "shop-seal.jpg", alt: "煜字朱砂闲章概念图：石质印章与朱砂拓印", meta: "朱砂闲章 · 灵感词帝之名", name: "「煜」字小印", desc: "一方朱文小印，刻他的名字，也刻「一江春水」四字作引首章。盖在书的扉页，像与千年前的词人同署了一页。" }
+      { img: ASSET_IMAGE + "shop-paper.jpg", alt: "浣花春水笺概念图：带春水暗纹的宣纸信笺", meta: "文房信笺 · 灵感《虞美人》", name: "浣花春水笺", desc: "一套八张的仿古宣笺，以「一江春水」波纹作暗纹，落梅点缀纸角。提笔写信时，愁绪也化作了东流的水。", question: "若把《虞美人》的春水做成信笺，你会题哪一句在上面？" },
+      { img: ASSET_IMAGE + "shop-bookmark.jpg", alt: "月钩梧桐书签概念图：弯月梧桐造型的黄铜楠木书签", meta: "流苏书签 · 灵感《相见欢》", name: "月钩梧桐签", desc: "黄铜为钩月，楠木作梧桐，垂一缕墨色流苏。「无言独上西楼」的那夜月色，从此夹在正在读的那一页。", question: "「无言独上西楼，月如钩」做成书签，你觉得合适吗？" },
+      { img: ASSET_IMAGE + "shop-scroll.jpg", alt: "春水东流卷轴概念图：绘有江山孤舟的中式水墨挂轴", meta: "卷轴壁纸 · 灵感《虞美人》", name: "春水东流卷", desc: "一款可打印的数字长卷壁纸，亦可装裱为案头小挂轴。远山、孤舟与东流江水展开在屏幕上，愁有了形状，也有了归处。", question: "把「一江春水向东流」做成卷轴，你会怎么布景？" },
+      { img: ASSET_IMAGE + "shop-postcard.jpg", alt: "春花秋月明信片概念图：四张一套的水墨词意明信片", meta: "词意明信片 · 灵感四阕代表作", name: "春花秋月帖", desc: "四阕词、四帧景：春水花月、深院梧桐、暮雨归梦、落梅春草。背面印词，正面入画，寄给此刻想念的人。", question: "用四阕词做一套明信片，你会选哪四句？" },
+      { img: ASSET_IMAGE + "shop-tape.jpg", alt: "落花流水胶带概念图：绘有落花春水纹样的三卷和纸胶带", meta: "和纸胶带 · 灵感《浪淘沙令》", name: "落花流水纹", desc: "「流水落花春去也」化作两卷手账胶带：一卷落花，一卷水纹。贴在日记边角，给普通的一天盖上词的落款。", question: "「流水落花春去也」做成胶带纹样，像不像你当时的心境？" },
+      { img: ASSET_IMAGE + "shop-seal.jpg", alt: "煜字朱砂闲章概念图：石质印章与朱砂拓印", meta: "朱砂闲章 · 灵感词帝之名", name: "「煜」字小印", desc: "一方朱文小印，刻他的名字，也刻「一江春水」四字作引首章。盖在书的扉页，像与千年前的词人同署了一页。", question: "若给自己刻一方印，你会刻哪几个字？" }
     ];
-    const cardsHtml = goods.map((item) => `
-      <article class="shop-card">
-        <div class="shop-art"><img src="${item.img}" alt="${item.alt}" loading="lazy" decoding="async"><span class="shop-ribbon">概念 · 非卖</span></div>
-        <div class="shop-body">
-          <p class="shop-meta">${item.meta}</p>
+    gallery.innerHTML = goods.map((item) => `
+      <article class="concept-card">
+        <div class="concept-art"><img src="${item.img}" alt="${item.alt}" loading="lazy" decoding="async"><span class="concept-ribbon">概念 · 非卖</span></div>
+        <div class="concept-body">
+          <p class="concept-meta">${item.meta}</p>
           <h3>${item.name}</h3>
-          <p>${item.desc}</p>
-          <button class="concept-buy" type="button" data-name="${item.name}">立即选购 <span>↗</span></button>
+          <p class="concept-desc">${item.desc}</p>
+          <button class="concept-ask" type="button" data-question="${item.question}">问梦客 <span>↗</span></button>
         </div>
       </article>`).join("");
 
-    const tab = document.createElement("button");
-    tab.type = "button";
-    tab.className = "shop-tab";
-    tab.setAttribute("aria-label", "打开文创笺铺侧边栏（概念展示，非真实售卖）");
-    tab.setAttribute("aria-expanded", "false");
-    tab.innerHTML = "文创笺铺<small>概念展示</small>";
-
-    const mask = document.createElement("div");
-    mask.className = "shop-mask";
-    mask.setAttribute("aria-hidden", "true");
-
-    const drawer = document.createElement("aside");
-    drawer.className = "shop-drawer";
-    drawer.setAttribute("role", "dialog");
-    drawer.setAttribute("aria-modal", "true");
-    drawer.setAttribute("aria-label", "文创笺铺：概念文创展示");
-    drawer.innerHTML = `
-      <div class="shop-drawer-head">
-        <span class="shop-drawer-seal" aria-hidden="true">煜</span>
-        <div><h2>文创笺铺</h2><small>CONCEPT GOODS · 概念文创</small></div>
-        <button class="shop-drawer-close" type="button" aria-label="关闭文创笺铺">×</button>
-      </div>
-      <div class="shop-drawer-body">
-        <div class="shop-drawer-notice" role="note">
-          <b>概念展示 · 非卖品</b>
-          <p>本栏为竞赛概念设计，所列文创均为虚拟方案，不设价格、订单与任何真实支付通道，仅呈现李煜文化 IP 的当代文创活化思路。</p>
-        </div>
-        ${cardsHtml}
-        <div class="shop-drawer-idea">
-          <h3>从一句词，到一件可以带走的物</h3>
-          <ol>
-            <li>取象于词：提取春水、钩月、梧桐、落梅等核心意象；</li>
-            <li>转译于器：化作信笺、书签、卷轴等日常器物；</li>
-            <li>活化于今：让宋词进入书写、阅读、手账等当代生活。</li>
-          </ol>
-        </div>
-        <p class="shop-drawer-foot">图稿为设计意向示意 · 不代表真实在售商品</p>
-      </div>`;
-
-    const dialog = document.createElement("dialog");
-    dialog.className = "shop-notice-dialog";
-    dialog.setAttribute("aria-labelledby", "shop-notice-title");
-    dialog.innerHTML = `
-      <button class="shop-notice-close" type="button" aria-label="关闭提示">×</button>
-      <span class="shop-notice-seal" aria-hidden="true">示</span>
-      <span class="shop-notice-kicker">CONCEPT NOTICE · 概念说明</span>
-      <h2 id="shop-notice-title">感谢关注<span data-shop-name></span></h2>
-      <p class="shop-notice-message">此为竞赛概念设计，暂无真实售卖通道，仅展示文创转化思路。</p>
-      <p class="shop-notice-sub">本栏所有「文创」均为虚拟概念方案，不产生价格、订单与支付。</p>
-      <button class="shop-notice-ok" type="button">我知道了</button>`;
-
-    document.body.append(tab, mask, drawer, dialog);
-    wireDrawerWheel(drawer);
-
-    let drawerOpen = false;
-    let lastFocused = null;
-    const openDrawer = () => {
-      drawerOpen = true;
-      lastFocused = document.activeElement;
-      drawer.classList.add("is-open");
-      mask.classList.add("is-open");
-      tab.setAttribute("aria-expanded", "true");
-      document.body.style.overflow = "hidden";
-      drawer.querySelector(".shop-drawer-close").focus();
-      document.dispatchEvent(new Event("shop-drawer-open"));
-    };
-    const closeDrawer = () => {
-      if (!drawerOpen) return;
-      drawerOpen = false;
-      drawer.classList.remove("is-open");
-      mask.classList.remove("is-open");
-      tab.setAttribute("aria-expanded", "false");
-      document.body.style.overflow = "";
-      if (lastFocused && typeof lastFocused.focus === "function") lastFocused.focus();
-    };
-    tab.addEventListener("click", () => (drawerOpen ? closeDrawer() : openDrawer()));
-    mask.addEventListener("click", closeDrawer);
-    drawer.querySelector(".shop-drawer-close").addEventListener("click", closeDrawer);
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape" && drawerOpen && !dialog.open) closeDrawer();
-    });
-    document.addEventListener("jy-drawer-open", closeDrawer);
-    document.addEventListener("share-drawer-open", closeDrawer);
-
-    const nameSlot = dialog.querySelector("[data-shop-name]");
-    drawer.querySelectorAll(".concept-buy").forEach((button) => {
+    gallery.querySelectorAll(".concept-ask").forEach((button) => {
       button.addEventListener("click", () => {
-        nameSlot.textContent = button.dataset.name ? `「${button.dataset.name}」` : "";
-        if (!dialog.open && typeof dialog.showModal === "function") dialog.showModal();
-        else dialog.setAttribute("open", "");
+        document.dispatchEvent(new CustomEvent("ai-guide-ask", { detail: { question: button.dataset.question } }));
       });
-    });
-    const closeDialog = () => {
-      if (dialog.open) dialog.close();
-      else dialog.removeAttribute("open");
-    };
-    dialog.querySelectorAll(".shop-notice-close, .shop-notice-ok").forEach((button) => {
-      button.addEventListener("click", closeDialog);
-    });
-    dialog.addEventListener("click", (event) => {
-      if (event.target === dialog) closeDialog();
     });
   })();
 
-  // 笺语留言：全站侧边弹出面板。交互原型——仅存 localStorage，无公共数据库，
-  // 留言只在用户本机浏览器可见，不提供公开评论发布。
-  (function initializeJianyuSidebar() {
-    if (document.querySelector(".jy-tab")) return;
+  // 笺语墙：终幕页末。留言仍只存本机；点「请梦客回一句」只把该条交给 AI，不上传整墙。
+  (function initializeJianyuWall() {
+    const wall = document.querySelector("[data-jianyu-wall]");
+    if (!wall) return;
     const STORAGE_KEY = "liyu-jianyu-v1";
     const presets = [
       { name: "金陵访客", time: "示范笺语", text: "读到「一江春水向东流」，才知愁绪也可以这样浩浩荡荡，流过千年仍不歇。" },
@@ -2676,15 +2581,56 @@
     const saveMine = (list) => {
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); } catch { }
     };
-    const escapeHtml = (value) => value.replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+    const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
 
-    const tab = document.createElement("button");
-    tab.type = "button";
-    tab.className = "shop-tab jy-tab";
-    tab.setAttribute("aria-label", "打开笺语留言侧边栏（本地存储，不公开发布）");
-    tab.setAttribute("aria-expanded", "false");
-    tab.innerHTML = "笺语留言<small>本地笺筒</small>";
+    // 回笺缓存：同一句话的回复留在本次会话里，重绘墙时不会丢
+    const replies = new Map();
+    const renderWall = () => {
+      const mine = loadMine();
+      const items = [
+        ...mine.map((item) => ({ name: "读词人", tag: "我的", time: item.time, text: item.text, mine: true })),
+        ...presets.map((item) => ({ name: item.name, tag: "", time: item.time, text: item.text, mine: false }))
+      ];
+      wall.innerHTML = items.map((item) => {
+        const reply = replies.get(item.text);
+        return `
+        <article class="jianyu-msg${item.mine ? " is-mine" : ""}">
+          <p class="jianyu-msg-text">${escapeHtml(item.text)}</p>
+          <div class="jianyu-msg-meta"><span class="jianyu-msg-name">${escapeHtml(item.name)}${item.tag ? `<span class="jianyu-mine-tag">${item.tag}</span>` : ""}</span><span class="jianyu-msg-time">${escapeHtml(item.time)}</span></div>
+          <div class="jianyu-msg-actions"><button class="jianyu-ask" type="button" data-text="${escapeHtml(item.text)}">请梦客回一句</button><span class="jianyu-ask-hint">只把这一条交给梦客</span></div>
+          <div class="jianyu-reply"${reply ? "" : " hidden"}>${reply ? `<b>梦客回笺</b><p>${escapeHtml(reply)}</p>` : ""}</div>
+        </article>`;
+      }).join("");
 
+      wall.querySelectorAll(".jianyu-ask").forEach((button) => {
+        button.addEventListener("click", async () => {
+          const article = button.closest(".jianyu-msg");
+          const replyBox = article.querySelector(".jianyu-reply");
+          const text = button.dataset.text;
+          replyBox.hidden = false;
+          replyBox.innerHTML = `<b>梦客回笺</b><p class="is-loading">梦客正在提笔……</p>`;
+          button.disabled = true;
+          try {
+            const response = await fetch("/api/guide", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ action: "reply", message: text, page: "终幕" })
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || "请求失败");
+            const answer = data.answer || "这一笺，我一时没接上。";
+            replies.set(text, answer);
+            replyBox.innerHTML = `<b>梦客回笺</b><p>${escapeHtml(answer)}</p>`;
+          } catch (error) {
+            replyBox.innerHTML = `<b>梦客回笺</b><p class="is-error">暂时没接上：${escapeHtml(error.message || "请稍后再试")}</p>`;
+          } finally {
+            button.disabled = false;
+          }
+        });
+      });
+    };
+
+    // 书写抽屉：无常驻小签，只由墙上的「提笔留一句」打开
     const mask = document.createElement("div");
     mask.className = "shop-mask";
     mask.setAttribute("aria-hidden", "true");
@@ -2701,7 +2647,6 @@
         <button class="shop-drawer-close" type="button" aria-label="关闭笺语留言">×</button>
       </div>
       <div class="shop-drawer-body">
-        <div class="jy-list" aria-live="polite"></div>
         <form class="jy-write">
           <label for="jy-input">提笔留一句</label>
           <textarea id="jy-input" maxlength="100" placeholder="此刻读到哪一句，心里有波澜？（100 字以内）"></textarea>
@@ -2719,58 +2664,40 @@
     const toast = document.createElement("div");
     toast.className = "jy-toast";
     toast.setAttribute("role", "status");
-    toast.textContent = "已存入本地笺筒";
-
-    document.body.append(tab, mask, drawer, toast);
+    document.body.append(mask, drawer, toast);
     wireDrawerWheel(drawer);
-
-    const listEl = drawer.querySelector(".jy-list");
-    const renderList = () => {
-      const mine = loadMine();
-      const mineHtml = mine.map((item) => `
-        <div class="jy-msg jy-msg-mine">
-          <p class="jy-msg-text">${escapeHtml(item.text)}</p>
-          <div class="jy-msg-meta"><span class="jy-msg-name">读词人<span class="jy-mine-tag">我的</span></span><span class="jy-msg-time">${escapeHtml(item.time)}</span></div>
-        </div>`).join("");
-      const presetHtml = presets.map((item) => `
-        <div class="jy-msg">
-          <p class="jy-msg-text">${item.text}</p>
-          <div class="jy-msg-meta"><span class="jy-msg-name">${item.name}</span><span class="jy-msg-time">${item.time}</span></div>
-        </div>`).join("");
-      listEl.innerHTML = mineHtml + presetHtml;
-    };
-    renderList();
 
     let drawerOpen = false;
     let lastFocused = null;
     let toastTimer = null;
+    const showToast = (message) => {
+      toast.textContent = message;
+      toast.classList.add("is-show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("is-show"), 2200);
+    };
     const openDrawer = () => {
       drawerOpen = true;
       lastFocused = document.activeElement;
       drawer.classList.add("is-open");
       mask.classList.add("is-open");
-      tab.setAttribute("aria-expanded", "true");
       document.body.style.overflow = "hidden";
       drawer.querySelector(".shop-drawer-close").focus();
-      document.dispatchEvent(new Event("jy-drawer-open"));
     };
     const closeDrawer = () => {
       if (!drawerOpen) return;
       drawerOpen = false;
       drawer.classList.remove("is-open");
       mask.classList.remove("is-open");
-      tab.setAttribute("aria-expanded", "false");
       document.body.style.overflow = "";
       if (lastFocused && typeof lastFocused.focus === "function") lastFocused.focus();
     };
-    tab.addEventListener("click", () => (drawerOpen ? closeDrawer() : openDrawer()));
+    document.querySelectorAll("[data-jianyu-open]").forEach((button) => button.addEventListener("click", openDrawer));
     mask.addEventListener("click", closeDrawer);
     drawer.querySelector(".shop-drawer-close").addEventListener("click", closeDrawer);
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape" && drawerOpen) closeDrawer();
     });
-    document.addEventListener("shop-drawer-open", closeDrawer);
-    document.addEventListener("share-drawer-open", closeDrawer);
 
     const textarea = drawer.querySelector("#jy-input");
     const counter = drawer.querySelector(".jy-count");
@@ -2789,83 +2716,33 @@
       const time = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, "0")}.${String(now.getDate()).padStart(2, "0")}`;
       mine.unshift({ text, time });
       saveMine(mine);
-      renderList();
       textarea.value = "";
       counter.textContent = "0 / 100 · 仅存本机";
-      clearTimeout(toastTimer);
-      toast.classList.add("is-show");
-      toastTimer = setTimeout(() => toast.classList.remove("is-show"), 2200);
+      renderWall();
+      closeDrawer();
+      showToast("已存入本机 · 墙下添了一笺");
     });
+
+    renderWall();
   })();
 
-  // 分享词境：全站侧边栏。微信朋友圈无网页直连通道，采用「扫码后转发」；
-  // QQ空间动态、QQ好友、微博使用官方分享页，另提供复制链接与系统分享。
-  (function initializeShareSidebar() {
-    if (document.querySelector(".share-tab")) return;
+  // 分享词境：不再常驻侧栏，改为页脚的行内按钮；AI 只代拟一句由站内词句组成的分享语
+  (function initializeInlineShare() {
+    const rows = [...document.querySelectorAll(".share-inline")];
+    // 首页整屏叙事，分享放进页脚；内页在页末 NEXT 之后补一节；终幕的分享写在 HTML 里
+    const isHome = document.body.classList.contains("home-page");
+    const homeFooter = isHome ? document.querySelector(".site-footer") : null;
+    const nextStep = !isHome ? document.querySelector(".next-step") : null;
+    if (!rows.length && !homeFooter && !nextStep) return;
     const pageUrl = location.href.split("#")[0];
-    const pageTitle = "春水留痕·李煜词境";
-    const pageDesc = "以一江春水为引，走进南唐后主的词境：月色故人、词间春水、帘外余音、枕上低语。";
-    const isHttp = location.protocol === "http:" || location.protocol === "https:";
-    const pagePic = isHttp ? location.origin + "/assets/image/plum-blossom.jpg" : "";
-    const enc = encodeURIComponent;
-    const shareLinks = {
-      qzone: "https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=" + enc(pageUrl) + "&title=" + enc(pageTitle) + "&summary=" + enc(pageDesc) + (pagePic ? "&pics=" + enc(pagePic) : ""),
-      qqFriend: "https://connect.qq.com/widget/shareqq/index.html?url=" + enc(pageUrl) + "&title=" + enc(pageTitle) + "&summary=" + enc(pageDesc),
-      weibo: "https://service.weibo.com/share/share.php?url=" + enc(pageUrl) + "&title=" + enc(pageTitle) + (pagePic ? "&pic=" + enc(pagePic) : "")
-    };
-
-    const tab = document.createElement("button");
-    tab.type = "button";
-    tab.className = "shop-tab share-tab";
-    tab.setAttribute("aria-label", "打开分享词境侧边栏（分享到微信、QQ 或复制链接）");
-    tab.setAttribute("aria-expanded", "false");
-    tab.innerHTML = "分享词境<small>微信 · QQ</small>";
-
-    const mask = document.createElement("div");
-    mask.className = "shop-mask";
-    mask.setAttribute("aria-hidden", "true");
-
-    const qrHtml = isHttp
-      ? `<div class="share-qr-img"><img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=0&data=${enc(pageUrl)}" alt="当前页面地址二维码" loading="lazy" decoding="async"></div>
-         <div class="share-qr-copy"><b>微信 · 扫码分享</b><p>手机微信扫码打开本站，点击右上角「…」即可转发到朋友圈或送给朋友。</p></div>`
-      : `<div class="share-qr-copy" style="flex:1"><b>微信 · 扫码分享</b><p>当前为本地预览，暂无法生成二维码。通过本地服务器或部署上线后，这里会显示页面二维码。</p></div>`;
-
-    const drawer = document.createElement("aside");
-    drawer.className = "shop-drawer share-drawer";
-    drawer.setAttribute("role", "dialog");
-    drawer.setAttribute("aria-modal", "true");
-    drawer.setAttribute("aria-label", "分享词境");
-    drawer.innerHTML = `
-      <div class="shop-drawer-head">
-        <span class="shop-drawer-seal" aria-hidden="true">享</span>
-        <div><h2>分享词境</h2><small>SHARE · 把这条春水送出去</small></div>
-        <button class="shop-drawer-close" type="button" aria-label="关闭分享词境">×</button>
-      </div>
-      <div class="shop-drawer-body">
-        <div class="share-qr">${qrHtml}</div>
-        <div class="share-links">
-          <button class="share-btn" type="button" data-share="qzone"><i>空</i>QQ空间动态</button>
-          <button class="share-btn" type="button" data-share="qqFriend"><i>友</i>分享给QQ好友</button>
-          <button class="share-btn" type="button" data-share="weibo"><i>博</i>分享到微博</button>
-          <button class="share-btn" type="button" data-share="copy"><i>链</i>复制词境链接</button>
-          <button class="share-btn share-btn-sys" type="button" data-share="system" hidden><i>享</i>更多分享方式（系统分享）</button>
-        </div>
-        <div class="jy-note" role="note">
-          <b>分享说明</b>
-          微信朋友圈不提供网页端直连接口，故采用「扫码 → 手机微信内转发」的通用方案；QQ 空间、QQ 好友与微博通过官方分享页调起，需登录对应账号。
-        </div>
-        <p class="share-footnote">本地演示时链接为本机地址 · 网站部署上线后分享的即是正式网址</p>
-      </div>`;
+    const pageTitle = document.title || "春水留痕·李煜词境";
+    const pageDesc = document.querySelector('meta[name="description"]')?.content || pageTitle;
+    const shareText = `${pageTitle}｜${pageDesc}`;
 
     const toast = document.createElement("div");
     toast.className = "jy-toast";
     toast.setAttribute("role", "status");
-
-    document.body.append(tab, mask, drawer, toast);
-    wireDrawerWheel(drawer);
-
-    let drawerOpen = false;
-    let lastFocused = null;
+    document.body.append(toast);
     let toastTimer = null;
     const showToast = (message) => {
       toast.textContent = message;
@@ -2873,63 +2750,108 @@
       clearTimeout(toastTimer);
       toastTimer = setTimeout(() => toast.classList.remove("is-show"), 2200);
     };
-    const openDrawer = () => {
-      drawerOpen = true;
-      lastFocused = document.activeElement;
-      drawer.classList.add("is-open");
-      mask.classList.add("is-open");
-      tab.setAttribute("aria-expanded", "true");
-      document.body.style.overflow = "hidden";
-      drawer.querySelector(".shop-drawer-close").focus();
-      document.dispatchEvent(new Event("share-drawer-open"));
-    };
-    const closeDrawer = () => {
-      if (!drawerOpen) return;
-      drawerOpen = false;
-      drawer.classList.remove("is-open");
-      mask.classList.remove("is-open");
-      tab.setAttribute("aria-expanded", "false");
-      document.body.style.overflow = "";
-      if (lastFocused && typeof lastFocused.focus === "function") lastFocused.focus();
-    };
-    tab.addEventListener("click", () => (drawerOpen ? closeDrawer() : openDrawer()));
-    mask.addEventListener("click", closeDrawer);
-    drawer.querySelector(".shop-drawer-close").addEventListener("click", closeDrawer);
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape" && drawerOpen) closeDrawer();
-    });
-    document.addEventListener("shop-drawer-open", closeDrawer);
-    document.addEventListener("jy-drawer-open", closeDrawer);
 
-    const copyLink = async () => {
+    // 拟语浮笺：页脚与终幕共用
+    const box = document.createElement("div");
+    box.className = "share-draft-toast";
+    box.setAttribute("role", "status");
+    box.hidden = true;
+    box.innerHTML = `<p class="share-draft-text"></p><div class="share-draft-actions"><button type="button" data-share-copy>复制这句</button><button type="button" data-share-close>收起</button></div>`;
+    document.body.append(box);
+    const draftText = box.querySelector(".share-draft-text");
+
+    const writeClipboard = async (text) => {
       try {
-        await navigator.clipboard.writeText(pageUrl);
-        showToast("词境链接已复制");
+        await navigator.clipboard.writeText(text);
+        return true;
       } catch {
         const helper = document.createElement("textarea");
-        helper.value = pageUrl;
+        helper.value = text;
         helper.style.position = "fixed";
         helper.style.opacity = "0";
         document.body.appendChild(helper);
         helper.select();
-        try { document.execCommand("copy"); showToast("词境链接已复制"); }
-        catch { showToast("复制失败，请手动复制地址栏链接"); }
-        helper.remove();
+        try { return document.execCommand("copy"); }
+        catch { return false; }
+        finally { helper.remove(); }
       }
     };
-    drawer.querySelectorAll(".share-btn").forEach((button) => {
-      button.addEventListener("click", () => {
-        const kind = button.dataset.share;
-        if (kind === "copy") { copyLink(); return; }
-        if (kind === "system") {
-          if (navigator.share) navigator.share({ title: pageTitle, text: pageDesc, url: pageUrl }).catch(() => { });
-          return;
-        }
-        const target = shareLinks[kind];
-        if (target) window.open(target, "_blank", "noopener,width=720,height=640");
-      });
+
+    const copyLink = async () => {
+      showToast((await writeClipboard(pageUrl)) ? "词境链接已复制" : "复制失败，请手动复制地址栏链接");
+    };
+
+    const requestDraft = async (button) => {
+      button.disabled = true;
+      box.hidden = false;
+      box.classList.remove("is-error");
+      draftText.textContent = "梦客正在想一句……";
+      try {
+        const response = await fetch("/api/guide", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "share", message: pageTitle, page: pageTitle.split("｜")[0] })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "请求失败");
+        draftText.textContent = data.answer || "这一句，我一时没想好。";
+      } catch (error) {
+        box.classList.add("is-error");
+        draftText.textContent = `暂时没接上：${error.message || "请稍后再试"}`;
+      } finally {
+        button.disabled = false;
+      }
+    };
+
+    box.querySelector("[data-share-copy]").addEventListener("click", async () => {
+      const text = draftText.textContent.trim();
+      if (!text) return;
+      showToast((await writeClipboard(`${text}\n${pageUrl}`)) ? "分享语与链接已复制" : "复制失败，请手动选择文字");
+      box.hidden = true;
     });
-    if (navigator.share) drawer.querySelector(".share-btn-sys").hidden = false;
+    box.querySelector("[data-share-close]").addEventListener("click", () => { box.hidden = true; });
+
+    const wireRow = (row) => {
+      if (row.dataset.ready) return;
+      row.dataset.ready = "1";
+      const systemButton = row.querySelector('[data-share="system"]');
+      if (systemButton && navigator.share) systemButton.hidden = false;
+      row.querySelectorAll(".share-inline-btn").forEach((button) => {
+        button.addEventListener("click", () => {
+          const kind = button.dataset.share;
+          if (kind === "link") { copyLink(); return; }
+          if (kind === "system") {
+            if (navigator.share) navigator.share({ title: pageTitle, text: shareText, url: pageUrl }).catch(() => { });
+            return;
+          }
+          if (kind === "draft") requestDraft(button);
+        });
+      });
+    };
+
+    if (nextStep) {
+      const section = document.createElement("section");
+      section.className = "share-section section-wrap";
+      section.setAttribute("aria-label", "分享词境");
+      section.innerHTML = `<div class="share-section-copy"><span class="section-kicker">SHARE <span>THE RIVER</span></span><p>把这一程春水，递给下一位读词的人。</p></div><div class="share-inline"></div>`;
+      nextStep.after(section);
+      rows.push(section.querySelector(".share-inline"));
+    } else if (homeFooter) {
+      const row = document.createElement("div");
+      row.className = "share-inline share-inline-foot";
+      row.setAttribute("aria-label", "分享词境");
+      homeFooter.insertBefore(row, homeFooter.querySelector("a:last-of-type") || null);
+      rows.push(row);
+    }
+    rows.forEach((row) => {
+      if (!row.children.length) {
+        row.innerHTML = `
+          <button type="button" class="share-inline-btn" data-share="link">复制链接</button>
+          <button type="button" class="share-inline-btn" data-share="system" hidden>系统分享</button>
+          <button type="button" class="share-inline-btn" data-share="draft">请梦客拟分享语</button>`;
+      }
+      wireRow(row);
+    });
   })();
 
   // 水墨行迹：月色故人页专属侧签。点击直接进入 map.html 新页面，加载后从右缘弹出。

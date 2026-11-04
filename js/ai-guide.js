@@ -938,6 +938,16 @@
     }
   });
 
+  // 站内其它模块（文创卡、正文入口）可派发 ai-guide-ask 事件，
+  // 把一句预设问题直接交给梦客：打开面板、填入、发问
+  document.addEventListener("ai-guide-ask", (event) => {
+    const question = event.detail?.question;
+    if (!question) return;
+    if (panel.hidden) open();
+    input.value = question;
+    submit("ask");
+  });
+
   // ---------- 两个写作区的 AI 伴写 / 解读 ----------
   // 首页「心情笺」与枕上低语「填词」共用同一套工具条：续成一首词 / 请李煜解读。
   // 结果先落在表单下方的小笺里，可一键采纳，不打断原有的「随风去」提交流程。
