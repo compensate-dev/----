@@ -1706,12 +1706,6 @@ body.map-page .map-tab{display:none}
 .read-aloud{transition:color .25s ease}
 .read-aloud.is-speaking{color:var(--rust);animation:speaking-breathe 2s ease-in-out infinite}
 @keyframes speaking-breathe{0%,100%{opacity:1}50%{opacity:.5}}
-/* 词意画（paint-poem）：调 AI 生成水墨意境图，生成中与诵读共用呼吸态 */
-.paint-poem{transition:color .25s ease}
-.paint-poem.is-painting{color:var(--rust);animation:speaking-breathe 2s ease-in-out infinite}
-.paint-result{margin-top:15px;max-width:340px}
-.paint-result img{display:block;width:100%;border:1px solid #d8ddd4;box-shadow:0 10px 30px -18px rgba(48,77,63,.4)}
-.paint-result figcaption{font-size:12px;color:#8d523c;margin-top:6px;letter-spacing:.08em}
 .favorite-button{transition:color .25s ease}
 .favorite-button.pop{animation:favorite-pop .42s cubic-bezier(.2,.8,.3,1.4)}
 @keyframes favorite-pop{0%{transform:scale(1)}35%{transform:scale(1.26)}100%{transform:scale(1)}}

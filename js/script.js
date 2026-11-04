@@ -2418,61 +2418,6 @@
     });
   });
 
-  // f131 词意画：把词文发给 guide 函数的 Seedream 图像生成，拿回一张水墨意境图
-  // 生成约 30 秒，90 秒超时；成功后可「再画一幅」换新图（每次生成都计费，谨慎连点）
-  document.querySelectorAll(".paint-poem").forEach((button) => {
-    button.addEventListener("click", async () => {
-      const card = button.closest(".recite-card");
-      const result = card ? card.querySelector(".paint-result") : null;
-      const poemText = card?.querySelector(".read-aloud")?.dataset.poem || "";
-      if (!result || !poemText) return;
-      button.disabled = true;
-      button.classList.add("is-painting");
-      button.textContent = "研墨作画中…";
-      try {
-        const ctrl = new AbortController();
-        const timer = setTimeout(() => ctrl.abort(), 90000);
-        const res = await fetch(TTS_ENDPOINT, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            action: "paint",
-            text: poemText,
-            page: "listen",
-            // 已经画过一幅后再点「再画一幅」：带上 force，要求重新生成而不是复用旧画
-            force: button.dataset.painted === "1",
-          }),
-          signal: ctrl.signal,
-        });
-        clearTimeout(timer);
-        const data = await res.json().catch(() => null);
-        if (!res.ok || !data?.image) throw new Error(data?.error || "paint unavailable");
-        result.innerHTML = "";
-        const figure = document.createElement("figure");
-        const img = document.createElement("img");
-        img.src = data.image;
-        img.alt = "AI 为这首词生成的水墨意境图";
-        const cap = document.createElement("figcaption");
-        // 复用旧画时如实说明，免得读者以为卡住了
-        cap.textContent = data.cached
-          ? "AI 词意画 · 旧画复用（点「再画一幅」可换新）"
-          : "AI 词意画 · 水墨写意（每次生成皆不同）";
-        figure.append(img, cap);
-        result.append(figure);
-        result.hidden = false;
-        button.dataset.painted = "1";
-        button.textContent = "再画一幅　✦";
-      } catch (error) {
-        result.hidden = false;
-        result.textContent = "这一幅暂时画不出来，稍后再试。";
-      } finally {
-        button.disabled = false;
-        button.classList.remove("is-painting");
-        if (button.textContent === "研墨作画中…") button.textContent = "为它入画　✦";
-      }
-    });
-  });
-
   document.querySelectorAll(".favorite-button").forEach((button, index) => {
     const key = `liyu-favorite-${index}`;
     const saved = localStorage.getItem(key) === "true";

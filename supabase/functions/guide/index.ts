@@ -4,7 +4,7 @@
 // 标记为模块：让顶层声明进入模块作用域，避免与其它文件在全局脚本作用域互相冲突
 export {};
 
-// 本地文件读写：词库、预计算向量、词意画缓存、问答日志全部落在站点目录里
+// 本地文件读写：词库、预计算向量、问答日志全部落在站点目录里
 import { readFileSync, existsSync, mkdirSync, writeFileSync, unlinkSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
@@ -214,7 +214,7 @@ export const stripEmbedding = (rows: any[]): any[] =>
 // 一江春水 · AI 侍读服务（Node 运行时）
 // 作用：站内所有 AI 能力统一从这里进入，前端不直接持有任何密钥。
 // 路由：POST /api/guide（本地 Node 服务转发到这里）
-// 请求：{ action: 'ask' | 'search' | 'compose' | 'interpret' | 'speak' | 'paint', message, poemSlug?, page?, sessionId?, history?, model? }
+// 请求：{ action: 'ask' | 'search' | 'compose' | 'interpret' | 'speak', message, poemSlug?, page?, sessionId?, history?, model? }
 // 返回：{ action, answer, sources, cards, tools, model, usage }
 //
 // Agent 化说明：action=ask 走「工具调用循环」——模型可自主调用五个工具
@@ -251,21 +251,15 @@ const EXTERNAL_MODEL = readEnv("GUIDE_MODEL") || "glm-4-flash";
 // 站内所有问答默认用免费的 flash；想换更强的模型只改环境变量即可
 const DEFAULT_MODEL = EXTERNAL_MODEL;
 const PRO_MODEL = readEnv("GUIDE_PRO_MODEL") || DEFAULT_MODEL;
-// 词意画（CogView）独立配置：对话切到 DeepSeek 后，GUIDE_API_BASE 已不再提供图像生成，
-// 入画必须单独走智谱；没配 PAINT_* 时退回智谱官方地址与 ZHIPU_API_KEY
-const PAINT_KEY = readEnv("PAINT_API_KEY") || readEnv("ZHIPU_API_KEY");
-const PAINT_BASE = readEnv("PAINT_API_BASE") || "https://open.bigmodel.cn/api/paas/v4";
-const PAINT_MODEL = readEnv("PAINT_MODEL") || "cogview-3-flash";
 
 // ---------- 本地数据与文件路径 ----------
-// 词库 / 时间轴 / 地图站点全部来自 data/liyu-data.json，问答日志与词意画缓存在本地目录，
+// 词库 / 时间轴 / 地图站点全部来自 data/liyu-data.json，问答日志留在本地目录，
 // 不再依赖任何云数据库（工作区一旦欠费整个站就废，这次全部搬回本地）
 
 // 站点根目录：默认取启动时的工作目录（server/index.mjs 会从根目录启动）
 const ROOT_DIR = process.env.LIYU_ROOT || process.cwd();
 const DATA_DIR = join(ROOT_DIR, "data");
 const HISTORY_DIR = join(DATA_DIR, "history");
-const PAINT_DIR = join(DATA_DIR, "paintings");
 const TTS_DIR = join(DATA_DIR, "tts");
 const LOG_DIR = join(ROOT_DIR, "logs");
 
@@ -2633,7 +2627,7 @@ if (typeof Deno !== "undefined") {
 
   try {
     // 输入闸：违规话题与提示注入直接拒答，不进模型（既守合规，也省额度）
-    // speak/paint 的用户文本放在 body.text，也要一并过闸
+    // speak 的用户文本放在 body.text，也要一并过闸
     const inbound = `${message} ${normalize(body.text ?? "", 400)}`.trim();
     const verdict = guardText(inbound);
     if (verdict.blocked) {
@@ -2767,90 +2761,6 @@ if (typeof Deno !== "undefined") {
       return new Response(audio.data, {
         headers: { ...corsHeaders, "Content-Type": audio.type, "Cache-Control": "no-store" },
       });
-    }
-
-    // 多模态词意画：词文 → 智谱 CogView → 水墨意境图（直链）
-    // 走独立的 PAINT_* 配置（默认智谱），与对话模型供应商无关；密钥只在服务端
-    if (action === "paint") {
-      const text = normalize(body.text ?? message, 400);
-      if (!text) return jsonResponse({ error: "请给出要入画的词文。" }, 400);
-      if (!PAINT_KEY) return jsonResponse({ error: "入画服务未配置" }, 502);
-
-      // 先查这张词文是否已经画过：同一首词复用旧画，省额度也秒回
-      // force=true（前端点「再画一幅」）才重新生成
-      const paintKey = fingerprint(`paint|${text}`);
-      if (body.force !== true) {
-        try {
-          const file = join(PAINT_DIR, `${paintKey}.json`);
-          if (existsSync(file)) {
-            const saved = JSON.parse(readFileSync(file, "utf8"));
-            if (saved?.url) return jsonResponse({ action, image: saved.url, cached: true });
-          }
-        } catch {
-          // 读缓存失败：当作没画过，继续正常生成
-        }
-      }
-
-      // 固定水墨审美：留白、淡彩、无文字无水印，避免模型自由发挥跑题
-      const prompt =
-        `中国水墨画，宣纸质感，大面积留白，淡彩晕染，宋代美学，意境悠远。` +
-        `画面表现这首词的意象与情绪（不要在画中出现任何文字、印章、人物正面特写）：${text}`;
-      try {
-        // 图像生成走智谱 CogView：与对话供应商解耦，对话换成 DeepSeek 也能入画
-        const imgRes = await fetch(`${PAINT_BASE}/images/generations`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${PAINT_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model: PAINT_MODEL,
-            prompt,
-            size: "1024x1024",
-          }),
-        });
-        if (!imgRes.ok) {
-          const upstreamBody = await imgRes.text().catch(() => "");
-          console.warn("CogView 失败", imgRes.status, upstreamBody);
-          return jsonResponse({ error: "入画服务暂时不可用", detail: `upstream ${imgRes.status}: ${upstreamBody.slice(0, 200)}` }, 502);
-        }
-        const data = await imgRes.json();
-        // CogView 返回的是临时直链，过一阵会失效；立刻转存本地，缓存才真的管用
-        let image = data?.data?.[0]?.url;
-        if (!image) return jsonResponse({ error: "入画服务返回为空" }, 502);
-        try {
-          const imgBin = await fetch(image);
-          if (imgBin.ok) {
-            mkdirSync(PAINT_DIR, { recursive: true });
-            const fileName = `${paintKey}.png`;
-            writeFileSync(join(PAINT_DIR, fileName), Buffer.from(await imgBin.arrayBuffer()));
-            image = `/data/paintings/${fileName}`;
-          }
-        } catch (error) {
-          console.warn("词意画转存失败，退回使用直链", error);
-        }
-        logGuide({
-          session_id: sessionId,
-          mode: "paint",
-          page,
-          question: text.slice(0, 200),
-          answer: "[paint]",
-          model: PAINT_MODEL,
-          tokens: data?.usage?.total_tokens ?? null,
-          tools: null,
-        });
-        // 存本地文件：同一首词以后直接复用这张画，生成过的不再白花额度
-        try {
-          mkdirSync(PAINT_DIR, { recursive: true });
-          writeFileSync(join(PAINT_DIR, `${paintKey}.json`), JSON.stringify({ url: image, prompt, at: Date.now() }), "utf8");
-        } catch (error) {
-          console.warn("词意画落盘失败", error);
-        }
-        return jsonResponse({ action, image });
-      } catch (error) {
-        console.warn("CogView 调用异常", error);
-        return jsonResponse({ error: "入画服务暂时不可用" }, 502);
-      }
     }
 
     // 问答缓存：同一问题（同页、同词、无对话上下文）24 小时内直接复用上次答案
