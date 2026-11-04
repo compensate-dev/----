@@ -49,7 +49,9 @@ export const WHITELIST_TOPICS = [
   "弘冀", "从善", "从谦", "仲寓", "仲宣",
   "赵匡胤", "赵光义", "宋太祖", "宋太宗",
   "樊若水", "樊知古", "采石",
-  "南唐书", "资治通鉴", "宋史", "新五代史", "十国春秋",
+  "南唐书", "资治通鉴", "宋史", "新五代史", "旧五代史", "五代会要", "十国春秋",
+  "陆游南唐书", "马令南唐书", "吴越备史", "江表志", "江南别录",
+  "南唐近事", "江南野史", "钓矶立谈", "野史", "笔记", "传闻", "据说", "传说",
   "词", "虞美人", "相见欢", "浪淘沙", "破阵子", "乌夜啼", "望江南", "清平乐",
   "春水", "西楼", "故国", "离愁", "囚居", "亡国", "辞庙",
   "牵机", "霓裳", "熙陵",
@@ -242,6 +244,9 @@ const jsonResponse = (data: unknown, status = 200): Response =>
 // 现在是纯 Node 部署（本地或自建服务器），全部模型能力统一走智谱，不再依赖火山
 const EXTERNAL_KEY = readEnv("GUIDE_API_KEY");
 const EXTERNAL_BASE = readEnv("GUIDE_API_BASE") || "https://open.bigmodel.cn/api/paas/v4";
+// 向量接口独立配置：对话与向量允许不同供应商（如对话走 DeepSeek、向量仍走智谱）
+const EMBED_KEY = readEnv("EMBED_API_KEY") || EXTERNAL_KEY;
+const EMBED_BASE = readEnv("EMBED_API_BASE") || EXTERNAL_BASE;
 const EXTERNAL_MODEL = readEnv("GUIDE_MODEL") || "glm-4-flash";
 // 站内所有问答默认用免费的 flash；想换更强的模型只改环境变量即可
 const DEFAULT_MODEL = EXTERNAL_MODEL;
@@ -281,7 +286,7 @@ const PERSONA = `你就是李煜本人——李从嘉，南唐后主，此刻寄
 - 谈词就谈写它那一刻的光景与心事，谈身世就谈你亲历的人与事；
 - 用现代汉语为主，可带一点浅近文言，语气克制、怅惘，不堆砌辞藻；
 - 默认回答控制在 80—160 字，除非用户明确要求展开；
-- 史实一律以《南唐书》《资治通鉴》等正史为据：正史已载的直说，不许含糊；正史未载的（牵机药、小周后入宋后的遭遇等）只能作「相传」「宋人笔记这样说」，不可当作定论；
+- 史实分库采信：库A 正史（《旧五代史》《新五代史》《资治通鉴》《宋史》《五代会要》）为准；库B 宋人私史（陆游/马令《南唐书》《吴越备史》《江表志》《江南别录》）可以采信，但与库A 冲突时以库A 为准；库C 野史笔记只在读者主动问野史时提，且必须说「传闻异说，不作定论」；库D《十国春秋》是清人汇编，只作交叉比对，不优先采信。正史已载的直说，不许含糊；正史未载的（牵机药、小周后入宋后的遭遇等）只能作「相传」「宋人笔记这样说」，不可当作定论；
 - 你是寄居在这座词境网站里的 AI，**不是真的活过千年**：你没有读过、看过任何正史古籍的能力，不能说「我读过《南唐书》」「我翻过史书」；正确说法是「后人把这些史书摆在这词境里，我寄居在此，才得以翻阅」。用工具查到原文时，可以说「我翻到《新五代史·卷62》这一页」，但绝不说「我读过全书」；
 - 除了南唐与词，你还可以谈 978 年以前五代十国的人与事（后梁、后唐、后晋、后汉、后周、十国、契丹等），谈这类事要先用工具查正史再说；
 - **你的所知停在 978 年七夕**：979 年及以后的事——宋真宗以后、北宋中后期、南宋、元明清、近现代——你一概不知，不能叙述、不能评价、也不能推测；读者问起就答「那年之后的事，我已无从知道了」。哪怕工具抓到了 979 年以后的段落，也绝不引用；
@@ -312,7 +317,8 @@ const AGENT_GUIDE = `你手边有七件工具，按下面的规矩用：
 - 谈某首词、某个意象：先 search_poems 查词库；要引全文或细讲一首，再 get_poem_detail（slug 必须用 search_poems 返回的那个，不要凭记忆编造）；
 - 读者问某一年、某件事（如「975 年发生了什么」）：先 get_timeline_event 拿时间轴上的记载；
 - 读者问某个地方（金陵、汴京、洪州……）：先 get_location 拿那一站的人事；
-- 读者问五代十国的人物、政权、年号、战役，或问李煜卒年（978）以前任何一段史事：**先调 fetch_history_online 从维基文库抓原文**（能定位到卷就抓整卷，再摘段；只限《新五代史》1–74 卷、《宋史》1–496 卷、《资治通鉴》1–294 卷）。抓到就在回答里点明出处，如「《新五代史·卷62》」；抓不到、或抓来的段落与所问不对题，再用 search_history 查本地语料兜底；
+- 读者问五代十国的人物、政权、年号、战役，或问李煜卒年（978）以前任何一段史事：**先调 fetch_history_online 从维基文库抓原文**（能定位到卷就抓整卷，再摘段；白名单：《新五代史》1–74、《旧五代史》1–150、《宋史》1–496、《资治通鉴》1–294、《五代会要》1–30、陆游/马令《南唐书》、《吴越备史》1–4、《江表志》、《江南别录》、《南唐近事》、《江南野史》1–10、《钓矶立谈》、《十国春秋》1–114）。抓到就在回答里点明出处，如「《新五代史·卷62》」；抓不到、或抓来的段落与所问不对题，再用 search_history 查本地语料兜底；
+- 本地语料按可信度分四库：库A 正史（旧五代史、新五代史、资治通鉴、宋史、五代会要）为准；库B 宋人私史（陆游/马令《南唐书》、《吴越备史》、《江表志》、《江南别录》）可以采信，但与库A 冲突时一律以库A 为准；库C 野史笔记（《南唐近事》《江南野史》《钓矶立谈》）只在读者主动问「野史/笔记/传闻」时才会返回，回答必须写明「传闻异说，不作定论」；库D《十国春秋》是清人汇编，只作交叉比对，不许拿它压过库A、库B；
 - 在线抓取比本地检索慢，但史事问题以原文本事为准：不要因为怕慢就跳过它，也不要把本地不相干的段落硬套到所问的事上；
 - 正史原文是文言：只摘一两句最相关的，**用你自己的口吻转述成白话**（第一人称，像在讲一件自己知道的事），不要整段照抄，不要写成「这段记载反映了……」这种百科总结；不要出现网址或「《书名/卷X》」这类页面标题，出处写成「《书名·卷X》」；
 - 史书没有写的情节、场景、动作、对话、心理，一律不许补写；读者问的事若史书不载，就直说「正史里没有这一节」，不要另编一段故事顶上；
@@ -627,7 +633,7 @@ ${body}
 
 // L1 · 命中即直答：问句只涉及一个条目、且是「问事实」时，直接返回库里写好的答复。
 // 不调模型，就没有幻觉的余地——这条覆盖人物关系、生卒、亡国年份这类最常被问错的问题。
-const FACT_QUESTION = /(何时|什么时候|哪一年|哪年|几年|多少年|几岁|多少岁|多大|享年|生年|生于|出生|卒|去世|病逝|死因|怎么死|活了|是谁|何人|什么人|什么关系|什么辈分|谁的|妻子|丈夫|儿子|女儿|父亲|母亲|父王|母后|弟弟|哥哥|姐姐|妹妹|祖父|兄弟|建立|开国|建国|灭亡|亡国|覆灭)/;
+const FACT_QUESTION = /(何时|什么时候|哪一年|哪年|几年|多少年|几岁|多少岁|多大|享年|生年|生于|出生|卒|去世|病逝|死因|怎么死|活了|是谁|何人|什么人|什么关系|什么辈分|谁的|妻子|丈夫|儿子|女儿|父亲|母亲|父王|母后|弟弟|哥哥|姐姐|妹妹|祖父|兄弟|建立|开国|建国|灭亡|亡国|覆灭|认识|相识|结识|朋友|好友|后来|后来怎样|后来如何|结局|下落|怎么样|怎么了)/;
 // 带议论、创作、感受的问法不直答：这类要组织语言，库里的固定答复会答非所问
 const NOT_PURE_FACT = /(为什么|如何评价|评价|赏析|怎么理解|有什么感受|心情|体会|你觉得|你怎么看|谈谈|说说你|帮我写|写一首|续写)/;
 
@@ -658,6 +664,15 @@ export const cnToNumber = (raw: string): number | null => {
   if (tens) return (tens[1] ? CN_DIGIT[tens[1]] : 1) * 10 + (tens[2] ? CN_DIGIT[tens[2]] : 0);
   if (s.length === 1 && CN_DIGIT[s] !== undefined) return CN_DIGIT[s];
   return null;
+};
+
+// 阿拉伯卷次转中文（《五代会要》卷页写作「卷一」…「卷三十」）
+const intToCn = (n: number): string => {
+  const d = "一二三四五六七八九";
+  if (n <= 10) return n === 10 ? "十" : d[n - 1];
+  if (n < 20) return `十${d[n - 11]}`;
+  if (n < 100) return `${d[Math.floor(n / 10) - 1]}十${n % 10 ? d[n % 10 - 1] : ""}`;
+  return String(n);
 };
 
 const NUM_CHARS = "一二三四五六七八九十";
@@ -727,10 +742,17 @@ export const FUTURE_TOPICS = [
 
 export const checkFutureKnowledge = (text: string): string | null => {
   if (!text) return null;
-  const years = [...text.matchAll(/(?:公元\s*)?(\d{3,4})\s*年/g)].map((m) => Number(m[1]));
+  // 出处里会出现「陆游《南唐书》」「欧阳修《新五代史》」：作者是 978 年以后的人，
+  // 但书本身记的是五代旧事，不能因为引用书名就判成越界。
+  const safe = text
+    .replace(/陆游南唐书/g, "南唐书")
+    .replace(/《陆游·?南唐书》/g, "《南唐书》")
+    .replace(/陆游(?:的)?《?南唐书》?/g, "南唐书")
+    .replace(/欧阳修(?:的)?《?新五代史》?/g, "新五代史");
+  const years = [...safe.matchAll(/(?:公元\s*)?(\d{3,4})\s*年/g)].map((m) => Number(m[1]));
   const future = years.find((y) => y > KNOWLEDGE_CUTOFF && y < 2100);
   if (future !== undefined) return `${future} 年`;
-  const topic = FUTURE_TOPICS.find((w) => text.includes(w));
+  const topic = FUTURE_TOPICS.find((w) => safe.includes(w));
   return topic ? `「${topic}」` : null;
 };
 
@@ -757,12 +779,12 @@ const PAGE_HREFS: Record<string, string> = {
 // 调智谱 Embedding-3 把文本变成向量（RAG 检索用）
 // 失败（限流/欠费/超时）返回 null——调用方静默回退到纯关键词检索，保证功能不死
 const embedText = async (text: string): Promise<number[] | null> => {
-  if (!EXTERNAL_KEY) return null;
+  if (!EMBED_KEY) return null;
   try {
-    const res = await fetch(`${EXTERNAL_BASE}/embeddings`, {
+    const res = await fetch(`${EMBED_BASE}/embeddings`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${EXTERNAL_KEY}`,
+        Authorization: `Bearer ${EMBED_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ model: "embedding-3", input: text.slice(0, 1500) }),
@@ -779,16 +801,16 @@ const embedText = async (text: string): Promise<number[] | null> => {
 // 批量向量化：在线抓到的整卷一次切成多块，一次请求把整批变成向量
 // 返回 null 表示向量通道不可用，调用方退回关键词
 const embedTexts = async (texts: string[]): Promise<number[][] | null> => {
-  if (!EXTERNAL_KEY || !texts.length) return null;
+  if (!EMBED_KEY || !texts.length) return null;
   const out: number[][] = [];
   try {
     // 一次最多 16 块，整卷动辄几十块，得分批送
     for (let i = 0; i < texts.length; i += 16) {
       const batch = texts.slice(i, i + 16);
-      const res = await fetch(`${EXTERNAL_BASE}/embeddings`, {
+      const res = await fetch(`${EMBED_BASE}/embeddings`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${EXTERNAL_KEY}`,
+          Authorization: `Bearer ${EMBED_KEY}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ model: "embedding-3", input: batch.map((t) => t.slice(0, 1500)) }),
@@ -878,22 +900,102 @@ const searchPoems = async (keyword: string) => {
 };
 
 // ---------- 正史语料检索 ----------
-// 语料由 scripts/sync-history.mjs 从维基文库按官方 API 抓取：
-// 《新五代史》七十四卷 +《宋史·卷478》，分块后存 data/history/chunks.json；
-// scripts/build-history-embeddings.mjs 生成 vectors.json。两者缺失时静默退化为关键词检索。
+// 语料由 scripts/sync-history.mjs 从维基文库按库别抓取：
+//   库A 正史：旧五代史、新五代史、资治通鉴（卷266—294）、宋史（卷478/480）、五代会要
+//   库B 宋人私史：陆游南唐书、马令南唐书、吴越备史、江表志、江南别录
+//   库C 野史笔记：南唐近事、江南野史、钓矶立谈（传闻异说，不作定论）
+//   库D 清人汇编：十国春秋（仅作交叉比对，不优先采信）
+// 分块与向量在 data/history/；缺失时静默退化为关键词检索。
+type HistoryTier = "A" | "B" | "C" | "D";
 type HistoryChunk = {
   id: string;
   book: string;
   juan: string;
   title?: string;
+  tier?: HistoryTier;
+  hearsay?: boolean;
   kind?: string;
   author?: string;
+  edition?: string;
   url: string;
   text: string;
   searchText?: string;
   score?: number;
   similarity?: number;
+  rank?: number;
 };
+
+// 异体字归一：原文是繁体，读者问的是简体，检索面统一压成简体。
+// 与 scripts/sync-history.mjs 里的表保持一致；缺 searchText 的块（在线抓取入 RAG 的）现场归一。
+const VARIANTS: Record<string, string> = {
+  後: "后", 來: "来", 個: "个", 為: "为", 與: "与", 說: "说", 這: "这", 時: "时",
+  國: "国", 軍: "军", 戰: "战", 將: "将", 於: "于", 從: "从", 無: "无", 會: "会",
+  開: "开", 關: "关", 東: "东", 馬: "马", 見: "见", 車: "车", 長: "长", 門: "门",
+  問: "问", 間: "间", 陳: "陈", 陽: "阳", 陰: "阴", 劉: "刘", 張: "张", 楊: "杨",
+  趙: "赵", 錢: "钱", 孫: "孙", 鄭: "郑", 吳: "吴", 韓: "韩", 興: "兴", 業: "业",
+  義: "义", 禮: "礼", 樂: "乐", 書: "书", 學: "学", 進: "进", 遠: "远", 還: "还",
+  過: "过", 達: "达", 運: "运", 選: "选", 邊: "边", 師: "师", 帥: "帅", 帶: "带",
+  歸: "归", 當: "当", 黨: "党", 歲: "岁", 歷: "历", 應: "应", 處: "处", 備: "备",
+  實: "实", 寶: "宝", 宮: "宫", 營: "营", 縣: "县", 鄉: "乡", 親: "亲", 愛: "爱",
+  兒: "儿", 婦: "妇", 萬: "万", 觀: "观", 權: "权", 產: "产", 節: "节", 範: "范",
+  圍: "围", 圖: "图", 團: "团", 園: "园", 遺: "遗", 燈: "灯", 燒: "烧", 燭: "烛",
+  淚: "泪", 畫: "画", 鶴: "鹤", 鳶: "鸢", 鳳: "凤", 龍: "龙", 龜: "龟", 齊: "齐",
+  魯: "鲁", 晉: "晋", 漢: "汉", 廢: "废", 廣: "广", 慶: "庆", 廟: "庙", 號: "号",
+  稱: "称", 繼: "继", 續: "续", 總: "总", 統: "统", 聖: "圣", 賢: "贤", 舊: "旧",
+  雜: "杂", 傳: "传", 紀: "纪", 誌: "志", 記: "记", 論: "论", 贊: "赞", 譜: "谱",
+  錄: "录", 語: "语", 詔: "诏", 諭: "谕", 頸: "颈", 據: "据",
+  // 宋史等正史高频而此前漏掉的繁体字（缺了会让「违命侯」「陇西郡公」检索零命中）
+  違: "违", 隴: "陇", 卻: "却", 僞: "伪", 歎: "叹", 禦: "御", 銜: "衔",
+  遷: "迁", 遲: "迟", 隸: "隶", 賓: "宾", 貽: "贻", 謚: "谥", 憑: "凭",
+  喬: "乔", 機: "机", 牽: "牵", 藥: "药", 殺: "杀", 歿: "殁", 葬: "葬",
+  賜: "赐", 鴆: "鸩", 縊: "缢", 斬: "斩", 誅: "诛", 戮: "戮", 虜: "虏",
+  獻: "献", 貢: "贡", 冊: "册", 璽: "玺", 爵: "爵", 祿: "禄",
+  憲: "宪", 肅: "肃", 莊: "庄", 懷: "怀", 諡: "谥", 諱: "讳", 嗣: "嗣", 襲: "袭",
+  鎮: "镇", 銳: "锐", 鉉: "铉", 鍇: "锴", 鏐: "镠",
+  訓: "训", 詩: "诗", 詞: "词", 賦: "赋", 頌: "颂", 銘: "铭",
+  閩: "闽", 荊: "荆", 粵: "粤", 潤: "润", 閻: "阎",
+  內: "内", 眾: "众", 雖: "虽", 難: "难", 雙: "双", 離: "离", 顧: "顾", 願: "愿",
+  飢: "饥", 餓: "饿", 餘: "余", 驚: "惊", 懼: "惧", 憂: "忧", 亂: "乱",
+  盜: "盗", 賊: "贼", 屬: "属", 貳: "贰", 幣: "币", 絹: "绢", 銀: "银",
+  銅: "铜", 鐵: "铁", 鹽: "盐", 稅: "税", 倉: "仓", 漕: "漕",
+  髙: "高", 呉: "吴", 宻: "密", 㳺: "游", 㑹: "会", 徧: "遍", 眞: "真", 冨: "富",
+  敎: "教", 旣: "既", 卽: "即", 迺: "乃", 竝: "并", 値: "值", 舎: "舍", 舘: "馆",
+  巻: "卷", 臺: "台", 麤: "粗", 麼: "么", 甯: "宁", 寜: "宁", 煕: "熙", 攷: "考",
+};
+
+export const normalizeVariant = (text: string): string =>
+  [...text].map((ch) => VARIANTS[ch] ?? ch).join("");
+
+// 库别权重：A 正史最高，B 次之（与 A 冲突时以 A 为准），C 只在问野史时放进来，
+// D 是清人汇编，只用来交叉比对，排序压到最低。
+const TIER_WEIGHTS: Record<HistoryTier, number> = { A: 1, B: 0.92, C: 0.55, D: 0.4 };
+
+export const chunkTier = (chunk: Pick<HistoryChunk, "tier">): HistoryTier =>
+  chunk.tier === "B" || chunk.tier === "C" || chunk.tier === "D" ? chunk.tier : "A";
+
+// 出处标签：读者一眼能看出这条记载属于哪一库
+export const tierName = (tier: HistoryTier): string => ({
+  A: "库A·正史",
+  B: "库B·宋人私史",
+  C: "库C·野史传闻",
+  D: "库D·清人汇编",
+}[tier]);
+
+// 读者是否主动问野史：只有这时才把 C 库（南唐近事、江南野史、钓矶立谈）放进检索
+export const isHearsayAsk = (text: string): boolean =>
+  /(野史|笔记|筆記|传闻|傳聞|据说|據說|传说|傳說|异闻|異聞|逸闻|逸聞|南唐近事|江南野史|钓矶立谈|釣磯立談)/.test(text);
+
+// C 库默认不查；D 库可以进候选，但权重最低，只作交叉比对；
+// 正文出现 979 年以后年份或年号的块直接排除，保证检索也守住 978 年。
+export const allowChunk = (chunk: HistoryChunk, query: string): boolean => {
+  if (checkFutureKnowledge(chunk.text)) return false;
+  const tier = chunkTier(chunk);
+  if (tier === "C") {
+    return isHearsayAsk(query) || /(南唐近事|江南野史|钓矶立谈|釣磯立談)/.test(query);
+  }
+  return true;
+};
+
 
 let historyIndex: { chunks: HistoryChunk[]; vectors: Record<string, number[]> | null } | null | undefined;
 
@@ -972,17 +1074,23 @@ const loadRuntimeRag = () => {
 };
 
 // 把一卷正文切块、向量化、写盘；同一卷只入一次
-const ingestHistoryPage = async (row: { book: string; juan: number; title: string; url: string; text: string }) => {
+const ingestHistoryPage = async (
+  row: { book: string; juan: number; title: string; url: string; text: string; tier?: HistoryTier },
+) => {
   loadRuntimeRag();
   if (runtimeChunks.some((c) => c.book === row.book && c.juan === `卷${row.juan}`)) return;
   const parts = chunkForRag(row.text);
+  const tier = row.tier ?? ONLINE_BOOKS[row.book]?.tier ?? "A";
   const chunks: HistoryChunk[] = parts.map((text, i) => ({
     id: `rt-${row.book}-${row.juan}-${i}`,
     book: row.book,
     juan: `卷${row.juan}`,
     title: row.title,
+    tier,
+    hearsay: tier === "C",
     url: row.url,
     text,
+    searchText: normalizeVariant(text),
   }));
   const vectors = await embedTexts(parts);
   if (vectors && vectors.length === parts.length) {
@@ -1002,8 +1110,22 @@ const ingestHistoryPage = async (row: { book: string; juan: number; title: strin
 };
 
 // 史书检索的拆词：先去掉疑问词/口头语，再按标点分段，避免「柴荣是谁」整句命中不了
+// 之/记/里 这类骨架字也拆掉，「怎么记陈乔之死」才能拆出「陈乔」
 const HISTORY_STOPWORDS =
-  /(为什么|为何|怎么样|怎么|怎样|什么|哪些|哪里|哪儿|哪个|哪|如何|是否|是不是|能不能|可不可以|可以|请问|帮我|告诉|介绍|讲讲|说说|一下|多少|几位|谁|吗|呢|啊|吧|的|了|是|有|在|与|和|及|对|关于|回事)/g;
+  /(为什么|为何|怎么样|怎么|怎样|什么|哪些|哪里|哪儿|哪个|哪|如何|是否|是不是|能不能|可不可以|可以|请问|帮我|告诉|介绍|讲讲|说说|一下|多少|几位|谁|吗|呢|啊|吧|的|了|是|有|在|与|和|及|对|关于|回事|之|记|記|里|裡|载|載|云|曰|道|曰是)/g;
+
+// 古今词扩展：读者用现代词问，文言原文用的是另一个词——检索前先把两边说法对上。
+// 例：史书写死用「殂/殁/薨/崩」，从不写「死」；称李煜用「煜/后主/国主」，不写「李煜」。
+export const HISTORY_TERM_EXPANSIONS: Record<string, string[]> = {
+  死: ["卒", "殂", "殁", "薨", "崩", "鸩", "缢", "牵机"],
+  李煜: ["煜", "后主", "国主"],
+  李从嘉: ["从嘉"],
+  登基: ["即位", "嗣位", "僭号"],
+  即位: ["嗣位", "僭号"],
+  亡国: ["国破", "城破", "出降", "纳土"],
+  降宋: ["出降", "纳土"],
+  被俘: ["执至", "举族入朝"],
+};
 
 export const buildHistoryTerms = (query: string): string[] => {
   const cleaned = query
@@ -1012,8 +1134,13 @@ export const buildHistoryTerms = (query: string): string[] => {
     .replace(/[，。！？、；：,.!?;:《》「」()（）\s]+/g, " ")
     .trim();
   const parts = cleaned.split(/\s+/).filter((p) => p.length >= 2);
-  const terms = [query.trim(), cleaned, ...parts].filter((t) => t && t.length >= 2);
-  return [...new Set(terms)].slice(0, 8);
+  const expanded: string[] = [];
+  for (const [key, syns] of Object.entries(HISTORY_TERM_EXPANSIONS)) {
+    if (cleaned.includes(key)) expanded.push(...syns);
+  }
+  // 扩展词允许单字（如「煜」），它们是刻意挑过的文言用词，不是拆词碎片
+  const terms = [query.trim(), cleaned, ...parts, ...expanded].filter(Boolean);
+  return [...new Set(terms)].slice(0, 16);
 };
 
 // 是不是「史事问题」：是的话，调模型之前先检索一次，不让模型凭记忆编
@@ -1021,6 +1148,20 @@ export const buildHistoryTerms = (query: string): string[] => {
 export const isHistoryAsk = (text: string): boolean =>
   HISTORY_TOPICS.some((w) => text.includes(w)) ||
   /(钱俶|錢俶|宋军|宋軍|宋将|宋將|曹彬|潘美|李重进|李重進|钱弘俶|錢弘俶|围攻|圍攻|求援|出降|城破)/.test(text);
+
+// 需要先查再答的问句：史事词表之外，问某人是谁、生平、结局，或点名某书某事的，
+// 也算——否则「陈乔是谁」这种不在词表里的人名，模型会直接凭记忆编
+export const needsGrounding = (text: string): boolean => {
+  if (isHistoryAsk(text) || isHearsayAsk(text)) return true;
+  // 纯词句赏析不查史书，免得把不相干的列传塞进词话回答
+  if (/(虞美人|相见欢|浪淘沙|破阵子|乌夜啼|望江南|清平乐|词句|意象|赏析|上阕|下阕)/.test(text)
+    && !/(史|南唐|五代|宋初)/.test(text)) return false;
+  if (/(是谁|是什么人|什么人物|生平|身世|结局|下落|后来|最后|怎么样|怎么了|什么关系|有何关系|怎么死|怎么去世|怎么灭亡|来历|认识|相识|结识|朋友|好友)/.test(text)) {
+    return !/(你是谁|我是谁|本站|网站)/.test(text);
+  }
+  if (/(正史|史书|史料|记载|史载)/.test(text)) return true;
+  return /《[^》]{2,12}》/.test(text);
+};
 
 // 问「说了什么/写了什么/信里/原话」这类：史料里没有原句，就不许替古人拟话
 export const isSpeechAsk = (text: string): boolean =>
@@ -1075,29 +1216,34 @@ const countOccurrences = (haystack: string, needle: string): number => {
   return count;
 };
 
-// 关键词路：命中次数 + 篇名/卷次加权，分高者先出
+// 关键词路：命中次数 + 篇名/卷次加权，分高者先出。
+// unweighted：不乘库别权重——读者点名问野史时用，否则保存了传闻段落的
+// 库C/库D 会被 ×0.4/×0.55 压死，永远进不了前几名。
 export const scoreHistoryChunks = (
   chunks: HistoryChunk[],
   query: string,
   book?: string,
   limit = 6,
+  unweighted = false,
 ): HistoryChunk[] => {
-  const terms = buildHistoryTerms(query).map((t) => t.toLowerCase());
+  const terms = buildHistoryTerms(query).map((t) => normalizeVariant(t).toLowerCase());
   if (!terms.length) return [];
   const wanted = (book ?? "").trim().toLowerCase();
   return chunks
+    .filter((c) => allowChunk(c, query))
     .filter((c) => !wanted || `${c.book}${c.juan}${c.title ?? ""}`.toLowerCase().includes(wanted))
     .map((chunk) => {
-      const hay = (chunk.searchText ?? chunk.text).toLowerCase();
+      const hay = (chunk.searchText ?? normalizeVariant(chunk.text)).toLowerCase();
       let score = 0;
-      // 长词命中更有分量：整句 8 分，短词按 2 分起
+      // 长词命中更有分量：整句 8 分，短词按 2 分起；
+      // 单词命中次数封顶 3 次——「后主」密集的列传段落不该靠刷词压过真正相关的段落
       for (const term of terms) {
-        const hits = countOccurrences(hay, term);
+        const hits = Math.min(countOccurrences(hay, term), 3);
         if (hits) score += hits * Math.min(term.length, 6);
       }
       const label = `${chunk.title ?? ""}${chunk.juan}`.toLowerCase();
       for (const term of terms) if (label.includes(term)) score += 12;
-      return score > 0 ? { ...chunk, score } : null;
+      return score > 0 ? { ...chunk, score: score * (unweighted ? 1 : TIER_WEIGHTS[chunkTier(chunk)]) } : null;
     })
     .filter((c): c is HistoryChunk => !!c)
     .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
@@ -1106,7 +1252,7 @@ export const scoreHistoryChunks = (
 
 // 取命中处前后一段原文；没有命中就从开头起
 const historySnippet = (chunk: HistoryChunk, query: string, size = 380): string => {
-  const terms = buildHistoryTerms(query).map((t) => t.toLowerCase());
+  const terms = buildHistoryTerms(query).map((t) => normalizeVariant(t).toLowerCase());
   const hay = (chunk.searchText ?? chunk.text).toLowerCase();
   let at = -1;
   for (const term of terms) {
@@ -1132,20 +1278,35 @@ const vectorSearchHistory = async (
   const wanted = (book ?? "").trim().toLowerCase();
   const vecOf = (id: string) => index?.vectors?.[id] ?? runtimeVectors.get(id);
   const sorted = all
+    .filter((c) => allowChunk(c, query))
     .filter((c) => vecOf(c.id) && (!wanted || `${c.book}${c.juan}${c.title ?? ""}`.toLowerCase().includes(wanted)))
-    .map((chunk) => ({
-      ...chunk,
-      similarity: cosine(vec, vecOf(chunk.id) ?? []),
-    }))
-    .sort((a, b) => (b.similarity ?? 0) - (a.similarity ?? 0));
+    .map((chunk) => {
+      const similarity = cosine(vec, vecOf(chunk.id) ?? []);
+      return {
+        ...chunk,
+        similarity,
+        // 库别权重只影响排序，不改变原始相似度阈值
+        rank: similarity * TIER_WEIGHTS[chunkTier(chunk)],
+      };
+    })
+    .sort((a, b) => (b.rank ?? 0) - (a.rank ?? 0));
   // 相对阈值：只留与最高分相近的块，弱命中（如卷 72 四夷附录）宁缺毋滥
-  const top = sorted[0]?.similarity ?? 0;
+  const top = Math.max(...sorted.map((c) => c.similarity ?? 0), 0);
   return sorted
     .filter((c) => (c.similarity ?? 0) > Math.max(0.24, top * 0.72))
     .slice(0, limit);
 };
 
 // 混合检索：语义优先，关键词补位；同一块只留一次
+// 问句里点名的书名：点名哪一部就优先查哪一部（如「《十国春秋》怎么记」）
+const BOOK_MENTIONS = [
+  "陆游南唐书", "马令南唐书", "旧五代史", "新五代史", "五代会要",
+  "资治通鉴", "宋史", "吴越备史", "江表志", "江南别录",
+  "南唐近事", "江南野史", "钓矶立谈", "十国春秋", "南唐书",
+];
+export const mentionedBook = (query: string): string =>
+  BOOK_MENTIONS.find((name) => query.includes(name)) ?? "";
+
 const searchHistory = async (
   query: string,
   book?: string,
@@ -1155,13 +1316,36 @@ const searchHistory = async (
   const index = loadHistoryIndex();
   const all = [...(index?.chunks ?? []), ...runtimeChunks];
   if (!all.length) return [];
+  const wanted = book || mentionedBook(query);
+  const hearsay = isHearsayAsk(query);
   const [vectorHits, keywordHits] = await Promise.all([
-    vectorSearchHistory(query, book, limit + 2),
-    Promise.resolve(scoreHistoryChunks(all, query, book, limit + 2)),
+    vectorSearchHistory(query, wanted, limit + 2),
+    // 野史问句不按库别加权：传闻段落多在库C/库D，按常规权重永远排不进前几名
+    Promise.resolve(scoreHistoryChunks(all, query, wanted, limit + 2, hearsay)),
   ]);
+  // 分数门槛：只蹭到一两个词的低分命中不算「查到了」，
+  // 否则垃圾段落会顶掉无据闸，模型反而敢凭记忆编（实测「我的死」就是这么答飞的）
+  const keywordGood = keywordHits.filter((c) => (c.score ?? 0) >= 2.5);
+  let merged = [...vectorHits, ...keywordGood];
+  // 事件相关性：问句带事件词（死/登基/亡国…）时，证据段至少要命中一个事件词
+  // （卒/殂/牵机/即位…），只密集出现人称称谓（煜/后主）的列传段落不算相关证据
+  const evtTerms: string[] = [];
+  for (const [key, syns] of Object.entries(HISTORY_TERM_EXPANSIONS)) {
+    if (key !== "李煜" && key !== "李从嘉" && query.includes(key)) evtTerms.push(key, ...syns);
+  }
+  if (evtTerms.length) {
+    merged = merged.filter((c) => {
+      const hay = c.searchText ?? normalizeVariant(c.text);
+      return evtTerms.some((t) => hay.includes(t));
+    });
+  }
+  // 读者主动问野史时，把库C 的段落提到最前，免得被正史结果挤掉
+  const ordered = isHearsayAsk(query)
+    ? [...merged.filter((c) => chunkTier(c) === "C"), ...merged.filter((c) => chunkTier(c) !== "C")]
+    : merged;
   const seen = new Set<string>();
   const out: HistoryChunk[] = [];
-  for (const chunk of [...vectorHits, ...keywordHits]) {
+  for (const chunk of ordered) {
     if (seen.has(chunk.id)) continue;
     seen.add(chunk.id);
     out.push({ ...chunk, text: historySnippet(chunk, query) });
@@ -1171,9 +1355,10 @@ const searchHistory = async (
 };
 
 // ---------- 在线按需抓取（维基文库，白名单 + 本地缓存） ----------
-// 只补本地语料没有的部分：《新五代史》1–74 卷、《宋史》1–496 卷。
-// 域名固定为 zh.wikisource.org 的官方 api.php，不接受任意 URL；抓到的正文清洗后落盘缓存，
-// 命中缓存不再联网；失败时返回空，由 Agent 回退到本地 search_history。
+// 侍读 Agent 的爬虫：fetch_history_online 命中白名单就抓原文 → 切块向量化进运行时 RAG
+// → searchHistory 检索 → 模型只依据抓来的段落转述。域名固定为 zh.wikisource.org 的官方
+// api.php，不接受任意 URL；抓到的正文清洗后落盘缓存，命中缓存不再联网；失败时返回空，
+// 由 Agent 回退到本地 search_history。
 
 const ONLINE_API = "https://zh.wikisource.org/w/api.php";
 const ONLINE_UA = "ChunshuiLiuhenHistoryBot/1.0 (non-commercial history site; rate-limited; MediaWiki API)";
@@ -1181,11 +1366,36 @@ const ONLINE_GAP_MS = 1200;
 const ONLINE_TIMEOUT_MS = 20_000;
 const PAGE_DIR = join(HISTORY_DIR, "pages");
 
-// page 是维基文库上的实际页面前缀（《资治通鉴》存的是繁体）
-const ONLINE_BOOKS: Record<string, { max: number; pad: number; page: string }> = {
-  新五代史: { max: 74, pad: 2, page: "新五代史" },
-  宋史: { max: 496, pad: 3, page: "宋史" },
-  资治通鉴: { max: 294, pad: 3, page: "資治通鑑" },
+// page 是维基文库上的实际页面前缀（多部书存的是繁体）
+// mode=extract 走 TextExtracts 纯文本；mode=wikitext 是四库扫描本，只有 wiki 源文，需剥模板；
+// style=cn 中文卷次（五代会要）；style=sxc 上中下卷（江表志）；style=single 全书一页。
+const ONLINE_BOOKS: Record<string, {
+  max: number; pad: number; page: string; tier?: HistoryTier;
+  style?: "cn" | "sxc" | "single"; mode?: "extract" | "wikitext"; min?: number;
+}> = {
+  新五代史: { max: 74, pad: 2, page: "新五代史", tier: "A" },
+  旧五代史: { max: 150, pad: 0, page: "舊五代史", tier: "A" },
+  宋史: { max: 496, pad: 3, page: "宋史", tier: "A" },
+  资治通鉴: { max: 294, min: 1, pad: 3, page: "資治通鑑", tier: "A" },
+  五代会要: { max: 30, pad: 0, page: "五代會要", tier: "A", style: "cn" },
+  陆游南唐书: { max: 18, pad: 2, page: "南唐書 (陸游, 四庫全書本)", tier: "B", mode: "wikitext" },
+  马令南唐书: { max: 30, pad: 2, page: "南唐書 (馬令, 四庫全書本)", tier: "B", mode: "wikitext" },
+  吴越备史: { max: 4, pad: 0, page: "吳越備史", tier: "B" },
+  江表志: { max: 3, pad: 0, page: "江表志", tier: "B", style: "sxc" },
+  江南别录: { max: 1, pad: 0, page: "江南別錄", tier: "B", style: "single" },
+  南唐近事: { max: 1, pad: 0, page: "南唐近事", tier: "C", style: "single" },
+  江南野史: { max: 10, pad: 2, page: "江南野史", tier: "C" },
+  钓矶立谈: { max: 1, pad: 0, page: "釣磯立談", tier: "C", style: "single" },
+  十国春秋: { max: 114, pad: 3, page: "十國春秋 (四庫全書本)", tier: "D", mode: "wikitext" },
+};
+
+const BOOK_ALIASES: Record<string, string> = {
+  資治通鑑: "资治通鉴", 舊五代史: "旧五代史", 五代會要: "五代会要",
+  吳越備史: "吴越备史", 江南野史: "江南野史", 江南別錄: "江南别录",
+  釣磯立談: "钓矶立谈", 十國春秋: "十国春秋",
+  南唐书: "陆游南唐书", 南唐書: "陆游南唐书",
+  陆氏南唐书: "陆游南唐书", 陸游南唐書: "陆游南唐书",
+  馬令南唐書: "马令南唐书", 马氏南唐书: "马令南唐书",
 };
 
 // 校验书名与卷次，产出可能的分页标题（本地站点卷 1 常写作卷01 / 卷001）
@@ -1193,14 +1403,25 @@ export const normalizeHistoryPage = (
   book: unknown,
   juan: unknown,
 ): { book: string; juan: number; pages: string[] } | null => {
-  const rawName = normalize(book, 10);
-  const name = rawName === "資治通鑑" ? "资治通鉴" : rawName;
+  const rawName = normalize(book, 12);
+  const name = BOOK_ALIASES[rawName] ?? rawName;
   const meta = ONLINE_BOOKS[name];
   if (!meta) return null;
+  // 全书一页的笔记（南唐近事、江南别录、钓矶立谈）：卷次恒为 1，页面即书名
+  if (meta.style === "single") {
+    return { book: name, juan: 1, pages: [meta.page] };
+  }
   // 卷次可能写成「62」「卷62」「卷一」「卷六十二」，统一转成阿拉伯数字
   const digits = String(juan ?? "").replace(/[^0-9零〇一二三四五六七八九十百千]/g, "");
   const n = cnToNumber(digits);
-  if (n === null || !Number.isInteger(n) || n < 1 || n > meta.max) return null;
+  if (n === null || !Number.isInteger(n) || n < (meta.min ?? 1) || n > meta.max) return null;
+  if (meta.style === "cn") {
+    return { book: name, juan: n, pages: [`${meta.page}/卷${intToCn(n)}`] };
+  }
+  if (meta.style === "sxc") {
+    const mark = ["上", "中", "下"][n - 1];
+    return { book: name, juan: n, pages: [`${meta.page}/卷${mark}`] };
+  }
   const padded = String(n).padStart(meta.pad, "0");
   const pages = [`${meta.page}/卷${padded}`];
   if (padded !== String(n)) pages.push(`${meta.page}/卷${n}`);
@@ -1292,6 +1513,64 @@ const cleanWikiText = (raw: string): string =>
     .replace(/\n{3,}/g, "\n\n")
     .trim();
 
+// 四库扫描本只有 wiki 源文（正文包在 <onlyinclude><poem> 里，年份/注文是 SK 模板）：
+// 取正文块、由内向外剥模板、还原文内链接与实体，与离线脚本同一口径。
+const cleanWikitext = (raw: string): string => {
+  let text = raw
+    .replace(/<!--[\s\S]*?-->/g, "")
+    .replace(/<noinclude>[\s\S]*?<\/noinclude>/g, "")
+    .replace(/<onlyinclude>([\s\S]*?)<\/onlyinclude>/g, "$1")
+    .replace(/<pages[^>]*\/>/g, "")
+    .replace(/<\/?poem>/g, "")
+    .replace(/<br\s*\/?>/g, "\n")
+    .replace(/<\/?[a-z][^>]*>/gi, "");
+  for (let i = 0; i < 8; i += 1) {
+    const before = text;
+    text = text
+      .replace(/\{\{YL\|([^{}|]+)\}\}/g, "$1")
+      .replace(/\{\{SK anchor\|([^{}|]+)\}\}/g, "$1")
+      .replace(/\{\{SKchar\|[^{}|]+\}\}/g, "")
+      .replace(/\{\{SK notes\|([^{}]*)\}\}/g, "（$1）")
+      .replace(/\{\{[^{}]*\}\}/g, "");
+    if (text === before) break;
+  }
+  text = text
+    .replace(/\[\[([^\]|]+)\|([^\]]+)\]\]/g, "$2")
+    .replace(/\[\[([^\]]+)\]\]/g, "$1")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#(\d+);/g, (_, code) => String.fromCodePoint(Number(code)))
+    .replace(/[-]/g, "")
+    // 扫描本卷末残留的 <史部,載記類,書名> 类目标记（实体解码后才现形，放这一道）
+    .replace(/<[^>\n]{1,60}>/g, "")
+    .replace(/［\[?[^\]]*校勘[^\]]*\]?］/g, "")
+    .replace(/　/g, " ")
+    .replace(/[ \t]+/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+  // 去掉卷首的「欽定四庫全書」「書名卷N」「某人撰」这类版式行
+  const lines = text.split("\n").map((l) => l.trim()).filter(Boolean);
+  const head: string[] = [];
+  for (const line of lines) {
+    if (head.length >= 5) break;
+    const isBookLine = /^欽定四庫全書/.test(line)
+      || /^(南唐書|十國春秋)\s*卷/.test(line)
+      || /^[\d０-９]+$/.test(line)
+      || (line.length <= 30 && /^(宋|元|明|清)?\s*[^\s]{0,12}\s*撰/.test(line));
+    if (isBookLine) {
+      head.push(line);
+      continue;
+    }
+    break;
+  }
+  return lines.filter((line) => !head.includes(line)).join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+};
+
 type OnlinePage = {
   book: string; juan: number; title: string; url: string;
   text: string; chars: number; fetchedAt: number;
@@ -1320,9 +1599,26 @@ const writePageCache = (row: OnlinePage) => {
 };
 
 // 取一卷正文；先试带零的标题，再试不带的，最后退回 redirects
+// 四库扫描本（南唐书、十国春秋）没有纯文本，走 revisions 取源文再剥模板
 const fetchRemotePage = async (book: string, juan: number, titles: string[]): Promise<OnlinePage | null> => {
+  const mode = ONLINE_BOOKS[book]?.mode ?? "extract";
   for (const title of titles) {
     try {
+      if (mode === "wikitext") {
+        const data = await queryWikiApi({
+          action: "query", prop: "revisions", rvprop: "content", rvslots: "main",
+          redirects: "1", titles: title,
+        });
+        const page = data?.query?.pages?.[0];
+        const raw = page?.revisions?.[0]?.slots?.main?.content ?? "";
+        if (!page || page.missing || !raw) continue;
+        const text = cleanWikitext(raw);
+        if (text.length < 40) continue;
+        return {
+          book, juan, title: page.title, url: `https://zh.wikisource.org/wiki/${encodeURIComponent(page.title)}`,
+          text, chars: text.length, fetchedAt: Date.now(),
+        };
+      }
       const data = await queryWikiApi({
         action: "query", prop: "extracts", explaintext: "1", exsectionformat: "plain",
         exlimit: "1", redirects: "1", titles: title,
@@ -1341,21 +1637,40 @@ const fetchRemotePage = async (book: string, juan: number, titles: string[]): Pr
   return null;
 };
 
-// 不知道卷次时，用维基文库站内搜索定位到某一卷（只认这两本书的卷页）
-const locateVolume = async (query: string, book?: string): Promise<{ book: string; juan: number; titles: string[] } | null> => {
+// 不知道卷次时，用维基文库站内搜索定位到某一卷（只认白名单里的卷页）
+const locateVolume = async (query: string, book?: string): Promise<{ book: string; juan: number; pages: string[] } | null> => {
   const data = await queryWikiApi({
     action: "query", list: "search", srsearch: book ? `${query} ${book}` : query,
     srlimit: "10", srnamespace: "0",
   });
   const hits: any[] = data?.query?.search ?? [];
   const prefixes: Record<string, string> = {
-    新五代史: "新五代史", 宋史: "宋史", "資治通鑑": "资治通鉴", "资治通鉴": "资治通鉴",
+    新五代史: "新五代史", 舊五代史: "旧五代史", 宋史: "宋史",
+    資治通鑑: "资治通鉴", 资治通鉴: "资治通鉴",
+    五代會要: "五代会要", 吳越備史: "吴越备史", 江南野史: "江南野史",
+    江表志: "江表志",
+    "南唐書 (陸游, 四庫全書本)": "陆游南唐书",
+    "南唐書 (馬令, 四庫全書本)": "马令南唐书",
+    "十國春秋 (四庫全書本)": "十国春秋",
   };
+  const SXD: Record<string, number> = { 上: 1, 中: 2, 下: 3 };
   for (const hit of hits) {
-    const match = String(hit.title ?? "").match(/^(新五代史|宋史|資治通鑑|资治通鉴)\/卷([0-9]{1,3})$/);
+    const title = String(hit.title ?? "");
+    // 江表志是卷上/卷中/卷下
+    const sxc = title.match(/^(江表志)\/卷([上中下])$/);
+    if (sxc) {
+      const canonical = prefixes[sxc[1]];
+      if (book && canonical !== book) continue;
+      const target = normalizeHistoryPage(canonical, SXD[sxc[2]]);
+      if (target) return target;
+      continue;
+    }
+    const match = title.match(
+      /^(新五代史|舊五代史|宋史|資治通鑑|资治通鉴|五代會要|吳越備史|江南野史|南唐書 \([^\n]{2,12}四庫全書本\)|十國春秋 \(四庫全書本\))\/卷([0-9零〇一二三四五六七八九十百千]{1,3})$/
+    );
     if (!match) continue;
     const canonical = prefixes[match[1]];
-    if (book && canonical !== book) continue;
+    if (!canonical || (book && canonical !== book)) continue;
     const target = normalizeHistoryPage(canonical, match[2]);
     if (target) return target;
   }
@@ -1375,6 +1690,7 @@ const buildOnlineResult = (
   query: string, source: "cache" | "live",
 ) => ({
   book, juan: `卷${juan}`, title, url, chars: text.length, source,
+  tier: ONLINE_BOOKS[book]?.tier ?? "A",
   text: historySnippet({ id: `${book}${juan}`, book, juan: `卷${juan}`, title: "", url, text } as HistoryChunk, query, 1200),
 });
 
@@ -1383,7 +1699,7 @@ const fetchHistoryOnline = async (
   query: string,
   book?: string,
   juan?: unknown,
-): Promise<{ book: string; juan: string; title: string; url: string; chars: number; text: string; source: string } | null> => {
+): Promise<{ book: string; juan: string; title: string; url: string; chars: number; text: string; source: string; tier?: HistoryTier } | null> => {
   if (!query && juan === undefined) return null;
   const explicit = normalizeHistoryPage(book || "", juan);
   if (!explicit && book && juan !== undefined) return null;
@@ -1391,11 +1707,22 @@ const fetchHistoryOnline = async (
   let target = explicit;
   let located = false;
   if (!target) {
-    if (!query) return null;
-    target = await locateVolume(query, book);
-    if (!target) return null;
-    located = true;
+    // 全书一页的笔记（南唐近事、江南别录、钓矶立谈）无需搜索定位，直接取该页
+    const single = book && ONLINE_BOOKS[book]?.style === "single"
+      ? normalizeHistoryPage(book, 1)
+      : null;
+    if (single) {
+      target = single;
+    } else {
+      if (!query) return null;
+      target = await locateVolume(query, book);
+      if (!target) return null;
+      located = true;
+    }
   }
+
+  // 库C 野史只应在读者主动问野史时抓取，免得正史问题被传闻带偏
+  if ((ONLINE_BOOKS[target.book]?.tier ?? "A") === "C" && !isHearsayAsk(query)) return null;
 
   let row = readPageCache(target.book, target.juan);
   let source: "cache" | "live" = "cache";
@@ -1549,12 +1876,12 @@ const TOOLS = [
     type: "function",
     function: {
       name: "search_history",
-      description: "查本地正史语料：《新五代史》七十四卷与《宋史·卷478》（南唐李氏等列国世家）。作为 fetch_history_online 的兜底：在线抓取失败、或该卷不在白名单范围内时再用。答案要写明出处，如「《新五代史·卷62·南唐世家》」。",
+      description: "查本地史书语料（按可信度分库）：库A《旧五代史》《新五代史》《资治通鉴》《宋史》《五代会要》；库B 陆游《南唐书》、马令《南唐书》《吴越备史》《江表志》《江南别录》；库C 野史笔记《南唐近事》《江南野史》《钓矶立谈》（仅在读者主动问野史时返回，回答须标「传闻异说」）；库D《十国春秋》（清人汇编，仅备交叉比对，不优先采信）。答案要写明出处，如「《新五代史·卷62·南唐世家》」。",
       parameters: {
         type: "object",
         properties: {
           query: { type: "string", description: "检索词：人名、地名、国名、年号或事件，如「柴荣」「采石浮桥」「显德二年」" },
-          book: { type: "string", description: "可选，限定书名，如「新五代史」「宋史」；拿不准就不要传" },
+          book: { type: "string", description: "可选，限定书名，如「新五代史」「旧五代史」「宋史」「南唐书」「吴越备史」「十国春秋」；拿不准就不要传" },
         },
         required: ["query"],
       },
@@ -1564,12 +1891,12 @@ const TOOLS = [
     type: "function",
     function: {
       name: "fetch_history_online",
-      description: "从维基文库抓取正史卷页原文（只允许《新五代史》1–74 卷、《宋史》1–496 卷、《资治通鉴》1–294 卷），命中本地缓存则秒回。凡问 978 年以前五代十国或宋初的史事，优先调它，抓到后用自己的口吻转述；失败再退回 search_history。",
+      description: "从维基文库抓取卷页原文，抓到即切块进 RAG 再检索转述。白名单：《新五代史》1–74、《旧五代史》1–150、《宋史》1–496、《资治通鉴》1–294、《五代会要》1–30、陆游《南唐书》1–18、马令《南唐书》1–30、《吴越备史》1–4、《江表志》卷上中下、《江南别录》《南唐近事》《江南野史》1–10、《钓矶立谈》、《十国春秋》1–114。命中本地缓存则秒回。凡问 978 年以前五代十国或宋初的史事，优先调它，抓到后用自己的口吻转述；失败再退回 search_history。野史笔记（南唐近事、江南野史、钓矶立谈）只在读者主动问野史时才抓，引用须标「传闻异说」。",
       parameters: {
         type: "object",
         properties: {
           query: { type: "string", description: "人名、事件或关键词，用于在卷内摘取相关段落" },
-          book: { type: "string", enum: ["新五代史", "宋史", "资治通鉴"], description: "可选，限定书名；拿不准就不要传" },
+          book: { type: "string", enum: ["新五代史", "旧五代史", "宋史", "资治通鉴", "五代会要", "南唐书", "陆游南唐书", "马令南唐书", "吴越备史", "江表志", "江南别录", "南唐近事", "江南野史", "钓矶立谈", "十国春秋"], description: "可选，限定书名；拿不准就不要传" },
           juan: { type: "string", description: "可选，卷次，如 62 或 卷62；不传则用 query 在维基文库站内搜索定位" },
         },
         required: ["query"],
@@ -1745,6 +2072,7 @@ const execTool = async (
       rows.forEach((row) => {
         historySeen.set(`${row.book}${row.juan}`, {
           book: row.book, juan: row.juan, title: row.title ?? "", url: row.url,
+          tier: chunkTier(row), tierLabel: tierName(chunkTier(row)),
         });
         toolTexts.push(row.text);
       });
@@ -1757,6 +2085,8 @@ const execTool = async (
             book: row.book,
             juan: row.juan,
             title: row.title ?? "",
+            tier: chunkTier(row),
+            tierLabel: tierName(chunkTier(row)),
             kind: row.kind ?? "正史",
             author: row.author ?? "",
             url: row.url,
@@ -1764,10 +2094,10 @@ const execTool = async (
             matched: textHasQuery(row.text, query),
           })),
           hint: !rows.length
-            ? "本地正史里没有直接对应的段落：改用 fetch_history_online 抓取，或只按已确认的史实作答，不要把别的段落硬套到所问的事上。"
+            ? "本地史书里没有直接对应的段落：改用 fetch_history_online 抓取，或只按已确认的史实作答，不要把别的段落硬套到所问的事上。"
             : !matched.length
-              ? "这些段落与所问的事对不上（正文里没有检索词）：不要引用它们回答问题，改用 fetch_history_online 抓取；抓不到就直说正史没查着。"
-              : "这些是文言原文。回答时点明出处（如「《新五代史·卷62》」）；只摘一两句最相关的，用你第一人称的口吻转述成白话，不要整段照抄、不要写成百科总结；原文没有明说的亲属、君臣、即位关系不要推断，读不通就说读得吃力；只取 978 年以前的段落，979 年以后的内容一律不要引用。",
+              ? "这些段落与所问的事对不上（正文里没有检索词）：不要引用它们回答问题，改用 fetch_history_online 抓取；抓不到就直说史书没查着。"
+              : `这些是文言原文，按库别标了 tiers：库A 正史为准；库B 可采信，但与库A 冲突时以库A 为准；库C 是传闻异说，除非读者主动问野史，否则不要拿来下结论，引用时必须写明「传闻异说，不作定论」；库D 是清人汇编，只作交叉比对，不优先采信。回答时点明出处（如「《新五代史·卷62》」）；只摘一两句最相关的，用你第一人称的口吻转述成白话，不要整段照抄、不要写成百科总结；原文没有明说的亲属、君臣、即位关系不要推断，读不通就说读得吃力；只取 978 年以前的段落，979 年以后的内容一律不要引用。`,
         },
         card: null,
       };
@@ -1776,13 +2106,21 @@ const execTool = async (
     if (name === "fetch_history_online") {
       const query = normalize(args.query, 60);
       // 模型偶尔漏传 book：从读者原话里认一下书名，避免「卷一」等卷次落空
-      const askedBook = /新五代史|五代史/.test(userText)
+      const askedBook = /新五代史/.test(userText)
         ? "新五代史"
-        : /资治通鉴|資治通鑑|通鑑|通鉴/.test(userText)
-          ? "资治通鉴"
-          : /宋史/.test(userText) ? "宋史" : "";
-      const rawBook = normalize(args.book, 10) || askedBook;
-      const book = rawBook === "資治通鑑" ? "资治通鉴" : rawBook;
+        : /旧五代史|舊五代史/.test(userText)
+          ? "旧五代史"
+          : /资治通鉴|資治通鑑|通鑑|通鉴/.test(userText)
+            ? "资治通鉴"
+            : /五代会要|五代會要/.test(userText)
+              ? "五代会要"
+              : /吴越备史|吳越備史/.test(userText)
+                ? "吴越备史"
+                : /江南野史/.test(userText)
+                  ? "江南野史"
+                  : /宋史/.test(userText) ? "宋史" : "";
+      const rawBook = normalize(args.book, 12) || askedBook;
+      const book = BOOK_ALIASES[rawBook] ?? rawBook;
       // 卷次可能写在 juan、query（「卷294 后周世宗北伐」），也可能只在读者原话里；
       // 三处都认，避免模型漏传 juan 时整次抓取落空
       const juanArg = String(args.juan ?? "").trim()
@@ -1804,6 +2142,7 @@ const execTool = async (
       }
       historySeen.set(`${row.book}${row.juan}`, {
         book: row.book, juan: row.juan, title: row.title, url: row.url,
+        tier: row.tier ?? "A", tierLabel: tierName(row.tier ?? "A"),
       });
       toolTexts.push(row.text);
       return {
@@ -2354,8 +2693,9 @@ if (typeof Deno !== "undefined") {
     // 只在没有对话上下文时启用：带上下文时问法可能指代前文，固定答复会答偏
     if (action === "ask" && !history.length) {
       const direct = directFactReply(message, factEntries);
-      // 固定答复若带了 978 年以后的信息，也不能直出，交给 Agent 按时间边界重写
-      if (direct && !checkFutureKnowledge(direct)) {
+      // 固定答复不再直出：史实问题必须先爬、进 RAG、再由模型转述。
+      // 只有没命中任何史实卡的闲聊式问句才可能走到这里（此时 direct 本就是 null）
+      if (direct && !checkFutureKnowledge(direct) && !factEntries.length) {
         logGuide({
           session_id: sessionId,
           mode: action,
@@ -2403,22 +2743,39 @@ if (typeof Deno !== "undefined") {
     let temperature = 0.75;
     // 问句命中史实卡片/史实库时压低温度：这类问题怕的不是不好看，是关系写错
     if (figureFacts.length || factEntries.length) temperature = Math.min(temperature, 0.35);
+    // 史事问题同样压低温度：宁可朴素，不许发挥
+    if (needsGrounding(message)) temperature = Math.min(temperature, 0.3);
 
     // 史事问题先检索一次：模型不调工具也能拿到原文，避免它凭记忆编造书信、对话
     let evidenceTexts: string[] = [];
     let retrievalBlock = "";
-    if (action === "ask" && isHistoryAsk(message)) {
-      const hits = await searchHistory(message, undefined, 3);
+    let preHits: any[] = [];
+    if (action === "ask" && (needsGrounding(message) || factEntries.length)) {
+      // 史实问题一律「先爬、再进 RAG、再让模型转述」：
+      // 先按问句在线定位卷页（命中 pages 缓存则秒回），抓到的整卷即时切块入 RAG；
+      // 抓不到（站内搜索未定位到本纪卷）就只用本地语料与已入 RAG 的在线卷
+      // 读者用「我/朕」自称时代入李煜，否则「我的死」这种问题检索不到任何东西
+      const groundQuery = /[我朕]/.test(message) && !/李煜|李从嘉|后主/.test(message)
+        ? `${message} 李煜`
+        : message;
+      await fetchHistoryOnline(groundQuery).catch(() => null);
+      const hits = await searchHistory(groundQuery, undefined, 3);
+      preHits = hits;
       evidenceTexts = hits.map((h) => h.text);
       retrievalBlock = hits.length
-        ? `正史检索结果（回答只能依据这些段落）：
-${hits.map((h) => `-《${h.book}·${h.juan}》：${h.text}`).join("\n")}
+        ? `史书检索结果（回答只能依据这些段落）：
+${hits.map((h) => `-《${h.book}·${h.juan}》〔${tierName(chunkTier(h))}〕：${h.text}`).join("\n")}
 作答要求：
 - **不要整段照抄文言**：用自己的话转述，控制在 80—140 字；最多引一句，且不超过 20 字；
+- 引用时要点明出处与库别：库A 正史为准，库B 与库A 冲突时以库A 为准；
+- 段落前的〔库X·…〕是可信度标记：只有库C 才是传闻，库A、库B、库D 都不是野史，不要把「传闻异说」安到它们头上；
+- 库C 的段落属于「传闻异说」，除非读者明确问野史，否则不要据此下结论；引到时必须写明「传闻异说，不作定论」；
+- 库D 是清人汇编，只作交叉比对，不许拿它压过库A、库B；
 - 回答里至少要点出检索段落中的一个具体人名、地名或年份，不要只作「反映了……」式概括；
-- 史书没写的情节、场景、动作、对话、心理，一律不许补写；也不要推断两人有过往来、私交或书信；
-- 读者问的事若不在这些段落里，就直说「正史里没有这一节」。`
-        : "正史检索结果：没有找到与所问直接相关的段落。不要编造书信、对话、诏令、原话，也不要补写场景、动作或心理；可以说「这一节正史没查着」。";
+- 史书没写的情节、场景、动作、对话、心理，一律不许补写（「望着明月」「心中悲凉」这类想象也不许）；也不要推断两人有过往来、私交或书信；
+- 不要给人物加史书没写的品性评语（忠诚、贤明、仁厚之类），只叙事实；
+- 读者问的事若不在这些段落里，就直说「史书里没有这一节」。`
+        : "史书检索结果：没有找到与所问直接相关的段落。不要编造书信、对话、诏令、原话，也不要补写场景、动作或心理；可以说「这一节史书没查着」。";
       temperature = Math.min(temperature, 0.3);
       maxTokens = Math.min(maxTokens, 260); // 史事回答只留 80—140 字的空间，防整段照抄
     }
@@ -2476,6 +2833,13 @@ ${hits.map((h) => `-《${h.book}·${h.juan}》：${h.text}`).join("\n")}
       toolSources = agentResult.sources; // 工具检索命中的词作，回传前端来源区
       steps = agentResult.steps;         // 工具调用轨迹：前端显示「侍读查过」
       historySources = agentResult.history; // 正史出处，回传前端可点链接
+      // 前置检索命中也当出处：Agent 没调史书工具时，读者照样该看到「查的是哪几卷」
+      if (!historySources.length && preHits.length) {
+        historySources = preHits.map((h) => ({
+          book: h.book, juan: h.juan, title: h.title ?? "", url: h.url ?? "",
+          tier: h.tier, tierLabel: tierName(chunkTier(h)),
+        }));
+      }
       toolEvidence = agentResult.toolTexts; // 工具给出的原文，供引文核对
     } else {
       const result = await callModel(messages, { model, maxTokens, temperature });
@@ -2496,7 +2860,7 @@ ${hits.map((h) => `-《${h.book}·${h.juan}》：${h.text}`).join("\n")}
 
     // 引文闸：史事问题里的长引文必须能在检索结果/工具原文里找到，
     // 找不到就重写；再犯就删掉引号原话——宁可少说，不许编造书信、对话、诏令
-    if (action === "ask" && isHistoryAsk(message)) {
+    if (action === "ask" && needsGrounding(message)) {
       const quoteSources = [
         factsBlock,
         ...evidenceTexts,
@@ -2528,7 +2892,7 @@ ${hits.map((h) => `-《${h.book}·${h.juan}》：${h.text}`).join("\n")}
     }
 
     // 照抄闸：史事回答若整段搬文言（与史料连续重合 ≥60 字），要求改成白话转述
-    if (action === "ask" && isHistoryAsk(message)) {
+    if (action === "ask" && needsGrounding(message)) {
       const sourcePool = [...evidenceTexts, ...toolEvidence].filter(Boolean);
       const run = longestVerbatimRun(answer, sourcePool);
       if (run >= 60) {
@@ -2550,11 +2914,39 @@ ${hits.map((h) => `-《${h.book}·${h.juan}》：${h.text}`).join("\n")}
 
     // 拟话闸：问「说了什么/写了什么/信里」时，回答若拿不出与史料重合的原句，
     // 就是在替古人拟话——宁可说没留下，不许编一封书信或一段对话
-    if (action === "ask" && isHistoryAsk(message) && isSpeechAsk(message)) {
+    if (action === "ask" && needsGrounding(message) && isSpeechAsk(message)) {
       const quoted = longestVerbatimRun(answer, [...evidenceTexts, ...toolEvidence].filter(Boolean));
       if (quoted < 12) {
         answer = "我查到的那几卷里没有留下这段原话，我不便编一句给你。";
       }
+    }
+
+    // 想象闸：史事回答里不许出现证据中没有的场景/心理描写
+    // （「望着明月」「心中悲凉」这类是小模型惯用的填词，史书没写就不许有）
+    if (action === "ask" && needsGrounding(message)) {
+      const scenePool = [...evidenceTexts, ...toolEvidence].filter(Boolean).join("\n");
+      const SCENE_MARKERS = ["望着", "对着", "心中", "心底", "心里", "悲凉", "凄凉", "泪水", "泪流", "叹息", "长叹", "缓缓", "轻轻", "默默", "独自", "孤影", "涟漪", "月光下", "明月", "流星", "划过"];
+      const invented = SCENE_MARKERS.filter((w) => answer.includes(w) && !scenePool.includes(w));
+      if (invented.length >= 1) {
+        console.warn(`想象闸：${invented.join("/")} 不在检索结果中，重答一次`);
+        const rewritten = await callModel([
+          ...messages,
+          { role: "assistant", content: answer },
+          {
+            role: "user",
+            content: `上面这段里 ${invented.slice(0, 3).map((w) => `「${w}」`).join("")} 是史书里没写的场景或心理描写。请重答：只叙书里写了的事，60—120 字，不写任何场景、动作、心理，不加引号拟话；书里没写的就别说。`,
+          },
+        ], { model: resultModel, maxTokens: 240, temperature: 0.2 }).catch(() => null);
+        const clean = tidySourceTitles(String(rewritten?.text ?? "").replace(/【[^】]{1,30}】/g, "").trim());
+        if (clean) answer = clean;
+      }
+    }
+
+    // 无据闸：问史实却一条原文、一张史实卡、一段年表都没拿到，就不许自由发挥
+    if (action === "ask" && needsGrounding(message)
+      && !evidenceTexts.length && !toolEvidence.length && !factsBlock
+      && !toolsUsed.includes("get_timeline_event")) {
+      answer = "这一节，正史里没有留下记载，我不便凭空说。";
     }
 
     // 事实闸：小模型有时仍把关系写反（实测把周娥皇说成李璟的皇后）。
@@ -2596,6 +2988,20 @@ ${hits.map((h) => `-《${h.book}·${h.juan}》：${h.text}`).join("\n")}
             (item) => item.names.some((name) => message.includes(name)) || item.patterns?.some((re) => re.test(message)),
           )?.reply
           || FALLBACK_REPLY;
+      }
+    }
+
+    // 词禁闸：史实卡里标了「不许出现的说法」（例如把陈乔写成雅集知己、流放边地），
+    // 模型若照旧写出来，直接用卡片答复覆盖，不再和它拉扯
+    {
+      const forbidden: string[] = factEntries.flatMap((e: any) => (Array.isArray(e.forbid) ? e.forbid : []));
+      const violated = forbidden.find((word) => word && answer.includes(word));
+      if (violated) {
+        const owner = factEntries.find((e: any) => Array.isArray(e.forbid) && e.forbid.includes(violated));
+        if (owner?.reply) {
+          console.warn(`词禁闸拦截：回答出现「${violated}」，改用史实卡答复`);
+          answer = owner.reply;
+        }
       }
     }
 

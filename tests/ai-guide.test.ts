@@ -25,10 +25,15 @@ import {
   buildHistoryTerms,
   scoreHistoryChunks,
   normalizeHistoryPage,
+  isHearsayAsk,
+  allowChunk,
+  chunkTier,
+  tierName,
   checkFutureKnowledge,
   checkFutureQuestion,
   tidySourceTitles,
   isHistoryAsk,
+  needsGrounding,
   isSpeechAsk,
   unverifiedQuotes,
   longestVerbatimRun,
@@ -463,6 +468,15 @@ describe("directFactReply（命中即直答）", () => {
     assert.match(directFactReply("李从善什么时候去世的？", entries)!, /我走的时候/);
   });
 
+  test("陈乔问关系或后事也走固定答复，不编朋友与流放", () => {
+    const entries = matchFactEntries("你和陈乔是怎么认识的？");
+    const reply = directFactReply("你和陈乔是怎么认识的？", entries);
+    assert.match(reply!, /不是我在雅集上结识的朋友/);
+    assert.doesNotMatch(reply!, /流放|好友/);
+    const after = directFactReply("陈乔后来怎么样了？", matchFactEntries("陈乔后来怎么样了？"));
+    assert.match(after!, /没有细说/);
+  });
+
   test("议论式问法不直答，交给模型组织", () => {
     const entries = matchFactEntries("大周后是个怎样的人，为什么你那么怀念她？");
     assert.equal(directFactReply("大周后是个怎样的人，为什么你那么怀念她？", entries), null);
@@ -577,6 +591,15 @@ describe("时间闸（李煜所知止于 978 年）", () => {
     assert.equal(checkFutureQuestion("李煜是怎么死的？"), null);
     assert.equal(checkFutureQuestion("大周后是谁？"), null);
   });
+
+  test("引用陆游、欧阳修的书名不算越界", () => {
+    assert.equal(checkFutureKnowledge("陆游《南唐书》记烈祖事。"), null);
+    assert.equal(checkFutureKnowledge("《陆游南唐书·卷1》记烈祖。"), null);
+    assert.equal(checkFutureQuestion("陆游《南唐书》怎么说李昪"), null);
+    // 单独提到作者本人仍算越界
+    assert.ok(checkFutureKnowledge("陆游是南宋人。"));
+    assert.ok(checkFutureKnowledge("欧阳修是北宋人。"));
+  });
 });
 
 describe("史事问题前置检索与引文核对", () => {
@@ -585,6 +608,15 @@ describe("史事问题前置检索与引文核对", () => {
     assert.equal(isHistoryAsk("后周世宗北伐打到了哪里"), true);
     assert.equal(isHistoryAsk("虞美人写于什么时候"), false);
     assert.equal(isHistoryAsk("李煜被围攻时向谁求援"), true);
+  });
+
+  test("词表外的人名也要先查（陈乔是谁）", () => {
+    assert.equal(needsGrounding("陈乔是谁"), true);
+    assert.equal(needsGrounding("你和陈乔是什么关系"), true);
+    assert.equal(needsGrounding("陈乔最后怎么样了"), true);
+    assert.equal(needsGrounding("你和陈乔是怎么结识的"), true);
+    assert.equal(needsGrounding("你是谁"), false);
+    assert.equal(needsGrounding("虞美人写于什么时候"), false);
   });
 
   test("能识别「问原话」的问题", () => {
@@ -645,11 +677,65 @@ describe("normalizeHistoryPage（在线抓取白名单）", () => {
   });
 
   test("书名与卷次越界一律拒绝", () => {
-    assert.equal(normalizeHistoryPage("旧五代史", 10), null);
+    assert.equal(normalizeHistoryPage("旧五代史", 151), null);
     assert.equal(normalizeHistoryPage("新五代史", 75), null);
     assert.equal(normalizeHistoryPage("宋史", 497), null);
     assert.equal(normalizeHistoryPage("宋史", 0), null);
     assert.equal(normalizeHistoryPage("宋史", "abc"), null);
+    assert.equal(normalizeHistoryPage("五代会要", 31), null);
+    assert.equal(normalizeHistoryPage("吴越备史", 5), null);
+    assert.equal(normalizeHistoryPage("江南野史", 11), null);
+  });
+
+  test("新增四库书目按各自卷页命名", () => {
+    assert.deepEqual(normalizeHistoryPage("旧五代史", 10)?.pages, ["舊五代史/卷10"]);
+    assert.deepEqual(normalizeHistoryPage("五代会要", 30)?.pages, ["五代會要/卷三十"]);
+    assert.deepEqual(normalizeHistoryPage("吴越备史", 2)?.pages, ["吳越備史/卷2"]);
+    assert.deepEqual(normalizeHistoryPage("江南野史", 3)?.pages, ["江南野史/卷03", "江南野史/卷3"]);
+    // 四库扫描本（南唐书、十国春秋）也进在线白名单，走 wikitext 清洗
+    assert.deepEqual(normalizeHistoryPage("十国春秋", 16)?.pages, ["十國春秋 (四庫全書本)/卷016", "十國春秋 (四庫全書本)/卷16"]);
+    assert.deepEqual(normalizeHistoryPage("陆游南唐书", 1)?.pages, ["南唐書 (陸游, 四庫全書本)/卷01", "南唐書 (陸游, 四庫全書本)/卷1"]);
+    assert.deepEqual(normalizeHistoryPage("马令南唐书", 30)?.pages, ["南唐書 (馬令, 四庫全書本)/卷30"]);
+    // 江表志是卷上/中/下；单页笔记直接取书名页
+    assert.deepEqual(normalizeHistoryPage("江表志", 2)?.pages, ["江表志/卷中"]);
+    assert.deepEqual(normalizeHistoryPage("南唐近事", undefined)?.pages, ["南唐近事"]);
+    assert.deepEqual(normalizeHistoryPage("江南别录", 1)?.pages, ["江南別錄"]);
+    assert.deepEqual(normalizeHistoryPage("钓矶立谈", undefined)?.pages, ["釣磯立談"]);
+    // 越界仍拒绝
+    assert.equal(normalizeHistoryPage("十国春秋", 115), null);
+    assert.equal(normalizeHistoryPage("陆游南唐书", 19), null);
+    assert.equal(normalizeHistoryPage("江表志", 4), null);
+  });
+});
+
+describe("四库可信度分层（库A/B/C/D）", () => {
+  const chunk = (tier: any) => ({ id: "x", book: "书", juan: "卷1", tier, url: "", text: "" });
+
+  test("旧分块没有 tier 时按库A 正史处理", () => {
+    assert.equal(chunkTier({ tier: undefined }), "A");
+    assert.equal(chunkTier({ tier: "B" }), "B");
+  });
+
+  test("库别标签能直接写进出处", () => {
+    assert.equal(tierName("A"), "库A·正史");
+    assert.equal(tierName("B"), "库B·宋人私史");
+    assert.equal(tierName("C"), "库C·野史传闻");
+    assert.equal(tierName("D"), "库D·清人汇编");
+  });
+
+  test("野史问题才放开库C，普通史事只查正史与私史", () => {
+    assert.equal(isHearsayAsk("野史里怎么说李煜之死"), true);
+    assert.equal(isHearsayAsk("《南唐近事》怎么记这件事"), true);
+    assert.equal(isHearsayAsk("李煜哪一年去世"), false);
+    assert.equal(allowChunk(chunk("C"), "李煜哪一年去世"), false);
+    assert.equal(allowChunk(chunk("C"), "野史里怎么说李煜之死"), true);
+    assert.equal(allowChunk(chunk("C"), "《江南野史》怎么记"), true);
+  });
+
+  test("库A、库B、库D 默认可查，靠权重排序压住库D", () => {
+    assert.equal(allowChunk(chunk("A"), "李煜哪一年去世"), true);
+    assert.equal(allowChunk(chunk("B"), "李煜哪一年去世"), true);
+    assert.equal(allowChunk(chunk("D"), "李煜哪一年去世"), true);
   });
 });
 

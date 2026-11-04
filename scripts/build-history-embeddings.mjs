@@ -11,7 +11,7 @@
 //   - 8 条一批；若上游不收数组，自动退回逐条；
 //   - 失败只影响本次新增，旧向量保留。
 
-import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, renameSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { request as httpsRequest } from "node:https";
@@ -122,14 +122,33 @@ const main = async () => {
     }
   }
   const vectors = { ...(previous.vectors ?? {}) };
-  const todo = chunks.filter((c) => !vectors[c.id]);
+  // 库D《十国春秋》只作交叉比对，默认不烧向量，走关键词检索即可；
+  // 需要全量语义检索时加 --all。
+  const includeAll = process.argv.includes("--all");
+  const todo = chunks.filter((c) => !vectors[c.id] && (includeAll || c.tier !== "D"));
   if (!todo.length) {
     console.log(`已是最新：${chunks.length} 块均有向量`);
     return;
   }
-  console.log(`待生成 ${todo.length}/${chunks.length} 块（模型 ${MODEL}）`);
+  console.log(`待生成 ${todo.length}/${chunks.length} 块（模型 ${MODEL}${includeAll ? "，含库D" : "，库D 仅关键词"}）`);
 
   const batchSize = 8;
+  // 每 200 块落一次盘：新语料有数千块，若每批都写整份 vectors.json，
+  // 累计要写几百份上百 MB 的文件，磁盘会被拖垮。
+  let unsaved = 0;
+  // 原子写：先写临时文件再改名，避免进程中断留下半个 JSON（上次就是这么坏的）
+  const atomicWrite = (payload) => {
+    const tmp = `${VECTORS_FILE}.tmp`;
+    writeFileSync(tmp, payload, "utf8");
+    renameSync(tmp, VECTORS_FILE);
+  };
+  const save = () => {
+    atomicWrite(JSON.stringify({
+      meta: { model: MODEL, builtAt: new Date().toISOString(), count: Object.keys(vectors).length },
+      vectors,
+    }));
+    unsaved = 0;
+  };
   for (let i = 0; i < todo.length; i += batchSize) {
     const batch = todo.slice(i, i + batchSize);
     const texts = batch.map((c) => `《${c.book}·${c.juan}》${c.title ? ` ${c.title}` : ""}\n${c.text}`.slice(0, 1400));
@@ -144,16 +163,18 @@ const main = async () => {
     batch.forEach((chunk, index) => {
       if (Array.isArray(vecs[index]) && vecs[index].length) vectors[chunk.id] = vecs[index];
     });
-    writeFileSync(VECTORS_FILE, JSON.stringify({ meta: { model: MODEL, builtAt: new Date().toISOString(), count: Object.keys(vectors).length }, vectors }), "utf8");
+    unsaved += batch.length;
+    if (unsaved >= 200) save();
     const done = Math.min(i + batchSize, todo.length);
     process.stdout.write(`\r${done}/${todo.length}  ${batch[batch.length - 1].id}          `);
     await sleep(500);
   }
   process.stdout.write("\n");
+  if (unsaved) save();
 
   const dims = new Set(Object.values(vectors).map((v) => v.length));
   if (dims.size !== 1) throw new Error(`向量维度不一致：${[...dims].join(", ")}`);
-  writeFileSync(VECTORS_FILE, JSON.stringify({ meta: { model: MODEL, builtAt: new Date().toISOString(), count: Object.keys(vectors).length, dims: [...dims][0] }, vectors }), "utf8");
+  atomicWrite(JSON.stringify({ meta: { model: MODEL, builtAt: new Date().toISOString(), count: Object.keys(vectors).length, dims: [...dims][0] }, vectors }));
   console.log(`完成：${Object.keys(vectors).length} 块，${[...dims][0]} 维`);
 };
 
