@@ -1,5 +1,5 @@
-// 一江春水 · AI 侍读（前端组件）
-// 职责：一枚可拖拽的「侍」印陪读全站——点开可问答/检索词库；
+// 一江春水 · AI 梦客（前端组件）
+// 职责：一枚可拖拽的「梦」印陪读全站——点开可问答/检索词库；
 // 读到关键段落时，印章旁会浮出一句李煜本人的话，点「问问他」自动替你发问。
 // 所有请求统一发到站内的 /api/guide（由 Node 服务代理到智谱），前端不接触任何密钥。
 // 依赖：无（原生 JS），样式见 css/style.css 末尾的 .ai-guide 段。
@@ -49,7 +49,7 @@
       name: "首页",
       greet: "我是李煜。这一程我陪你走——读到哪里，都可以问我。",
       lead: "我是李煜。这一程从一场梦开始，你想先问什么？",
-      chips: ["用一句话介绍李煜", "他为什么被叫作词中之帝", "从哪一幕开始看比较好"],
+      chips: ["用一句话介绍李煜", "你为什么被叫作词中之帝", "从哪一幕开始看比较好"],
       hints: [
         { sel: ".mood-form", text: "心里那句说不出的话，写在这里，我替你续。", question: "我心里有一句话却不知怎么落笔，帮我想个开头。" },
       ],
@@ -58,7 +58,7 @@
       name: "月色故人",
       greet: "937 到 978，一生不过四十二年。我陪你慢慢看。",
       lead: "937 到 978，一生不过四十二年。关于这段身世，你可以问我。",
-      chips: ["937 到 978 发生了什么", "他为什么守不住南唐", "小周后是谁"],
+      chips: ["937 到 978 发生了什么", "你为什么守不住南唐", "小周后是个怎样的人"],
       hints: [
         { sel: ".timeline-item", text: "937 年，我出生在金陵。往下走，是我的一生。", question: "你出生那年，南唐是什么样子？" },
         { sel: ".trail-guide", text: "故事到这里断了一截。剩下的路，你可以问我。", question: "978 年之后，你的故事是怎样的？" },
@@ -67,11 +67,11 @@
       sections: [
         { sel: "#y937", key: "937", chips: ["重瞳是怎么回事", "你出生时南唐是什么样子", "小时候在宫里读什么书"],
           interpret: "我生在七夕。宫里人说重瞳是圣人之相，可排行第六的孩子，原轮不到江山。", question: "你出生时，真的一目重瞳吗？" },
-        { sel: "#y954", key: "954", chips: ["大周后人物史", "《霓裳羽衣》是怎么重订的", "那时候的宫宴是什么样子"],
+        { sel: "#y954", key: "954", chips: ["娥皇是怎样的人", "《霓裳羽衣》是怎么重订的", "那时候的宫宴是什么样子"],
           interpret: "娥皇嫁进来那年，我十八岁。我们一起把《霓裳羽衣》的残谱一段段补回去，那是最亮的日子。", question: "大周后娥皇是怎样的人？" },
         { sel: "#y961", key: "961", chips: ["你不是长子为什么继位", "即位那年宋朝已经多强", "父亲为什么迁都洪州"],
           interpret: "父亲在洪州去了，我二十五岁，在灵前接的这个位子。说是皇帝，其实已经要对北边称臣。", question: "你即位时南唐的处境有多难？" },
-        { sel: "#y964", key: "964", chips: ["大周后人物史", "娥皇病重时发生了什么", "小周后是那时候进宫的吗"],
+        { sel: "#y964", key: "964", chips: ["娥皇病重时你在做什么", "仲宣那时候怎么样了", "小周后是那时候进宫的吗"],
           interpret: "昭惠走的那年，仲宣也没保住。我写诔文，落款是「鳏夫煜」——那是我第一次知道，词救不了人。", question: "大周后病逝对你意味着什么？" },
         { sel: "#y971", key: "971", chips: ["从善为什么被扣在汴京", "江南国主和皇帝差在哪", "那几年为什么还要岁贡"],
           interpret: "从善被扣在汴京回不来。我上表削了唐号，改叫江南国主——名分这种东西，是让出去的。", question: "削去唐号是哪一年的事？" },
@@ -111,7 +111,7 @@
       name: "帘外余音",
       greet: "后人一直在重写我。戏台上那个我，有几分真，你看了再问我。",
       lead: "后人一直在重写我。戏台上的那个我，有几分真？",
-      chips: ["戏曲里的李煜可信吗", "为什么后人反复写他", "《天上人间》演的是什么"],
+      chips: ["戏曲里的李煜可信吗", "为什么后人反复写你", "《天上人间》演的是什么"],
       hints: [
         { sel: ".screen-world", text: "他们把我画了一遍又一遍。哪一幅像我，你说了算。", question: "后世这些演绎里，哪些最贴近真实的你？" },
       ],
@@ -119,7 +119,7 @@
       sections: [
         { sel: "#many-views", key: "views", chips: ["史书里的你是什么样", "为什么后人读出的你各不相同", "哪一种更接近真实的你"],
           interpret: "他们看我的目光分三种：史书里是失国的君主，词里是把愁写成江水的人，如今又成了被反复重画的影子。", question: "后世眼中的你和真实的你差多少？" },
-        { sel: "#screen-world", key: "screen", chips: ["戏台上的李煜可信吗", "《天上人间》演的是什么", "为什么游戏总把他画得很风流"],
+        { sel: "#screen-world", key: "screen", chips: ["戏台上的李煜可信吗", "《天上人间》演的是什么", "为什么游戏总把你画得很风流"],
           interpret: "一幅旧画像，四场当代的重逢。画上的我都不是我，可每一笔都照见了画的人。", question: "这些演绎里，哪个最接近我？" },
         { sel: ".living-echo", key: "echo", chips: ["为什么至今还有人写你", "词为什么能活得比人久", "后人续写的句子像你吗"],
           interpret: "词没有写完，后来的人替我续。他们写的不是我，是我留下的那点余音。", question: "为什么这么多年过去，还有人写我？" },
@@ -156,7 +156,7 @@
       name: "水墨行迹",
       greet: "地图上的每一处，我都走过。点一站，我讲给你听。",
       lead: "地图上的每一站，都是我真去过的地方。",
-      chips: ["李煜一生去过哪些地方", "金陵为什么守不住", "北邙在哪儿"],
+      chips: ["你一生去过哪些地方", "金陵为什么守不住", "北邙在哪儿"],
       hints: [
         { sel: ".map-guide-card", text: "按图索骥，顺着我的脚步走一遍南唐。", question: "按你的足迹，最该先看哪一站？" },
       ],
@@ -182,7 +182,7 @@
       name: "终幕",
       greet: "梦到这里就醒了。还有想问的，最后问吧。",
       lead: "梦到这里，江山就远了。最后想问什么，都可以。",
-      chips: ["用一句话总结这场梦", "他最想留下的是什么", "如果重来一次会怎样"],
+      chips: ["用一句话总结这场梦", "你最想留下的是什么", "如果重来一次会怎样"],
       hints: [
         { sel: ".finale-scroll", text: "梦要醒了。还有想问的，最后问吧。", question: "如果重来一次，你最想改变什么？" },
       ],
@@ -214,16 +214,16 @@
   const root = document.createElement("div");
   root.className = "ai-guide-root";
   root.innerHTML = `
-    <button class="ai-guide-seal" type="button" aria-expanded="false" aria-controls="aiGuidePanel" aria-label="打开 AI 侍读（可拖动）">
-      <span class="ai-guide-seal-word">侍</span>
-      <span class="ai-guide-seal-label">AI 侍读 · 可拖动</span>
+    <button class="ai-guide-seal" type="button" aria-expanded="false" aria-controls="aiGuidePanel" aria-label="打开 AI 梦客（可拖动）">
+      <span class="ai-guide-seal-word">梦</span>
+      <span class="ai-guide-seal-label">AI 梦客 · 可拖动</span>
     </button>
     <div class="ai-guide-bubble" role="status" hidden></div>
-    <section class="ai-guide-panel" id="aiGuidePanel" role="dialog" aria-modal="false" aria-label="AI 侍读" hidden>
+    <section class="ai-guide-panel" id="aiGuidePanel" role="dialog" aria-modal="false" aria-label="AI 梦客" hidden>
       <header class="ai-guide-head">
         <span class="ai-guide-mark" aria-hidden="true">煜</span>
-        <div class="ai-guide-title"><b>李煜 · 侍读</b><small>问词 · 解梦 · 检索</small></div>
-        <button class="ai-guide-close" type="button" aria-label="关闭 AI 侍读">×</button>
+        <div class="ai-guide-title"><b>李煜 · 梦客</b><small>问词 · 解梦 · 检索</small></div>
+        <button class="ai-guide-close" type="button" aria-label="关闭 AI 梦客">×</button>
       </header>
       <div class="ai-guide-body" role="log" aria-live="polite">
         <p class="ai-guide-page">此刻在「${page.name}」</p>
@@ -579,7 +579,7 @@
 
   // ---------- Agent 步骤与正史出处 ----------
   // 后端把每次工具调用记成一步（tool / args / hits），这里折成一行小字，
-  // 让读者看见「侍读查过什么」；查到正史的，再附上可回溯的出处链接。
+  // 让读者看见「梦客查过什么」；查到正史的，再附上可回溯的出处链接。
   const TOOL_LABELS = {
     search_poems: "词库",
     get_poem_detail: "词卡",
@@ -598,7 +598,7 @@
     group.className = "ai-guide-steps";
     const label = document.createElement("span");
     label.className = "ai-guide-steps-label";
-    label.textContent = "侍读查过";
+    label.textContent = "梦客查过";
     group.append(label);
     rows.slice(0, 6).forEach((step) => {
       const chip = document.createElement("span");

@@ -2208,7 +2208,7 @@ body.home-page.stage-mode .poem-card:hover .poem-arrow{transform:translate(3px,-
   body.home-page.stage-mode .stage-wash,
   body.home-page.stage-mode .stage-cut{display:none!important}
 }
-/* AI 侍读：右下角一方「侍」印，点开是纸色问答小窗（DOM 由 js/ai-guide.js 注入） */
+/* AI 梦客：右下角一方「梦」印，点开是纸色问答小窗（DOM 由 js/ai-guide.js 注入） */
 /* 由 root 定位：印在右下角，面板从印上方展开 */
 .ai-guide-root{position:fixed;z-index:1150;right:clamp(16px,3vw,36px);bottom:clamp(18px,3vh,34px);font-family:var(--serif);line-height:1.8}
 /* 首页翻开书封前先不出现，免得压住开场；入场滚动段（arrival-lock）也先收起 */
@@ -2271,7 +2271,7 @@ body.home-page.stage-mode .poem-card:hover .poem-arrow{transform:translate(3px,-
 .ai-guide-source b{font-family:"Xuandong Kaishu",var(--serif);font-weight:400;font-size:13px;color:#2c3f34;letter-spacing:.03em}
 .ai-guide-source small{font:9px var(--sans);color:#8d967f;letter-spacing:.08em;margin-left:8px}
 .ai-guide-source em{display:block;font-style:normal;font-size:11.5px;color:#66735f;line-height:1.7;margin-top:2px}
-/* Agent 轨迹：回答之后的一行「侍读查过」，步骤之间留白，正史出处可点 */
+/* Agent 轨迹：回答之后的一行「梦客查过」，步骤之间留白，正史出处可点 */
 .ai-guide-steps{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin:-4px 0 12px;animation:ai-guide-rise .32s ease both}
 .ai-guide-steps-label{font:9px var(--sans);letter-spacing:.16em;color:#87907f;margin-right:2px}
 .ai-guide-step{font:10px var(--sans);letter-spacing:.03em;color:#5f6c5f;background:rgba(48,77,63,.055);border:1px solid rgba(48,77,63,.12);padding:2px 7px}

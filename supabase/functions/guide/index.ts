@@ -2006,7 +2006,7 @@ const callModel = async (
   messages: any[],
   options: ModelOptions = {},
 ): Promise<ModelResult> => {
-  if (!EXTERNAL_KEY) throw new Error("侍读未配置密钥：请在 .env.local 里设置 ZHIPU_API_KEY");
+  if (!EXTERNAL_KEY) throw new Error("梦客未配置密钥：请在 .env.local 里设置 ZHIPU_API_KEY");
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), options.timeoutMs ?? 50_000);
   const payload: Record<string, unknown> = {
@@ -3207,7 +3207,7 @@ ${hits.map((h) => `-《${h.book}·${h.juan}》〔${tierName(chunkTier(h))}〕：
   } catch (error) {
     console.error("guide 处理失败", error);
     const messageText = error instanceof Error ? error.message : "未知错误";
-    return jsonResponse({ error: `侍读暂时走神了：${messageText}` }, 500);
+    return jsonResponse({ error: `梦客暂时走神了：${messageText}` }, 500);
   }
   });
 }
