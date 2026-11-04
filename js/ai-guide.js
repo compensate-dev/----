@@ -280,7 +280,7 @@
   let busy = false;
 
   // ---------- 印章拖拽 ----------
-  // 位置存 localStorage（跨页面保持），值是印章左上角的 left/top 坐标
+  // 位置只记在本次浏览（sessionStorage）：新开一次网站仍回右下角，页内拖动不丢
   const POS_KEY = "liyu-ai-seal-pos";
   const SEAL_SIZE = 58;
   const EDGE_GAP = 10;
@@ -301,15 +301,18 @@
     return pos;
   };
 
-  // 读取保存的位置；没有则用默认位（CSS 的 right/bottom）反推出坐标，便于统一处理
+  // 读取本次浏览里拖到的位置；没有则用默认位（CSS 的 right/bottom）反推出坐标，便于统一处理
   const initPos = () => {
     let saved = null;
-    try { saved = JSON.parse(localStorage.getItem(POS_KEY) || "null"); } catch (error) { saved = null; }
+    try { saved = JSON.parse(sessionStorage.getItem(POS_KEY) || "null"); } catch (error) { saved = null; }
     if (saved && Number.isFinite(saved.x) && Number.isFinite(saved.y)) {
       applyPos(saved.x, saved.y);
       return;
     }
     const rect = seal.getBoundingClientRect();
+    // 首页开卷前印章是 display:none，量出来是 0×0；此时不要写成 left:0/top:0，
+    // 保留 CSS 的 right/bottom，等正式进入主页时自然出现在右下角
+    if (!rect.width || !rect.height) return;
     applyPos(rect.left, rect.top);
   };
 
@@ -355,7 +358,7 @@
       const rect = seal.getBoundingClientRect();
       const pos = clampPos(rect.left, rect.top);
       applyPos(pos.x, pos.y);
-      try { localStorage.setItem(POS_KEY, JSON.stringify(pos)); } catch (error) { /* 忽略 */ }
+      try { sessionStorage.setItem(POS_KEY, JSON.stringify(pos)); } catch (error) { /* 忽略 */ }
       // 拖动结束后 suppress 紧接着的 click（否则会误开面板）
       event.preventDefault();
       event.stopPropagation();
@@ -369,6 +372,7 @@
   // 窗口缩放时把印章收回来
   window.addEventListener("resize", () => {
     const rect = seal.getBoundingClientRect();
+    if (!rect.width || !rect.height) return; // 隐藏时（首页未开卷）不量位置，保持右下角默认
     const pos = clampPos(rect.left, rect.top);
     applyPos(pos.x, pos.y);
   });
