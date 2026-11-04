@@ -31,6 +31,7 @@ import {
   tierName,
   checkFutureKnowledge,
   checkFutureQuestion,
+  detectEmotion,
   tidySourceTitles,
   isHistoryAsk,
   needsGrounding,
@@ -736,6 +737,29 @@ describe("四库可信度分层（库A/B/C/D）", () => {
     assert.equal(allowChunk(chunk("A"), "李煜哪一年去世"), true);
     assert.equal(allowChunk(chunk("B"), "李煜哪一年去世"), true);
     assert.equal(allowChunk(chunk("D"), "李煜哪一年去世"), true);
+  });
+});
+
+describe("detectEmotion（话题情绪层）", () => {
+  test("谈词欣然，谈亡国沉痛，谈己死平静，各归各的情绪", () => {
+    assert.equal(detectEmotion("你写《虞美人》时在想什么")?.mood, "欣然有光");
+    assert.equal(detectEmotion("南唐亡国那天是什么情形")?.mood, "沉痛自悔");
+    assert.equal(detectEmotion("野史里的牵机药是真的吗")?.mood, "讳惧后的平静");
+  });
+
+  test("亲人各自有别：娥皇深情、女英怜惜、幼子藏哀", () => {
+    assert.equal(detectEmotion("大周后是个怎样的人")?.mood, "深情追忆");
+    assert.equal(detectEmotion("小周后后来怎么样了")?.mood, "怜惜愧怍");
+    assert.equal(detectEmotion("仲宣夭折的事你愿意讲吗")?.mood, "哀痛藏起");
+  });
+
+  test("规则按顺序取第一条：我的死 优先于 亡国/囚", () => {
+    assert.equal(detectEmotion("你被囚在汴京时怕过自己的死吗")?.mood, "讳惧后的平静");
+  });
+
+  test("无关话题返回 null，不注入情绪", () => {
+    assert.equal(detectEmotion("李从善入宋是哪一年的事"), null);
+    assert.equal(detectEmotion(""), null);
   });
 });
 
