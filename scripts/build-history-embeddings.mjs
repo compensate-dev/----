@@ -22,7 +22,7 @@ const CHUNKS_FILE = join(DIR, "chunks.json");
 const VECTORS_FILE = join(DIR, "vectors.json");
 const FORCE = process.argv.includes("--force");
 
-const BASE = (process.env.GUIDE_API_BASE || "https://open.bigmodel.cn/api/paas/v4").replace(/\/$/, "");
+const BASE = (process.env.EMBED_API_BASE || process.env.ZHIPU_API_BASE || "https://open.bigmodel.cn/api/paas/v4").replace(/\/$/, "");
 const MODEL = process.env.EMBED_MODEL || "embedding-3";
 
 const loadEnv = () => {
@@ -38,7 +38,8 @@ const loadEnv = () => {
 };
 loadEnv();
 
-const KEY = process.env.GUIDE_API_KEY || process.env.ZHIPU_API_KEY || "";
+// 对话侧可换供应商（GUIDE_API_*），向量始终走 EMBED_API_*（缺省智谱）
+const KEY = process.env.EMBED_API_KEY || process.env.ZHIPU_API_KEY || process.env.GUIDE_API_KEY || "";
 if (!KEY) {
   console.error("缺少密钥：请在 .env.local 里写 ZHIPU_API_KEY=...");
   process.exit(1);

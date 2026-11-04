@@ -10,3 +10,8 @@
 logs/
 data/paintings/
 data/tts/
+
+# 史料语料产物：全部可由脚本重建，不进仓库
+# （sync-history.mjs 抓全文 → build-history-embeddings.mjs 补向量；
+#   vectors.json 102MB，超过 GitHub 100MB 硬限制，git add 会卡死在哈希大文件上）
+data/history/

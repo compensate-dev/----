@@ -32,6 +32,7 @@ import {
   checkFutureKnowledge,
   checkFutureQuestion,
   detectEmotion,
+  emotionForTurn,
   tidySourceTitles,
   isHistoryAsk,
   needsGrounding,
@@ -760,6 +761,22 @@ describe("detectEmotion（话题情绪层）", () => {
   test("无关话题返回 null，不注入情绪", () => {
     assert.equal(detectEmotion("李从善入宋是哪一年的事"), null);
     assert.equal(detectEmotion(""), null);
+  });
+
+  test("emotionForTurn：本轮优先，其次取上一轮余韵", () => {
+    assert.equal(emotionForTurn("大周后是个怎样的人")?.kind, "direct");
+    // 本轮无情绪话题，但上一轮刚谈完娥皇——应有余韵
+    const glow = emotionForTurn("后来呢", [
+      { role: "user", content: "大周后是个怎样的人" },
+      { role: "assistant", content: "……" },
+    ]);
+    assert.equal(glow?.kind, "afterglow");
+    assert.equal(glow?.mood, "深情追忆");
+    // 上一轮也是闲聊——返回 null
+    assert.equal(
+      emotionForTurn("后来呢", [{ role: "user", content: "李从善入宋是哪一年的事" }]),
+      null,
+    );
   });
 });
 

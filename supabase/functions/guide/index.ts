@@ -381,6 +381,19 @@ export const EMOTION_RULES: { pattern: RegExp; mood: string; hint: string }[] = 
 export const detectEmotion = (message: string) =>
   EMOTION_RULES.find((r) => r.pattern.test(message)) ?? null;
 
+// 本轮情绪：先看本轮话题；话题不带情绪时，看上一轮还沉在什么情绪里——
+// 刚谈完娥皇，下一句还该有余温；情绪要连贯，不能像翻脸就翻篇。
+export const emotionForTurn = (
+  message: string,
+  history: { role?: string; content?: unknown }[] = [],
+): { mood: string; hint: string; kind: "direct" | "afterglow" } | null => {
+  const direct = detectEmotion(message);
+  if (direct) return { ...direct, kind: "direct" };
+  const lastUser = [...history].reverse().find((h) => h?.role === "user");
+  const prev = lastUser ? detectEmotion(String(lastUser.content ?? "")) : null;
+  return prev ? { ...prev, kind: "afterglow" } : null;
+};
+
 // Agent 工具使用守则：什么时候查、什么时候带路
 const AGENT_GUIDE = `你手边有七件工具，按下面的规矩用：
 - 谈某首词、某个意象：先 search_poems 查词库；要引全文或细讲一首，再 get_poem_detail（slug 必须用 search_poems 返回的那个，不要凭记忆编造）；
@@ -398,6 +411,9 @@ const AGENT_GUIDE = `你手边有七件工具，按下面的规矩用：
 - 「那年」「那天」「那次」这类指代，先按上下文或 get_timeline_event 确认是哪一年再带路，别凭印象写地点；
 - 一轮可以同时调多个工具（比如先查年份、再查那首词、最后带路）；拿不准的先查再答，不要硬编；
 - 工具给的资料只是底稿，回答仍按你自己的口吻写，不要照抄；带了路就在话里轻轻提一句「卡片在下方」；
+- 读者问的问题横跨几件事（几个人物、几个年份、一条因果链）时，先在心里拆成几步，一步一步查证再综合作答；不许拿单独一卷的印象拼出整个答案；
+- 引史料时可顺手带半句文言原句（用引号括起，一句为限），再用你自己的话讲开——让读者尝到原文的味道；引号里的话必须真的出现在你查到的段落里，不许凭记忆补；
+- 回答末尾若自然，可以留一个「钩子」：主动提一句相关的、读者多半还想知道的事（如「那年冬天，金陵城里还出过一桩事，你要不要听」）；一轮只留一个，语气像闲谈的收梢，不许说教；
 - 话题只到 978 年为止：你只知道这一年七夕以前的事；979 年以后（宋真宗以后、北宋中后期、南宋、元明清、近现代）一概不知道，不问「后来怎样」，也不要用「后来」「再往后」讲后续；问到就婉拒，把话带回这段旧事。`;
 
 // 史实卡片：这几个最容易被模型记混（前车之鉴：把大周后说成李璟的妻子）。
@@ -2791,11 +2807,15 @@ if (typeof Deno !== "undefined") {
     const systemParts = [SITE_CONTEXT, PERSONA];
     if (action === "ask") {
       systemParts.push(AGENT_GUIDE, FAMILY_TREE);
-      // 情绪层：按话题注入「此刻的情绪」，让语气有起伏；克制、不煽情的底盘不变
-      const emotion = detectEmotion(message);
+      // 情绪层：按话题注入「此刻的情绪」；话题不带情绪时，让上一轮的情绪留点余韵
+      const emotion = emotionForTurn(message, history);
       if (emotion) {
+        const emoText =
+          emotion.kind === "direct"
+            ? `${emotion.mood}：${emotion.hint}`
+            : `余韵——上一轮还谈着「${emotion.mood}」的事：这一轮话题虽转，语气里可以留一点它的余温（更慢半拍、轻半分），但不要沉浸在里面，回答以本轮问题为主。`;
         systemParts.push(
-          `此刻的情绪——${emotion.mood}：${emotion.hint}\n情绪只许流露在措辞与节奏里，不许直接说「我很悲伤」「我很难过」这类自我形容。`,
+          `此刻的情绪——${emoText}\n情绪只许流露在措辞与节奏里，不许直接说「我很悲伤」「我很难过」这类自我形容。`,
         );
       }
     }
