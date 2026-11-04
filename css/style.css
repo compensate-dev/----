@@ -2211,9 +2211,7 @@ body.home-page.stage-mode .poem-card:hover .poem-arrow{transform:translate(3px,-
 /* AI 梦客：右下角一方「梦」印，点开是纸色问答小窗（DOM 由 js/ai-guide.js 注入） */
 /* 由 root 定位：印在右下角，面板从印上方展开 */
 .ai-guide-root{position:fixed;z-index:1150;right:clamp(16px,3vw,36px);bottom:clamp(18px,3vh,34px);font-family:var(--serif);line-height:1.8}
-/* 首页翻开书封前先不出现，免得压住开场；入场滚动段（arrival-lock）也先收起 */
-.home-page:not(.book-opened) .ai-guide-root,
-.home-page.arrival-lock .ai-guide-root{display:none}
+/* 一进站就在右下角：首页开卷前、入场叙事期间都不隐藏 */
 /* 「梦」印：方形印章图，无框无底，不倾斜，悬停轻轻放大 */
 .ai-guide-seal{position:relative;width:72px;height:72px;display:grid;place-items:center;padding:0;border:0;background:transparent;color:var(--rust);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;transform:none;filter:drop-shadow(0 10px 20px rgba(30,45,36,.16));transition:transform .35s cubic-bezier(.2,.7,.25,1),filter .35s}
 /* 拖拽中：印记回正并微微放大，过渡关掉避免跟手迟滞 */

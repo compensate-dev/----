@@ -251,6 +251,11 @@ const EXTERNAL_MODEL = readEnv("GUIDE_MODEL") || "glm-4-flash";
 // 站内所有问答默认用免费的 flash；想换更强的模型只改环境变量即可
 const DEFAULT_MODEL = EXTERNAL_MODEL;
 const PRO_MODEL = readEnv("GUIDE_PRO_MODEL") || DEFAULT_MODEL;
+// 词意画（CogView）独立配置：对话切到 DeepSeek 后，GUIDE_API_BASE 已不再提供图像生成，
+// 入画必须单独走智谱；没配 PAINT_* 时退回智谱官方地址与 ZHIPU_API_KEY
+const PAINT_KEY = readEnv("PAINT_API_KEY") || readEnv("ZHIPU_API_KEY");
+const PAINT_BASE = readEnv("PAINT_API_BASE") || "https://open.bigmodel.cn/api/paas/v4";
+const PAINT_MODEL = readEnv("PAINT_MODEL") || "cogview-3-flash";
 
 // ---------- 本地数据与文件路径 ----------
 // 词库 / 时间轴 / 地图站点全部来自 data/liyu-data.json，问答日志与词意画缓存在本地目录，
@@ -2765,11 +2770,11 @@ if (typeof Deno !== "undefined") {
     }
 
     // 多模态词意画：词文 → 智谱 CogView → 水墨意境图（直链）
-    // 与文字问答共用同一把 key，密钥只在服务端；失败回 502，前端提示后不影响其它功能
+    // 走独立的 PAINT_* 配置（默认智谱），与对话模型供应商无关；密钥只在服务端
     if (action === "paint") {
       const text = normalize(body.text ?? message, 400);
       if (!text) return jsonResponse({ error: "请给出要入画的词文。" }, 400);
-      if (!EXTERNAL_KEY) return jsonResponse({ error: "入画服务未配置" }, 502);
+      if (!PAINT_KEY) return jsonResponse({ error: "入画服务未配置" }, 502);
 
       // 先查这张词文是否已经画过：同一首词复用旧画，省额度也秒回
       // force=true（前端点「再画一幅」）才重新生成
@@ -2791,15 +2796,15 @@ if (typeof Deno !== "undefined") {
         `中国水墨画，宣纸质感，大面积留白，淡彩晕染，宋代美学，意境悠远。` +
         `画面表现这首词的意象与情绪（不要在画中出现任何文字、印章、人物正面特写）：${text}`;
       try {
-        // 图像生成改用智谱 CogView：与文字问答同一家、同一个 key，不再依赖火山网关
-        const imgRes = await fetch(`${EXTERNAL_BASE}/images/generations`, {
+        // 图像生成走智谱 CogView：与对话供应商解耦，对话换成 DeepSeek 也能入画
+        const imgRes = await fetch(`${PAINT_BASE}/images/generations`, {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${EXTERNAL_KEY}`,
+            Authorization: `Bearer ${PAINT_KEY}`,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            model: readEnv("PAINT_MODEL") || "cogview-3-flash",
+            model: PAINT_MODEL,
             prompt,
             size: "1024x1024",
           }),
@@ -2830,7 +2835,7 @@ if (typeof Deno !== "undefined") {
           page,
           question: text.slice(0, 200),
           answer: "[paint]",
-          model: readEnv("PAINT_MODEL") || "cogview-3-flash",
+          model: PAINT_MODEL,
           tokens: data?.usage?.total_tokens ?? null,
           tools: null,
         });
