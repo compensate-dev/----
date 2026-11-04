@@ -2214,14 +2214,16 @@ body.home-page.stage-mode .poem-card:hover .poem-arrow{transform:translate(3px,-
 /* 首页翻开书封前先不出现，免得压住开场；入场滚动段（arrival-lock）也先收起 */
 .home-page:not(.book-opened) .ai-guide-root,
 .home-page.arrival-lock .ai-guide-root{display:none}
-/* 「侍」印：朱砂边框 + 轻微倾斜，悬停回正 */
-.ai-guide-seal{position:relative;width:58px;height:58px;display:grid;place-items:center;padding:0;border:1px solid rgba(169,104,76,.68);background:linear-gradient(150deg,#f8f5eb,#e8ebe0);color:var(--rust);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;transform:rotate(-4deg);box-shadow:0 10px 24px rgba(30,45,36,.18);transition:transform .3s cubic-bezier(.2,.7,.25,1),box-shadow .3s,background .3s}
+/* 「梦」印：方形印章图，无框无底，不倾斜，悬停轻轻放大 */
+.ai-guide-seal{position:relative;width:72px;height:72px;display:grid;place-items:center;padding:0;border:0;background:transparent;color:var(--rust);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;transform:none;filter:drop-shadow(0 10px 20px rgba(30,45,36,.16));transition:transform .35s cubic-bezier(.2,.7,.25,1),filter .35s}
 /* 拖拽中：印记回正并微微放大，过渡关掉避免跟手迟滞 */
-.ai-guide-root.is-dragging .ai-guide-seal{cursor:grabbing;transform:rotate(0) scale(1.06);transition:none}
+.ai-guide-root.is-dragging .ai-guide-seal{cursor:grabbing;transform:scale(1.06);transition:none}
 .ai-guide-root.is-dragging .ai-guide-seal-label{opacity:0}
-.ai-guide-seal:hover,.ai-guide-seal:focus-visible,.ai-guide-seal[aria-expanded="true"]{transform:rotate(0) translateY(-2px);box-shadow:0 14px 30px rgba(30,45,36,.24)}
-.ai-guide-seal[aria-expanded="true"]{background:linear-gradient(150deg,#eef0e4,#dfe4d6)}
+.ai-guide-seal:hover,.ai-guide-seal:focus-visible,.ai-guide-seal[aria-expanded="true"]{transform:scale(1.08);filter:drop-shadow(0 14px 26px rgba(30,45,36,.22))}
+.ai-guide-seal[aria-expanded="true"]{filter:drop-shadow(0 14px 26px rgba(30,45,36,.24))}
 .ai-guide-seal-word{font-family:"ZhongQi ZhiMang",var(--serif);font-size:25px;line-height:1;letter-spacing:0}
+/* 「梦客」印章图：方形章面，随纸色背景自然贴合 */
+.ai-guide-seal-img{width:100%;height:100%;object-fit:cover;pointer-events:none}
 /* 悬停时在印章左侧浮出小标签 */
 .ai-guide-seal-label{position:absolute;right:calc(100% + 10px);top:50%;white-space:nowrap;font:600 11px var(--sans);letter-spacing:.16em;color:#56675b;background:rgba(243,243,237,.94);padding:6px 9px;border:1px solid rgba(48,77,63,.14);opacity:0;translate:6px -50%;transition:opacity .25s ease,translate .25s ease;pointer-events:none}
 .ai-guide-seal:hover .ai-guide-seal-label,.ai-guide-seal:focus-visible .ai-guide-seal-label{opacity:1;translate:0 -50%}
@@ -2325,7 +2327,7 @@ body.home-page.stage-mode .poem-card:hover .poem-arrow{transform:translate(3px,-
 /* 窄屏：印章默认挪到左下，避免和右侧小签叠在一起；面板/气泡位置由 JS 按印章锚定 */
 @media(max-width:640px){
   .ai-guide-root{left:14px;right:auto;bottom:18px}
-  .ai-guide-seal{width:52px;height:52px}
+  .ai-guide-seal{width:64px;height:64px}
   .ai-guide-seal-word{font-size:22px}
   .ai-guide-msg p{font-size:13px}
   .ai-guide-bubble-text{font-size:13px}
