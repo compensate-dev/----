@@ -18,7 +18,7 @@
 // 用法：node scripts/sync-history.mjs [--force]
 // 产物：data/history/sources.json（全文）、data/history/chunks.json（检索分块）
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync, unlinkSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, mkdirSync, renameSync, unlinkSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { request as httpsRequest } from "node:https";
@@ -36,6 +36,13 @@ const API = "https://zh.wikisource.org/w/api.php";
 const UA = "ChunshuiLiuhenHistoryBot/1.0 (non-commercial history site; rate-limited; MediaWiki API)";
 const GAP_MS = 1800;
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// 原子写：先写临时文件再改名，避免进程中断或磁盘故障留下半个 JSON
+const writeJsonAtomic = (file, data) => {
+  const tmp = `${file}.tmp`;
+  writeFileSync(tmp, JSON.stringify(data, null, 0), "utf8");
+  renameSync(tmp, file);
+};
 
 // 本机 Node 26 的全局 fetch 连不上该站（undici 连接超时），改用 node:https
 const httpsGet = (urlString, { headers = {}, timeout = 40_000 } = {}, redirects = 0) =>
@@ -551,7 +558,7 @@ const fetchVolumes = async (targets, titlesMap, previousPages = []) => {
       text: body,
       searchText: normalizeVariant(body),
     });
-    writeFileSync(PARTIAL_FILE, JSON.stringify({ pages: [...previousPages, ...pages] }, null, 0), "utf8");
+    writeJsonAtomic(PARTIAL_FILE, { pages: [...previousPages, ...pages] });
     process.stdout.write(`\r[${meta.tier}] ${index + 1}/${targets.length}  ${vol.book}${vol.juan}          `);
     if (index < targets.length - 1) await sleep(GAP_MS);
   }
@@ -595,8 +602,8 @@ const main = async () => {
       });
     }
     const meta = { ...(previous.meta ?? {}), rebuiltAt: new Date().toISOString(), pages: pages.length, chunks: chunks.length };
-    writeFileSync(SOURCES_FILE, JSON.stringify({ meta, pages }, null, 0), "utf8");
-    writeFileSync(CHUNKS_FILE, JSON.stringify({ meta, chunks }, null, 0), "utf8");
+    writeJsonAtomic(SOURCES_FILE, { meta, pages });
+    writeJsonAtomic(CHUNKS_FILE, { meta, chunks });
     console.log(`重建完成：${pages.length} 卷 / ${chunks.length} 块（未联网）`);
     return;
   }
