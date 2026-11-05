@@ -1,0 +1,55 @@
+<!doctype html>
+<!-- 一江春水 · 李煜词境 — 从词到物 / wenwu.html（文创概念独立页） -->
+<!-- 设计参考终幕(finale)与笺语墙(jianyu)：暗色基调 + 返回链接 + 居中标题导语 + 内容区 -->
+<html lang="zh-CN">
+<head>
+<!-- 基础 meta：文创页沿用终幕系暗色基调 -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101917">
+<!-- 页面描述与 OG 分享信息 -->
+  <meta name="description" content="从一句词，到一件可以带走的物。把春水、钩月、梧桐、落梅转译成今日可用的信笺、书签与卷轴——仅作概念展示，非卖品。">
+  <meta property="og:site_name" content="春水留痕·李煜词境">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="从词到物｜春水留痕·李煜词境">
+  <meta property="og:description" content="从一句词，到一件可以带走的物。仅作概念展示，不标价、不导购。">
+  <meta property="og:image" content="../assets/image/screen-world-background.jpg">
+  <meta property="og:locale" content="zh_CN">
+  <title>从词到物｜春水留痕·李煜词境</title>
+<!-- 全站样式与脚本：含 ai-guide.js（文创卡片「问梦客」需要 AI 交互） -->
+  <link rel="stylesheet" href="../css/style.css?v=f138">
+  <script src="../js/script.js?v=f138" defer></script>
+  <script src="../js/ai-guide.js?v=f138" defer></script>
+</head>
+<!-- body 挂 finale-page 暗色基调 + wenwu-page 本页专属覆写 -->
+<body class="finale-page wenwu-page">
+  <a class="skip-link" href="#main-content">跳至主要内容</a>
+<!-- 顶栏：品牌 / 移动端菜单 / 导航 / 声音开关 -->
+  <header class="site-header">
+    <a class="brand" href="../index.html"><span class="brand-seal">煜</span><span>一江春水<small>李煜词境 · 南唐旧梦</small></span></a>
+    <button class="menu-toggle" aria-label="打开导航" aria-expanded="false">☰</button>
+    <nav class="main-nav" aria-label="主导航">
+      <a href="../index.html">首页</a><a href="life.html">月色故人</a><a href="ci.html">词间春水</a><a href="wanxiang.html">帘外余音</a><a href="listen.html">枕上低语</a>
+    </nav>
+    <div class="sound-controls"><button class="sound-toggle" type="button" aria-label="关闭背景音乐" aria-pressed="true"><span class="sound-icon">♫</span><span class="sound-status">音乐开启</span></button><label class="volume-control"><span class="visually-hidden">背景音乐音量</span><input class="volume-slider" type="range" min="0" max="1" step="0.01" value="0.6"></label></div>
+  </header>
+<!-- 主内容：文创概念展示区 -->
+  <main id="main-content" tabindex="-1">
+    <section class="jianyu-section wenwu-section" id="cong-ci-dao-wu">
+      <div class="jianyu-inner">
+<!-- 返回帘外余音：与笺语墙「回到终幕」同款返回链接 -->
+        <a class="jianyu-back" href="wanxiang.html">← 回到帘外余音</a>
+        <span class="jianyu-kicker">FROM VERSE TO OBJECT · 从词到物</span>
+        <h1>从一句词，<br>到一件<em>可以带走的物</em>。</h1>
+        <p class="jianyu-lead">这里放的只是概念稿：把春水、钩月、梧桐、落梅这些词里的意象，转译成今日可用的信笺、书签与卷轴。它们不在售卖，也不标价，只用来想象——李煜的词，还能以什么样子留在生活里。</p>
+<!-- 六张概念卡由 script.js 的 initializeConceptGallery 注入；每张卡含「问梦客」按钮 -->
+        <div class="concept-gallery" data-concept-gallery></div>
+        <p class="concept-foot">概念设计 · 非卖品 · 不标价 · 不设购买通道</p>
+        <p class="jianyu-back-foot"><a href="wanxiang.html">← 回到帘外余音，再听后人如何描摹他</a></p>
+      </div>
+    </section>
+  </main>
+<!-- 背景音乐：与其他子页共用 background-music.aac；preload=none 等用户交互后再加载 -->
+  <audio class="background-audio" src="../assets/audio/background-music.aac" preload="none"></audio>
+</body>
+</html>

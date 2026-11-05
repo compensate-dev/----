@@ -1468,6 +1468,13 @@ body.home-page:not(.book-opened) .shop-tab{display:none}
 @media(hover:hover){.concept-ask:hover{color:#8a4a34;border-color:var(--rust)}.concept-ask:hover span{transform:translate(2px,-2px)}}
 .concept-foot{margin:26px 2px 0;font:10px var(--sans);letter-spacing:.16em;color:#8a9387;text-align:center}
 
+/* ========== 文创独立页（wenwu.html）暗色适配 ========== */
+/* 复用 .jianyu-section 暗色容器；仅补画廊与导语间距、底注提亮 */
+.wenwu-page .concept-gallery{margin-top:34px}
+.wenwu-page .concept-foot{color:rgba(228,202,158,.55)}
+/* wanxiang 页末的文创入口按钮：与导语拉开距离 */
+.concept-entry-btn{margin-top:24px}
+
 /* ========== 行内分享（内页页末 / 首页页脚 / 终幕） ========== */
 .share-section{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-top:42px;padding-bottom:48px;border-top:1px solid rgba(122,84,58,.2)}
 .share-section-copy p{margin:8px 0 0;font-family:"Xuandong Kaishu",var(--serif);font-size:14px;letter-spacing:.06em;color:#657063}
