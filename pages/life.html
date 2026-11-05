@@ -95,7 +95,7 @@
     <dialog class="timeline-story-dialog" aria-labelledby="timeline-story-title"><button class="timeline-story-close" type="button" aria-label="关闭故事">×</button><span class="timeline-story-kicker"></span><h2 id="timeline-story-title"></h2><div class="timeline-story-content"></div><p class="timeline-story-note">史实叙述以可考史料为准；词句解读为文学赏析。</p></dialog>
   </main>
 <!-- 页脚 -->
-<!-- 背景音乐：自动播放、循环；实际播放由 script.js 控制；preload="metadata" 只预取时长信息，不整段下载 -->
+<!-- 背景音乐：自动播放、循环；实际播放由 script.js 控制；preload="none" 不预加载，等用户触发 play() 时再用 Range 流式加载，避免先发元数据请求又被中止产生 ERR_ABORTED -->
   <footer class="site-footer"><a class="brand" href="../index.html"><span class="brand-seal">煜</span><span>一江春水<small>愿每个读词的人，都有一刻安宁。</small></span></a><span>词有尽时，春水长流。</span><a href="ci.html">再读一首 ↗</a></footer>
-  <audio class="background-audio" src="../assets/audio/background-music.aac" preload="metadata"></audio>
+  <audio class="background-audio" src="../assets/audio/background-music.aac" preload="none"></audio>
 </body></html>

@@ -1,5 +1,7 @@
-/* 全站共用样式表：引入 Google 网络字体（思源宋体 Noto Serif SC + 无衬线 Manrope） */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap');
+/* 全站共用样式表：引入思源宋体 Noto Serif SC + 无衬线 Manrope
+   国内访问 fonts.googleapis.com 不稳定，改用 fonts.font.im 镜像；若镜像也不可达，
+   字体栈会回退到 Songti SC / Microsoft YaHei 等系统字体，不影响可读性 */
+@import url('https://fonts.font.im/css2?family=Noto+Serif+SC:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap');
 
 /* 五款本地书法/楷体字体声明（注意：字体目录为单数 assets/font，写成 fonts 会全部失效回退宋体）
    HongLei=鸿雷行书(标题) / ZhongQi=钟齐志莽(大字) / Xuandong=暄洞楷书(小字)

@@ -157,8 +157,8 @@
     <dialog class="memory-story-dialog" aria-labelledby="memory-story-title"><button class="memory-story-close" type="button" aria-label="关闭详情">×</button><span class="memory-story-kicker"></span><h2 id="memory-story-title"></h2><img class="memory-story-image" alt="" hidden><div class="memory-story-content"></div><p class="memory-story-note">按 Esc 或点击右上角关闭详情。史实与后世艺术演绎请分别阅读。</p></dialog>
   </main>
 <!-- 页脚：品牌标识 + 标语 + 跳转链接 -->
-<!-- 背景音乐：自动播放、循环；实际播放由 script.js 控制；preload="metadata" 只预取时长信息，不整段下载 -->
+<!-- 背景音乐：自动播放、循环；实际播放由 script.js 控制；preload="none" 不预加载，等用户触发 play() 时再用 Range 流式加载，避免先发元数据请求又被中止产生 ERR_ABORTED -->
   <footer class="site-footer"><a class="brand" href="../index.html"><span class="brand-seal">煜</span><span>一江春水<small>愿每个读词的人，都有一刻安宁。</small></span></a><span>词有尽时，春水长流。</span><a href="ci.html">再读一首 ↗</a></footer>
-  <audio class="background-audio" src="../assets/audio/background-music.aac" preload="metadata"></audio>
+  <audio class="background-audio" src="../assets/audio/background-music.aac" preload="none"></audio>
 </body>
 </html>
