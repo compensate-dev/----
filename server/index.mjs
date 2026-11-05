@@ -6,7 +6,7 @@
 
 import { createServer } from "node:http";
 import { readFile, stat } from "node:fs/promises";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, createReadStream } from "node:fs";
 import { extname, join, normalize as normPath } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -44,7 +44,7 @@ globalThis.Deno = {
         const url = new URL(req.url, `http://${req.headers.host || "localhost"}`);
         // 静态文件：非 /api 前缀一律按站点根目录取文件
         if (!url.pathname.startsWith("/api/")) {
-          await serveStatic(url.pathname, res);
+          await serveStatic(url.pathname, req, res);
           return;
         }
         // 读请求体 → 转成标准 Request → 交给业务处理函数 → 回写 Response
@@ -82,13 +82,38 @@ const MIME = {
   ".jpg": "image/jpeg",
   ".jpeg": "image/jpeg",
   ".webp": "image/webp",
+  // 音频：浏览器 <audio> 依赖正确 Content-Type 与 Range 才能流式播放，缺失会报 ERR_ABORTED
   ".mp3": "audio/mpeg",
   ".wav": "audio/wav",
+  ".aac": "audio/aac",
+  ".m4a": "audio/mp4",
+  ".ogg": "audio/ogg",
+  ".flac": "audio/flac",
   ".ico": "image/x-icon",
   ".woff2": "font/woff2",
 };
 
-const serveStatic = async (pathname, res) => {
+// 解析 Range 头，返回 { start, end } 或 null（无合法 Range）
+// 仅支持 "bytes=start-end" 单段形式，浏览器媒体加载只用这种
+const parseRange = (rangeHeader, total) => {
+  if (!rangeHeader || typeof rangeHeader !== "string") return null;
+  const m = rangeHeader.match(/^bytes=(\d*)-(\d*)$/);
+  if (!m) return null;
+  const [, a, b] = m;
+  // 形如 "bytes=-500" 表示取末尾 500 字节
+  if (a === "" && b !== "") {
+    const suffix = Math.min(Number(b), total);
+    return { start: total - suffix, end: total - 1 };
+  }
+  let start = a === "" ? 0 : Number(a);
+  let end = b === "" ? total - 1 : Number(b);
+  if (Number.isNaN(start) || Number.isNaN(end)) return null;
+  if (start > end || start >= total) return null;
+  end = Math.min(end, total - 1);
+  return { start, end };
+};
+
+const serveStatic = async (pathname, req, res) => {
   let rel = decodeURIComponent(pathname);
   // 只对外开静态资源：密钥文件、日志、服务端代码、词画索引一律不通过 HTTP 暴露
   const isPrivate = /^\/\.|^\/(server|scripts|supabase|tests|logs)\/|^\/data\/paintings\/[^/]+\.json$/;
@@ -108,9 +133,43 @@ const serveStatic = async (pathname, res) => {
   try {
     const info = await stat(full);
     const target = info.isDirectory() ? join(full, "index.html") : full;
-    const buf = await readFile(target);
-    res.writeHead(200, { "Content-Type": MIME[extname(target).toLowerCase()] || "application/octet-stream" });
-    res.end(buf);
+    const fileInfo = await stat(target);
+    const total = fileInfo.size;
+    const type = MIME[extname(target).toLowerCase()] || "application/octet-stream";
+    const isHead = req.method === "HEAD";
+
+    // 解析 Range；HEAD 也要算好头信息
+    const range = parseRange(req.headers.range, total);
+
+    // 没有合法 Range：返回完整内容，但仍声明支持 Range，方便浏览器后续 seek
+    if (!range) {
+      res.writeHead(200, {
+        "Content-Type": type,
+        "Content-Length": total,
+        "Accept-Ranges": "bytes",
+      });
+      if (!isHead) {
+        // 直接把文件流接入响应，避免把大文件（如 2.4MB 背景音乐）整段读进内存
+        createReadStream(target).pipe(res);
+      } else {
+        res.end();
+      }
+      return;
+    }
+
+    // 合法 Range：返回 206 Partial Content，让 <audio> 能分段加载、拖动进度
+    const { start, end } = range;
+    res.writeHead(206, {
+      "Content-Type": type,
+      "Content-Length": end - start + 1,
+      "Accept-Ranges": "bytes",
+      "Content-Range": `bytes ${start}-${end}/${total}`,
+    });
+    if (!isHead) {
+      createReadStream(target, { start, end }).pipe(res);
+    } else {
+      res.end();
+    }
   } catch {
     res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
     res.end("Not Found");
