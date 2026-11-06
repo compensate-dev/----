@@ -2497,6 +2497,13 @@ body.home-page.stage-mode .poem-card:hover .poem-arrow{transform:translate(3px,-
 .ai-guide-input{flex:1;min-width:0;height:38px;border:1px solid rgba(48,77,63,.18);background:#fbfaf4;padding:0 11px;font:13px var(--serif);color:var(--ink);outline:none;transition:border-color .2s}
 .ai-guide-input:focus{border-color:rgba(169,104,76,.6)}
 .ai-guide-input::placeholder{color:#9aa292;font-size:12.5px}
+.ai-guide-voice{flex:0 0 38px;width:38px;height:38px;display:grid;place-items:center;padding:0;border:1px solid rgba(48,77,63,.18);background:#fbfaf4;color:#56675b;cursor:pointer;transition:background .2s,border-color .2s,color .2s,box-shadow .2s}
+.ai-guide-voice svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.ai-guide-voice:hover,.ai-guide-voice:focus-visible{border-color:rgba(169,104,76,.6);color:#8a4f39;outline:none}
+.ai-guide-voice.is-listening{border-color:#a94838;background:#a94838;color:#fff;box-shadow:0 0 0 3px rgba(169,72,56,.14)}
+.ai-guide-voice-status{margin:6px 0 0;font:10px var(--sans);color:#66735f}
+.ai-guide-voice-status[hidden]{display:none}
+.ai-guide-voice-status.is-error{color:#9a3b2e}
 .ai-guide-send{width:42px;height:38px;border:0;background:#314c3e;color:#f4f1e6;font-family:"Liyu Xingkai",var(--serif);font-size:15px;letter-spacing:.06em;cursor:pointer;transition:.2s}
 .ai-guide-send:hover:not(:disabled){background:#3c5c4a}
 .ai-guide-send:disabled{opacity:.5;cursor:not-allowed}

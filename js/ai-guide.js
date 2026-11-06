@@ -237,8 +237,12 @@
         </div>
         <div class="ai-guide-inputrow">
           <input class="ai-guide-input" type="text" maxlength="800" placeholder="问词、问人、问这一年……" aria-label="向李煜提问">
+          <button class="ai-guide-voice" type="button" aria-label="开始语音输入" aria-pressed="false" title="语音输入">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="12" rx="3"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21m-4 0h8"></path></svg>
+          </button>
           <button class="ai-guide-send" type="submit">问</button>
         </div>
+        <p class="ai-guide-voice-status" role="status" aria-live="polite" hidden></p>
       </form>
       <p class="ai-guide-note">回答由 AI 生成，史实与原文以词库为准。</p>
       <section class="ai-guide-leaf" aria-label="引文原文" hidden>
@@ -263,6 +267,8 @@
   const chips = root.querySelector(".ai-guide-chips");
   const form = root.querySelector(".ai-guide-form");
   const input = root.querySelector(".ai-guide-input");
+  const voiceButton = root.querySelector(".ai-guide-voice");
+  const voiceStatus = root.querySelector(".ai-guide-voice-status");
   const send = root.querySelector(".ai-guide-send");
   const closeBtn = root.querySelector(".ai-guide-close");
   const modeButtons = root.querySelectorAll(".ai-guide-modes button");
@@ -277,6 +283,123 @@
   let mode = "ask";
   // 请求中标记，避免重复提交
   let busy = false;
+  let speechRecognition = null;
+  let voiceListening = false;
+  let voiceStatusTimer = 0;
+  let voiceError = false;
+  let silentVoiceEnd = false;
+  let voiceBaseText = "";
+
+  const setVoiceListening = (listening) => {
+    voiceListening = listening;
+    voiceButton.classList.toggle("is-listening", listening);
+    voiceButton.setAttribute("aria-pressed", String(listening));
+    voiceButton.setAttribute("aria-label", listening ? "停止语音输入" : "开始语音输入");
+    voiceButton.title = listening ? "停止语音输入" : "语音输入";
+  };
+
+  const showVoiceStatus = (text, isError = false) => {
+    window.clearTimeout(voiceStatusTimer);
+    voiceStatus.textContent = text;
+    voiceStatus.hidden = !text;
+    voiceStatus.classList.toggle("is-error", isError);
+    if (text && !voiceListening) {
+      voiceStatusTimer = window.setTimeout(() => { voiceStatus.hidden = true; }, 5000);
+    }
+  };
+
+  const stopVoiceInput = (abort = false) => {
+    if (!speechRecognition) return;
+    if (abort) {
+      silentVoiceEnd = true;
+      setVoiceListening(false);
+      window.clearTimeout(voiceStatusTimer);
+      voiceStatus.hidden = true;
+    }
+    try {
+      if (abort) speechRecognition.abort();
+      else speechRecognition.stop();
+    } catch (error) {
+      setVoiceListening(false);
+      speechRecognition = null;
+      silentVoiceEnd = false;
+    }
+  };
+
+  voiceButton.addEventListener("click", () => {
+    if (voiceListening) {
+      stopVoiceInput();
+      return;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      showVoiceStatus("当前浏览器不支持语音输入，请尝试最新版 Chrome 或 Edge。", true);
+      return;
+    }
+    if (!window.isSecureContext) {
+      showVoiceStatus("语音输入需要在 HTTPS 页面或 localhost 中使用。", true);
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    speechRecognition = recognition;
+    voiceBaseText = input.value.trim();
+    voiceError = false;
+    silentVoiceEnd = false;
+    recognition.lang = "zh-CN";
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => {
+      setVoiceListening(true);
+      showVoiceStatus("正在听，请开始说话……");
+    };
+    recognition.onresult = (event) => {
+      let finalText = "";
+      let interimText = "";
+      for (let index = 0; index < event.results.length; index += 1) {
+        const result = event.results[index];
+        if (result.isFinal) finalText += result[0].transcript;
+        else interimText += result[0].transcript;
+      }
+      const transcript = [finalText, interimText].filter(Boolean).join("");
+      input.value = [voiceBaseText, transcript].filter(Boolean).join(" ").slice(0, 800);
+      if (finalText) showVoiceStatus("已识别，可编辑后发送。");
+    };
+    recognition.onerror = (event) => {
+      voiceError = true;
+      const messages = {
+        "not-allowed": "麦克风权限未开启，请在浏览器设置中允许使用麦克风。",
+        "service-not-allowed": "浏览器未允许语音识别服务。",
+        "audio-capture": "没有检测到可用的麦克风。",
+        "no-speech": "没有听到语音，请再试一次。",
+        network: "语音识别服务暂不可用，请检查网络后重试。",
+      };
+      setVoiceListening(false);
+      showVoiceStatus(messages[event.error] || "语音输入暂不可用，请重试。", true);
+    };
+    recognition.onend = () => {
+      const hadInput = input.value.trim().length > voiceBaseText.length;
+      const keepSilent = silentVoiceEnd;
+      silentVoiceEnd = false;
+      setVoiceListening(false);
+      if (speechRecognition === recognition) speechRecognition = null;
+      if (voiceError || keepSilent) return;
+      showVoiceStatus(hadInput ? "语音已填入，可编辑后发送。" : "没有识别到语音，请再试一次。", !hadInput);
+    };
+
+    try {
+      setVoiceListening(true);
+      showVoiceStatus("正在连接麦克风……");
+      recognition.start();
+    } catch (error) {
+      setVoiceListening(false);
+      speechRecognition = null;
+      showVoiceStatus("无法启动语音输入，请检查麦克风权限后重试。", true);
+    }
+  });
 
   // ---------- 印章拖拽 ----------
   // 位置只记在本次浏览（sessionStorage）：新开一次网站仍回右下角，页内拖动不丢
@@ -831,6 +954,7 @@
   };
 
   const close = () => {
+    stopVoiceInput(true);
     panel.classList.remove("is-on");
     root.classList.remove("is-open");
     seal.setAttribute("aria-expanded", "false");
