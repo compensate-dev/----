@@ -4,17 +4,16 @@
 // 所有请求统一发到站内的 /api/guide（由 Node 服务代理到智谱），前端不接触任何密钥。
 // 依赖：无（原生 JS），样式见 css/style.css 末尾的 .ai-guide 段。
 (() => {
-  // 同源接口：本地 Node 服务（server/index.mjs）托管整站并转发到这里
-  const ENDPOINT = "/api/guide";
+  // 保持同源请求，让下载版由本地服务安全转发，线上版则由 Railway 直接处理。
+  const ENDPOINT = window.LIYU_AI_ENDPOINT || "/api/guide";
 
-  // 请求失败时把真正的原因说出来：file:// 直开时浏览器只会给一句 "Failed to fetch"，
-  // 读者容易以为断网；这里改成「要先起本地服务」的明确提示
+  // 直接打开文件不会运行本地 API 服务，因此提示评委用启动脚本进入页面。
   const explainError = (error) => {
     if (location.protocol === "file:") {
-      return "当前是直接打开的 html 文件。AI 需要本地服务：先运行 scripts\\start.ps1，再从 http://localhost:53422 打开本站";
+      return "AI 需要本地页面服务：请运行 scripts\\start.ps1，再从 http://localhost:53422 打开本站。";
     }
     if (/Failed to fetch|NetworkError|Load failed/i.test(error?.message || "")) {
-      return "连不上本地服务 http://localhost:53422，请确认启动服务的窗口还开着";
+      return "无法连接 AI 服务，请确认本地服务仍在运行且网络可用。";
     }
     return (error && error.message) || "未知错误";
   };

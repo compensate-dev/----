@@ -51,6 +51,22 @@ globalThis.Deno = {
         const chunks = [];
         for await (const chunk of req) chunks.push(chunk);
         const body = Buffer.concat(chunks);
+        // 下载包没有模型密钥时才转发到比赛服务；线上 Node 实例始终用自己的服务端密钥。
+        if (url.pathname === "/api/guide" && !process.env.GUIDE_API_KEY && process.env.LIYU_REMOTE_GUIDE_URL) {
+          const upstream = await fetch(process.env.LIYU_REMOTE_GUIDE_URL, {
+            method: req.method,
+            headers: { "Content-Type": req.headers["content-type"] || "application/json" },
+            body: req.method === "GET" || req.method === "HEAD" || req.method === "OPTIONS" ? undefined : body,
+          });
+          const headers = {};
+          for (const name of ["content-type", "cache-control"]) {
+            const value = upstream.headers.get(name);
+            if (value) headers[name] = value;
+          }
+          res.writeHead(upstream.status, headers);
+          res.end(Buffer.from(await upstream.arrayBuffer()));
+          return;
+        }
         const request = new Request(url, {
           method: req.method,
           headers: req.headers,
@@ -116,7 +132,7 @@ const parseRange = (rangeHeader, total) => {
 const serveStatic = async (pathname, req, res) => {
   let rel = decodeURIComponent(pathname);
   // 只对外开静态资源：密钥文件、日志、服务端代码、词画索引一律不通过 HTTP 暴露
-  const isPrivate = /^\/\.|^\/(server|scripts|supabase|tests|logs)\/|^\/data\/paintings\/[^/]+\.json$/;
+  const isPrivate = /^\/\.|^\/(server|scripts|supabase|tests|logs)\/|^\/data\/(history(?:\/|$)|tts(?:\/|$)|vectors\.json$|paintings\/[^/]+\.json$)/;
   if (isPrivate.test(rel)) {
     res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
     res.end("Not Found");
