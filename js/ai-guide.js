@@ -46,7 +46,7 @@
   const PAGES = {
     home: {
       name: "首页",
-      greet: "我是李煜。这一程我陪你走——读到哪里，都可以问我。",
+      greet: "我是一路陪你读词的 AI 梦客。读到哪一句不明白，点右下角这方「梦」印问我。",
       lead: "我是李煜。这一程从一场梦开始，你想先问什么？",
       chips: ["用一句话介绍李煜", "你为什么被叫作词中之帝", "从哪一幕开始看比较好", "南唐是个什么样的国家", "你是怎样一步步失去南唐的"],
       hints: [
@@ -1054,19 +1054,23 @@
 
   // ---------- 引导：进站招呼 + 读到哪说到哪 ----------
 
-  // 首页要翻开书封、印章可见之后才打招呼；其他页加载完即可
+  // 首页抵达动画结束前印章仍隐藏，必须等 arrival-lock 解除后再触发一次性招呼。
   const whenSealVisible = (callback) => {
     if (!document.body.classList.contains("home-page")) {
       callback();
       return;
     }
-    if (document.body.classList.contains("book-opened")) {
+    const isSealVisible = () =>
+      document.body.classList.contains("book-opened") &&
+      !document.body.classList.contains("arrival-lock") &&
+      seal.getClientRects().length > 0;
+    if (isSealVisible()) {
       callback();
       return;
     }
-    // 监听 body 类变化，等书封翻开
+    // 等封面打开且抵达遮罩收起，避免气泡在隐藏状态下被记成「已经说过」。
     const observer = new MutationObserver(() => {
-      if (!document.body.classList.contains("book-opened")) return;
+      if (!isSealVisible()) return;
       observer.disconnect();
       callback();
     });
@@ -1077,7 +1081,8 @@
   const initGreeting = () => {
     whenSealVisible(() => {
       window.setTimeout(() => {
-        sayOnce(`liyu-ai-greet-${pageKey}`, page.greet, page.chips[0]);
+        const key = pageKey === "home" ? "liyu-ai-greet-home-v2" : `liyu-ai-greet-${pageKey}`;
+        sayOnce(key, page.greet, page.chips[0]);
       }, 2600);
     });
   };
