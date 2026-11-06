@@ -195,6 +195,29 @@
 
 (() => {
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // 只在帘外余音页取回位置，避免共用脚本在文创页提前消费这次性记录。
+  if (document.querySelector(".concept-entry-btn")) {
+    window.addEventListener("pageshow", () => {
+      const savedScroll = sessionStorage.getItem("liyu-wanxiang-scroll");
+      if (savedScroll === null) return;
+      sessionStorage.removeItem("liyu-wanxiang-scroll");
+      const y = Number(savedScroll);
+      if (!Number.isFinite(y) || y <= 0) return;
+
+      // 返回时视频和字体可能仍改变页面高度，短暂重试直到用户开始操作。
+      const restore = () => window.scrollTo(0, y);
+      const timers = [0, 250, 700, 1300].map((delay) => window.setTimeout(restore, delay));
+      const stopRestore = () => {
+        timers.forEach(window.clearTimeout);
+        ["wheel", "touchstart", "pointerdown", "keydown"].forEach((eventName) => {
+          window.removeEventListener(eventName, stopRestore);
+        });
+      };
+      ["wheel", "touchstart", "pointerdown", "keydown"].forEach((eventName) => {
+        window.addEventListener(eventName, stopRestore, { once: true, passive: true });
+      });
+    });
+  }
   // 资源基址：script.js 位于 js/，会被根页面与 pages/ 子页共同引用；
   // 动态图片路径按脚本自身 URL 推导，避免相对页面 URL 在子页里解析失败（file:// 同样适用）
   const ASSET_IMAGE = new URL("../assets/image/", document.currentScript.src).href;
