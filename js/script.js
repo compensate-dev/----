@@ -1473,12 +1473,20 @@
       window.liyuAudio.fadeOut(element, duration);
     });
   };
+  const finaleAudioPositionKey = "liyu-finale-theme-time";
+  const finaleAudioTransferKey = "liyu-finale-theme-transfer";
+  const isFinaleAudioPage = (pathname) => /\/(?:finale|jianyu)\.html$/.test(pathname);
   // 站内翻页一律整页加载（水波动效照旧，只是不再就地替换 <main>）。
   // 之前那版只换 main：新页面的脚本不会重新执行，首页的滚轮接管会一直留在 body 上
   // （子页滚不动、却出现首页换幕效果），页头的相对链接也还按旧目录解析（子页再点就 404）。
   const goWithRipple = (url, origin) => {
     sessionStorage.setItem("liyu-page-ripple-origin", `${origin.x},${origin.y}`);
     startPageRipple(origin);
+    if (document.querySelector(".finale-audio") && isFinaleAudioPage(url.pathname)) {
+      sessionStorage.setItem(finaleAudioTransferKey, "1");
+    } else {
+      sessionStorage.removeItem(finaleAudioTransferKey);
+    }
     fadeSiteAudioBeforeExit();
     window.setTimeout(() => location.assign(url.href), 360);
   };
@@ -1494,6 +1502,11 @@
   });
   // 后退/前进同样整页重载，避免沿用上一页替换过的 DOM 与旧监听
   window.addEventListener("popstate", () => {
+    if (document.querySelector(".finale-audio") && isFinaleAudioPage(location.pathname)) {
+      sessionStorage.setItem(finaleAudioTransferKey, "1");
+    } else {
+      sessionStorage.removeItem(finaleAudioTransferKey);
+    }
     if (location.protocol !== "file:" && location.pathname.endsWith(".html")) location.reload();
   });
 
@@ -3023,6 +3036,12 @@
 (() => {
   const finaleAudio = document.querySelector(".finale-audio");
   if (!finaleAudio) return;
+  const positionKey = "liyu-finale-theme-time";
+  const transferKey = "liyu-finale-theme-transfer";
+  const shouldResume = sessionStorage.getItem(transferKey) === "1";
+  const savedPosition = shouldResume ? Number(sessionStorage.getItem(positionKey) || 0) : 0;
+  sessionStorage.removeItem(transferKey);
+  sessionStorage.removeItem(positionKey);
   const finaleButtons = document.querySelectorAll(".sound-toggle");
   const finaleSlider = document.querySelector(".volume-slider");
   const finaleEnabled = sessionStorage.getItem("liyu-audio-enabled") !== "false";
@@ -3038,11 +3057,33 @@
   if (finaleSlider && savedFinaleVolume !== null) finaleSlider.value = savedFinaleVolume;
   const finaleMusic = window.liyuAudio.createLoopingPlayer(finaleAudio, { crossfade: 3 });
   finaleMusic.setVolume(Number(finaleSlider?.value || 0.32));
+  finaleMusic.onTime((element) => {
+    sessionStorage.setItem(positionKey, String(element.currentTime));
+  });
+  window.addEventListener("pagehide", () => {
+    sessionStorage.setItem(positionKey, String(finaleMusic.currentTime()));
+  });
   const playFinale = () => {
     finaleMusic.play({ fade: 3000 }).then(() => updateFinale(true)).catch(() => updateFinale(false, "点击开启"));
   };
-  if (finaleEnabled) playFinale();
-  else updateFinale(false, "点击开启");
+  let finaleInitialized = false;
+  const initializeFinaleMusic = () => {
+    if (finaleInitialized) return;
+    finaleInitialized = true;
+    if (savedPosition > 0) {
+      const duration = finaleAudio.duration;
+      finaleMusic.seek(Number.isFinite(duration) && duration > 0 ? savedPosition % duration : savedPosition);
+    }
+    if (finaleEnabled) playFinale();
+    else updateFinale(false, "点击开启");
+  };
+  if (savedPosition > 0 && finaleAudio.readyState < 1) {
+    finaleAudio.addEventListener("loadedmetadata", initializeFinaleMusic, { once: true });
+    finaleAudio.addEventListener("error", initializeFinaleMusic, { once: true });
+    window.setTimeout(initializeFinaleMusic, 3000);
+  } else {
+    initializeFinaleMusic();
+  }
   document.addEventListener("pointerdown", () => {
     if (finaleEnabled && !finaleMusic.isPlaying()) playFinale();
   }, { once: true });
