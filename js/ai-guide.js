@@ -244,7 +244,7 @@
         </div>
         <p class="ai-guide-voice-status" role="status" aria-live="polite" hidden></p>
       </form>
-      <p class="ai-guide-note">回答由 AI 生成，史实与原文以词库为准。</p>
+      <p class="ai-guide-note">语音输入需用最新版 Chrome/Edge、保持联网，并允许麦克风（HTTPS 或 localhost）。回答由 AI 生成，史实与原文以词库为准。</p>
       <section class="ai-guide-leaf" aria-label="引文原文" hidden>
         <header class="ai-guide-leaf-head">
           <b class="ai-guide-leaf-title">原文</b>

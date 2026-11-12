@@ -449,6 +449,22 @@ textarea::placeholder{color:#9aa297}
 .poem-tabs a:hover{color:var(--rust)}
 .poem-tabs a.is-active{color:var(--rust)}
 .poem-tabs a.is-active:before{content:"";position:absolute;left:-14px;top:50%;transform:translateY(-50%);width:6px;height:6px;background:var(--gold);box-shadow:0 0 8px rgba(199,170,119,.7)}
+/* 收藏清单用简洁行列承载，避免把词作阅读区包成嵌套卡片。 */
+.favorites-toolbar{display:flex;justify-content:flex-end;margin:10px 0 0 18%}
+.favorites-toggle,.favorites-close,.favorites-remove{border:0;background:none;color:#405746;font-family:"Liyu Xingkai UI",var(--serif);font-size:14px;letter-spacing:.08em;cursor:pointer}
+.favorites-toggle{display:inline-flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(169,104,76,.38)}
+.favorites-count{min-width:22px;height:22px;display:grid;place-items:center;border:1px solid rgba(169,104,76,.35);border-radius:50%;font:10px var(--sans);color:var(--rust)}
+.favorites-panel{margin:16px 0 6px 18%;padding:13px 0;border-top:1px solid rgba(169,104,76,.28);border-bottom:1px solid rgba(169,104,76,.18)}
+.favorites-panel[hidden]{display:none}
+.favorites-panel-head{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.favorites-panel-head h3{margin:0;font-family:"HongLei Calligraphy",var(--serif);font-size:21px;font-weight:400;color:#34483b}
+.favorites-close,.favorites-remove{padding:5px 0;color:#8a4f39;font-size:12px}
+.favorites-empty{margin:10px 0 0;color:#727d72;font-size:12px}
+.favorites-list{list-style:none;margin:8px 0 0;padding:0}
+.favorites-list li{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:9px 0;border-top:1px solid rgba(48,77,63,.1)}
+.favorites-link{display:flex;align-items:baseline;gap:12px;min-width:0;color:#34483b;font-family:"Liyu Xingkai UI",var(--serif);font-size:15px}
+.favorites-link:hover{color:var(--rust)}
+.favorites-link small{overflow:hidden;color:#778174;font:10px var(--sans);text-overflow:ellipsis;white-space:nowrap}
 /* 单阕词条（work-entry）：三栏网格；--entry-progress 驱动序号水印、金线与逐行晕开 */
 .work-entry{display:grid;grid-template-columns:12% 1fr 20%;gap:28px;padding:52px 0 56px;border-bottom:1px solid rgba(199,170,119,.18);scroll-margin-top:100px;position:relative;transform-style:preserve-3d;scroll-snap-align:center;transition:box-shadow .6s ease}
 .work-entry.is-active{box-shadow:0 0 70px -34px rgba(199,170,119,.45)}
@@ -1308,7 +1324,7 @@ button:not(.book-open-button):active,.button:active{translate:0 1px}
 .finale-gate{position:relative;min-height:100vh;min-height:100svh;display:flex;align-items:center;justify-content:center;overflow:hidden;text-align:center;color:#f4f0e6;background:radial-gradient(120% 100% at 50% 0%,#1b2a24 0%,#141f1b 55%,#0f1815 100%);isolation:isolate}
 .finale-gate:before{content:"";position:absolute;z-index:0;right:-14%;bottom:-16%;width:60%;height:52%;background:radial-gradient(closest-side,rgba(199,170,119,.1),transparent 72%);filter:blur(46px);pointer-events:none}
 .finale-gate:after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:#0f1815;opacity:0}
-.finale-gate-glyph{position:absolute;z-index:0;top:50%;left:50%;color:rgba(240,228,199,.05);font:clamp(220px,30vw,420px)/1 "Liyu Xingkai","HongLei Calligraphy",var(--serif);pointer-events:none;translate:calc(-50% + var(--part-px,0) * 22px) calc(-52% + var(--part-py,0) * 14px - var(--part-p,0) * 80px)}
+.finale-gate-glyph{position:absolute;z-index:0;top:50%;left:50%;color:rgba(240,228,199,.05);font:clamp(220px,30vw,420px)/1 "HongLei Calligraphy","Liyu Xingkai",var(--serif);pointer-events:none;translate:calc(-50% + var(--part-px,0) * 22px) calc(-52% + var(--part-py,0) * 14px - var(--part-p,0) * 80px)}
 .finale-gate-mist{position:absolute;z-index:0;top:-10%;left:-12%;width:70%;height:60%;background:radial-gradient(closest-side,rgba(214,222,205,.14),transparent 72%);filter:blur(46px);pointer-events:none}
 .finale-gate-inner{position:relative;z-index:1;padding:120px 8%;display:flex;flex-direction:column;align-items:center}
 .finale-gate h2{margin:26px 0 0;font-family:"HongLei Calligraphy",var(--serif);font-size:clamp(30px,4vw,48px);font-weight:400;line-height:1.6;letter-spacing:.09em}

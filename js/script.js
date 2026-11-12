@@ -1840,7 +1840,7 @@
     const gallery = document.querySelector(".poem-gallery");
     if (!gallery) { ciEntries = []; ciTabs = []; ciObserver?.disconnect(); return; }
     ciEntries = Array.from(gallery.querySelectorAll(".work-entry"));
-    ciTabs = Array.from(gallery.querySelectorAll(".poem-tabs a"));
+    ciTabs = Array.from(document.querySelectorAll(".poem-tabs a"));
     gallery.dataset.ciReady = "true";
     // 给条目编号水印，并把词作正文按句拆成独立行，便于逐行浮现；注入词牌大水印
     ciEntries.forEach((entry, idx) => {
@@ -2507,24 +2507,95 @@
     });
   });
 
-  document.querySelectorAll(".favorite-button").forEach((button, index) => {
-    const key = `liyu-favorite-${index}`;
-    const saved = localStorage.getItem(key) === "true";
-    button.setAttribute("aria-pressed", String(saved));
-    button.textContent = saved ? "♥ 已收藏" : "♡ 收藏这首";
+  const favoriteEntries = Array.from(document.querySelectorAll(".work-entry"));
+  const favoritesToggle = document.querySelector(".favorites-toggle");
+  const favoritesPanel = document.querySelector(".favorites-panel");
+  const favoritesCount = document.querySelector(".favorites-count");
+  const favoritesEmpty = document.querySelector(".favorites-empty");
+  const favoritesList = document.querySelector(".favorites-list");
+  const renderFavorites = () => {
+    if (!favoritesList) return;
+    const savedEntries = favoriteEntries.filter((entry) => entry.querySelector(".favorite-button")?.getAttribute("aria-pressed") === "true");
+    favoritesCount.textContent = String(savedEntries.length);
+    favoritesEmpty.hidden = savedEntries.length > 0;
+    favoritesList.replaceChildren();
+    savedEntries.forEach((entry) => {
+      const heading = entry.querySelector(".work-main h3");
+      const title = heading?.childNodes[0]?.textContent.trim() || heading?.textContent.trim() || "未命名词作";
+      const subtitle = heading?.querySelector("small")?.textContent.trim();
+      const item = document.createElement("li");
+      const link = document.createElement("a");
+      const titleText = document.createElement("span");
+      link.className = "favorites-link";
+      link.href = `#${entry.id}`;
+      titleText.textContent = title;
+      link.append(titleText);
+      if (subtitle) {
+        const subtitleText = document.createElement("small");
+        subtitleText.textContent = subtitle;
+        link.append(subtitleText);
+      }
+      const removeButton = document.createElement("button");
+      removeButton.type = "button";
+      removeButton.className = "favorites-remove";
+      removeButton.dataset.removeFavorite = entry.id;
+      removeButton.setAttribute("aria-label", `取消收藏《${title}》`);
+      removeButton.textContent = "移除";
+      item.append(link, removeButton);
+      favoritesList.append(item);
+    });
+  };
+  const setFavoritesOpen = (open) => {
+    if (!favoritesPanel) return;
+    favoritesPanel.hidden = !open;
+    favoritesToggle?.setAttribute("aria-expanded", String(open));
+  };
+
+  favoriteEntries.forEach((entry, entryIndex) => {
+    const button = entry.querySelector(".favorite-button");
+    if (!button) return;
+    const key = `liyu-favorite-${entry.id}`;
+    const legacyKey = `liyu-favorite-${entryIndex}`;
+    // 用词牌 id 固定收藏身份，并一次性迁移旧序号键，避免词序变化后收藏错位。
+    let saved = localStorage.getItem(key);
+    const legacySaved = localStorage.getItem(legacyKey);
+    if (saved === null && legacySaved !== null) {
+      saved = legacySaved;
+      localStorage.setItem(key, legacySaved);
+    }
+    if (legacySaved !== null) localStorage.removeItem(legacyKey);
+    const selected = saved === "true";
+    button.setAttribute("aria-pressed", String(selected));
+    button.textContent = selected ? "♥ 已收藏" : "♡ 收藏这首";
     button.addEventListener("click", () => {
-      const selected = button.getAttribute("aria-pressed") !== "true";
-      button.setAttribute("aria-pressed", String(selected));
-      button.textContent = selected ? "♥ 已收藏" : "♡ 收藏这首";
-      localStorage.setItem(key, String(selected));
-      // f68 收藏弹跳：仅在「收藏成功」瞬间播一次 .pop 动画（先移除再强制重排以重启动画）
-      if (selected) {
+      const nextSelected = button.getAttribute("aria-pressed") !== "true";
+      button.setAttribute("aria-pressed", String(nextSelected));
+      button.textContent = nextSelected ? "♥ 已收藏" : "♡ 收藏这首";
+      localStorage.setItem(key, String(nextSelected));
+      renderFavorites();
+      if (nextSelected) {
         button.classList.remove("pop");
         void button.offsetWidth;
         button.classList.add("pop");
         button.addEventListener("animationend", () => button.classList.remove("pop"), { once: true });
       }
     });
+  });
+  renderFavorites();
+  favoritesToggle?.addEventListener("click", () => {
+    const open = favoritesPanel.hidden;
+    setFavoritesOpen(open);
+    if (open) renderFavorites();
+  });
+  favoritesPanel?.querySelector(".favorites-close")?.addEventListener("click", () => {
+    setFavoritesOpen(false);
+    favoritesToggle?.focus();
+  });
+  favoritesList?.addEventListener("click", (event) => {
+    const removeButton = event.target.closest("[data-remove-favorite]");
+    if (!removeButton) return;
+    const entry = favoriteEntries.find((item) => item.id === removeButton.dataset.removeFavorite);
+    entry?.querySelector(".favorite-button")?.click();
   });
 
   const setupCounter = (fieldId, countId, max) => {
