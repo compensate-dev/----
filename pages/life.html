@@ -3,19 +3,19 @@
 <html lang="zh-CN">
 <!-- 文档头部：字符集、移动端视口、主题色、SEO 描述、分页标题，以及共用的样式表与交互脚本 -->
 <!-- body.life-page：本页专用类，供 CSS 区分月色故人页与其他页面的底纹与版式 -->
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#e8eee4"><meta name="description" content="从金陵初生到北邙归处，十站看完李煜的四十二年；看一个人的身世，怎样一点点落进词里。"><meta property="og:site_name" content="春水留痕·李煜词境"><meta property="og:type" content="website"><meta property="og:title" content="月色故人｜春水留痕·李煜词境"><meta property="og:description" content="从金陵初生到北邙归处，十站看完李煜的四十二年；看一个人的身世，怎样一点点落进词里。"><meta property="og:image" content="../assets/image/life-background.jpg"><meta property="og:locale" content="zh_CN"><title>月色故人｜春水留痕·李煜词境</title><link rel="stylesheet" href="../css/style.css?v=f153"><script src="../js/script.js?v=f151" defer></script><script src="../js/ai-guide.js?v=f140" defer></script></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#e8eee4"><meta name="description" content="从金陵初生到北邙归处，十站看完李煜的四十二年；看一个人的身世，怎样一点点落进词里。"><meta property="og:site_name" content="春水留痕·李煜词境"><meta property="og:type" content="website"><meta property="og:title" content="江山旧梦｜春水留痕·李煜词境"><meta property="og:description" content="从金陵初生到北邙归处，十站看完李煜的四十二年；看一个人的身世，怎样一点点落进词里。"><meta property="og:image" content="../assets/image/life-background.jpg"><meta property="og:locale" content="zh_CN"><title>江山旧梦｜春水留痕·李煜词境</title><link rel="stylesheet" href="../css/style.css?v=f157"><script src="../js/script.js?v=f152" defer></script><script src="../js/ai-guide.js?v=f141" defer></script></head>
 <body class="life-page">
 <!-- 跳过导航：键盘用户按 Tab 时可直接跳入正文(#main-content) -->
   <a class="skip-link" href="#main-content">跳至主要内容</a>
 <!-- 页头：品牌 + 主导航(当前页高亮「月色故人」) + 声音开关 + 音量 -->
 <!-- 主体：id="main-content" 供顶部「跳至主要内容」链接定位；tabindex="-1" 使其可被程序聚焦 -->
-  <header class="site-header"><a class="brand" href="../index.html"><span class="brand-seal">煜</span><span>一江春水<small>李煜词境 · 南唐旧梦</small></span></a><button class="menu-toggle" aria-label="打开导航" aria-expanded="false">☰</button><nav class="main-nav" aria-label="主导航"><a href="../index.html">首页</a><a class="active" href="life.html" aria-current="page">月色故人</a><a href="ci.html">词间春水</a><a href="wanxiang.html">帘外余音</a><a href="listen.html">枕上低语</a></nav><div class="sound-controls"><button class="sound-toggle" type="button" aria-label="关闭背景音乐" aria-pressed="true"><span class="sound-icon">♫</span><span class="sound-status">音乐开启</span></button><label class="volume-control"><span class="visually-hidden">背景音乐音量</span><input class="volume-slider" type="range" min="0" max="1" step="0.01" value="0.6"></label></div></header>
+        <header class="site-header"><a class="brand" href="../index.html"><span class="brand-seal">煜</span><span>一江春水<small>李煜词境 · 南唐旧梦</small></span></a><button class="menu-toggle" aria-label="打开导航" aria-expanded="false">☰</button><nav class="main-nav" aria-label="主导航"><a href="../index.html">首页</a><a class="active" href="life.html" aria-current="page">江山旧梦</a><a href="ci.html">词间春水</a><a href="wanxiang.html">帘外余音</a><a href="listen.html">枕上低语</a></nav><div class="sound-controls"><button class="sound-toggle" type="button" aria-label="关闭背景音乐" aria-pressed="true"><span class="sound-icon">♫</span><span class="sound-status">音乐开启</span></button><label class="volume-control"><span class="visually-hidden">背景音乐音量</span><input class="volume-slider" type="range" min="0" max="1" step="0.01" value="0.6"></label></div></header>
   <main id="main-content" tabindex="-1">
 <!-- 钉合舞台：包住首屏与其后的故事区块——首屏 sticky 吸顶，故事区块整块上浮覆盖（见 style.css .subhero-stage） -->
     <div class="subhero-stage">
 <!-- 区块一：首屏。背景视频(视频未就绪时以 poster 图占位) + 标题与引导文案；吸顶期间 --hero-p 由脚本写入，驱动视频慢推与标题褪色 -->
 <!-- 区块二：生平时间线。十段人生节点(937 / 954 / 961 / 964 / 971 / 974 / 975 / 976 / 978 / 978)，每张卡片可点击展开完整故事；此块即钉合舞台的覆盖面板 -->
-    <section class="subhero life-hero"><video class="life-hero-video" autoplay muted loop playsinline preload="auto" poster="../assets/image/life-background.jpg" aria-hidden="true" tabindex="-1"><source src="../assets/video/life-hero-river.mp4?v=f68b" type="video/mp4"></video><div class="subhero-copy"><p class="eyebrow">A LIFE IN VERSE · 02</p><h1>月色曾照过<br><em>他的</em>江山。</h1><p>梦里先见一个人。937 到 978，宫灯与囚窗之间，隔着一场回不去的春天。往下走，一站十年，看他怎样把一生慢慢落进词里。</p></div><div class="scroll-hint" aria-hidden="true"><i><b></b></i><span class="hint-desktop">滚轮向下 · 沿着时间走</span><span class="hint-touch">向上滑动 · 沿着时间走</span></div></section>
+        <section class="subhero life-hero"><video class="life-hero-video" autoplay muted loop playsinline preload="auto" poster="../assets/image/life-background.jpg" aria-hidden="true" tabindex="-1"><source src="../assets/video/life-hero-river.mp4?v=f68b" type="video/mp4"></video><div class="subhero-copy"><p class="eyebrow">A LIFE IN VERSE · 02</p><h1>月色曾照过<br><em>他的</em>江山。</h1><p>梦里先见一个人。937 到 978，宫灯与囚窗之间，隔着一场回不去的春天。往下走，一站十年，看他怎样把一生慢慢落进词里。</p></div><div class="scroll-hint" aria-hidden="true"><i><b></b></i><span class="hint-desktop">滚轮向下 · 沿着时间走</span><span class="hint-touch">向上滑动 · 沿着时间走</span></div></section>
     <section class="story section-wrap">
 <!-- 叙事容器：左侧为随滚动联动的章节侧栏，右侧为十段人生时间线 -->
       <div class="timeline-narrative" id="timeline">
@@ -81,7 +81,7 @@
           <span class="trail-guide-dot" aria-hidden="true"></span>
           <span class="trail-guide-kicker">A LIFE WELL WALKED · 这一生，走完了</span>
           <p class="trail-guide-line">故事在 978 年落笔，梦在这里断了一截；剩下的路，在画里。</p>
-          <p class="trail-guide-line">点页面右侧的「月色故人」侧签，去<em>水墨行迹</em>，顺着他的脚步把南唐走一遍<span class="trail-guide-arrow" aria-hidden="true">→</span></p>
+          <p class="trail-guide-line">点页面右侧的「江山旧梦」侧签，去<em>水墨行迹</em>，顺着他的脚步把南唐走一遍<span class="trail-guide-arrow" aria-hidden="true">→</span></p>
         </div>
         </div>
       </div>

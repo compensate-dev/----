@@ -1233,12 +1233,12 @@
       if (reducedMotion || event.pointerType === "touch") return;
       const x = event.clientX / window.innerWidth - 0.5;
       const y = event.clientY / window.innerHeight - 0.5;
-      arrivalInterlude.style.setProperty("--arrival-pointer-x", `${(x * 26).toFixed(1)}px`);
-      arrivalInterlude.style.setProperty("--arrival-pointer-y", `${(y * 19).toFixed(1)}px`);
-      arrivalInterlude.style.setProperty("--arrival-pointer-deep-x", `${(x * 46).toFixed(1)}px`);
-      arrivalInterlude.style.setProperty("--arrival-pointer-deep-y", `${(y * 30).toFixed(1)}px`);
-      arrivalInterlude.style.setProperty("--arrival-pointer-soft-x", `${(x * 12).toFixed(1)}px`);
-      arrivalInterlude.style.setProperty("--arrival-pointer-soft-y", `${(y * 9).toFixed(1)}px`);
+      arrivalInterlude.style.setProperty("--arrival-pointer-x", `${(x * 52).toFixed(1)}px`);
+      arrivalInterlude.style.setProperty("--arrival-pointer-y", `${(y * 38).toFixed(1)}px`);
+      arrivalInterlude.style.setProperty("--arrival-pointer-deep-x", `${(x * 92).toFixed(1)}px`);
+      arrivalInterlude.style.setProperty("--arrival-pointer-deep-y", `${(y * 60).toFixed(1)}px`);
+      arrivalInterlude.style.setProperty("--arrival-pointer-soft-x", `${(x * 24).toFixed(1)}px`);
+      arrivalInterlude.style.setProperty("--arrival-pointer-soft-y", `${(y * 18).toFixed(1)}px`);
     };
     const showArrivalInterlude = () => new Promise((resolve, reject) => {
       if (!arrivalInterlude || !arrivalTrack || !arrivalScroller || !arrivalEnterButton || !arrivalSkipButton) {
@@ -1406,7 +1406,7 @@
         await new Promise((resolve) => window.setTimeout(resolve, 400));
         calligraphySequence.remove();
         await displayCalligraphyPromise;
-        const interludeDuration = 7000;
+        const interludeDuration = 4000;
         const interludeFadeDuration = 600;
         const interludeStartedAt = performance.now();
         const stopInkAnimation = startInkAnimation();
@@ -1541,7 +1541,7 @@
       sessionStorage.removeItem(finaleAudioTransferKey);
     }
     fadeSiteAudioBeforeExit();
-    window.setTimeout(() => location.assign(url.href), 360);
+    window.setTimeout(() => location.assign(url.href), reducedMotion ? 340 : 520);
   };
   document.addEventListener("click", (event) => {
     const link = event.target.closest("a[href]");
@@ -2951,8 +2951,8 @@
     const mapTab = document.createElement("button");
     mapTab.type = "button";
     mapTab.className = "shop-tab map-tab";
-    mapTab.setAttribute("aria-label", "月色故人专属板块：进入水墨行迹，云游李煜生平地图");
-    mapTab.innerHTML = "<span class=\"map-tab-seal\" aria-hidden=\"true\">迹</span>月色故人<small>水墨行迹 · 云游生平</small>";
+    mapTab.setAttribute("aria-label", "江山旧梦专属板块：进入水墨行迹，云游李煜生平地图");
+    mapTab.innerHTML = "<span class=\"map-tab-seal\" aria-hidden=\"true\">迹</span>江山旧梦<small>水墨行迹 · 云游生平</small>";
     mapTab.addEventListener("click", () => {
       // 进入地图前记住来处页面与滚动位置，供地图页「返回词境」原路返回
       try { sessionStorage.setItem("liyu-map-return", JSON.stringify({ href: location.href, scroll: window.scrollY })); } catch (error) { /* 隐私模式禁用存储时忽略 */ }

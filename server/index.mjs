@@ -13,7 +13,7 @@ import { fileURLToPath } from "node:url";
 // 站点根目录：本文件在 <root>/server/ 下，向上一级即站点根
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 
-// ---------- 读 .env.local：key 只留在本地文件，不进代码库 ----------
+// ---------- 读 .env.local：key 只留在本地文件，不进代码库 ---- ------
 const loadEnv = () => {
   const file = join(ROOT, ".env.local");
   if (!existsSync(file)) return;

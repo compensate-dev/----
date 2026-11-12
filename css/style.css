@@ -208,11 +208,11 @@ textarea::placeholder{color:#9aa297}
 /* 内页首屏（subhero）通用骨架：左文右饰；月色故人 / 枕上低语 / 帘外余音各页覆写底图与视频层 */
 .subhero{min-height:435px;padding:75px 10%;display:flex;align-items:center;justify-content:space-between;position:relative;overflow:hidden;background:linear-gradient(118deg,#eef0e9,#e0e7dc)}
 .life-hero{background:linear-gradient(90deg,rgba(238,240,233,.18),rgba(238,240,233,.06)),url("../assets/image/life-background.jpg") center 48%/cover no-repeat}
-.life-hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;filter:contrast(1.07) saturate(1.05) brightness(1.02)}
-.life-hero:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(238,240,233,.18),rgba(238,240,233,.06));z-index:1;pointer-events:none}
+.life-hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;filter:blur(1.5px) contrast(1.07) saturate(1.05) brightness(1.02)}
+.life-hero:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(238,240,233,.34),rgba(238,240,233,.16));z-index:1;pointer-events:none}
 .listen-hero{isolation:isolate;background:#dfe6dc}
-.listen-hero-video{position:absolute;inset:0;z-index:-2;width:100%;height:100%;object-fit:cover;object-position:center 50%;filter:contrast(1.07) saturate(1.05) brightness(1.02)}
-.listen-hero:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(239,241,234,.52),rgba(224,232,222,.2));pointer-events:none}
+.listen-hero-video{position:absolute;inset:0;z-index:-2;width:100%;height:100%;object-fit:cover;object-position:center 50%;filter:blur(1.5px) contrast(1.07) saturate(1.05) brightness(1.02)}
+.listen-hero:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(239,241,234,.62),rgba(224,232,222,.32));pointer-events:none}
 .subhero:after{content:"";position:absolute;right:0;bottom:-3px;width:55%;height:75%;background:linear-gradient(145deg,transparent 30%,rgba(79,103,83,.09));clip-path:polygon(0 78%,19% 40%,31% 56%,50% 15%,65% 47%,80% 9%,100% 43%,100% 100%,0 100%)}
 .subhero-copy{position:relative;z-index:2}
 .subhero h1{font-size:clamp(42px,5.2vw,68px);margin:7px 0 8px}
@@ -261,8 +261,8 @@ textarea::placeholder{color:#9aa297}
 .next-step h2{font-size:31px;margin:15px 0 0}
 /* 帘外余音页首屏（wanxiang-hero）：视频底图 + 右侧竖排巨字水印 */
 .wanxiang-hero{position:relative;isolation:isolate;min-height:540px;gap:7%;background:#dfe6dc}
-.wanxiang-hero:before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(100deg,rgba(239,241,234,.36),rgba(224,232,222,.15));pointer-events:none}
-.wanxiang-hero-video{position:absolute;inset:0;z-index:0;width:100%;height:100%;object-fit:cover;object-position:center 50%;filter:contrast(1.07) saturate(1.05) brightness(1.02)}
+.wanxiang-hero:before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(100deg,rgba(239,241,234,.48),rgba(224,232,222,.24));pointer-events:none}
+.wanxiang-hero-video{position:absolute;inset:0;z-index:0;width:100%;height:100%;object-fit:cover;object-position:center 50%;filter:blur(1.5px) contrast(1.07) saturate(1.05) brightness(1.02)}
 .wanxiang-hero:after{z-index:1;width:68%;height:90%;background:linear-gradient(145deg,transparent 25%,rgba(79,103,83,.08));opacity:.8;pointer-events:none}
 .wanxiang-hero .subhero-copy{max-width:600px}
 .wanxiang-hero .eyebrow{margin-bottom:18px}
@@ -579,9 +579,9 @@ textarea::placeholder{color:#9aa297}
 .click-ripple:after{width:34px;height:34px;border-color:rgba(169,104,76,.58);box-shadow:0 0 0 1px rgba(243,243,237,.55);animation-delay:.1s}
 .click-ripple:after{background:radial-gradient(circle,transparent 0 59%,rgba(242,244,233,.34) 59.2% 59.6%,rgba(48,77,63,.15) 59.9% 60.2%,transparent 60.5%);animation-duration:.9s;animation-delay:.12s}
 .page-ripple{position:fixed;inset:0;z-index:90;overflow:hidden;pointer-events:none}
-.page-ripple:before,.page-ripple:after{content:"";position:absolute;left:var(--ripple-x);top:var(--ripple-y);width:150vmax;height:150vmax;border-radius:50%;transform:translate(-50%,-50%) scale(.015);opacity:0;background:radial-gradient(circle,transparent 0 47%,rgba(242,244,233,.48) 47.2% 47.7%,rgba(48,77,63,.22) 48% 48.3%,transparent 48.6%)}
+.page-ripple:before,.page-ripple:after{content:"";position:absolute;left:var(--ripple-x);top:var(--ripple-y);width:150vmax;height:150vmax;border-radius:50%;transform:translate(-50%,-50%) scale(.015);opacity:0;background:radial-gradient(circle,transparent 0 46.7%,rgba(242,244,233,.72) 47% 47.9%,rgba(48,77,63,.38) 48.2% 48.7%,transparent 49%)}
 .page-ripple:before{animation:page-ripple-wave .82s cubic-bezier(.16,.62,.3,1) forwards}
-.page-ripple:after{background:radial-gradient(circle,transparent 0 59%,rgba(242,244,233,.34) 59.2% 59.6%,rgba(48,77,63,.15) 59.9% 60.2%,transparent 60.5%);animation:page-ripple-wave .9s .12s cubic-bezier(.16,.62,.3,1) forwards}
+.page-ripple:after{background:radial-gradient(circle,transparent 0 58.7%,rgba(242,244,233,.56) 59% 59.7%,rgba(48,77,63,.28) 60% 60.5%,transparent 60.8%);animation:page-ripple-wave .9s .12s cubic-bezier(.16,.62,.3,1) forwards}
 main{transition:opacity .24s ease,transform .24s ease,filter .24s ease}
 html.page-transitioning main{opacity:.08;transform:translateY(8px) scale(.995);filter:blur(3px)}
 @keyframes page-ripple-wave{0%{transform:translate(-50%,-50%) scale(.015);opacity:0}12%{opacity:1}100%{transform:translate(-50%,-50%) scale(1.35);opacity:0}}
@@ -699,8 +699,8 @@ body.home-page.book-opened>.site-header,body.home-page.book-opened>main,body.hom
 .calligraphy-sequence.is-active{visibility:visible;opacity:1}
 .calligraphy-sequence.is-revealing{opacity:0}
 .calligraphy-background,.calligraphy-sequence:after{position:absolute;inset:0;width:100%;height:100%}
-.calligraphy-background{z-index:0;object-fit:cover;object-position:center;opacity:1;filter:saturate(1.18) contrast(1.06);transition:opacity .9s ease,filter .9s ease}
-.calligraphy-sequence:after{content:"";z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(242,244,237,.16),rgba(242,244,237,.07) 50%,rgba(242,244,237,.16))}
+.calligraphy-background{z-index:0;object-fit:cover;object-position:center;opacity:1;filter:saturate(1.15) contrast(1.14) brightness(1.12);transition:opacity .9s ease,filter .9s ease}
+.calligraphy-sequence:after{content:"";z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(242,244,237,.08),rgba(242,244,237,.03) 50%,rgba(242,244,237,.08))}
 .calligraphy-flight{position:absolute;z-index:2;top:0;width:auto;height:auto;max-width:min(30vw,280px);max-height:62vh;object-fit:contain;mix-blend-mode:multiply;filter:drop-shadow(0 5px 10px rgba(34,48,38,.2));will-change:transform,opacity;animation:calligraphy-fall .55s cubic-bezier(.42,0,.58,1) both}
 .calligraphy-mist{position:absolute;inset:-18%;z-index:2;pointer-events:none;opacity:1;filter:blur(26px);background:radial-gradient(ellipse at 16% 78%,rgba(255,252,242,.72),transparent 56%),radial-gradient(ellipse at 84% 70%,rgba(236,226,200,.58),transparent 58%),radial-gradient(ellipse at 42% 92%,rgba(122,140,124,.55),transparent 64%),radial-gradient(ellipse at 66% 30%,rgba(255,250,238,.48),transparent 52%),linear-gradient(180deg,transparent 32%,rgba(58,74,64,.28) 72%,rgba(44,58,50,.44) 100%);transform:scale(1.14);animation:calligraphy-mist-drift 26s ease-in-out infinite alternate}
 .calligraphy-rain{position:absolute;inset:-12%;z-index:2;pointer-events:none;opacity:.34;background:repeating-linear-gradient(100deg,transparent 0 17px,rgba(224,236,229,.14) 17px 18px,transparent 18px 42px);animation:calligraphy-rain-fall 1.05s linear infinite}
@@ -2532,6 +2532,8 @@ body.home-page.stage-mode .poem-card:hover .poem-arrow{transform:translate(3px,-
   .main-nav a{font-size:17px}
 }
 
+/* 入场提示默认只显示滚轮文案，触屏规则再替换为上滑，避免两种引导同时出现 */
+.arrival-hint .hint-touch{display:none}
 /* 8) 入场提示随设备换文案：触屏说「上滑」，并去掉鼠标轮廓图标 */
 @media (hover:none),(pointer:coarse){
   .arrival-hint .hint-desktop{display:none}
