@@ -2900,6 +2900,11 @@
     });
     box.querySelector("[data-share-close]").addEventListener("click", () => { box.hidden = true; });
 
+    const shareButtonMarkup = `
+      <button type="button" class="share-inline-btn" data-share="link">复制链接</button>
+      <button type="button" class="share-inline-btn" data-share="system" hidden>系统分享</button>
+      <button type="button" class="share-inline-btn" data-share="draft">请梦客拟分享语</button>`;
+
     const wireRow = (row) => {
       if (row.dataset.ready) return;
       row.dataset.ready = "1";
@@ -2934,10 +2939,7 @@
     }
     rows.forEach((row) => {
       if (!row.children.length) {
-        row.innerHTML = `
-          <button type="button" class="share-inline-btn" data-share="link">复制链接</button>
-          <button type="button" class="share-inline-btn" data-share="system" hidden>系统分享</button>
-          <button type="button" class="share-inline-btn" data-share="draft">请梦客拟分享语</button>`;
+        row.innerHTML = shareButtonMarkup;
       }
       wireRow(row);
     });

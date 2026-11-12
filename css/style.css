@@ -1358,47 +1358,10 @@ body.home-page:not(.book-opened) .shop-tab{display:none}
 .shop-drawer-close{margin-left:auto;background:none;border:0;font-size:23px;line-height:1;color:#6d786d;cursor:pointer;padding:4px 6px}
 .shop-drawer-close:hover{color:var(--rust)}
 .shop-drawer-body{flex:1;overflow-y:auto;padding:16px 18px 22px;overscroll-behavior:contain}
-/* 抽屉内概念声明（常驻顶部，避免误判为真实商店） */
-.shop-drawer-notice{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;margin-bottom:14px;background:rgba(169,104,76,.08);border:1px solid rgba(169,104,76,.4);border-left:3px solid var(--rust)}
-.shop-drawer-notice b{flex-shrink:0;font-family:"Liyu Xingkai UI",var(--serif);font-size:15px;color:#8a4a34;letter-spacing:.08em}
-.shop-drawer-notice p{margin:0;font-size:11.5px;line-height:1.9;color:#42524a}
-/* 抽屉内商品卡：左图右文的紧凑横卡 */
-.shop-card{display:flex;gap:13px;padding:13px;margin-bottom:12px;background:linear-gradient(180deg,#fbfaf4,#f1f2ea);border:1px solid rgba(122,84,58,.22);box-shadow:0 4px 14px rgba(43,61,48,.06);transition:transform .35s cubic-bezier(.2,.75,.25,1),box-shadow .35s ease,border-color .35s ease}
-@media(hover:hover){.shop-card:hover{transform:translateX(-4px);border-color:rgba(169,104,76,.5);box-shadow:0 10px 22px rgba(43,61,48,.14)}}
-.shop-art{position:relative;flex-shrink:0;width:96px;height:96px;overflow:hidden;background:#e4e8df}
-.shop-art img{width:100%;height:100%;object-fit:cover;filter:saturate(.92);transition:transform .5s cubic-bezier(.2,.7,.25,1)}
-@media(hover:hover){.shop-card:hover .shop-art img{transform:scale(1.07)}}
-.shop-ribbon{position:absolute;top:6px;left:0;z-index:2;padding:2px 7px;background:rgba(169,104,76,.94);color:#fdf9f0;font:8px/1.6 var(--sans);letter-spacing:.12em}
-.shop-body{display:flex;flex-direction:column;flex:1;min-width:0}
-.shop-meta{display:flex;flex-wrap:wrap;gap:5px;margin:0 0 4px;font:8.5px var(--sans);letter-spacing:.12em;color:#8d7b63;text-transform:uppercase}
-.shop-body h3{margin:0 0 5px;font-family:"Liyu Xingkai UI",var(--serif);font-weight:400;font-size:17px;letter-spacing:.08em;color:#2a3b30}
-.shop-body>p{margin:0;font-size:11px;line-height:1.85;color:#5f6c61;display:-webkit-box;-webkit-line-clamp:2;line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.concept-buy{margin-top:auto;padding-top:8px;background:none;border:0;cursor:pointer;align-self:flex-start;font:10.5px var(--sans);letter-spacing:.14em;color:var(--pine);border-bottom:1px solid #a9b6a7;padding-bottom:4px;transition:color .3s,border-color .3s}
-.concept-buy span{color:var(--rust);margin-left:5px;display:inline-block;transition:transform .3s}
-@media(hover:hover){.concept-buy:hover{color:#8a4a34;border-color:var(--rust)}.concept-buy:hover span{transform:translate(2px,-2px)}}
-/* 抽屉底部：活化思路速览 + 脚注 */
-.shop-drawer-idea{margin-top:6px;padding:14px;border:1px dashed rgba(122,84,58,.35)}
-.shop-drawer-idea h3{margin:0 0 8px;font-family:"Liyu Xingkai UI",var(--serif);font-weight:400;font-size:15px;letter-spacing:.1em;color:#8a4a34}
-.shop-drawer-idea ol{margin:0;padding-left:18px;font-size:11px;line-height:2;color:#5f6c61}
-.shop-drawer-foot{margin:12px 2px 0;font-size:10px;line-height:1.9;color:#8a9387;text-align:center}
-/* 概念说明弹窗（原生 dialog，样式与时间线弹窗呼应） */
-.shop-notice-dialog{width:min(480px,calc(100vw - 36px));max-width:none;border:1px solid rgba(134,151,131,.46);padding:clamp(30px,5vw,46px);background:linear-gradient(145deg,rgba(249,248,240,.99),rgba(232,236,226,.99));color:var(--ink);box-shadow:0 24px 90px rgba(24,39,30,.32);text-align:center}
-.shop-notice-dialog::backdrop{background:rgba(24,39,31,.52);backdrop-filter:blur(4px)}
-.shop-notice-close{position:absolute;top:14px;right:16px;background:none;border:0;font-size:24px;line-height:1;color:#6d786d;cursor:pointer}
-.shop-notice-close:hover{color:var(--rust)}
-.shop-notice-seal{display:grid;place-items:center;width:58px;height:58px;margin:0 auto 18px;background:var(--rust);color:#fbf7ee;font-family:"Liyu Xingkai UI",var(--serif);font-size:31px;transform:rotate(-5deg)}
-.shop-notice-kicker{font:10px var(--sans);letter-spacing:.22em;color:#a9684c}
-.shop-notice-dialog h2{margin:12px 0 16px;font-family:"HongLei Calligraphy",var(--serif);font-weight:400;font-size:27px;letter-spacing:.08em}
-.shop-notice-dialog h2 span{color:#8a4a34}
-.shop-notice-message{margin:0 auto 12px;max-width:380px;font-family:"Xuandong Kaishu",var(--serif);font-size:17px;line-height:2;color:#34483b}
-.shop-notice-sub{margin:0 0 26px;font-size:11px;line-height:1.9;color:#8a9387}
-.shop-notice-ok{min-height:44px;padding:10px 34px;background:var(--pine);border:1px solid var(--pine);border-radius:3px;color:#f7f5ef;font:12px var(--sans);letter-spacing:.18em;cursor:pointer;transition:background .3s,letter-spacing .3s}
-.shop-notice-ok:hover{background:#243b30;letter-spacing:.24em}
 @media(max-width:700px){
   .shop-tab{padding:13px 7px;font-size:13px;letter-spacing:.16em}
-  .shop-art{width:82px;height:82px}.shop-body h3{font-size:15px}.shop-body>p{-webkit-line-clamp:3;line-clamp:3}
 }
-@media(prefers-reduced-motion:reduce){.shop-tab,.shop-drawer,.shop-mask,.shop-card,.shop-art img{transition:none}}
+@media(prefers-reduced-motion:reduce){.shop-tab,.shop-drawer,.shop-mask{transition:none}}
 
 /* ========== 笺语留言（全站侧边栏 · localStorage 本地笺筒） ========== */
 /* 面板主体复用 .shop-drawer 骨架，仅覆写配色细节 */
@@ -1429,22 +1392,6 @@ body.home-page:not(.book-opened) .shop-tab{display:none}
 .jy-toast{position:fixed;left:50%;bottom:9vh;z-index:90;transform:translate(-50%,12px);padding:11px 26px;background:rgba(36,59,48,.94);color:#f2ecdd;font-family:"Xuandong Kaishu",var(--serif);font-size:15px;letter-spacing:.14em;border:1px solid rgba(199,170,119,.4);border-radius:3px;box-shadow:0 12px 34px rgba(24,39,30,.35);opacity:0;pointer-events:none;transition:opacity .35s ease,transform .35s ease}
 .jy-toast.is-show{opacity:1;transform:translate(-50%,0)}
 @media(prefers-reduced-motion:reduce){.jy-toast{transition:none}}
-
-/* ========== 分享词境（全站侧边栏 · 微信扫码 / QQ空间 / QQ好友 / 微博 / 复制链接） ========== */
-.share-drawer .shop-drawer-seal{border-color:#33546b;color:#33546b}
-/* 二维码卡：微信「扫码后转发」入口 */
-.share-qr{display:flex;gap:14px;align-items:center;padding:13px;margin-bottom:14px;background:rgba(251,250,244,.92);border:1px solid rgba(122,84,58,.3)}
-.share-qr-img{flex-shrink:0;width:112px;height:112px;padding:5px;background:#fff;border:1px solid rgba(122,84,58,.4)}
-.share-qr-img img{width:100%;height:100%;display:block}
-.share-qr-copy b{display:block;margin-bottom:5px;font-family:"Liyu Xingkai UI",var(--serif);font-size:15px;letter-spacing:.08em;color:#33546b}
-.share-qr-copy p{margin:0;font-size:11px;line-height:1.95;color:#42524a}
-/* 分享按钮组 */
-.share-links{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
-.share-btn{display:flex;align-items:center;justify-content:center;gap:9px;min-height:46px;background:#fbfaf4;border:1px solid rgba(122,84,58,.35);color:#33443a;font:12px var(--sans);letter-spacing:.1em;cursor:pointer;transition:background .3s,border-color .3s,color .3s}
-.share-btn i{font-style:normal;flex-shrink:0;width:24px;height:24px;display:grid;place-items:center;background:linear-gradient(160deg,#41626f,#2c4450);color:#f2ecdd;font-family:"Liyu Xingkai UI",var(--serif);font-size:13px}
-.share-btn:hover{border-color:#33546b;color:#22404e;background:#eef2ee}
-.share-btn-wx-tip,.share-btn-sys{grid-column:1 / -1}
-.share-footnote{margin:12px 2px 0;font-size:10px;line-height:1.9;color:#8a9387;text-align:center}
 
 /* ========== 从词到物（帘外余音页末 · 文创概念陈列，非卖） ========== */
 .concept-section{padding-top:90px;padding-bottom:100px}
@@ -1617,13 +1564,6 @@ body.map-page .map-tab{display:none}
 @keyframes mapTabCall{0%,100%{box-shadow:-6px 0 18px rgba(24,39,30,.22)}50%{box-shadow:-12px 0 32px rgba(138,58,38,.46),0 0 0 3px rgba(232,206,160,.28)}}
 .map-tab.is-call::after{content:"点此 · 水墨行迹";position:absolute;right:calc(100% + 12px);top:50%;transform:translateY(-50%);padding:7px 12px;border:1px solid rgba(232,206,160,.5);border-radius:3px;background:linear-gradient(160deg,#8a3a26,#5c2417);color:#f5ede0;font-family:"Xuandong Kaishu",var(--serif);font-size:13px;letter-spacing:.14em;white-space:nowrap;writing-mode:horizontal-tb;box-shadow:-8px 8px 22px rgba(24,39,30,.22);pointer-events:none}
 .map-tab.is-call::before{content:"";position:absolute;right:calc(100% + 6px);top:50%;width:0;height:0;border:6px solid transparent;border-left-color:#8a3a26;border-right:0;transform:translateY(-50%)}
-/* 头部 */
-.map-hero{position:relative;min-height:52vh;display:flex;align-items:center;justify-content:space-between;gap:40px;padding:96px 7vw 48px;background:linear-gradient(180deg,rgba(232,238,228,0),rgba(232,238,228,.65))}
-.map-hero-copy{max-width:560px}
-.map-hero-copy h1{font-family:"Liyu Xingkai UI",var(--serif);font-size:clamp(38px,5.6vw,64px);line-height:1.18;color:#2f3b32;margin:14px 0 18px}
-.map-hero-copy h1 em{font-style:normal;color:#7a2e1e}
-.map-hero-copy p{font-size:15px;line-height:2.1;color:#4b5a4e}
-.map-hero-actions{display:flex;align-items:center;gap:22px;margin-top:26px}
 /* 纸片 3D 云游舞台（Three.js） */
 @keyframes map-pulse{0%{transform:scale(.5);opacity:.9}80%{transform:scale(1.7);opacity:0}100%{opacity:0}}
 .stage3d{position:relative;height:clamp(560px,78vh,820px);border:1px solid rgba(122,84,58,.28);border-radius:4px;overflow:hidden;background:#f1ecdd;box-shadow:0 18px 44px rgba(47,59,50,.14);cursor:grab;touch-action:none}
@@ -1707,10 +1647,6 @@ body.map-page .map-tab{display:none}
   .dot-nav{right:10px;gap:14px}
   .stage-hint{display:none}
 }
-@media(max-width:700px){
-  .map-hero{padding-top:84px;flex-direction:column;align-items:flex-start}
-}
-
 /* ===== 水墨行迹 UI 古雅化 f35 ===== */
 /* 顶栏：印章改朱文（红底阴字），按钮收成细线方章 */
 .map-topbar .brand-seal{background:#a03a24;border:1px solid #8d301c;border-radius:3px;color:#f6efe0;box-shadow:inset 0 0 0 2px rgba(246,239,224,.28),0 6px 14px rgba(160,58,36,.24)}
