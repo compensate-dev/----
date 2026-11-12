@@ -1539,7 +1539,147 @@ body.home-page:not(.book-opened) .shop-tab{display:none}
 .shop-desk-look:hover,.shop-desk-remove:hover{color:#9a3b2e}
 .shop-desk-empty{margin:30px 0;text-align:center;font-size:12.5px;line-height:2.1;color:#8a7763}
 
-/* 展开时锁住背景滚动；过滤时卡片直接收起 */
+/* ========== 文创页 · 展厅级改版（v2） ==========
+   思路：上半屏暗墨如展厅入口，下半屏纸面陈列如展台；
+   六件器物用非对称栏宽排布，详情做成整屏展签。 */
+
+/* —— 开场海报 —— */
+.wenwu-hero{position:relative;overflow:hidden;isolation:isolate;background:#0c1311;color:#f2ecdd}
+.wenwu-hero-bg{position:absolute;inset:0;background:url("../assets/image/screen-world-background.jpg") center/cover no-repeat;opacity:.32;filter:grayscale(.4) contrast(1.06);transform:scale(1.06);animation:wenwuHeroZoom 2.2s cubic-bezier(.16,.7,.2,1) both}
+.wenwu-hero::after{content:"";position:absolute;inset:0;z-index:1;background:radial-gradient(115% 85% at 16% 8%,rgba(10,18,15,.28),rgba(9,15,13,.94) 64%),linear-gradient(180deg,rgba(8,14,12,.5),rgba(8,14,12,.86))}
+.wenwu-hero-inner{position:relative;z-index:2;max-width:1180px;margin:0 auto;padding:clamp(66px,8vw,108px) clamp(22px,7vw,72px) clamp(104px,12vw,168px)}
+.wenwu-hero-back{display:inline-block;margin-bottom:clamp(28px,4vw,46px);color:rgba(242,236,221,.6);font-family:var(--sans);font-size:11.5px;letter-spacing:.16em;text-decoration:none;transition:color .3s}
+.wenwu-hero-back:hover{color:#d4a24a}
+.wenwu-hero-kicker{display:block;font-family:var(--sans);font-size:10px;letter-spacing:.28em;color:#d4a24a;margin-bottom:18px}
+.wenwu-hero h1{margin:0 0 22px;font-family:"HongLei Calligraphy",var(--serif);font-weight:400;font-size:clamp(40px,6.6vw,84px);line-height:1.16;letter-spacing:.04em;color:#f4efe3}
+.wenwu-hero h1 em{font-style:normal;color:#d4a24a}
+.wenwu-hero-lead{max-width:520px;margin:0 0 30px;font-family:"Xuandong Kaishu",var(--serif);font-size:14px;line-height:2.1;color:rgba(242,236,221,.7)}
+.wenwu-hero-meta{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+.wenwu-enter{display:inline-flex;align-items:center;gap:10px;padding:14px 26px;border:1px solid rgba(212,162,74,.55);background:rgba(212,162,74,.06);color:#f2ecdd;font-family:"Liyu Xingkai",var(--serif);font-size:16px;letter-spacing:.16em;text-decoration:none;transition:background .3s,color .3s,border-color .3s}
+.wenwu-enter span{transition:transform .3s}
+.wenwu-enter:hover{background:#d4a24a;border-color:#d4a24a;color:#1a120d}
+.wenwu-enter:hover span{transform:translateY(4px)}
+.wenwu-hero-note{font-family:var(--sans);font-size:10.5px;letter-spacing:.18em;color:rgba(242,236,221,.46)}
+/* 右侧巨幅竖排题字，只作气氛，不抢标题 */
+.wenwu-hero-seal{position:absolute;right:clamp(6px,4vw,70px);top:50%;transform:translateY(-50%);writing-mode:vertical-rl;font-family:"HongLei Calligraphy",var(--serif);font-size:clamp(56px,9vw,132px);line-height:1;letter-spacing:.2em;color:rgba(242,236,221,.07);pointer-events:none;user-select:none}
+/* 开场逐层浮起，像展厅的灯一盏盏亮起 */
+.wenwu-hero-kicker,.wenwu-hero h1,.wenwu-hero-lead,.wenwu-hero-meta{animation:wenwuUp .95s cubic-bezier(.16,.7,.2,1) both}
+.wenwu-hero h1{animation-delay:.1s}
+.wenwu-hero-lead{animation-delay:.22s}
+.wenwu-hero-meta{animation-delay:.34s}
+
+/* —— 纸面陈列 —— */
+.wenwu-shelf{position:relative;margin-top:-64px;padding:clamp(44px,5.5vw,76px) 0 clamp(60px,8vw,108px);background:linear-gradient(180deg,#f8f1e2,#efe3cb);border-radius:20px 20px 0 0;box-shadow:0 -34px 80px rgba(6,12,10,.42)}
+.wenwu-shelf-inner{max-width:1180px;margin:0 auto;padding:0 clamp(22px,7vw,72px)}
+.shelf-head{display:flex;align-items:baseline;justify-content:space-between;gap:18px;padding-bottom:16px;border-bottom:1px solid rgba(122,84,58,.2)}
+.shelf-kicker{font-family:var(--sans);font-size:10px;letter-spacing:.24em;color:#9a3b2e}
+.shelf-head h2{margin:0;font-family:"HongLei Calligraphy",var(--serif);font-weight:400;font-size:clamp(26px,3.4vw,40px);letter-spacing:.1em;color:#2c1810}
+.wenwu-back-foot{margin:34px 0 0;text-align:center}
+.wenwu-back-foot a{color:rgba(122,84,58,.62);font-family:"Liyu Xingkai",var(--serif);font-size:14px;letter-spacing:.1em;text-decoration:none;border-bottom:1px solid rgba(122,84,58,.35);padding-bottom:3px;transition:color .3s,border-color .3s}
+.wenwu-back-foot a:hover{color:#9a3b2e;border-color:#9a3b2e}
+
+/* 工具条与标题同处一行时不再重复分隔线 */
+.wenwu-shelf .shop-bar{border-bottom:0;padding-bottom:0;margin:18px 0 26px}
+
+/* 非对称陈列：7/5、5/7、6/6，像杂志跨页 */
+.wenwu-page .shop-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:clamp(20px,2.8vw,38px) clamp(16px,2.2vw,30px);align-items:start}
+.wenwu-page .concept-card{grid-column:span 4;background:none;border:0;box-shadow:none;padding:0;opacity:0;transform:translateY(22px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1)}
+.wenwu-page .concept-card.is-in{opacity:1;transform:none}
+.wenwu-page .concept-card:hover{transform:none;box-shadow:none;border-color:transparent}
+.wenwu-page .concept-card:nth-child(1){grid-column:span 7}
+.wenwu-page .concept-card:nth-child(2){grid-column:span 5}
+.wenwu-page .concept-card:nth-child(3){grid-column:span 5}
+.wenwu-page .concept-card:nth-child(4){grid-column:span 7}
+.wenwu-page .concept-card:nth-child(5),
+.wenwu-page .concept-card:nth-child(6){grid-column:span 6}
+
+.wenwu-page .concept-art{aspect-ratio:4/3;border-radius:2px}
+.wenwu-page .concept-card:nth-child(1) .concept-art,
+.wenwu-page .concept-card:nth-child(4) .concept-art{aspect-ratio:16/10}
+.wenwu-page .concept-art img{filter:saturate(.95) contrast(1.02)}
+/* 鼠标扫过时的一束暖光，像展厅顶灯 */
+.concept-art::after{content:"";position:absolute;inset:0;z-index:1;background:radial-gradient(240px circle at var(--mx,50%) var(--my,50%),rgba(255,236,200,.42),transparent 62%);opacity:0;transition:opacity .35s;pointer-events:none;mix-blend-mode:soft-light}
+.concept-art:hover::after,.concept-art:focus-visible::after{opacity:1}
+/* 角标：概念签、编号、巨字序号 */
+.concept-ribbon{top:10px;left:10px;background:rgba(16,22,19,.62);backdrop-filter:blur(4px);letter-spacing:.16em}
+.concept-no{position:absolute;top:10px;right:10px;z-index:2;padding:3px 7px;background:rgba(16,22,19,.42);backdrop-filter:blur(4px);font-family:var(--sans);font-size:9px;letter-spacing:.18em;color:#f7efdd}
+.concept-mark{position:absolute;left:12px;bottom:4px;z-index:2;font-family:"HongLei Calligraphy",var(--serif);font-size:clamp(42px,5vw,66px);line-height:1;color:rgba(247,239,221,.22);pointer-events:none;transition:color .5s,transform .5s}
+.wenwu-page .concept-card:hover .concept-mark{color:rgba(247,239,221,.4);transform:translateY(-3px)}
+.wenwu-page .concept-zoom{opacity:1;transform:none;background:rgba(16,22,19,.5)}
+.wenwu-page .concept-zoom i{color:#f0d9b5}
+
+/* 文字区：不用卡片，靠细线与留白分隔 */
+.wenwu-page .concept-body{padding:15px 2px 0;background:none}
+.concept-topline{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:7px}
+.wenwu-page .concept-meta{margin:0;font-size:9px;letter-spacing:.15em;color:#a06a4a}
+.concept-cat{font-family:var(--sans);font-size:9px;letter-spacing:.2em;color:rgba(122,84,58,.48)}
+.wenwu-page .concept-body h3{margin:0 0 8px;font-size:clamp(20px,2.1vw,26px)}
+.wenwu-page .concept-desc{font-size:12.5px;line-height:1.95;color:#5a4a3a}
+.wenwu-page .concept-actions{margin-top:14px;padding-top:10px;border-top:1px solid rgba(122,84,58,.16)}
+.wenwu-page .concept-save.is-saved{color:#9a3b2e}
+
+/* —— 详情展签：整屏双栏，左图右文 —— */
+.wenwu-page .shop-panel{display:grid;grid-template-columns:minmax(0,1.18fr) minmax(0,.82fr);width:100%;height:100%;overflow:hidden;background:linear-gradient(180deg,#fbf6ea,#f1e6cf);animation:none;box-shadow:none}
+.wenwu-page .shop-panel-art{position:relative;width:100%;height:100%;aspect-ratio:auto;background:#0d1311}
+.wenwu-page .shop-panel-art img{width:100%;height:100%;object-fit:cover;animation:shopImgIn 1.15s cubic-bezier(.16,.7,.2,1) both}
+.shop-panel-tag{position:absolute;left:clamp(16px,2vw,30px);bottom:clamp(16px,2vw,30px);z-index:2;padding:6px 10px;background:rgba(10,16,14,.58);backdrop-filter:blur(4px);font-family:var(--sans);font-size:9.5px;letter-spacing:.2em;color:#f2ecdd}
+.shop-panel-mark{position:absolute;right:clamp(10px,2vw,34px);top:50%;transform:translateY(-50%);font-family:"HongLei Calligraphy",var(--serif);font-size:clamp(90px,10vw,168px);line-height:1;color:rgba(247,239,221,.16);pointer-events:none;user-select:none}
+.wenwu-page .shop-panel .shop-panel-body{display:flex;flex-direction:column;justify-content:center;overflow-y:auto;padding:clamp(48px,6vw,86px) clamp(28px,4vw,64px)}
+.wenwu-page .shop-panel .shop-panel-body h2{font-size:clamp(30px,3.2vw,44px)}
+.shop-panel-verse{font-size:15px}
+.shop-panel-desc{max-width:44ch}
+.wenwu-page .shop-close{top:18px;right:18px;background:rgba(251,246,234,.86);z-index:5}
+/* 展签内容逐条浮起 */
+.wenwu-page .shop-panel-body > *{animation:panelUp .75s cubic-bezier(.16,.7,.2,1) both}
+.wenwu-page .shop-panel-body > *:nth-child(1){animation-delay:.1s}
+.wenwu-page .shop-panel-body > *:nth-child(2){animation-delay:.16s}
+.wenwu-page .shop-panel-body > *:nth-child(3){animation-delay:.22s}
+.wenwu-page .shop-panel-body > *:nth-child(4){animation-delay:.28s}
+.wenwu-page .shop-panel-body > *:nth-child(5){animation-delay:.34s}
+.wenwu-page .shop-panel-body > *:nth-child(6){animation-delay:.4s}
+.wenwu-page .shop-panel-body > *:nth-child(7){animation-delay:.46s}
+
+/* 案头计数被点亮时轻跳一下 */
+.shop-desk-btn b.is-pop{animation:countPop .42s cubic-bezier(.2,1.4,.3,1) both}
+
+@keyframes wenwuHeroZoom{from{transform:scale(1.16);opacity:0}to{transform:scale(1.06);opacity:.32}}
+@keyframes wenwuUp{from{opacity:0;transform:translateY(22px);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+@keyframes shopImgIn{from{transform:scale(1.07);filter:brightness(.72)}to{transform:none;filter:none}}
+@keyframes panelUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes countPop{0%{transform:scale(1)}40%{transform:scale(1.45)}100%{transform:scale(1)}}
+
+/* 中屏：两列变一列，保持呼吸 */
+@media (max-width:1000px){
+  .wenwu-page .shop-grid{grid-template-columns:1fr;gap:26px}
+  .wenwu-page .concept-card,
+  .wenwu-page .concept-card:nth-child(n){grid-column:auto}
+  .wenwu-page .concept-art,
+  .wenwu-page .concept-card:nth-child(n) .concept-art{aspect-ratio:16/10}
+  .wenwu-page .shop-panel{grid-template-columns:1fr;height:auto;max-height:92vh;overflow-y:auto;border-radius:16px 16px 0 0}
+  .wenwu-page .shop-panel-art{height:30vh;min-height:190px}
+  .wenwu-page .shop-panel .shop-panel-body{overflow:visible;justify-content:flex-start;padding:20px 20px 32px}
+  .shop-panel-mark{font-size:clamp(70px,16vw,120px)}
+}
+
+/* 手机：开场收紧，页签从底部升起 */
+@media (max-width:700px){
+  .wenwu-hero-inner{padding:44px 20px 92px}
+  .wenwu-hero h1{font-size:clamp(34px,9.6vw,46px)}
+  .wenwu-hero-lead{font-size:13px;line-height:1.95;margin-bottom:24px}
+  .wenwu-hero-seal{font-size:clamp(44px,15vw,80px);right:2px;opacity:.7}
+  .wenwu-hero-meta{gap:14px}
+  .wenwu-enter{padding:12px 20px;font-size:14.5px}
+  .wenwu-hero-note{font-size:9.5px}
+  .wenwu-shelf{margin-top:-44px;border-radius:14px 14px 0 0}
+  .shelf-head{padding-bottom:12px}
+  .wenwu-shelf .shop-bar{margin:14px 0 20px}
+  .wenwu-page .shop-detail,.wenwu-page .shop-desk{align-items:flex-end}
+  .wenwu-page .shop-panel,.wenwu-page .shop-desk-panel{width:100%;height:auto;max-height:88vh;border-radius:14px 14px 0 0;animation:shop-sheet-in .36s cubic-bezier(.2,.75,.25,1)}
+  .wenwu-page .shop-panel-art{height:30vh;min-height:0}
+  .wenwu-page .shop-panel .shop-panel-body{padding:18px 20px 30px}
+  .wenwu-page .shop-panel .shop-panel-body h2{font-size:26px}
+  .shop-panel-art img{animation:none} /* 手机上省掉多余的缩放，滑动更稳 */
+}
 body.shop-locked{overflow:hidden}
 .concept-card.is-hidden{display:none}
 @keyframes shop-veil-in{from{opacity:0}to{opacity:1}}

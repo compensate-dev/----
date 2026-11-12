@@ -17,8 +17,8 @@
   <meta property="og:locale" content="zh_CN">
   <title>从词到物｜春水留痕·李煜词境</title>
 <!-- 全站样式与脚本：含 ai-guide.js（文创卡片「问梦客」需要 AI 交互） -->
-  <link rel="stylesheet" href="../css/style.css?v=f161">
-  <script src="../js/script.js?v=f155" defer></script>
+  <link rel="stylesheet" href="../css/style.css?v=f162">
+  <script src="../js/script.js?v=f156" defer></script>
   <script src="../js/ai-guide.js?v=f142" defer></script>
 </head>
 <!-- body 挂 finale-page 暗色基调 + wenwu-page 本页专属覆写 -->
@@ -33,19 +33,34 @@
     </nav>
     <div class="sound-controls"><button class="sound-toggle" type="button" aria-label="关闭背景音乐" aria-pressed="true"><span class="sound-icon">♫</span><span class="sound-status">音乐开启</span></button><label class="volume-control"><span class="visually-hidden">背景音乐音量</span><input class="volume-slider" type="range" min="0" max="1" step="0.01" value="0.6"></label></div>
   </header>
-<!-- 主内容：文创概念展示区 -->
+<!-- 主内容：展厅式文创陈列（暗墨开场 + 纸面陈列） -->
   <main id="main-content" tabindex="-1">
-    <section class="jianyu-section wenwu-section" id="cong-ci-dao-wu">
-      <div class="jianyu-inner">
-<!-- 返回帘外余音：与笺语墙「回到终幕」同款返回链接 -->
-        <a class="jianyu-back" href="wanxiang.html">← 回到帘外余音</a>
-        <span class="jianyu-kicker">FROM VERSE TO OBJECT · 从词到物</span>
+<!-- 开场：暗墨底 + 大字题名，第一屏当作海报来排 -->
+    <section class="wenwu-hero">
+      <div class="wenwu-hero-bg" aria-hidden="true"></div>
+      <div class="wenwu-hero-inner">
+        <a class="wenwu-hero-back" href="wanxiang.html">← 回到帘外余音</a>
+        <span class="wenwu-hero-kicker">FROM VERSE TO OBJECT · 概念器物铺</span>
         <h1>从一句词，<br>到一件<em>可以带走的物</em>。</h1>
-        <p class="jianyu-lead">这里像一间小小的器物铺：先逛一逛，再挑一件收进案头。所有器物都只是概念稿——不售卖，不标价，也不会有购买或下单的入口。它们只用来想象：李煜的词，还能以什么样子留在生活里。</p>
-<!-- 器物铺外壳：筛选条、六件器物、详情抽屉与「案头」清单都由 script.js 的 initializeConceptGallery 注入 -->
+        <p class="wenwu-hero-lead">先逛一逛，再挑一件收进案头。所有器物都只是概念稿——不售卖，不标价，也没有购买或下单的入口。</p>
+        <div class="wenwu-hero-meta">
+          <a class="wenwu-enter" href="#cong-ci-dao-wu">开始逛 <span>↓</span></a>
+          <span class="wenwu-hero-note">六件 · 文房 / 纸品 / 佩饰 / 陈设</span>
+        </div>
+        <span class="wenwu-hero-seal" aria-hidden="true">器物铺</span>
+      </div>
+    </section>
+<!-- 陈列纸面：与暗墨开场形成明暗落差，六件器物在此铺开 -->
+    <section class="wenwu-shelf" id="cong-ci-dao-wu">
+      <div class="wenwu-shelf-inner">
+        <div class="shelf-head">
+          <span class="shelf-kicker">CONCEPT SHELF · 概念陈列</span>
+          <h2>器物六件</h2>
+        </div>
+<!-- 器物铺外壳：筛选条、六件器物、详情展签与「案头」清单都由 script.js 的 initializeConceptGallery 注入 -->
         <div class="shop-shell" data-concept-gallery></div>
         <p class="concept-foot">概念设计 · 非卖品 · 不标价 · 不设购买通道</p>
-        <p class="jianyu-back-foot"><a href="wanxiang.html">← 回到帘外余音，再听后人如何描摹他</a></p>
+        <p class="wenwu-back-foot"><a href="wanxiang.html">← 回到帘外余音，再听后人如何描摹他</a></p>
       </div>
     </section>
   </main>

@@ -2767,17 +2767,24 @@
       try { localStorage.setItem(DESK_KEY, JSON.stringify(list)); } catch { }
     };
     let desk = readDesk();
+    let lastCount = -1; // 用于给案头数字做一次「跳动」反馈
 
     const cats = ["全部", "文房", "纸品", "佩饰", "陈设"];
-    const cardHtml = (item) => `
-      <article class="concept-card" data-cat="${item.cat}">
+    const marks = ["壹", "贰", "叁", "肆", "伍", "陆"]; // 展签上的序号，像博物馆的编号牌
+    const cardHtml = (item, index) => `
+      <article class="concept-card" data-cat="${item.cat}" data-index="${index}">
         <button class="concept-art" type="button" data-open="${item.id}" aria-label="细看 ${item.name}">
           <img src="${item.img}" alt="${item.alt}" loading="lazy" decoding="async">
           <span class="concept-ribbon">概念 · 非卖</span>
+          <span class="concept-no">NO.${String(index + 1).padStart(2, "0")}</span>
+          <span class="concept-mark" aria-hidden="true">${marks[index]}</span>
           <span class="concept-zoom">细看 <i>＋</i></span>
         </button>
         <div class="concept-body">
-          <p class="concept-meta">${item.meta}</p>
+          <div class="concept-topline">
+            <p class="concept-meta">${item.meta}</p>
+            <span class="concept-cat">${item.cat}</span>
+          </div>
           <h3><button class="concept-name" type="button" data-open="${item.id}">${item.name}</button></h3>
           <p class="concept-desc">${item.desc}</p>
           <div class="concept-actions">
@@ -2794,12 +2801,16 @@
         </div>
         <button class="shop-desk-btn" type="button" data-desk-open>案头 <b data-desk-count>0</b></button>
       </div>
-      <div class="shop-grid">${goods.map(cardHtml).join("")}</div>
+      <div class="shop-grid">${goods.map((item, index) => cardHtml(item, index)).join("")}</div>
       <div class="shop-detail" data-detail hidden>
         <div class="shop-veil" data-close></div>
         <aside class="shop-panel" role="dialog" aria-modal="true" aria-label="器物详情">
           <button class="shop-close" type="button" data-close aria-label="关闭详情">×</button>
-          <div class="shop-panel-art"><img data-detail-img src="" alt=""></div>
+          <div class="shop-panel-art">
+            <img data-detail-img src="" alt="">
+            <span class="shop-panel-tag" data-detail-tag></span>
+            <span class="shop-panel-mark" data-detail-mark aria-hidden="true"></span>
+          </div>
           <div class="shop-panel-body">
             <span class="shop-panel-kicker">概念陈列 · 非卖品</span>
             <h2 data-detail-name></h2>
@@ -2848,7 +2859,17 @@
         detailSave.setAttribute("aria-pressed", String(saved));
         detailSave.textContent = saved ? "已收案头 · 点此移出" : "收入案头";
       }
-      if (countEl) countEl.textContent = String(desk.length);
+      if (countEl) {
+        const next = desk.length;
+        countEl.textContent = String(next);
+        // 数量变化时轻跳一下，让「收入/移出」有即时反馈
+        if (lastCount >= 0 && next !== lastCount) {
+          countEl.classList.remove("is-pop");
+          void countEl.offsetWidth;
+          countEl.classList.add("is-pop");
+        }
+        lastCount = next;
+      }
       renderDeskList();
     };
 
@@ -2880,6 +2901,9 @@
       gallery.querySelector("[data-detail-img]").src = item.img;
       gallery.querySelector("[data-detail-img]").alt = item.alt;
       gallery.querySelector("[data-detail-name]").textContent = item.name;
+      const itemIndex = goods.indexOf(item);
+      gallery.querySelector("[data-detail-tag]").textContent = `NO.${String(itemIndex + 1).padStart(2, "0")} · ${item.cat} · 概念非卖`;
+      gallery.querySelector("[data-detail-mark]").textContent = marks[itemIndex] || "";
       gallery.querySelector("[data-detail-verse]").textContent = item.verse;
       gallery.querySelector("[data-detail-desc]").textContent = item.story;
       gallery.querySelector("[data-detail-specs]").innerHTML = item.specs
@@ -2958,6 +2982,35 @@
       if (!detail.hidden) closeDetail();
       else if (!deskLayer.hidden) closeDesk();
     });
+
+    // 滚动入场：展品依次亮起；系统开启「减少动态效果」时直接全部显示
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const cards = Array.prototype.slice.call(gallery.querySelectorAll(".concept-card"));
+    if (reduceMotion || !("IntersectionObserver" in window)) {
+      cards.forEach((card) => card.classList.add("is-in"));
+    } else {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("is-in");
+          io.unobserve(entry.target);
+        });
+      }, { threshold: 0.16, rootMargin: "0px 0px -6% 0px" });
+      cards.forEach((card, index) => {
+        // 同一行错开一点，像展厅里灯逐格亮起
+        card.style.transitionDelay = `${(index % 3) * 70}ms`;
+        io.observe(card);
+      });
+    }
+
+    // 桌面端：图片上跟随鼠标的暖光，模拟展厅顶灯扫过纸面
+    gallery.addEventListener("pointermove", (event) => {
+      const art = event.target.closest(".concept-art");
+      if (!art) return;
+      const rect = art.getBoundingClientRect();
+      art.style.setProperty("--mx", `${event.clientX - rect.left}px`);
+      art.style.setProperty("--my", `${event.clientY - rect.top}px`);
+    }, { passive: true });
 
     syncSaveState();
   })();
