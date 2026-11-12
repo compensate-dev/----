@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="zh-CN">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#d9d2c1"><meta name="description" content="全屏沉浸式纸片 3D 水墨云游：云海之上，金陵宫阙、钟山林泉、洪州城郭、采石矶崖、一叶江舟、汴京小楼、北邙松柏。拖拽旋转，朱砂点为引，飞往李煜人生的每一站。"><title>水墨行迹｜春水留痕·李煜词境</title><link rel="stylesheet" href="../css/style.css?v=f151"><script src="../js/script.js?v=f151" defer></script><script src="../js/ai-guide.js?v=f140" defer></script><style>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#d9d2c1"><meta name="description" content="全屏沉浸式纸片 3D 水墨云游：云海之上，金陵宫阙、钟山林泉、洪州城郭、采石矶崖、一叶江舟、汴京小楼、北邙松柏。拖拽旋转，朱砂点为引，飞往李煜人生的每一站。"><title>水墨行迹｜春水留痕·李煜词境</title><link rel="stylesheet" href="../css/style.css?v=f156"><script src="../js/script.js?v=f151" defer></script><script src="../js/ai-guide.js?v=f140" defer></script><style>
   /* 渲染质感层：水墨夜空（淡墨晕染三叠）+ 画面色调 + 纸纹/暗角叠层 */
   .stage3d{background:
     radial-gradient(52% 36% at 24% 16%,rgba(56,62,58,.22),rgba(56,62,58,0) 70%),
@@ -63,6 +63,11 @@
         <div class="map-word"><span>代表词句</span><p data-spot-word></p></div>
       </article>
     </aside>
+
+    <!-- 手机端「笺」按钮：收起笺卡后靠它随时唤回；桌面端隐藏 -->
+    <button class="map-card-toggle" id="mapCardToggle" type="button" aria-label="展开笺卡" aria-expanded="false">笺</button>
+    <!-- 进入点位后的引导气泡：不自动弹卡，提示读者自己点「笺」 -->
+    <span class="map-card-hint" id="mapCardHint" role="status" aria-live="polite" hidden></span>
 
     <span class="stage-hint" id="stageHint">点击朱砂点 · 或沿下方时间指引云游</span>
     <p class="map-footnote">纸片式三维水墨写意 · 山川城邑不作历史地理考据<br>所配词作为与该站词心相映的代表之作</p>
@@ -920,11 +925,14 @@
     var popupDefault = popup.querySelector("[data-popup-default]");
     var popupDetail = popup.querySelector("[data-popup-detail]");
     var dotBtns = Array.prototype.slice.call(document.querySelectorAll(".dot-btn"));
+    var lastSpotKey = null; // 最近查看的站点：关掉笺卡后「笺」按钮据此原样唤回
     function showSpot(key) {
       var spot = SPOTS[key]; if (!spot) return;
+      lastSpotKey = key; // 记住最近看的站点，「笺」按钮据此原样唤回
       popupDefault.hidden = true; popupDetail.hidden = false; popup.hidden = false;
       // 给 body 挂状态类：手机端据此淡出圆点与时间条，避免与笺卡叠在一起
       document.body.classList.add("map-popup-open");
+      syncCardToggle();
       popupDetail.querySelector("[data-spot-era]").textContent = spot.tag;
       popupDetail.querySelector("[data-spot-name]").textContent = spot.name;
       popupDetail.querySelector("[data-spot-now]").textContent = spot.now;
@@ -943,24 +951,71 @@
       dotBtns.forEach(function (d) { d.classList.toggle("is-active", d.dataset.go === key); });
       var ti = TOUR.indexOf(key); if (ti >= 0) tourIdx = ti; // 时间指引同步（TOUR 在下方初始化，点击时必已就绪）
       flyTo(key);
-      showSpot(key);
+      lastSpotKey = key;
+      if (isMobileView()) {
+        // 手机端：进入点位只把镜头飞过去，绝不自动弹笺卡；
+        // 地图保持完整可见，另用「笺」按钮脉冲 + 一句提示，引导读者自己点开
+        popup.hidden = true; popupDefault.hidden = false; popupDetail.hidden = true;
+        document.body.classList.remove("map-popup-open");
+        syncCardToggle();
+        showCardHint(key);
+      } else {
+        showSpot(key);
+      }
       tourSync();
     }
-    dotBtns.forEach(function (d) { d.addEventListener("click", function () { go(d.dataset.go); }); });
-    popup.querySelector(".popup-close").addEventListener("click", function () {
+    function isMobileView() { return window.matchMedia("(max-width: 760px)").matches; }
+    /* 笺卡开合：手机端收起后会露出一枚「笺」按钮，点它即可把刚才那张笺卡原样唤回 */
+    var cardToggle = document.getElementById("mapCardToggle");
+    var cardHint = document.getElementById("mapCardHint");
+    var hintTimer = null;
+    function clearCardHint() {
+      if (hintTimer) { clearTimeout(hintTimer); hintTimer = null; }
+      if (cardHint) cardHint.hidden = true;
+      if (cardToggle) cardToggle.classList.remove("is-hinting");
+    }
+    function showCardHint(key) {
+      if (!cardHint || !cardToggle) return;
+      var name = (SPOTS[key] && SPOTS[key].name) || "此处";
+      cardHint.textContent = "点左下「笺」，展开" + name + "的故事";
+      cardHint.hidden = false;
+      cardToggle.classList.add("is-hinting");
+      if (hintTimer) clearTimeout(hintTimer);
+      hintTimer = setTimeout(clearCardHint, 9000); // 留足阅读时间，不长期压着地图
+    }
+    function syncCardToggle() {
+      if (!cardToggle) return;
+      var open = !popup.hidden;
+      cardToggle.setAttribute("aria-expanded", String(open));
+      cardToggle.setAttribute("aria-label", open ? "收起笺卡" : "展开笺卡");
+    }
+    function hideCard() {
       popup.hidden = true;
       popupDefault.hidden = false; popupDetail.hidden = true;
       document.body.classList.remove("map-popup-open");
       dotBtns.forEach(function (d) { d.classList.remove("is-active"); });
+      syncCardToggle();
+      clearCardHint();
+    }
+    function openCard() {
+      clearCardHint();
+      if (lastSpotKey && SPOTS[lastSpotKey]) { showSpot(lastSpotKey); return; }
+      // 还没点过任何站点：唤回默认的引导笺
+      popup.hidden = false; popupDefault.hidden = false; popupDetail.hidden = true;
+      document.body.classList.add("map-popup-open");
+      syncCardToggle();
+    }
+    dotBtns.forEach(function (d) { d.addEventListener("click", function () { go(d.dataset.go); }); });
+    popup.querySelector(".popup-close").addEventListener("click", hideCard);
+    if (cardToggle) cardToggle.addEventListener("click", function () {
+      if (popup.hidden) openCard(); else hideCard();
     });
     document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape" && !popup.hidden) {
-        popup.hidden = true; popupDefault.hidden = false; popupDetail.hidden = true;
-        document.body.classList.remove("map-popup-open");
-      }
+      if (e.key === "Escape" && !popup.hidden) hideCard();
     });
-    // 手机首屏先收起空笺卡：默认展开会盖住大半张地图，等点选站点时再弹出
+    // 手机首屏先收起空笺卡：默认展开会盖住大半张地图，等点选站点或点「笺」再弹出
     if (window.matchMedia("(max-width: 760px)").matches) popup.hidden = true;
+    syncCardToggle();
     /* ---------- 时间指引：按年顺游（下一步看哪里的故事） ---------- */
     var TOUR = ["jinling", "zhongshan", "hongzhou", "caishi", "jiangzhou", "bianjing", "beimang"];
     var tourBox = document.getElementById("tourGuide");
