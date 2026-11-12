@@ -2693,35 +2693,273 @@
     }, { passive: false });
   };
 
-  // 从词到物：帘外余音页末的文创概念展示。只陈列概念，不标价、不导购、不设购买通道；
-  // 每张卡片的「问梦客」把问题交给站内 AI，由李煜本人谈谈这个意象
+  // 从词到物：把概念陈列做成「器物铺」——可以逛、可以挑、可以细看、可以收进案头，
+  // 但始终只做概念模拟：不标价、不售卖、不导购、不设购买/下单入口，也不收集任何交易信息。
   (function initializeConceptGallery() {
     const gallery = document.querySelector("[data-concept-gallery]");
     if (!gallery) return;
     const goods = [
-      { img: ASSET_IMAGE + "shop-paper.jpg", alt: "浣花春水笺概念图：带春水暗纹的宣纸信笺", meta: "文房信笺 · 灵感《虞美人》", name: "浣花春水笺", desc: "一套八张的仿古宣笺，以「一江春水」波纹作暗纹，落梅点缀纸角。提笔写信时，愁绪也化作了东流的水。", question: "若把《虞美人》的春水做成信笺，你会题哪一句在上面？" },
-      { img: ASSET_IMAGE + "shop-bookmark.jpg", alt: "月钩梧桐书签概念图：弯月梧桐造型的黄铜楠木书签", meta: "流苏书签 · 灵感《相见欢》", name: "月钩梧桐签", desc: "黄铜为钩月，楠木作梧桐，垂一缕墨色流苏。「无言独上西楼」的那夜月色，从此夹在正在读的那一页。", question: "「无言独上西楼，月如钩」做成书签，你觉得合适吗？" },
-      { img: ASSET_IMAGE + "shop-scroll.jpg", alt: "春水东流卷轴概念图：绘有江山孤舟的中式水墨挂轴", meta: "卷轴壁纸 · 灵感《虞美人》", name: "春水东流卷", desc: "一款可打印的数字长卷壁纸，亦可装裱为案头小挂轴。远山、孤舟与东流江水展开在屏幕上，愁有了形状，也有了归处。", question: "把「一江春水向东流」做成卷轴，你会怎么布景？" },
-      { img: ASSET_IMAGE + "shop-postcard.jpg", alt: "春花秋月明信片概念图：四张一套的水墨词意明信片", meta: "词意明信片 · 灵感四阕代表作", name: "春花秋月帖", desc: "四阕词、四帧景：春水花月、深院梧桐、暮雨归梦、落梅春草。背面印词，正面入画，寄给此刻想念的人。", question: "用四阕词做一套明信片，你会选哪四句？" },
-      { img: ASSET_IMAGE + "shop-tape.jpg", alt: "落花流水胶带概念图：绘有落花春水纹样的三卷和纸胶带", meta: "和纸胶带 · 灵感《浪淘沙令》", name: "落花流水纹", desc: "「流水落花春去也」化作两卷手账胶带：一卷落花，一卷水纹。贴在日记边角，给普通的一天盖上词的落款。", question: "「流水落花春去也」做成胶带纹样，像不像你当时的心境？" },
-      { img: ASSET_IMAGE + "shop-seal.jpg", alt: "煜字朱砂闲章概念图：石质印章与朱砂拓印", meta: "朱砂闲章 · 灵感词帝之名", name: "「煜」字小印", desc: "一方朱文小印，刻他的名字，也刻「一江春水」四字作引首章。盖在书的扉页，像与千年前的词人同署了一页。", question: "若给自己刻一方印，你会刻哪几个字？" }
+      {
+        id: "jian", cat: "文房", img: ASSET_IMAGE + "shop-paper.jpg", alt: "浣花春水笺概念图：带春水暗纹的宣纸信笺",
+        meta: "文房信笺 · 灵感《虞美人》", name: "浣花春水笺",
+        desc: "一套八张的仿古宣笺，以「一江春水」波纹作暗纹，落梅点缀纸角。",
+        story: "提笔写信时，愁绪也化作了东流的水。纸张选了偏暖的米色，写墨不洇，适合钢笔与毛笔。",
+        verse: "问君能有几多愁？恰似一江春水向东流。",
+        specs: [["材质", "仿古宣纸 · 手工染色"], ["尺寸", "16 × 26 cm · 一套八张"], ["工艺", "水波纹暗花 + 落梅洒金"], ["适合", "书信、题词、装框"]],
+        question: "若把《虞美人》的春水做成信笺，你会题哪一句在上面？"
+      },
+      {
+        id: "qian", cat: "佩饰", img: ASSET_IMAGE + "shop-bookmark.jpg", alt: "月钩梧桐书签概念图：弯月梧桐造型的黄铜楠木书签",
+        meta: "流苏书签 · 灵感《相见欢》", name: "月钩梧桐签",
+        desc: "黄铜为钩月，楠木作梧桐，垂一缕墨色流苏。",
+        story: "「无言独上西楼」的那夜月色，从此夹在正在读的那一页。铜面做旧，木纹保留手磨的哑光。",
+        verse: "无言独上西楼，月如钩。",
+        specs: [["材质", "黄铜 · 楠木 · 真丝流苏"], ["尺寸", "长 12 cm · 宽 2.4 cm"], ["工艺", "錾刻弯月 · 木作打磨"], ["适合", "夹书、作礼、案头清供"]],
+        question: "「无言独上西楼，月如钩」做成书签，你觉得合适吗？"
+      },
+      {
+        id: "juan", cat: "陈设", img: ASSET_IMAGE + "shop-scroll.jpg", alt: "春水东流卷轴概念图：绘有江山孤舟的中式水墨挂轴",
+        meta: "卷轴壁纸 · 灵感《虞美人》", name: "春水东流卷",
+        desc: "远山、孤舟与东流江水展开在屏幕上，愁有了形状，也有了归处。",
+        story: "一款可打印的数字长卷壁纸，亦可装裱为案头小挂轴。留白比画面更多，挂起来不压屋子。",
+        verse: "一江春水向东流。",
+        specs: [["材质", "纸本水墨 · 数字版可打印"], ["尺寸", "展开 90 × 32 cm"], ["工艺", "淡墨层层积染"], ["适合", "案头悬挂、屏保壁纸"]],
+        question: "把「一江春水向东流」做成卷轴，你会怎么布景？"
+      },
+      {
+        id: "tie", cat: "纸品", img: ASSET_IMAGE + "shop-postcard.jpg", alt: "春花秋月明信片概念图：四张一套的水墨词意明信片",
+        meta: "词意明信片 · 灵感四阕代表作", name: "春花秋月帖",
+        desc: "四阕词、四帧景：春水花月、深院梧桐、暮雨归梦、落梅春草。",
+        story: "背面印词，正面入画，寄给此刻想念的人。一套四张，刚好写下一整年的四时心事。",
+        verse: "春花秋月何时了？往事知多少。",
+        specs: [["材质", "艺术微喷纸 · 四张一套"], ["尺寸", "10 × 15 cm"], ["工艺", "背面印词 · 正面水墨"], ["适合", "寄赠、收藏、夹册"]],
+        question: "用四阕词做一套明信片，你会选哪四句？"
+      },
+      {
+        id: "jiao", cat: "文房", img: ASSET_IMAGE + "shop-tape.jpg", alt: "落花流水胶带概念图：绘有落花春水纹样的三卷和纸胶带",
+        meta: "和纸胶带 · 灵感《浪淘沙令》", name: "落花流水纹",
+        desc: "「流水落花春去也」化作两卷手账胶带：一卷落花，一卷水纹。",
+        story: "贴在日记边角，给普通的一天盖上词的落款。和纸易撕，不伤纸面，可以反复调整位置。",
+        verse: "流水落花春去也，天上人间。",
+        specs: [["材质", "和纸 · 三卷一套"], ["尺寸", "宽 1.5 cm · 长 5 m"], ["工艺", "双色套印"], ["适合", "手账、封口、装饰"]],
+        question: "「流水落花春去也」做成胶带纹样，像不像你当时的心境？"
+      },
+      {
+        id: "yin", cat: "陈设", img: ASSET_IMAGE + "shop-seal.jpg", alt: "煜字朱砂闲章概念图：石质印章与朱砂拓印",
+        meta: "朱砂闲章 · 灵感词帝之名", name: "「煜」字小印",
+        desc: "一方朱文小印，刻他的名字，也刻「一江春水」四字作引首章。",
+        story: "盖在书的扉页，像与千年前的词人同署了一页。石料保留天然的细碎纹理，每一方都不一样。",
+        verse: "剪不断，理还乱，是离愁。",
+        specs: [["材质", "青田石 · 朱砂"], ["尺寸", "2 × 2 cm"], ["工艺", "朱文篆刻"], ["适合", "扉页、书画引首"]],
+        question: "若给自己刻一方印，你会刻哪几个字？"
+      }
     ];
-    gallery.innerHTML = goods.map((item) => `
-      <article class="concept-card">
-        <div class="concept-art"><img src="${item.img}" alt="${item.alt}" loading="lazy" decoding="async"><span class="concept-ribbon">概念 · 非卖</span></div>
+
+    // 「案头」= 概念版的收藏夹：只存在本机浏览器，不联网、不涉及交易
+    const DESK_KEY = "liyu-wenwu-desk-v1";
+    const readDesk = () => {
+      try {
+        const list = JSON.parse(localStorage.getItem(DESK_KEY));
+        return Array.isArray(list) ? list.filter((id) => goods.some((g) => g.id === id)) : [];
+      } catch { return []; }
+    };
+    const writeDesk = (list) => {
+      try { localStorage.setItem(DESK_KEY, JSON.stringify(list)); } catch { }
+    };
+    let desk = readDesk();
+
+    const cats = ["全部", "文房", "纸品", "佩饰", "陈设"];
+    const cardHtml = (item) => `
+      <article class="concept-card" data-cat="${item.cat}">
+        <button class="concept-art" type="button" data-open="${item.id}" aria-label="细看 ${item.name}">
+          <img src="${item.img}" alt="${item.alt}" loading="lazy" decoding="async">
+          <span class="concept-ribbon">概念 · 非卖</span>
+          <span class="concept-zoom">细看 <i>＋</i></span>
+        </button>
         <div class="concept-body">
           <p class="concept-meta">${item.meta}</p>
-          <h3>${item.name}</h3>
+          <h3><button class="concept-name" type="button" data-open="${item.id}">${item.name}</button></h3>
           <p class="concept-desc">${item.desc}</p>
-          <button class="concept-ask" type="button" data-question="${item.question}">问梦客 <span>↗</span></button>
+          <div class="concept-actions">
+            <button class="concept-ask" type="button" data-question="${item.question}">问梦客 <span>↗</span></button>
+            <button class="concept-save" type="button" data-save="${item.id}" aria-pressed="false">收入案头</button>
+          </div>
         </div>
-      </article>`).join("");
+      </article>`;
 
-    gallery.querySelectorAll(".concept-ask").forEach((button) => {
-      button.addEventListener("click", () => {
-        document.dispatchEvent(new CustomEvent("ai-guide-ask", { detail: { question: button.dataset.question } }));
+    gallery.innerHTML = `
+      <div class="shop-bar">
+        <div class="shop-filters" role="group" aria-label="按用途挑选">
+          ${cats.map((cat, index) => `<button class="shop-chip${index === 0 ? " is-active" : ""}" type="button" data-cat="${cat}" aria-pressed="${index === 0}">${cat}</button>`).join("")}
+        </div>
+        <button class="shop-desk-btn" type="button" data-desk-open>案头 <b data-desk-count>0</b></button>
+      </div>
+      <div class="shop-grid">${goods.map(cardHtml).join("")}</div>
+      <div class="shop-detail" data-detail hidden>
+        <div class="shop-veil" data-close></div>
+        <aside class="shop-panel" role="dialog" aria-modal="true" aria-label="器物详情">
+          <button class="shop-close" type="button" data-close aria-label="关闭详情">×</button>
+          <div class="shop-panel-art"><img data-detail-img src="" alt=""></div>
+          <div class="shop-panel-body">
+            <span class="shop-panel-kicker">概念陈列 · 非卖品</span>
+            <h2 data-detail-name></h2>
+            <p class="shop-panel-verse" data-detail-verse></p>
+            <p class="shop-panel-desc" data-detail-desc></p>
+            <dl class="shop-specs" data-detail-specs></dl>
+            <div class="shop-panel-actions">
+              <button class="shop-save-lg" type="button" data-detail-save>收入案头</button>
+              <button class="shop-ask-lg" type="button" data-detail-ask>问梦客 <span>↗</span></button>
+            </div>
+            <p class="shop-panel-note">只是概念稿：不售卖、不标价，也没有购买或下单入口。</p>
+          </div>
+        </aside>
+      </div>
+      <div class="shop-desk" data-desk hidden>
+        <div class="shop-veil" data-desk-close></div>
+        <aside class="shop-desk-panel" role="dialog" aria-modal="true" aria-label="案头清单">
+          <div class="shop-desk-head"><h2>案头</h2><button class="shop-close" type="button" data-desk-close aria-label="关闭案头">×</button></div>
+          <p class="shop-desk-lead">你挑中的器物会先放在这里，只记在这台设备上。</p>
+          <div class="shop-desk-list" data-desk-list></div>
+        </aside>
+      </div>`;
+
+    const detail = gallery.querySelector("[data-detail]");
+    const deskLayer = gallery.querySelector("[data-desk]");
+    const countEl = gallery.querySelector("[data-desk-count]");
+    const detailSave = gallery.querySelector("[data-detail-save]");
+    const detailAsk = gallery.querySelector("[data-detail-ask]");
+    let current = null;
+    let lastFocus = null;
+
+    const findGoods = (id) => goods.find((item) => item.id === id);
+    const isSaved = (id) => desk.includes(id);
+
+    // 同步所有「收入案头」按钮与角标，保证卡片与详情页状态一致
+    const syncSaveState = () => {
+      gallery.querySelectorAll("[data-save]").forEach((button) => {
+        const saved = isSaved(button.dataset.save);
+        button.classList.toggle("is-saved", saved);
+        button.setAttribute("aria-pressed", String(saved));
+        button.textContent = saved ? "已收案头" : "收入案头";
       });
+      if (current) {
+        const saved = isSaved(current.id);
+        detailSave.classList.toggle("is-saved", saved);
+        detailSave.setAttribute("aria-pressed", String(saved));
+        detailSave.textContent = saved ? "已收案头 · 点此移出" : "收入案头";
+      }
+      if (countEl) countEl.textContent = String(desk.length);
+      renderDeskList();
+    };
+
+    const renderDeskList = () => {
+      const list = gallery.querySelector("[data-desk-list]");
+      if (!list) return;
+      if (!desk.length) {
+        list.innerHTML = `<p class="shop-desk-empty">案头还空着。<br>在器物铺里挑一件，点「收入案头」。</p>`;
+        return;
+      }
+      list.innerHTML = desk.map((id) => {
+        const item = findGoods(id);
+        if (!item) return "";
+        return `
+          <article class="shop-desk-item">
+            <img src="${item.img}" alt="${item.alt}" loading="lazy">
+            <div class="shop-desk-meta"><h3>${item.name}</h3><p>${item.meta}</p></div>
+            <button class="shop-desk-look" type="button" data-desk-look="${item.id}">细看</button>
+            <button class="shop-desk-remove" type="button" data-desk-remove="${item.id}">移出</button>
+          </article>`;
+      }).join("");
+    };
+
+    const openDetail = (id) => {
+      const item = findGoods(id);
+      if (!item) return;
+      current = item;
+      lastFocus = document.activeElement;
+      gallery.querySelector("[data-detail-img]").src = item.img;
+      gallery.querySelector("[data-detail-img]").alt = item.alt;
+      gallery.querySelector("[data-detail-name]").textContent = item.name;
+      gallery.querySelector("[data-detail-verse]").textContent = item.verse;
+      gallery.querySelector("[data-detail-desc]").textContent = item.story;
+      gallery.querySelector("[data-detail-specs]").innerHTML = item.specs
+        .map(([key, value]) => `<div><dt>${key}</dt><dd>${value}</dd></div>`).join("");
+      detailAsk.dataset.question = item.question;
+      detail.hidden = false;
+      document.body.classList.add("shop-locked");
+      syncSaveState();
+      // 打开后把焦点放到关闭键，键盘与读屏用户可直接退出
+      setTimeout(() => gallery.querySelector(".shop-close").focus(), 40);
+    };
+
+    const closeDetail = () => {
+      detail.hidden = true;
+      current = null;
+      document.body.classList.remove("shop-locked");
+      if (lastFocus && typeof lastFocus.focus === "function") lastFocus.focus();
+    };
+
+    const closeDesk = () => {
+      deskLayer.hidden = true;
+      document.body.classList.remove("shop-locked");
+    };
+
+    const toggleSave = (id) => {
+      desk = isSaved(id) ? desk.filter((item) => item !== id) : [id, ...desk];
+      writeDesk(desk);
+      syncSaveState();
+    };
+
+    gallery.addEventListener("click", (event) => {
+      const target = event.target.closest("button");
+      if (!target) {
+        // 点遮罩关闭（遮罩本身不是按钮）
+        if (event.target.hasAttribute("data-close")) closeDetail();
+        if (event.target.hasAttribute("data-desk-close")) closeDesk();
+        return;
+      }
+      if (target.dataset.cat) {
+        gallery.querySelectorAll(".shop-chip").forEach((chip) => {
+          const active = chip === target;
+          chip.classList.toggle("is-active", active);
+          chip.setAttribute("aria-pressed", String(active));
+        });
+        const cat = target.dataset.cat;
+        gallery.querySelectorAll(".concept-card").forEach((card) => {
+          card.classList.toggle("is-hidden", cat !== "全部" && card.dataset.cat !== cat);
+        });
+      }
+      if (target.dataset.open) openDetail(target.dataset.open);
+      if (target.dataset.save) toggleSave(target.dataset.save);
+      if (target.hasAttribute("data-detail-save") && current) toggleSave(current.id);
+      if (target.hasAttribute("data-detail-ask") && current) {
+        document.dispatchEvent(new CustomEvent("ai-guide-ask", { detail: { question: current.question } }));
+      }
+      if (target.dataset.question) {
+        document.dispatchEvent(new CustomEvent("ai-guide-ask", { detail: { question: target.dataset.question } }));
+      }
+      if (target.hasAttribute("data-desk-open")) {
+        deskLayer.hidden = false;
+        document.body.classList.add("shop-locked");
+        renderDeskList();
+        setTimeout(() => deskLayer.querySelector(".shop-close").focus(), 40);
+      }
+      if (target.dataset.deskLook) {
+        closeDesk();
+        openDetail(target.dataset.deskLook);
+      }
+      if (target.dataset.deskRemove) toggleSave(target.dataset.deskRemove);
+      if (target.hasAttribute("data-close")) closeDetail();
+      if (target.hasAttribute("data-desk-close")) closeDesk();
     });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape") return;
+      if (!detail.hidden) closeDetail();
+      else if (!deskLayer.hidden) closeDesk();
+    });
+
+    syncSaveState();
   })();
 
   // 笺语墙：终幕页末。留言仍只存本机；点「请梦客回一句」只把该条交给 AI，不上传整墙。
