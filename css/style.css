@@ -1680,6 +1680,149 @@ body.home-page:not(.book-opened) .shop-tab{display:none}
   .wenwu-page .shop-panel .shop-panel-body h2{font-size:26px}
   .shop-panel-art img{animation:none} /* 手机上省掉多余的缩放，滑动更稳 */
 }
+
+/* ========== 文创首屏 v3 · 实物平铺图 ==========
+   用真实的器物平铺图当背景（图上自带标题与竖排词句），
+   我方文案收进左下角的柔光纸色里，只做整齐的左对齐，不与图上文字打架。 */
+.wenwu-page .wenwu-hero{
+  min-height:clamp(520px,calc(100svh - 86px),780px);
+  background:#f4ecdc url("../assets/image/wenwu-hero.jpg") center 38%/cover no-repeat;
+  color:#2c1810;
+}
+.wenwu-page .wenwu-hero-bg{display:none}
+.wenwu-page .wenwu-hero::after{
+  background:
+    radial-gradient(90% 70% at 0% 100%,rgba(247,240,227,.98) 0%,rgba(247,240,227,.9) 38%,rgba(247,240,227,0) 72%),
+    linear-gradient(180deg,rgba(247,241,229,.72) 0%,rgba(247,241,229,.18) 12%,rgba(247,241,229,0) 26%);
+}
+.wenwu-page .wenwu-hero-inner{
+  display:flex;flex-direction:column;justify-content:flex-end;
+  min-height:inherit;max-width:1180px;margin:0 auto;
+  padding:0 clamp(22px,7vw,72px) clamp(48px,6vw,76px);
+}
+/* 返回键做成小纸签，贴在左上角，避开图上的亭子 */
+.wenwu-page .wenwu-hero-back{
+  position:absolute;top:clamp(16px,2.2vw,26px);left:clamp(22px,7vw,72px);
+  margin:0;padding:8px 12px;background:rgba(250,244,232,.74);border:1px solid rgba(122,84,58,.22);
+  color:#6b4c34;backdrop-filter:blur(4px);
+}
+.wenwu-page .wenwu-hero-back:hover{color:#9a3b2e;border-color:#9a3b2e}
+.wenwu-page .wenwu-hero-kicker{color:#9a3b2e;margin-bottom:14px}
+.wenwu-page .wenwu-hero-kicker::before{content:"";display:block;width:34px;height:1px;margin-bottom:12px;background:#9a3b2e;opacity:.55}
+.wenwu-page .wenwu-hero h1{
+  max-width:12em;margin:0 0 18px;color:#2c1810;
+  font-size:clamp(34px,4.9vw,62px);line-height:1.2;
+}
+.wenwu-page .wenwu-hero h1 em{color:#9a3b2e}
+.wenwu-page .wenwu-hero-lead{max-width:500px;margin:0 0 26px;color:#5a4a3a;font-size:13.5px;line-height:2}
+.wenwu-page .wenwu-enter{background:#9a3b2e;border-color:#9a3b2e;color:#fbf4e8;box-shadow:0 10px 24px rgba(122,46,34,.26)}
+.wenwu-page .wenwu-enter:hover{background:#7a2e22;border-color:#7a2e22;color:#fbf4e8}
+.wenwu-page .wenwu-hero-note{color:rgba(90,74,58,.62)}
+.wenwu-page .wenwu-hero-seal{display:none} /* 图上已有竖排词句，不再叠自己的 */
+/* 纸面接缝：让陈列区像从同一张纸上翻下来 */
+.wenwu-page .wenwu-shelf{border-top:1px solid rgba(122,84,58,.12)}
+
+@media (max-width:800px){
+  .wenwu-page .wenwu-hero{
+    min-height:min(86svh,640px);
+    background-position:center 24%;
+  }
+  .wenwu-page .wenwu-hero::after{
+    background:linear-gradient(0deg,rgba(247,240,227,.99) 0%,rgba(247,240,227,.94) 32%,rgba(247,240,227,.52) 50%,rgba(247,240,227,0) 70%);
+  }
+  .wenwu-page .wenwu-hero-inner{padding:0 20px calc(36px + env(safe-area-inset-bottom))}
+  .wenwu-page .wenwu-hero-back{left:20px;top:14px}
+  .wenwu-page .wenwu-hero h1{max-width:none;font-size:clamp(28px,8.2vw,36px);margin-bottom:14px}
+  .wenwu-page .wenwu-hero-lead{font-size:12.5px;margin-bottom:20px}
+  .wenwu-page .wenwu-hero-note{display:none}
+}
+
+/* 展签纸底：不依赖背景明暗，图片裁到深色器物时文字依然清楚 */
+.wenwu-page .wenwu-hero-copy{
+  width:min(560px,100%);
+  padding:clamp(22px,2.6vw,32px) clamp(22px,2.8vw,34px) clamp(20px,2.4vw,28px);
+  background:linear-gradient(165deg,rgba(251,246,236,.97),rgba(246,238,224,.94));
+  border-left:2px solid rgba(154,59,46,.62);
+  box-shadow:0 24px 64px rgba(46,26,16,.24);
+  backdrop-filter:blur(4px);
+}
+.wenwu-page .wenwu-hero-copy .wenwu-hero-kicker{margin-bottom:12px}
+.wenwu-page .wenwu-hero-copy h1{font-size:clamp(30px,3.7vw,48px);margin-bottom:14px}
+.wenwu-page .wenwu-hero-copy .wenwu-hero-lead{font-size:12.8px;line-height:1.95;margin-bottom:20px}
+/* 背景只留一点点明暗过渡，把注意力交给纸签与器物 */
+.wenwu-page .wenwu-hero::after{
+  background:
+    linear-gradient(180deg,rgba(247,241,229,.6) 0%,rgba(247,241,229,0) 18%),
+    linear-gradient(0deg,rgba(20,26,22,.36) 0%,rgba(20,26,22,0) 22%);
+}
+.wenwu-page .wenwu-hero-back{background:rgba(251,246,236,.86)}
+
+@media (max-width:800px){
+  .wenwu-page .wenwu-hero-copy{width:100%;padding:18px 18px 20px;border-left-width:2px}
+  .wenwu-page .wenwu-hero-copy h1{font-size:clamp(26px,7.6vw,32px);margin-bottom:12px}
+  .wenwu-page .wenwu-hero-copy .wenwu-hero-lead{font-size:12px;line-height:1.9;margin-bottom:16px}
+  .wenwu-page .wenwu-enter{min-height:46px}
+}
+
+/* ========== 首屏 v4 · 文字压在图的下缘 ==========
+   放弃整块纸签：用与照片纸色一致的渐隐把文字托在画面下缘，
+   图上方的器物、标题与竖排词句仍完整露出，画面不被遮住。 */
+.wenwu-page .wenwu-hero-copy{
+  width:min(520px,100%);
+  padding:0;background:none;border:0;box-shadow:none;backdrop-filter:none;
+  text-shadow:0 1px 2px rgba(252,247,237,.55); /* 极浅描边，防止个别深色像素吃掉笔画 */
+}
+.wenwu-page .wenwu-hero::after{
+  background:linear-gradient(0deg,#f7f0e3 0%,rgba(247,240,227,.985) 30%,rgba(247,240,227,.94) 42%,rgba(247,240,227,.55) 55%,rgba(247,240,227,0) 68%);
+}
+.wenwu-page .wenwu-hero-copy .wenwu-hero-kicker{margin-bottom:10px}
+.wenwu-page .wenwu-hero-copy h1{font-size:clamp(28px,3.6vw,46px);line-height:1.22;margin:0 0 12px}
+.wenwu-page .wenwu-hero-copy .wenwu-hero-lead{font-size:12.5px;line-height:1.9;margin:0 0 16px;-webkit-line-clamp:2}
+.wenwu-page .wenwu-hero-inner{padding-bottom:clamp(30px,3.6vw,46px)}
+.wenwu-page .wenwu-hero-meta{gap:14px}
+.wenwu-page .wenwu-enter{padding:12px 22px;font-size:15px;min-height:46px}
+
+/* 矮屏不再删减文案：内容超出时让首屏自然变高，避免「字被裁掉」或「字被藏掉」 */
+
+@media (max-width:800px){
+  .wenwu-page .wenwu-hero-copy{width:100%}
+  .wenwu-page .wenwu-hero-copy h1{font-size:clamp(26px,7.4vw,32px);margin-bottom:10px}
+  .wenwu-page .wenwu-hero-copy .wenwu-hero-lead{font-size:12px;margin-bottom:14px}
+  .wenwu-page .wenwu-hero::after{
+    background:linear-gradient(0deg,#f7f0e3 0%,rgba(247,240,227,.98) 34%,rgba(247,240,227,.9) 46%,rgba(247,240,227,.4) 58%,rgba(247,240,227,0) 72%);
+  }
+}
+
+/* ========== 首屏 v5 · 修掉文字被裁 + 按钮更醒目 ==========
+   桌面：文字仍压在图的下缘，但把底部留白加大，避开陈列区上移的重叠；
+   手机：横构图平铺图不再拉伸裁切，改为「整图在上、文案在下」的纸面排版。 */
+.wenwu-page .wenwu-hero-inner{padding:0 clamp(20px,5vw,56px) clamp(86px,9vw,112px)} /* 底部留白 > 陈列区上叠的 64px */
+.wenwu-page .wenwu-hero-meta{flex-wrap:wrap;gap:12px 16px}
+.wenwu-page .wenwu-hero-note{flex:0 0 100%;order:2} /* 说明另起一行，不挤按钮 */
+.wenwu-page .wenwu-enter{
+  padding:15px 32px;font-size:16px;letter-spacing:.2em;
+  background:#8f2f24;border-color:#8f2f24;color:#fdf6e9;
+  box-shadow:0 14px 30px rgba(104,36,26,.3),inset 0 0 0 1px rgba(253,246,233,.18);
+}
+.wenwu-page .wenwu-enter:hover{background:#73241b;border-color:#73241b;color:#fdf6e9;box-shadow:0 18px 38px rgba(104,36,26,.36)}
+.wenwu-page .wenwu-enter span{font-size:13px}
+
+@media (max-width:800px){
+  /* 图片按原始比例完整铺在上方，不再被 cover 裁成局部纸面 */
+  .wenwu-page .wenwu-hero{
+    min-height:0;padding-top:54.7%;
+    background:#f7f0e3 url("../assets/image/wenwu-hero.jpg") top center/100% auto no-repeat;
+  }
+  .wenwu-page .wenwu-hero::after{display:none} /* 文案已在纸面上，无需渐隐 */
+  .wenwu-page .wenwu-hero-inner{display:block;min-height:0;padding:20px 20px calc(30px + env(safe-area-inset-bottom))}
+  .wenwu-page .wenwu-hero-copy{width:100%;text-shadow:none;background:transparent}
+  .wenwu-page .wenwu-hero-copy h1{font-size:clamp(27px,7.8vw,34px);line-height:1.25}
+  .wenwu-page .wenwu-hero-copy .wenwu-hero-lead{display:-webkit-box;font-size:12.5px;line-height:1.9}
+  .wenwu-page .wenwu-enter{width:100%;justify-content:center;padding:15px 20px}
+  .wenwu-page .wenwu-hero-note{text-align:center}
+  .wenwu-page .wenwu-shelf{margin-top:0;border-radius:0}
+}
+
 body.shop-locked{overflow:hidden}
 .concept-card.is-hidden{display:none}
 @keyframes shop-veil-in{from{opacity:0}to{opacity:1}}
