@@ -4,7 +4,7 @@
 <head>
 <!-- 文档头部：字符集、移动端视口、主题色、SEO 描述、分页标题，以及共用的样式表与交互脚本 -->
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#e8eee4">
   <meta name="description" content="走进南唐后主李煜的一生与词作，读写作背景、听词句回响，在一江春水间遇见千年前的悲欢。">
   <title>首页｜春水留痕·李煜词境</title>
@@ -15,9 +15,9 @@
   <meta property="og:description" content="走进南唐后主李煜的一生与词作，读写作背景、听词句回响，在一江春水间遇见千年前的悲欢。">
   <meta property="og:image" content="assets/image/home-hero-clean-v2.jpg">
   <meta property="og:locale" content="zh_CN">
-  <link rel="stylesheet" href="css/style.css?v=f140">
+  <link rel="stylesheet" href="css/style.css?v=f151">
   <script src="js/three.min.js" defer></script>
-  <script src="js/script.js?v=f138" defer></script>
+  <script src="js/script.js?v=f151" defer></script>
   <script src="js/ai-guide.js?v=f140" defer></script>
 </head>
 <!-- body.home-page：首页专用类，供 CSS 区分首页与其他子页（开场未揭开前隐藏页头与正文） -->
@@ -196,11 +196,13 @@
 <!-- 跳过按钮：任意时刻均可直接进入首页 -->
       <button class="arrival-skip-button" type="button">跳过入场</button>
     </div>
-    <!-- 全屏下滑提示：滚动或点击空白处散去 -->
+    <!-- 全屏下滑提示：滚动或点击空白处散去；桌面说「滚轮」、触屏说「上滑」，文案随设备切换 -->
     <div class="arrival-hint is-hidden" id="arrivalHint" aria-hidden="true">
       <i aria-hidden="true"></i>
-      <b>滚轮向下 · 走近词境</b>
-      <span>滚动鼠标滚轮，故事便缓缓展开 —— 点击空白处亦可关闭</span>
+      <b class="hint-desktop">滚轮向下 · 走近词境</b>
+      <b class="hint-touch">向上滑动 · 走近词境</b>
+      <span class="hint-desktop">滚动鼠标滚轮，故事便缓缓展开 —— 点击空白处亦可关闭</span>
+      <span class="hint-touch">用手指向上滑动，故事便缓缓展开 —— 轻点空白处亦可关闭</span>
     </div>
   </section>
 <!-- 页头：品牌 + 主导航(当前页高亮「首页」) + 背景音乐开关/音量；开场未揭开时 inert 禁用交互 -->

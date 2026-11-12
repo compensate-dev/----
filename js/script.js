@@ -43,8 +43,20 @@
     if (!primary) return null;
     const crossfade = Math.max(0, Number(options.crossfade) || 0);
     const source = primary.currentSrc || primary.src;
-    primary.loop = false;
-    primary.removeAttribute("loop");
+    // 移动端（触屏粗指针）改用原生 loop：交叉淡化依赖「新建 Audio 元素后在无手势环境 play()」，
+    // iOS / 安卓会拦截这种播放，备用轨起不来，一曲放完就彻底静音——这正是移动端音乐不连续的根因。
+    // 桌面端浏览器允许非手势播放，仍保留交叉淡化以消除循环接缝。
+    // 粗指针之外再兜一层 UA 判断：部分安卓 WebView 的 matchMedia 不可靠，
+    // 双保险确保手机端一定走原生 loop
+    const useNativeLoop = (typeof window.matchMedia === "function" && window.matchMedia("(pointer: coarse)").matches)
+      || /iPhone|iPad|iPod|Android|Mobile/i.test(navigator.userAgent || "");
+    if (useNativeLoop) {
+      primary.loop = true;
+      primary.setAttribute("loop", "");
+    } else {
+      primary.loop = false;
+      primary.removeAttribute("loop");
+    }
 
     let active = primary;
     let standby = null;
@@ -96,6 +108,7 @@
       if (!playing) return;
       const element = active;
       timeListeners.forEach((callback) => callback(element));
+      if (useNativeLoop) return; // 原生循环不需要提前交叉淡化
       if (switching || crossfade <= 0) return;
       const duration = element.duration;
       if (!Number.isFinite(duration) || duration < crossfade * 2.2) return;
@@ -103,6 +116,8 @@
     }
 
     function handleEnded(event) {
+      // 原生循环由浏览器续播，不会触发 ended；此处只服务桌面端兜底
+      if (useNativeLoop) return;
       // 时长信息缺失导致没来得及交叉淡化时兜底：直接从下一段开头轻接上
       if (!playing || switching || event.target !== active) return;
       const next = ensureStandby();
@@ -179,6 +194,18 @@
         timeListeners.push(callback);
       }
     };
+    // 移动端切后台、锁屏或来电时，系统会暂停音频；回到页面若仍处于「应播放」状态就自动接上，
+    // 避免用户切出去再回来时音乐已经停住、需要重新点开关
+    const resumeIfNeeded = () => {
+      if (!playing || !active.paused) return;
+      const started = active.play();
+      if (started && typeof started.catch === "function") started.catch(() => {});
+    };
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") resumeIfNeeded();
+    });
+    window.addEventListener("pageshow", resumeIfNeeded);
+
     players.set(primary, player);
     return player;
   };
@@ -276,10 +303,36 @@
   const menuButton = document.querySelector(".menu-toggle");
   const nav = document.querySelector(".main-nav");
   if (menuButton && nav) {
-    menuButton.addEventListener("click", () => {
-      const open = nav.classList.toggle("open");
+    // 移动端菜单：支持点外部/按 Esc/旋屏收起，并在展开时锁住正文滚动
+    const isMobileNav = () => window.matchMedia("(max-width: 700px)").matches;
+    const setMenu = (open) => {
+      nav.classList.toggle("open", open);
       menuButton.setAttribute("aria-expanded", String(open));
       menuButton.setAttribute("aria-label", open ? "关闭导航" : "打开导航");
+      // 只在窄屏锁滚动，桌面端菜单常驻不受影响
+      if (isMobileNav()) document.body.style.overflow = open ? "hidden" : "";
+    };
+    menuButton.addEventListener("click", (event) => {
+      event.stopPropagation(); // 阻止冒泡到 document，避免刚打开就被「点外部」逻辑关掉
+      setMenu(!nav.classList.contains("open"));
+    });
+    // 点任一导航项后立即收起，避免跳转前菜单仍覆盖在页面上
+    nav.addEventListener("click", (event) => {
+      if (event.target.closest("a")) setMenu(false);
+    });
+    // 点菜单以外的区域收起（托盘/遮罩手感）
+    document.addEventListener("pointerdown", (event) => {
+      if (!nav.classList.contains("open")) return;
+      if (nav.contains(event.target) || menuButton.contains(event.target)) return;
+      setMenu(false);
+    });
+    // 键盘 Esc 收起
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && nav.classList.contains("open")) setMenu(false);
+    });
+    // 旋屏/拉宽到桌面断点时收起并解除滚动锁
+    window.addEventListener("resize", () => {
+      if (!isMobileNav() && nav.classList.contains("open")) setMenu(false);
     });
   }
 

@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="zh-CN">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#d9d2c1"><meta name="description" content="全屏沉浸式纸片 3D 水墨云游：云海之上，金陵宫阙、钟山林泉、洪州城郭、采石矶崖、一叶江舟、汴京小楼、北邙松柏。拖拽旋转，朱砂点为引，飞往李煜人生的每一站。"><title>水墨行迹｜春水留痕·李煜词境</title><link rel="stylesheet" href="../css/style.css?v=f140"><script src="../js/script.js?v=f138" defer></script><script src="../js/ai-guide.js?v=f140" defer></script><style>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#d9d2c1"><meta name="description" content="全屏沉浸式纸片 3D 水墨云游：云海之上，金陵宫阙、钟山林泉、洪州城郭、采石矶崖、一叶江舟、汴京小楼、北邙松柏。拖拽旋转，朱砂点为引，飞往李煜人生的每一站。"><title>水墨行迹｜春水留痕·李煜词境</title><link rel="stylesheet" href="../css/style.css?v=f151"><script src="../js/script.js?v=f151" defer></script><script src="../js/ai-guide.js?v=f140" defer></script><style>
   /* 渲染质感层：水墨夜空（淡墨晕染三叠）+ 画面色调 + 纸纹/暗角叠层 */
   .stage3d{background:
     radial-gradient(52% 36% at 24% 16%,rgba(56,62,58,.22),rgba(56,62,58,0) 70%),
@@ -923,6 +923,8 @@
     function showSpot(key) {
       var spot = SPOTS[key]; if (!spot) return;
       popupDefault.hidden = true; popupDetail.hidden = false; popup.hidden = false;
+      // 给 body 挂状态类：手机端据此淡出圆点与时间条，避免与笺卡叠在一起
+      document.body.classList.add("map-popup-open");
       popupDetail.querySelector("[data-spot-era]").textContent = spot.tag;
       popupDetail.querySelector("[data-spot-name]").textContent = spot.name;
       popupDetail.querySelector("[data-spot-now]").textContent = spot.now;
@@ -948,13 +950,17 @@
     popup.querySelector(".popup-close").addEventListener("click", function () {
       popup.hidden = true;
       popupDefault.hidden = false; popupDetail.hidden = true;
+      document.body.classList.remove("map-popup-open");
       dotBtns.forEach(function (d) { d.classList.remove("is-active"); });
     });
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape" && !popup.hidden) {
         popup.hidden = true; popupDefault.hidden = false; popupDetail.hidden = true;
+        document.body.classList.remove("map-popup-open");
       }
     });
+    // 手机首屏先收起空笺卡：默认展开会盖住大半张地图，等点选站点时再弹出
+    if (window.matchMedia("(max-width: 760px)").matches) popup.hidden = true;
     /* ---------- 时间指引：按年顺游（下一步看哪里的故事） ---------- */
     var TOUR = ["jinling", "zhongshan", "hongzhou", "caishi", "jiangzhou", "bianjing", "beimang"];
     var tourBox = document.getElementById("tourGuide");

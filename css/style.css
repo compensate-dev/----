@@ -2536,3 +2536,196 @@ body.home-page.stage-mode .poem-card:hover .poem-arrow{transform:translate(3px,-
 @media(prefers-reduced-motion:reduce){
   .ai-guide-panel,.ai-guide-msg{transition:none!important;animation:none!important}
 }
+
+/* ========== 移动端体验优化 ========== */
+/* 1) 触控基础：去掉点击蓝框、禁止双击缩放、输入框≥16px 防 iOS 聚焦自动放大 */
+@media (pointer:coarse),(max-width:900px){
+  html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+  body{-webkit-tap-highlight-color:transparent}
+  a,button,[role="button"],label,input,textarea,select{touch-action:manipulation}
+  /* 16px 是 iOS 不自动放大页面的临界值，低于它一点就会整页跳一下 */
+  input,textarea,select{font-size:16px}
+  /* 触屏没有 hover，用按下态补足反馈，避免“点了没反应” */
+  .button:active,.concept-entry-btn:active,.jianyu-open:active,.jy-submit:active,.enter-notice-btn:active{transform:translateY(1px) scale(.99)}
+  .concept-card:active,.poem-card:active{transform:scale(.992)}
+}
+
+@media (max-width:700px){
+  /* 2) 刘海屏安全区：顶栏、抽屉、页脚不被圆角与 Home 条遮挡 */
+  .site-header{height:calc(70px + env(safe-area-inset-top));padding-top:env(safe-area-inset-top);padding-left:max(5%,env(safe-area-inset-left));padding-right:max(5%,env(safe-area-inset-right))}
+  .main-nav{top:calc(70px + env(safe-area-inset-top));max-height:calc(100dvh - 70px - env(safe-area-inset-top));overflow-y:auto;overscroll-behavior:contain;box-shadow:0 20px 34px rgba(24,39,30,.16)}
+  html{scroll-padding-top:calc(76px + env(safe-area-inset-top))}
+  .shop-drawer{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+  .site-footer{padding-bottom:calc(24px + env(safe-area-inset-bottom))}
+  .jianyu-section{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+  .finale-inner{padding-bottom:calc(90px + env(safe-area-inset-bottom))}
+
+  /* 3) 可点区域统一放大到手指友好（≥44px） */
+  .menu-toggle{min-width:44px;min-height:44px;display:grid;place-items:center;margin-left:0;font-size:24px}
+  .sound-toggle{min-height:40px;padding:8px 10px}
+  .main-nav a{min-height:52px;display:flex;align-items:center}
+  .jianyu-ask,.work-actions .text-link,.work-actions button,.recite-buttons button,.recite-buttons .text-link{min-height:44px}
+  .concept-ask{width:100%;min-height:44px;display:flex;align-items:center;justify-content:space-between}
+  .share-inline-btn{min-height:44px;padding:10px 14px}
+  .jianyu-open{min-height:48px;padding:12px 26px}
+  .jy-submit{min-height:44px;padding:10px 22px}
+  .jy-write textarea{min-height:120px}
+  .concept-entry-btn{max-width:100%}
+
+  /* 4) 长英文小标题在窄屏会撑破一行，收紧字距并允许换行 */
+  .jianyu-kicker,.section-kicker,.eyebrow,.concept-meta{letter-spacing:.16em;line-height:1.9;overflow-wrap:break-word}
+
+  /* 5) 重效果降级：移动端 GPU 有限，减弱毛玻璃、关掉遮罩模糊 */
+  .site-header{backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+  .shop-mask{backdrop-filter:none;-webkit-backdrop-filter:none}
+  .enter-notice{backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+  .ai-guide-panel{max-height:calc(100svh - 24px)}
+}
+
+@media (max-width:520px){
+  /* 6) 小屏书写抽屉改为整屏宽，键盘弹出时输入更从容 */
+  .shop-drawer{width:100vw;border-left:0}
+  .shop-drawer-body{padding-bottom:calc(18px + env(safe-area-inset-bottom))}
+}
+
+@media (max-width:380px){
+  /* 7) 超窄屏收起副标题与音乐文字，避免顶栏挤成两行 */
+  .site-header{gap:10px}
+  .site-header .brand small{display:none}
+  .sound-toggle .sound-status{display:none}
+  .main-nav a{font-size:17px}
+}
+
+/* 8) 入场提示随设备换文案：触屏说「上滑」，并去掉鼠标轮廓图标 */
+@media (hover:none),(pointer:coarse){
+  .arrival-hint .hint-desktop{display:none}
+  .arrival-hint .hint-touch{display:block}
+  .arrival-hint i{display:none}
+  .arrival-hint{gap:14px}
+}
+
+/* ========== 首页舞台 · 移动端重排 ========== */
+/* 问题：首屏人物画框用绝对定位压在右下，窄屏时与标题、正文重叠成一团。
+   解法：整幕改为「上文下图」的纵向流：文案在上、画框占满剩余高度，不再互相遮挡。 */
+body.home-page.stage-mode{height:100svh;height:100dvh} /* dvh 跟随移动端地址栏收放，避免底部被切 */
+
+@media (max-width:760px){
+  /* 顶栏与底部页脚是固定层，幕内留白必须让出它们的高度 + 刘海安全区 */
+  body.home-page.stage-mode .scene-wrap{
+    padding:calc(74px + env(safe-area-inset-top)) 0 calc(84px + env(safe-area-inset-bottom));
+  }
+  body.home-page.stage-mode>.site-footer{
+    flex-wrap:nowrap;align-items:center;gap:10px;overflow-x:auto;overflow-y:hidden;
+    -webkit-overflow-scrolling:touch;scrollbar-width:none;
+    padding:8px max(5%,env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom)) max(5%,env(safe-area-inset-right));
+  }
+  body.home-page.stage-mode>.site-footer::-webkit-scrollbar{display:none}
+  body.home-page.stage-mode>.site-footer>span{display:none} /* 手机端省掉中间那句，页脚压成单行 */
+  body.home-page.stage-mode>.site-footer .brand{flex:none}
+  body.home-page.stage-mode>.site-footer>a{flex:none;white-space:nowrap;font-size:11px}
+  body.home-page.stage-mode>.site-footer .share-inline{flex-wrap:nowrap;gap:6px;flex:none}
+  body.home-page.stage-mode>.site-footer .share-inline-btn{min-height:32px;padding:4px 9px;font-size:9.5px;letter-spacing:.06em;white-space:nowrap}
+  body.home-page.stage-mode>.site-footer .brand span{font-size:12.5px}
+  body.home-page.stage-mode>.site-footer .brand small{display:none}
+
+  /* 首幕：文案在上、画框在下，画框吃掉剩余空间 */
+  body.home-page.stage-mode .home-stage .hero{
+    flex-direction:column;align-items:stretch;justify-content:flex-start;
+    gap:10px;height:100%;min-height:0;padding:6px 6% 6px;
+  }
+  body.home-page.stage-mode .hero-copy{width:100%;max-width:none;order:1;z-index:3}
+  body.home-page.stage-mode .hero .eyebrow{font-size:11.5px;letter-spacing:.14em;margin-bottom:9px;gap:8px}
+  body.home-page.stage-mode .hero .eyebrow>span{width:16px}
+  body.home-page.stage-mode .hero h1{
+    font-size:clamp(30px,9vw,42px);line-height:1.24;letter-spacing:.06em;margin-bottom:9px;
+  }
+  body.home-page.stage-mode .hero h1 .hero-tl-2{padding-left:1.6em}
+  body.home-page.stage-mode .hero-intro{
+    font-size:12.5px;line-height:1.82;letter-spacing:.04em;margin-bottom:9px;max-width:none;
+    text-shadow:0 1px 0 rgba(243,243,237,.9);
+  }
+  body.home-page.stage-mode .hero-verse{font-size:11.5px;margin-top:6px;gap:9px}
+  body.home-page.stage-mode .verse-rule{width:22px}
+  /* 画框从「绝对定位浮层」改为「纵向流里的弹性区域」 */
+  body.home-page.stage-mode .hero-art{
+    position:relative;order:2;inset:auto;right:auto;top:auto;bottom:auto;transform:none;
+    width:100%;max-width:none;height:auto;flex:1 1 150px;min-height:128px;margin:0;
+    border-radius:16px 16px 4px 4px;background:#273a48;
+  }
+  body.home-page.stage-mode .hero-art:after{border-radius:inherit}
+  body.home-page.stage-mode .art-label{top:7%;left:4%;padding:4px 7px;font-size:8.5px}
+  body.home-page.stage-mode .art-poem{right:4%;bottom:9%;font-size:11px;line-height:1.8;letter-spacing:.18em}
+  body.home-page.stage-mode .art-stamp{left:4%;bottom:7%;width:38px;height:30px;font-size:6.5px}
+  body.home-page.stage-mode .hero-figure-layer{left:14%;top:1%;width:62%;height:98%}
+  body.home-page.stage-mode .hero-lantern{--hl-size:36px}
+  body.home-page.stage-mode .hl-b{--hl-size:30px}
+  body.home-page.stage-mode .hl-c{display:none}
+  /* 装饰层在小屏会越界压字，直接收起 */
+  body.home-page.stage-mode .hero-moon,
+  body.home-page.stage-mode .hero-side-poem,
+  body.home-page.stage-mode .hero-petals{display:none}
+  /* 极端小屏兜底：首幕内容允许滚动，绝不裁切 */
+  body.home-page.stage-mode .scene[data-scene="0"] .scene-content{overflow-y:auto;overscroll-behavior:contain}
+  body.home-page.stage-mode .scene-content{-webkit-overflow-scrolling:touch}
+  /* 右侧章节点缩小并贴边，避免压住正文；但保留足够点击高度 */
+  body.home-page.stage-mode .stage-rail{right:2px;gap:4px}
+  body.home-page.stage-mode .stage-rail button{width:24px;min-height:28px;height:auto}
+}
+
+/* ========== 水墨地图 · 移动端可用性 ========== */
+/* 问题：时间条换行成大块、最后一站被截断，笺卡又压在它上面，互相遮挡。
+   解法：7 站等分单行排满；笺卡浮在它上方；笺卡展开时暂时收起圆点与时间条。 */
+@media (max-width:760px){
+  /* 时间条：7 站在一屏内等分排满，不再横向截断（原来要左右滑动才看得到「北邙山」） */
+  .map-page .tour-guide{
+    left:6px;right:6px;bottom:calc(6px + env(safe-area-inset-bottom));transform:none;
+    display:flex;flex-wrap:nowrap;align-items:center;justify-content:space-between;
+    gap:0;padding:5px 4px;overflow:visible;
+  }
+  .map-page .tour-cap,.map-page .tour-ctrl{display:none} /* 手机上直接点节点，省掉上一站/下一站 */
+  .map-page .tour-track{display:flex;flex-wrap:nowrap;justify-content:space-between;gap:0;flex:1 1 auto;min-width:0}
+  .map-page .tour-node{flex:1 1 0;min-width:0;min-height:46px;padding:4px 0 10px}
+  .map-page .tour-node i{font-size:9px;letter-spacing:0;white-space:nowrap}
+  .map-page .tour-node em{font-size:11.5px;letter-spacing:0;white-space:nowrap}
+  .map-page .tour-node+.tour-node::before{display:none} /* 等分后连线会压字，交给菱形刻度分隔 */
+
+  /* 笺卡：底部抽屉式，限高并内部滚动；底部让出时间条高度，互不覆盖 */
+  /* 注意：.map-panel 自带 display:flex，会盖过 [hidden] 的默认 display:none，
+     必须显式声明，否则「收起」只在属性上生效、视觉上仍挡着地图 */
+  .map-page .ink-popup[hidden]{display:none!important}
+  .map-page .ink-popup{
+    left:8px;right:8px;bottom:calc(64px + env(safe-area-inset-bottom));
+    width:auto;max-height:min(60vh,440px);overflow-y:auto;overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;
+  }
+  .map-page .map-panel{min-height:0;padding:20px 18px}
+  .map-page .map-panel::before{inset:5px}
+  .map-page .map-panel-seal{width:48px;height:48px;font-size:23px;margin-bottom:12px}
+  .map-page .map-panel-empty h3{font-size:19px}
+  .map-page .map-detail h3{font-size:23px}
+  .map-page .map-events li{font-size:12.5px;line-height:1.8;padding:8px 0 8px 18px}
+  .map-page .map-word p{font-size:14px;line-height:1.9}
+  .map-page .popup-close{width:34px;height:34px;font-size:17px;top:8px;right:8px}
+
+  /* 笺卡展开时收起右侧圆点与时间条，避免叠在一起（由 JS 挂 body 类，兼容不支持 :has 的浏览器） */
+  .map-page .dot-nav,.map-page .tour-guide{transition:opacity .22s ease}
+  .map-page.map-popup-open .dot-nav,
+  .map-page.map-popup-open .tour-guide{opacity:0;pointer-events:none}
+  /* 圆点与时间条收起后，笺卡可占到底部，把省下的空间还给内容 */
+  .map-page.map-popup-open .ink-popup{bottom:calc(10px + env(safe-area-inset-bottom));max-height:min(68vh,520px)}
+
+  /* 站点圆点：放大点击热区（视觉仍小），8 个点也能点准 */
+  .map-page .dot-nav{right:6px;gap:16px}
+  .map-page .dot-btn{width:15px;height:15px}
+  .map-page .dot-btn::before{inset:-11px}
+  .map-page .dot-tip{display:none} /* 触屏没有悬停，题签不显示 */
+
+  /* 顶栏：允许换行并用安全区留白，避免 320px 窄屏挤出屏幕 */
+  .map-topbar{
+    top:calc(10px + env(safe-area-inset-top));left:10px;right:10px;
+    flex-wrap:wrap;gap:8px;
+  }
+  .map-topbar .map-title{font-size:14px;letter-spacing:.18em}
+  .map-back{min-height:40px;display:inline-flex;align-items:center;padding:6px 12px;font-size:11.5px}
+  .map-sound,.map-help{width:40px;height:40px}
+}
