@@ -4313,3 +4313,31 @@
   window.setTimeout(() => { if (window.scrollY < 40) setOn(true); }, 1600);
   window.addEventListener("scroll", () => setOn(window.scrollY < threshold()), { passive: true });
 })();
+
+// wenwu 文创页首屏鼠标视差：背景图随光标轻微偏移，营造景深
+(() => {
+  const hero = document.querySelector(".wenwu-hero");
+  if (!hero) return;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  let raf = null;
+  let tx = 0, ty = 0, cx = 0, cy = 0;
+  hero.addEventListener("pointermove", (e) => {
+    const r = hero.getBoundingClientRect();
+    tx = (e.clientX - r.left) / r.width - 0.5;
+    ty = (e.clientY - r.top) / r.height - 0.5;
+    if (!raf) {
+      raf = requestAnimationFrame(function loop() {
+        cx += (tx - cx) * 0.08;
+        cy += (ty - cy) * 0.08;
+        hero.style.setProperty("--mx", cx.toFixed(3));
+        hero.style.setProperty("--my", cy.toFixed(3));
+        if (Math.abs(tx - cx) > 0.001 || Math.abs(ty - cy) > 0.001) {
+          raf = requestAnimationFrame(loop);
+        } else {
+          raf = null;
+        }
+      });
+    }
+  });
+  hero.addEventListener("pointerleave", () => { tx = 0; ty = 0; });
+})();
