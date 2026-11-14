@@ -343,6 +343,22 @@
   let audioEnabled = sessionStorage.getItem("liyu-audio-enabled") !== "false";
   // 封面入场尚未完成时，背景音乐不自动播放，等待音频一（intro-audio）结束后接续
   const coverIntroPending = Boolean(document.querySelector(".book-opening")) && sessionStorage.getItem("liyu-home-intro-completed-v2") !== "true";
+  // 跨页续播：同时记录播放位置与写入时刻，新页面按离开的时长补上进度，听感上音乐没有停过
+  const audioTimeKey = "liyu-audio-time";
+  const audioStampKey = "liyu-audio-time-at";
+  const saveAudioPosition = (time) => {
+    if (!Number.isFinite(time)) return;
+    if (time > 0) sessionStorage.setItem(audioTimeKey, String(time));
+    sessionStorage.setItem(audioStampKey, String(Date.now()));
+  };
+  const readResumePosition = (duration = 0) => {
+    const saved = Number(sessionStorage.getItem(audioTimeKey) || 0);
+    if (!(saved > 0)) return 0;
+    const stamp = Number(sessionStorage.getItem(audioStampKey) || 0);
+    let position = saved + (stamp > 0 ? Math.max(0, Date.now() - stamp) / 1000 : 0);
+    if (Number.isFinite(duration) && duration > 0) position %= duration;
+    return position;
+  };
   const updateSoundControls = (playing, message) => {
     soundButtons.forEach((button) => {
       button.setAttribute("aria-pressed", String(playing));
@@ -367,6 +383,11 @@
     // 关掉浏览器原生自动播放，统一从 0 音量淡入，避免一进页面就骤然出声
     audio.autoplay = false;
     audio.removeAttribute("autoplay");
+    // preload="none" 时 loadedmetadata 不会触发，续播会一直等不到；主动放开预载
+    if (audio.preload !== "auto") {
+      audio.preload = "auto";
+      audio.load();
+    }
     const savedVolume = sessionStorage.getItem("liyu-audio-volume");
     if (volumeSlider && savedVolume !== null) volumeSlider.value = savedVolume;
     music.setVolume(musicVolume());
@@ -384,17 +405,19 @@
       });
     }
     const restoreAudioPosition = () => {
-      const savedTime = Number(sessionStorage.getItem("liyu-audio-time") || 0);
-      if (savedTime > 0 && savedTime < (audio.duration || 0) - 1) music.seek(savedTime);
+      const resumeAt = readResumePosition(Number.isFinite(audio.duration) ? audio.duration : 0);
+      if (resumeAt > 0) music.seek(resumeAt);
+      // 从续播位置淡入，和离场时的淡出连起来，像同一首曲子换了个房间继续放
       if (audioEnabled && !coverIntroPending) startBackgroundMusic();
     };
     if (audio.readyState >= 1) restoreAudioPosition();
     else audio.addEventListener("loadedmetadata", restoreAudioPosition, { once: true });
     music.onTime((element) => {
-      sessionStorage.setItem("liyu-audio-time", String(element.currentTime));
+      saveAudioPosition(element.currentTime);
     });
     window.addEventListener("pagehide", () => {
-      sessionStorage.setItem("liyu-audio-time", String(music.currentTime()));
+      // 播放中记的是实时位置；已暂停时记的是暂停位置（时间戳刷新，回来不会凭空跳进度）
+      saveAudioPosition(music.currentTime());
     });
     soundButtons.forEach((button) => {
       button.addEventListener("click", () => {
@@ -407,12 +430,13 @@
         }
       });
     });
+    // 自动播放被拦截时，等用户手势再补播；不注销监听，避免首次手势正好被拦在门外
     document.addEventListener("pointerdown", (event) => {
       if (audioEnabled && !coverIntroPending && !music.isPlaying() && !event.target.closest(".sound-toggle") && !event.target.closest(".book-opening")) startBackgroundMusic();
-    }, { once: true });
+    });
     document.addEventListener("keydown", (event) => {
       if (audioEnabled && !coverIntroPending && !music.isPlaying() && !event.target.closest("input, textarea, button, a")) startBackgroundMusic();
-    }, { once: true });
+    });
   }
   // 音频一：封面点击后淡入，结束前与背景音乐交叉淡化接续
   const introVolume = (volume = musicVolume()) => Math.min(1, volume * 1.4);
@@ -1520,7 +1544,7 @@
       window.setTimeout(ripple.finish, 240);
     }
   }
-  // 整页跳转前先让声音淡出，避免旧页音乐被瞬间掐断；新页面的音乐再从零淡入
+  // 整页跳转前先让声音淡出，避免旧页音乐被瞬间掐断；新页面从续播位置再淡入
   const fadeSiteAudioBeforeExit = (duration = 340) => {
     document.querySelectorAll(".background-audio, .finale-audio").forEach((element) => {
       window.liyuAudio.fadeOut(element, duration);
