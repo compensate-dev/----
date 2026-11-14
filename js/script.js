@@ -478,6 +478,21 @@
         if (audioEnabled && !coverIntroPending && !music.isPlaying()) startBackgroundMusic();
       });
     });
+    // 首屏视频按需加载：进入视口才开始缓冲播放，离开即暂停，避免整页常驻解码缓冲
+    document.querySelectorAll(".life-hero-video, .listen-hero-video, .wanxiang-hero-video").forEach((video) => {
+      video.preload = "none";
+      if (!("IntersectionObserver" in window)) {
+        video.play().catch(() => {});
+        return;
+      }
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) video.play().catch(() => {});
+          else video.pause();
+        });
+      }, { threshold: 0.12 });
+      io.observe(video);
+    });
     // 入场自动播放偶发被拦时补一次，避免新页面一片安静
     window.setTimeout(() => {
       if (audioEnabled && !coverIntroPending && !music.isPlaying()) startBackgroundMusic();

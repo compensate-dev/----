@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="zh-CN">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#d9d2c1"><meta name="description" content="全屏沉浸式纸片 3D 水墨云游：云海之上，金陵宫阙、钟山林泉、洪州城郭、采石矶崖、一叶江舟、汴京小楼、北邙松柏。拖拽旋转，朱砂点为引，飞往李煜人生的每一站。"><title>水墨行迹｜春水留痕·李煜词境</title><link rel="stylesheet" href="../css/style.css?v=f173"><script src="../js/script.js?v=f162" defer></script><script src="../js/ai-guide.js?v=f142" defer></script><style>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#d9d2c1"><meta name="description" content="全屏沉浸式纸片 3D 水墨云游：云海之上，金陵宫阙、钟山林泉、洪州城郭、采石矶崖、一叶江舟、汴京小楼、北邙松柏。拖拽旋转，朱砂点为引，飞往李煜人生的每一站。"><title>水墨行迹｜春水留痕·李煜词境</title><link rel="stylesheet" href="../css/style.css?v=f173"><script src="../js/script.js?v=f178" defer></script><script src="../js/ai-guide.js?v=f142" defer></script><style>
   /* 渲染质感层：水墨夜空（淡墨晕染三叠）+ 画面色调 + 纸纹/暗角叠层 */
   .stage3d{background:
     radial-gradient(52% 36% at 24% 16%,rgba(56,62,58,.22),rgba(56,62,58,0) 70%),
@@ -189,7 +189,8 @@
     scene.fog = new THREE.Fog(0xccc5b3, 55, 260);
     var camera = new THREE.PerspectiveCamera(46, 1, 0.1, 420);
     var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    // 1.5 倍足够锐利，2 倍会让渲染目标/主画布多占约 40MB 显存
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     stage.appendChild(renderer.domElement);
     function resize() {
       var w = stage.clientWidth, h = stage.clientHeight;
@@ -283,6 +284,12 @@
     var inkName = new Map(); // 必须用 Map：对象键会把 Texture 强转成 "[object Object]" 字符串
     Object.keys(inkTex).forEach(function (k) { inkName.set(inkTex[k], k); });
     inkList.push(cloudTexA, cloudTexB); // 云按水墨拆片处理：无纸背、无受光差
+    // 全屏视差/云层永远铺满、不会被缩小采样，关掉 mipmap 省下约 25% 纹理显存
+    [cloudTexA, cloudTexB, texFar, texShore, texWillow, texReed].forEach(function (t) {
+      t.generateMipmaps = false;
+      t.minFilter = THREE.LinearFilter;
+      t.needsUpdate = true;
+    });
 
     // 云海大地（水面：着色器实时渲染 + 倒影承载）
     var waterVert = [
@@ -533,6 +540,13 @@
           u.mesh.material.map = blurredTex(u.mesh.material.map, 3);
         }
         u.fit();
+      });
+      // 几何/倒影已全部基于位图完成，把纹理上传显存后释放 CPU 侧位图副本（省约 120MB 常驻内存）。
+      // 之后 resize 不再重算尺寸，上下文丢失时靠页面重载恢复。
+      inkList.concat([texFar, texShore, texBoat, texWillow, texReed]).forEach(function (t) {
+        if (!t.image) return;
+        renderer.initTexture(t);
+        t.image = null;
       });
       hideVeil();
       console.log("[水墨行迹] build f62 · 云游指南（首访自动展开 ×顶栏重看）" + (window.__reliefN || 0) + (postScene ? " · 后期开" : " · 后期退回"));
