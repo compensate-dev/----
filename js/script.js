@@ -2937,7 +2937,8 @@
       syncSaveState();
     };
 
-    gallery.addEventListener("click", (event) => {
+    // 弹层已挂到 body，事件委托必须挂在 document，否则关闭/遮罩点击收不到
+    document.addEventListener("click", (event) => {
       const target = event.target.closest("button");
       if (!target) {
         // 点遮罩关闭（遮罩本身不是按钮）

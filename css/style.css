@@ -1561,9 +1561,17 @@ body.home-page:not(.book-opened) .shop-tab{display:none}
 /* —— 纸面陈列 —— */
 .wenwu-shelf{position:relative;margin-top:-64px;padding:clamp(44px,5.5vw,76px) 0 clamp(60px,8vw,108px);background:linear-gradient(180deg,#f8f1e2,#efe3cb);border-radius:20px 20px 0 0;box-shadow:0 -34px 80px rgba(6,12,10,.42)}
 .wenwu-shelf-inner{max-width:1180px;margin:0 auto;padding:0 clamp(22px,7vw,72px)}
-.shelf-head{display:flex;align-items:baseline;justify-content:space-between;gap:18px;padding-bottom:16px;border-bottom:1px solid rgba(122,84,58,.2)}
+.shelf-head{display:flex;flex-direction:column;align-items:flex-start;gap:clamp(18px,2.4vw,30px);padding-bottom:22px;border-bottom:1px solid rgba(122,84,58,.2)}
+.shelf-head-title{display:flex;flex-direction:column;gap:8px;flex:0 0 auto}
 .shelf-kicker{font-family:var(--sans);font-size:10px;letter-spacing:.24em;color:#9a3b2e}
-.shelf-head h2{margin:0;font-family:"HongLei Calligraphy",var(--serif);font-weight:400;font-size:clamp(26px,3.4vw,40px);letter-spacing:.1em;color:#2c1810}
+.shelf-head h2{margin:0;font-family:"HongLei Calligraphy",var(--serif);font-weight:400;font-size:clamp(22px,2.6vw,32px);letter-spacing:.1em;color:#2c1810}
+/* 标题与说明在陈列区顶部竖排：引言在上，「器物六件」紧随其下 */
+.shelf-head-copy{display:flex;flex-direction:column;align-items:flex-start;gap:12px;max-width:min(680px,100%);padding-bottom:4px}
+.shelf-head-copy h1{
+  margin:0;font-family:"HongLei Calligraphy",var(--serif);font-weight:400;
+  font-size:clamp(30px,4.4vw,54px);line-height:1.32;letter-spacing:.05em;color:#24362e;
+}
+.shelf-head-copy h1 em{font-style:normal;color:#9a3b2e}
 .wenwu-back-foot{margin:34px 0 0;text-align:center}
 .wenwu-back-foot a{color:rgba(122,84,58,.62);font-family:"Liyu Xingkai",var(--serif);font-size:14px;letter-spacing:.1em;text-decoration:none;border-bottom:1px solid rgba(122,84,58,.35);padding-bottom:3px;transition:color .3s,border-color .3s}
 .wenwu-back-foot a:hover{color:#9a3b2e;border-color:#9a3b2e}
@@ -1695,23 +1703,24 @@ body.home-page:not(.book-opened) .shop-tab{display:none}
   --mx:0;--my:0;
 }
 .wenwu-page .wenwu-hero::before{
-  content:"";position:absolute;inset:-4%;z-index:0;
-  background:url("../assets/image/wenwu-hero.jpg") center 42%/cover no-repeat;
-  transition:transform .4s cubic-bezier(.2,.7,.2,1);
+  content:"";position:absolute;inset:0;z-index:0;
+  /* contain：整张图完整呈现，不裁切；留白用页面纸色补齐 */
+  background:url("../assets/image/wenwu-hero.jpg") center center/contain no-repeat;
+  background-color:#f4ecdc;
 }
 /* 雾气层：显式清除 .subhero:after 的 clip-path 山形裁剪，只留雾气渐变 */
 .wenwu-page .wenwu-hero::after{
   content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
   width:auto;height:auto;clip-path:none;
+  /* 不再整片压色，只留贴底的极淡水汽，原图保持原样 */
   background:
-    radial-gradient(90% 45% at 18% 88%, rgba(255,250,240,.5), transparent 70%),
-    radial-gradient(70% 38% at 70% 92%, rgba(252,246,234,.38), transparent 72%),
-    linear-gradient(100deg,rgba(247,241,229,.72) 0%,rgba(247,241,229,.4) 38%,rgba(247,241,229,.1) 58%,rgba(247,241,229,0) 72%);
+    radial-gradient(90% 22% at 16% 100%, rgba(255,250,240,.34), transparent 72%),
+    radial-gradient(70% 20% at 68% 100%, rgba(252,246,234,.26), transparent 74%);
   animation:wenwuMist 20s ease-in-out infinite alternate;
 }
 @keyframes wenwuMist{
-  0%{background-position:0 0, 0 0, 0 0}
-  100%{background-position:6% -3%, -5% 2%, 0 0}
+  0%{background-position:0 0, 0 0}
+  100%{background-position:6% -3%, -5% 2%}
 }
 /* 文案锚定左下角：父级 .wenwu-hero 已是 flex-column + flex-end，inner 自然沉底
    左右留白与 life/listen/wanxiang 的 .subhero（padding 75px 10%）对齐，不再居中收窄 */
@@ -1723,8 +1732,8 @@ body.home-page:not(.book-opened) .shop-tab{display:none}
 .wenwu-page .wenwu-hero-copy{
   width:auto;max-width:min(580px,54%);min-width:min(320px,80%);
   padding:0;background:none;border:0;box-shadow:none;
-  /* 原图不做遮罩，改用浅色柔光包住笔画，让深墨绿在暗色器物上也立得住 */
-  text-shadow:0 0 14px rgba(252,247,237,.9),0 0 4px rgba(252,247,237,.7),0 1px 2px rgba(60,45,30,.25);
+  /* 标题已移到陈列区，这里只留一行小标签，给一点点浅色托底 */
+  text-shadow:0 0 10px rgba(252,247,237,.85),0 1px 2px rgba(60,45,30,.2);
 }
 /* kicker：松烟墨色小字 + 朱砂细线 */
 .wenwu-page .wenwu-hero-kicker{
@@ -1747,38 +1756,41 @@ body.home-page:not(.book-opened) .shop-tab{display:none}
 @keyframes wenwuTitleIn{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
 .wenwu-page .wenwu-hero-copy h1 em{font-style:normal;color:#9a3b2e;display:inline-block;animation:wenwuEmphasis 5s ease-in-out 1.4s infinite}
 @keyframes wenwuEmphasis{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
-/* 说明小字：与 life/listen/wanxiang 同款「纸色衬底 + 朱砂左线 + 暄洞楷书」 */
-.wenwu-page .wenwu-hero-lead{
+/* 说明小字：陈列区标题旁，沿用「纸色衬底 + 朱砂左线 + 暄洞楷书」 */
+.shelf-lead{
   display:table;
-  max-width:min(520px,100%);
+  max-width:100%;
   margin:0;
-  padding:9px 14px;
-  background:rgba(243,243,237,.82);
+  padding:8px 13px;
+  background:rgba(243,243,237,.72);
   border-left:2px solid rgba(169,104,76,.68);
   font-family:"Xuandong Kaishu",var(--serif);
-  font-size:15px;line-height:1.95;letter-spacing:.06em;color:#34483b;
-  text-shadow:0 1px 0 rgba(255,255,255,.65);
+  font-size:13.5px;line-height:1.9;letter-spacing:.05em;color:#34483b;
   animation:wenwuNoteIn .9s cubic-bezier(.2,.7,.2,1) .5s backwards;
 }
 @keyframes wenwuNoteIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
 
 @media (max-width:800px){
   .wenwu-page .wenwu-hero{min-height:min(88svh,700px)}
-  .wenwu-page .wenwu-hero::before{background-position:center 36%}
+  /* 窄屏也整图呈现：贴着导航放，下方留白正好承托文案 */
+  .wenwu-page .wenwu-hero::before{background-position:center top}
   .wenwu-page .wenwu-hero::after{
-    background:
-      radial-gradient(90% 40% at 50% 90%, rgba(255,250,240,.5), transparent 70%),
-      linear-gradient(180deg,rgba(247,241,229,.78) 0%,rgba(247,241,229,.38) 42%,rgba(247,241,229,0) 68%);
+    background:radial-gradient(90% 18% at 50% 100%, rgba(255,250,240,.3), transparent 72%);
   }
   .wenwu-page .wenwu-hero-inner{
-    padding:0 20px calc(28px + env(safe-area-inset-bottom));
+    /* 底部留出纸面上提的 64px，避免小标签被压住 */
+    padding:0 20px calc(84px + env(safe-area-inset-bottom));
   }
   .wenwu-page .wenwu-hero-copy{max-width:none;min-width:0;width:100%;padding:0}
-  .wenwu-page .wenwu-hero-copy h1{font-size:clamp(26px,7.6vw,34px);margin-bottom:12px}
-  .wenwu-page .wenwu-hero-lead{font-size:13.5px}
-  /* 窄屏纸带占满整行，提示只留滚轮图标，浮在纸带右上，不与小字相撞 */
+  /* 窄屏陈列头改为上下两段：先「器物六件」，再标题与说明 */
+  .shelf-head{flex-direction:column;align-items:flex-start;gap:16px}
+  .shelf-head-copy{max-width:100%;gap:10px}
+  .shelf-head-copy h1{font-size:clamp(26px,7.2vw,36px)}
+  .shelf-lead{font-size:13px}
+  /* 窄屏纸带占满整行，提示只留滚轮图标，居中浮在纸带上 */
   .wenwu-page .wenwu-hero .scroll-hint{
-    right:20px;bottom:calc(150px + env(safe-area-inset-bottom));gap:0;
+    left:50%;right:auto;transform:translateX(-50%);
+    bottom:calc(150px + env(safe-area-inset-bottom));gap:0;
   }
   .wenwu-page .wenwu-hero .scroll-hint .hint-desktop,
   .wenwu-page .wenwu-hero .scroll-hint .hint-touch{display:none}
@@ -1787,9 +1799,7 @@ body.home-page:not(.book-opened) .shop-tab{display:none}
 @media (prefers-reduced-motion:reduce){
   .wenwu-page .wenwu-hero::after{animation:none}
   .wenwu-page .wenwu-hero-kicker,
-  .wenwu-page .wenwu-hero-copy h1,
-  .wenwu-page .wenwu-hero-copy h1 em,
-  .wenwu-page .wenwu-hero-lead{opacity:1;animation:none}
+  .shelf-lead{opacity:1;animation:none}
 }
 
 /* —— wenwu 首屏钉合舞台：与 life/listen/wanxiang 一致的滚动覆盖 ——
@@ -1800,27 +1810,23 @@ body.home-page:not(.book-opened) .shop-tab{display:none}
   height:calc(100vh - 86px);height:calc(100svh - 86px);
   min-height:0;
 }
-.subhero-stage .wenwu-hero::before{
-  will-change:transform;
-  transform:translate3d(calc(var(--mx,0) * -14px + var(--hero-p,0) * -46px), calc(var(--my,0) * -8px), 0) scale(calc(1.08 + var(--hero-p,0) * .04));
-}
+/* 整图展示后不再做位移/缩放，避免把画面边缘推出可视区 */
+.subhero-stage .wenwu-hero::before{transform:none}
 .subhero-stage .wenwu-hero h1{
   will-change:opacity,transform,filter;
   opacity:calc(1 - var(--hero-p,0) * .86);
   transform:translate3d(0,calc(var(--hero-p,0) * 30px),0) scale(calc(1 - var(--hero-p,0) * .03));
   filter:blur(calc(var(--hero-p,0) * 1.8px));
 }
-.subhero-stage .wenwu-hero .wenwu-hero-kicker,
-.subhero-stage .wenwu-hero .wenwu-hero-lead{
+.subhero-stage .wenwu-hero .wenwu-hero-kicker{
   opacity:calc(max(0,1 - var(--hero-p,0) * 1.9));
   transform:translate3d(0,calc(var(--hero-p,0) * 20px),0);
 }
 /* 陈列纸面作为覆盖面板：至少满屏，确保上浮时能完全遮住首屏 */
 .subhero-stage > .wenwu-shelf{position:relative;z-index:2}
-/* 陈列纸面以 -64px 上提压住首屏底缘，滚动提示相应抬高并改靠右下，
-   避开左下角的标题与小字 */
+/* 陈列纸面以 -64px 上提压住首屏底缘，滚动提示相应抬高并居中对齐 */
 .wenwu-page .wenwu-hero .scroll-hint{
-  left:auto;right:clamp(24px,4.5vw,64px);transform:none;
+  left:50%;right:auto;transform:translateX(-50%);
   bottom:calc(clamp(22px,4.5vh,48px) + 64px);z-index:7;
 }
 @media(prefers-reduced-motion:no-preference){
@@ -1831,8 +1837,7 @@ body.home-page:not(.book-opened) .shop-tab{display:none}
   .subhero-stage .wenwu-hero{position:static;height:auto;min-height:clamp(560px,calc(100svh - 86px),860px)}
   .subhero-stage .wenwu-hero::before{transform:none;will-change:auto}
   .subhero-stage .wenwu-hero h1{opacity:1;transform:none;filter:none;will-change:auto}
-  .subhero-stage .wenwu-hero .wenwu-hero-kicker,
-  .subhero-stage .wenwu-hero .wenwu-hero-lead{opacity:1;transform:none}
+  .subhero-stage .wenwu-hero .wenwu-hero-kicker{opacity:1;transform:none}
 }
 
 body.shop-locked{overflow:hidden}

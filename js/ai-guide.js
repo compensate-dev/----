@@ -177,6 +177,21 @@
           interpret: "北邙山多的是王侯将相的土。我添了一座，挨着洛阳。", question: "你为什么会葬在北邙山？" },
       ],
     },
+    wenwu: {
+      name: "概念器物铺",
+      greet: "这六件器物，都是从词里取出来的。哪一件的来路、材质、用场，都可以问我。",
+      lead: "这六件器物，都是从词里取出来的。想细问哪一件，都可以。",
+      chips: [
+        "这六件器物分别出自哪句词",
+        "「浣花春水笺」为什么选《虞美人》",
+        "「月钩梧桐签」的钩月怎么做的",
+        "为什么这些器物不售卖",
+        "哪一件最适合送人",
+      ],
+      hints: [
+        { sel: ".shop-shell", text: "六件器物按词意排开。想细问哪一件，我讲给你听。", question: "这六件器物里，哪一件最接近你心里的那个李煜？" },
+      ],
+    },
     finale: {
       name: "终幕",
       greet: "梦到这里就醒了。还有想问的，最后问吧。",
@@ -198,6 +213,7 @@
       "wanxiang.html": "wanxiang",
       "listen.html": "listen",
       "map.html": "map",
+      "wenwu.html": "wenwu",
       "finale.html": "finale",
     };
     return table[file] || "home";
