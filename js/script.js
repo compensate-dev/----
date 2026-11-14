@@ -2804,8 +2804,8 @@
       <div class="shop-grid">${goods.map((item, index) => cardHtml(item, index)).join("")}</div>
       <div class="shop-detail" data-detail hidden>
         <div class="shop-veil" data-close></div>
+        <button class="shop-close" type="button" data-close aria-label="关闭详情">×</button>
         <aside class="shop-panel" role="dialog" aria-modal="true" aria-label="器物详情">
-          <button class="shop-close" type="button" data-close aria-label="关闭详情">×</button>
           <div class="shop-panel-art">
             <img data-detail-img src="" alt="">
             <span class="shop-panel-tag" data-detail-tag></span>
@@ -2839,6 +2839,9 @@
     const countEl = gallery.querySelector("[data-desk-count]");
     const detailSave = gallery.querySelector("[data-detail-save]");
     const detailAsk = gallery.querySelector("[data-detail-ask]");
+    // 弹层挂到 body：留在 .wenwu-shelf 内会被其 z-index:2 的层叠上下文压住，
+    // 连吸顶导航都会盖住右上角关闭键。
+    document.body.append(detail, deskLayer);
     let current = null;
     let lastFocus = null;
 
@@ -2874,7 +2877,7 @@
     };
 
     const renderDeskList = () => {
-      const list = gallery.querySelector("[data-desk-list]");
+      const list = deskLayer.querySelector("[data-desk-list]");
       if (!list) return;
       if (!desk.length) {
         list.innerHTML = `<p class="shop-desk-empty">案头还空着。<br>在器物铺里挑一件，点「收入案头」。</p>`;
@@ -2898,22 +2901,22 @@
       if (!item) return;
       current = item;
       lastFocus = document.activeElement;
-      gallery.querySelector("[data-detail-img]").src = item.img;
-      gallery.querySelector("[data-detail-img]").alt = item.alt;
-      gallery.querySelector("[data-detail-name]").textContent = item.name;
+      detail.querySelector("[data-detail-img]").src = item.img;
+      detail.querySelector("[data-detail-img]").alt = item.alt;
+      detail.querySelector("[data-detail-name]").textContent = item.name;
       const itemIndex = goods.indexOf(item);
-      gallery.querySelector("[data-detail-tag]").textContent = `NO.${String(itemIndex + 1).padStart(2, "0")} · ${item.cat} · 概念非卖`;
-      gallery.querySelector("[data-detail-mark]").textContent = marks[itemIndex] || "";
-      gallery.querySelector("[data-detail-verse]").textContent = item.verse;
-      gallery.querySelector("[data-detail-desc]").textContent = item.story;
-      gallery.querySelector("[data-detail-specs]").innerHTML = item.specs
+      detail.querySelector("[data-detail-tag]").textContent = `NO.${String(itemIndex + 1).padStart(2, "0")} · ${item.cat} · 概念非卖`;
+      detail.querySelector("[data-detail-mark]").textContent = marks[itemIndex] || "";
+      detail.querySelector("[data-detail-verse]").textContent = item.verse;
+      detail.querySelector("[data-detail-desc]").textContent = item.story;
+      detail.querySelector("[data-detail-specs]").innerHTML = item.specs
         .map(([key, value]) => `<div><dt>${key}</dt><dd>${value}</dd></div>`).join("");
       detailAsk.dataset.question = item.question;
       detail.hidden = false;
       document.body.classList.add("shop-locked");
       syncSaveState();
       // 打开后把焦点放到关闭键，键盘与读屏用户可直接退出
-      setTimeout(() => gallery.querySelector(".shop-close").focus(), 40);
+      setTimeout(() => detail.querySelector(".shop-close").focus(), 40);
     };
 
     const closeDetail = () => {

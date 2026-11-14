@@ -1553,13 +1553,7 @@ body.home-page:not(.book-opened) .shop-tab{display:none}
 .wenwu-hero-kicker{display:block;font-family:var(--sans);font-size:10px;letter-spacing:.28em;color:#d4a24a;margin-bottom:18px}
 .wenwu-hero h1{margin:0 0 22px;font-family:"HongLei Calligraphy",var(--serif);font-weight:400;font-size:clamp(40px,6.6vw,84px);line-height:1.16;letter-spacing:.04em;color:#f4efe3}
 .wenwu-hero h1 em{font-style:normal;color:#d4a24a}
-.wenwu-hero-lead{max-width:520px;margin:0 0 30px;font-family:"Xuandong Kaishu",var(--serif);font-size:14px;line-height:2.1;color:rgba(242,236,221,.7)}
-.wenwu-hero-meta{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
-.wenwu-enter{display:inline-flex;align-items:center;gap:10px;padding:14px 26px;border:1px solid rgba(212,162,74,.55);background:rgba(212,162,74,.06);color:#f2ecdd;font-family:"Liyu Xingkai",var(--serif);font-size:16px;letter-spacing:.16em;text-decoration:none;transition:background .3s,color .3s,border-color .3s}
-.wenwu-enter span{transition:transform .3s}
-.wenwu-enter:hover{background:#d4a24a;border-color:#d4a24a;color:#1a120d}
-.wenwu-enter:hover span{transform:translateY(4px)}
-.wenwu-hero-note{font-family:var(--sans);font-size:10.5px;letter-spacing:.18em;color:rgba(242,236,221,.46)}
+.wenwu-hero-lead{max-width:520px;margin:0;font-family:"Xuandong Kaishu",var(--serif);font-size:14px;line-height:2.1;color:rgba(242,236,221,.7)}
 /* 右侧巨幅竖排题字，只作气氛，不抢标题 */
 .wenwu-hero-seal{position:absolute;right:clamp(6px,4vw,70px);top:50%;transform:translateY(-50%);writing-mode:vertical-rl;font-family:"HongLei Calligraphy",var(--serif);font-size:clamp(56px,9vw,132px);line-height:1;letter-spacing:.2em;color:rgba(242,236,221,.07);pointer-events:none;user-select:none}
 /* 入场动画已由 v10（wenwuKickerIn / wenwuTitleIn / wenwuLeadIn / wenwuMetaIn）接管，旧规则移除 */
@@ -1625,19 +1619,19 @@ body.home-page:not(.book-opened) .shop-tab{display:none}
 .shop-panel-verse{font-size:15px}
 .shop-panel-desc{max-width:44ch}
 .wenwu-page .shop-close{
-  top:20px;right:20px;z-index:6;
-  width:46px;height:46px;border-radius:6px;
-  background:rgba(251,246,236,.95);
-  border:1px solid rgba(154,59,46,.4);
-  color:#9a3b2e;font-size:22px;font-weight:400;
-  box-shadow:0 6px 20px rgba(30,18,10,.25);
+  position:absolute;top:22px;right:26px;z-index:10;
+  width:48px;height:48px;border-radius:8px;padding:0;
+  background:rgba(251,246,236,.96);
+  border:1px solid rgba(154,59,46,.45);
+  color:#9a3b2e;font-size:24px;font-weight:400;line-height:1;cursor:pointer;
+  box-shadow:0 8px 26px rgba(30,18,10,.3);
   transition:all .28s cubic-bezier(.2,.7,.2,1);
   display:flex;align-items:center;justify-content:center;
 }
 .wenwu-page .shop-close:hover{
   background:#9a3b2e;color:#f7f0e3;border-color:#9a3b2e;
   transform:scale(1.08) rotate(90deg);
-  box-shadow:0 8px 26px rgba(154,59,46,.4);
+  box-shadow:0 10px 30px rgba(154,59,46,.45);
 }
 .wenwu-page .shop-close:focus-visible{outline:2px solid #9a3b2e;outline-offset:3px}
 /* 展签内容逐条浮起 */
@@ -1678,9 +1672,6 @@ body.home-page:not(.book-opened) .shop-tab{display:none}
   .wenwu-hero h1{font-size:clamp(34px,9.6vw,46px)}
   .wenwu-hero-lead{font-size:13px;line-height:1.95;margin-bottom:24px}
   .wenwu-hero-seal{font-size:clamp(44px,15vw,80px);right:2px;opacity:.7}
-  .wenwu-hero-meta{gap:14px}
-  .wenwu-enter{padding:12px 20px;font-size:14.5px}
-  .wenwu-hero-note{font-size:9.5px}
   .wenwu-shelf{margin-top:-44px;border-radius:14px 14px 0 0}
   .shelf-head{padding-bottom:12px}
   .wenwu-shelf .shop-bar{margin:14px 0 20px}
@@ -1698,6 +1689,7 @@ body.home-page:not(.book-opened) .shop-tab{display:none}
    入场：kicker 细线展开 → 标题上浮 → 纸签浮现 → 按钮淡入。 */
 .wenwu-page .wenwu-hero{
   position:relative;overflow:hidden;isolation:isolate;
+  display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch;
   min-height:clamp(560px,calc(100svh - 86px),860px);
   padding:0;background:#f4ecdc;color:#2c1810;
   --mx:0;--my:0;
@@ -1707,9 +1699,10 @@ body.home-page:not(.book-opened) .shop-tab{display:none}
   background:url("../assets/image/wenwu-hero.jpg") center 42%/cover no-repeat;
   transition:transform .4s cubic-bezier(.2,.7,.2,1);
 }
-/* 雾气层：底部极淡水汽缓慢漂移，叠在左重右轻渐变之上，不遮器物 */
+/* 雾气层：显式清除 .subhero:after 的 clip-path 山形裁剪，只留雾气渐变 */
 .wenwu-page .wenwu-hero::after{
   content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  width:auto;height:auto;clip-path:none;
   background:
     radial-gradient(90% 45% at 18% 88%, rgba(255,250,240,.5), transparent 70%),
     radial-gradient(70% 38% at 70% 92%, rgba(252,246,234,.38), transparent 72%),
@@ -1720,16 +1713,18 @@ body.home-page:not(.book-opened) .shop-tab{display:none}
   0%{background-position:0 0, 0 0, 0 0}
   100%{background-position:6% -3%, -5% 2%, 0 0}
 }
-/* 文案锚定左下角：height:100% 撑满 sticky 容器，flex-end 才能真正沉底 */
+/* 文案锚定左下角：父级 .wenwu-hero 已是 flex-column + flex-end，inner 自然沉底
+   左右留白与 life/listen/wanxiang 的 .subhero（padding 75px 10%）对齐，不再居中收窄 */
 .wenwu-page .wenwu-hero-inner{
-  position:relative;z-index:2;display:flex;flex-direction:column;justify-content:flex-end;
-  height:100%;max-width:1280px;margin:0 auto;
-  padding:0 clamp(22px,5.5vw,60px) clamp(48px,7vw,80px);
+  position:relative;z-index:2;
+  width:100%;
+  padding:0 10% clamp(48px,7vw,80px);
 }
 .wenwu-page .wenwu-hero-copy{
   width:auto;max-width:min(580px,54%);min-width:min(320px,80%);
   padding:0;background:none;border:0;box-shadow:none;
-  text-shadow:0 1px 2px rgba(252,247,237,.55);
+  /* 原图不做遮罩，改用浅色柔光包住笔画，让深墨绿在暗色器物上也立得住 */
+  text-shadow:0 0 14px rgba(252,247,237,.9),0 0 4px rgba(252,247,237,.7),0 1px 2px rgba(60,45,30,.25);
 }
 /* kicker：松烟墨色小字 + 朱砂细线 */
 .wenwu-page .wenwu-hero-kicker{
@@ -1752,42 +1747,20 @@ body.home-page:not(.book-opened) .shop-tab{display:none}
 @keyframes wenwuTitleIn{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
 .wenwu-page .wenwu-hero-copy h1 em{font-style:normal;color:#9a3b2e;display:inline-block;animation:wenwuEmphasis 5s ease-in-out 1.4s infinite}
 @keyframes wenwuEmphasis{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
-/* 纸签：宣纸底 + 松烟边框 + 朱砂书签带 + 右上角印章 */
-.wenwu-page .wenwu-paper-note{
-  position:relative;
-  padding:clamp(18px,2.2vw,26px) clamp(20px,2.4vw,30px) clamp(16px,2vw,22px);
-  background:
-    repeating-linear-gradient(0deg,transparent,transparent 27px,rgba(122,84,58,.04) 27px,rgba(122,84,58,.04) 28px),
-    rgba(244,240,226,.95);
-  border:1px solid rgba(115,128,106,.3);
-  border-left:3px solid #9a3b2e;
-  box-shadow:0 18px 44px rgba(46,36,18,.2),0 2px 0 rgba(255,255,255,.5) inset;
-  backdrop-filter:blur(3px);
+/* 说明小字：与 life/listen/wanxiang 同款「纸色衬底 + 朱砂左线 + 暄洞楷书」 */
+.wenwu-page .wenwu-hero-lead{
+  display:table;
+  max-width:min(520px,100%);
+  margin:0;
+  padding:9px 14px;
+  background:rgba(243,243,237,.82);
+  border-left:2px solid rgba(169,104,76,.68);
+  font-family:"Xuandong Kaishu",var(--serif);
+  font-size:15px;line-height:1.95;letter-spacing:.06em;color:#34483b;
+  text-shadow:0 1px 0 rgba(255,255,255,.65);
   animation:wenwuNoteIn .9s cubic-bezier(.2,.7,.2,1) .5s backwards;
 }
-/* 朱砂印章：右上角方形红底白字 */
-.wenwu-page .wenwu-paper-note::before{
-  content:"藏";position:absolute;top:-12px;right:18px;
-  width:30px;height:30px;display:flex;align-items:center;justify-content:center;
-  background:#9a3b2e;color:#f7f0e3;
-  font-family:"HongLei Calligraphy",var(--serif);font-size:16px;line-height:1;
-  box-shadow:0 3px 10px rgba(154,59,46,.35);
-  transform:rotate(2deg);
-}
-/* 右下角墨线装饰 */
-.wenwu-page .wenwu-paper-note::after{
-  content:"";position:absolute;bottom:8px;right:10px;width:48px;height:5px;
-  background:linear-gradient(90deg,transparent,rgba(36,54,46,.15));
-  border-radius:3px;
-}
 @keyframes wenwuNoteIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
-.wenwu-page .wenwu-paper-note .wenwu-hero-lead{
-  font-family:"Xuandong Kaishu",var(--serif);
-  font-size:13px;line-height:2;margin:0 0 16px;max-width:44ch;color:#3a3226;
-  text-shadow:none;
-}
-.wenwu-page .wenwu-hero-meta{animation:wenwuMetaIn .9s cubic-bezier(.2,.7,.2,1) .66s backwards}
-@keyframes wenwuMetaIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 
 @media (max-width:800px){
   .wenwu-page .wenwu-hero{min-height:min(88svh,700px)}
@@ -1798,21 +1771,25 @@ body.home-page:not(.book-opened) .shop-tab{display:none}
       linear-gradient(180deg,rgba(247,241,229,.78) 0%,rgba(247,241,229,.38) 42%,rgba(247,241,229,0) 68%);
   }
   .wenwu-page .wenwu-hero-inner{
-    justify-content:flex-end;height:100%;
     padding:0 20px calc(28px + env(safe-area-inset-bottom));
   }
   .wenwu-page .wenwu-hero-copy{max-width:none;min-width:0;width:100%;padding:0}
   .wenwu-page .wenwu-hero-copy h1{font-size:clamp(26px,7.6vw,34px);margin-bottom:12px}
-  .wenwu-page .wenwu-paper-note .wenwu-hero-lead{font-size:12.5px;margin-bottom:14px}
-  .wenwu-page .wenwu-enter{width:100%;justify-content:center}
+  .wenwu-page .wenwu-hero-lead{font-size:13.5px}
+  /* 窄屏纸带占满整行，提示只留滚轮图标，浮在纸带右上，不与小字相撞 */
+  .wenwu-page .wenwu-hero .scroll-hint{
+    right:20px;bottom:calc(150px + env(safe-area-inset-bottom));gap:0;
+  }
+  .wenwu-page .wenwu-hero .scroll-hint .hint-desktop,
+  .wenwu-page .wenwu-hero .scroll-hint .hint-touch{display:none}
+  .wenwu-page .wenwu-hero .scroll-hint i{width:24px;height:38px}
 }
 @media (prefers-reduced-motion:reduce){
   .wenwu-page .wenwu-hero::after{animation:none}
   .wenwu-page .wenwu-hero-kicker,
   .wenwu-page .wenwu-hero-copy h1,
   .wenwu-page .wenwu-hero-copy h1 em,
-  .wenwu-page .wenwu-paper-note,
-  .wenwu-page .wenwu-hero-meta{opacity:1;animation:none}
+  .wenwu-page .wenwu-hero-lead{opacity:1;animation:none}
 }
 
 /* —— wenwu 首屏钉合舞台：与 life/listen/wanxiang 一致的滚动覆盖 ——
@@ -1834,13 +1811,18 @@ body.home-page:not(.book-opened) .shop-tab{display:none}
   filter:blur(calc(var(--hero-p,0) * 1.8px));
 }
 .subhero-stage .wenwu-hero .wenwu-hero-kicker,
-.subhero-stage .wenwu-hero .wenwu-hero-note,
-.subhero-stage .wenwu-hero .wenwu-enter{
+.subhero-stage .wenwu-hero .wenwu-hero-lead{
   opacity:calc(max(0,1 - var(--hero-p,0) * 1.9));
   transform:translate3d(0,calc(var(--hero-p,0) * 20px),0);
 }
 /* 陈列纸面作为覆盖面板：至少满屏，确保上浮时能完全遮住首屏 */
 .subhero-stage > .wenwu-shelf{position:relative;z-index:2}
+/* 陈列纸面以 -64px 上提压住首屏底缘，滚动提示相应抬高并改靠右下，
+   避开左下角的标题与小字 */
+.wenwu-page .wenwu-hero .scroll-hint{
+  left:auto;right:clamp(24px,4.5vw,64px);transform:none;
+  bottom:calc(clamp(22px,4.5vh,48px) + 64px);z-index:7;
+}
 @media(prefers-reduced-motion:no-preference){
   .subhero-stage > .wenwu-shelf{min-height:100vh;min-height:100svh}
 }
@@ -1850,8 +1832,7 @@ body.home-page:not(.book-opened) .shop-tab{display:none}
   .subhero-stage .wenwu-hero::before{transform:none;will-change:auto}
   .subhero-stage .wenwu-hero h1{opacity:1;transform:none;filter:none;will-change:auto}
   .subhero-stage .wenwu-hero .wenwu-hero-kicker,
-  .subhero-stage .wenwu-hero .wenwu-hero-note,
-  .subhero-stage .wenwu-hero .wenwu-enter{opacity:1;transform:none}
+  .subhero-stage .wenwu-hero .wenwu-hero-lead{opacity:1;transform:none}
 }
 
 body.shop-locked{overflow:hidden}
