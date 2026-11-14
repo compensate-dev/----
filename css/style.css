@@ -10,7 +10,7 @@
 @font-face{font-family:"ZhongQi ZhiMang";src:url("../assets/font/zhongqi-zhimang-calligraphy.ttf") format("truetype");font-style:normal;font-weight:400;font-display:swap}
 @font-face{font-family:"Xuandong Kaishu";src:url("../assets/font/xuandong-kaishu.ttf") format("truetype");font-style:normal;font-weight:400;font-display:swap}
 @font-face{font-family:"Liyu Xingkai";src:url("../assets/font/liyu-xingkai.ttf") format("truetype");font-style:normal;font-weight:400;font-display:swap}
-@font-face{font-family:"Liyu Xingkai UI";src:url("../assets/font/liyu-xingkai-header.ttf") format("truetype");font-style:normal;font-weight:400;font-display:swap}
+@font-face{font-family:"Liyu Xingkai UI";src:url("../assets/font/liyu-xingkai.ttf") format("truetype");font-style:normal;font-weight:400;font-display:swap}
 /* 全站设计令牌与基础重置：纸色/墨色 CSS 变量、双字体栈、盒模型、焦点可见性、跳转链接、选区配色 */
 :root{--paper:#f3f3ed;--paper-deep:#e9ece4;--ink:#24362e;--muted:#6d786d;--pine:#304d3f;--moss:#73806a;--rust:#a9684c;--gold:#c7aa77;--line:#d9ddd3;--serif:"Noto Serif SC","Songti SC",serif;--sans:"Manrope","Microsoft YaHei",sans-serif}
 *{box-sizing:border-box}
