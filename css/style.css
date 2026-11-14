@@ -125,7 +125,7 @@ h1 em,h2 em{font-style:normal;color:var(--rust)}
 .portrait-frame:before,.portrait-frame:after{content:"";position:absolute;width:22px;height:22px;z-index:1;pointer-events:none}
 .portrait-frame:before{top:4px;left:4px;border-top:1px solid #a9713f;border-left:1px solid #a9713f}
 .portrait-frame:after{right:4px;bottom:4px;border-right:1px solid #a9713f;border-bottom:1px solid #a9713f}
-.poet-portrait{display:block;width:100%;aspect-ratio:.96;object-fit:cover;object-position:left 24%;border:1px solid rgba(122,84,58,.32)}
+.poet-portrait{display:block;width:100%;aspect-ratio:1280/2278;object-fit:cover;object-position:center;border:1px solid rgba(122,84,58,.32)}
 .section-kicker{display:flex;align-items:center;gap:12px;padding-top:11px;white-space:nowrap}
 .section-kicker span{color:#929a8f;font-size:9px}
 .intro-heading h2,.feature-head h2,.story-lead h2,.works-heading h2,.listen-title h2,.interactive h2,.next-step h2,.closing h2{font-size:clamp(30px,3.2vw,43px);line-height:1.6;letter-spacing:.06em;font-weight:500;margin:0 0 17px}
@@ -947,7 +947,7 @@ body.arrival-lock{overflow:hidden}
   .intro{min-height:calc(100svh - 86px);grid-template-columns:minmax(260px,.78fr) minmax(420px,1.25fr) minmax(280px,.9fr);gap:clamp(28px,3.2vw,48px);align-items:center;padding-top:clamp(58px,8vh,100px);padding-bottom:clamp(58px,8vh,100px)}
   .intro-poet{align-self:center}
   .portrait-frame{width:100%;margin-top:34px}
-  .poet-portrait{aspect-ratio:.96;object-position:left 24%}
+  .poet-portrait{aspect-ratio:1280/2278;object-position:center}
   .intro-heading h2{font-size:clamp(38px,3.6vw,52px)}
   .intro-card{margin-top:0;min-height:280px;padding:clamp(28px,3.2vw,44px)}
 }
@@ -995,7 +995,7 @@ body.arrival-lock{overflow:hidden}
 /* 词卷通栏化：出血到视口整宽，背景大图居中 42% */
 .poem-gallery{position:relative;isolation:isolate;width:100vw;margin-left:calc(50% - 50vw);padding:8px 10vw 4px;overflow:hidden}
 @media(max-width:700px){.hero-intro{font-size:16px}.hero-verse{font-size:15px;margin-top:28px}.intro-heading p{font-size:15px}.closing p{font-size:14px}}
-@media(max-width:700px){.poet-portrait{aspect-ratio:.96;object-position:left 24%}}
+@media(max-width:700px){.poet-portrait{aspect-ratio:1280/2278;object-position:center}}
 @media(max-width:700px){.timeline-year{font-size:18px;margin-bottom:8px}.timeline-label{font-size:10px}.timeline-card h3{font-size:19px}.timeline-card p{font-size:14px}.timeline-quote{font-size:13px}}
 .poem-gallery:before{content:"";position:absolute;z-index:-1;inset:0;background:linear-gradient(rgba(243,243,237,.62),rgba(243,243,237,.62)),url("../assets/image/poem-background.jpg") center 42%/cover no-repeat}
 .poem-gallery .poem-tabs{margin-left:18%}
@@ -2670,9 +2670,9 @@ body.home-page.stage-mode .mood-form{--d:1.5}
 body.home-page.stage-mode .scene[data-scene="2"] .intro{grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);gap:clamp(22px,5vw,84px);align-content:center;align-items:center;perspective:1500px}
 body.home-page.stage-mode .scene[data-scene="2"] .intro-heading{order:1;justify-self:center;width:min(100%,480px)}
 body.home-page.stage-mode .scene[data-scene="2"] .intro-poet{order:2;justify-self:center;width:min(100%,320px);align-self:center}
-body.home-page.stage-mode .scene[data-scene="2"] .poet-portrait{aspect-ratio:.78;object-position:center 20%}
+body.home-page.stage-mode .scene[data-scene="2"] .poet-portrait{aspect-ratio:1280/2278;object-position:center}
 body.home-page.stage-mode .scene[data-scene="2"] .intro-3d{transform:perspective(1200px) rotateY(15deg);transform-origin:50% 50%;transform-style:preserve-3d}
-body.home-page.stage-mode .scene[data-scene="2"] .portrait-frame{transform:perspective(1100px) rotateY(8deg);transform-origin:50% 50%}
+body.home-page.stage-mode .scene[data-scene="2"] .portrait-frame{transform:perspective(1100px) rotateY(-9deg);transform-origin:50% 50%}
 
 /* 词卡微倾斜（光标驱动，JS 写 transform；位移交给 translate，两者互不干扰） */
 body.home-page.stage-mode .poem-card{transform-origin:50% 50%;transition:filter .5s ease,transform .55s cubic-bezier(.16,.86,.24,1)}
@@ -2696,8 +2696,8 @@ body.home-page.stage-mode .poem-card:hover .poem-arrow{transform:translate(3px,-
   body.home-page.stage-mode .scene[data-scene="2"] .intro{grid-template-columns:1fr;gap:16px}
   body.home-page.stage-mode .scene[data-scene="2"] .intro-heading{order:1;justify-self:start;width:100%}
   body.home-page.stage-mode .scene[data-scene="2"] .intro-3d{transform:perspective(900px) rotateY(9deg)}
-  body.home-page.stage-mode .scene[data-scene="2"] .portrait-frame{transform:perspective(900px) rotateY(5deg)}
-  body.home-page.stage-mode .scene[data-scene="2"] .poet-portrait{aspect-ratio:.88}
+  body.home-page.stage-mode .scene[data-scene="2"] .portrait-frame{transform:perspective(900px) rotateY(-6deg)}
+  body.home-page.stage-mode .scene[data-scene="2"] .poet-portrait{aspect-ratio:1280/2278}
   body.home-page.stage-mode .scene[data-scene="2"] .intro-poet{order:2;justify-self:center;width:min(100%,300px)}
   body.home-page.stage-mode .fold-line h2 .fold-l2{padding-left:1.1em;flex-wrap:wrap;align-items:flex-end;gap:6px}
   /* 手机端第三折同样再右移两个字符 */
