@@ -84,24 +84,35 @@
       next.pause();
       next.currentTime = 0;
       next.volume = 0;
+      const commit = () => {
+        fadeTo(next, target, crossfade * 1000);
+        fadeTo(active, 0, crossfade * 1000).then(() => {
+          if (token !== generation || !playing) {
+            switching = false;
+            next.pause();
+            return;
+          }
+          const finished = active;
+          active = next;
+          standby = finished;
+          finished.pause();
+          finished.currentTime = 0;
+          finished.volume = 0;
+          active.volume = target;
+          switching = false;
+        });
+      };
       const started = next.play();
-      if (started && typeof started.catch === "function") started.catch(() => {});
-      fadeTo(next, target, crossfade * 1000);
-      fadeTo(active, 0, crossfade * 1000).then(() => {
-        if (token !== generation || !playing) {
+      if (started && typeof started.then === "function") {
+        started.then(commit).catch(() => {
+          // 备用音轨被自动播放策略拦下时放弃换轨，让主音轨继续放，避免整页突然没声
           switching = false;
           next.pause();
-          return;
-        }
-        const finished = active;
-        active = next;
-        standby = finished;
-        finished.pause();
-        finished.currentTime = 0;
-        finished.volume = 0;
-        active.volume = target;
-        switching = false;
-      });
+          next.volume = 0;
+        });
+      } else {
+        commit();
+      }
     };
 
     function handleTime() {
@@ -356,7 +367,12 @@
     if (!(saved > 0)) return 0;
     const stamp = Number(sessionStorage.getItem(audioStampKey) || 0);
     let position = saved + (stamp > 0 ? Math.max(0, Date.now() - stamp) / 1000 : 0);
-    if (Number.isFinite(duration) && duration > 0) position %= duration;
+    if (Number.isFinite(duration) && duration > 0) {
+      position %= duration;
+      // 别正好落在循环交叉淡化的尾巴上，否则一进页面就触发换轨，容易出现哑音
+      if (position > duration - 4) position -= duration - 4;
+      if (position < 0) position = 0;
+    }
     return position;
   };
   const updateSoundControls = (playing, message) => {
@@ -383,11 +399,9 @@
     // 关掉浏览器原生自动播放，统一从 0 音量淡入，避免一进页面就骤然出声
     audio.autoplay = false;
     audio.removeAttribute("autoplay");
-    // preload="none" 时 loadedmetadata 不会触发，续播会一直等不到；主动放开预载
-    if (audio.preload !== "auto") {
-      audio.preload = "auto";
-      audio.load();
-    }
+    // preload="none" 时 loadedmetadata 一直不触发，续播逻辑等不到；
+    // 只预取元数据，不去整首下载，避免翻页时被大文件拖成白屏
+    audio.preload = "metadata";
     const savedVolume = sessionStorage.getItem("liyu-audio-volume");
     if (volumeSlider && savedVolume !== null) volumeSlider.value = savedVolume;
     music.setVolume(musicVolume());
@@ -406,9 +420,19 @@
     }
     const restoreAudioPosition = () => {
       const resumeAt = readResumePosition(Number.isFinite(audio.duration) ? audio.duration : 0);
-      if (resumeAt > 0) music.seek(resumeAt);
-      // 从续播位置淡入，和离场时的淡出连起来，像同一首曲子换了个房间继续放
+      if (!(resumeAt > 0)) {
+        if (audioEnabled && !coverIntroPending) startBackgroundMusic();
+        return;
+      }
+      // 元数据刚到位时，AAC 还没有可跳转区间，seek 常常被落回 0；
+      // 数据可播后再校正一次，确保真的从上次的位置接上
+      const seekToResume = () => {
+        if (Math.abs(audio.currentTime - resumeAt) > 0.5) music.seek(resumeAt);
+      };
+      seekToResume();
       if (audioEnabled && !coverIntroPending) startBackgroundMusic();
+      if (audio.readyState < 3) audio.addEventListener("canplay", seekToResume, { once: true });
+      audio.addEventListener("playing", seekToResume, { once: true });
     };
     if (audio.readyState >= 1) restoreAudioPosition();
     else audio.addEventListener("loadedmetadata", restoreAudioPosition, { once: true });
@@ -437,6 +461,27 @@
     document.addEventListener("keydown", (event) => {
       if (audioEnabled && !coverIntroPending && !music.isPlaying() && !event.target.closest("input, textarea, button, a")) startBackgroundMusic();
     });
+    // 有些环境里新页面的首屏视频起播会抢占音频会话，把背景音乐顶停；
+    // 只要不是用户主动关音乐、也不是正在翻页，就把它接回来
+    audio.addEventListener("pause", () => {
+      if (!audioEnabled || coverIntroPending) return;
+      if (document.visibilityState !== "visible") return;
+      if (document.documentElement.classList.contains("page-transitioning")) return;
+      window.setTimeout(() => {
+        if (!audioEnabled || music.isPlaying()) return;
+        if (document.documentElement.classList.contains("page-transitioning")) return;
+        startBackgroundMusic();
+      }, 600);
+    });
+    document.querySelectorAll(".life-hero-video, .listen-hero-video, .wanxiang-hero-video").forEach((video) => {
+      video.addEventListener("play", () => {
+        if (audioEnabled && !coverIntroPending && !music.isPlaying()) startBackgroundMusic();
+      });
+    });
+    // 入场自动播放偶发被拦时补一次，避免新页面一片安静
+    window.setTimeout(() => {
+      if (audioEnabled && !coverIntroPending && !music.isPlaying()) startBackgroundMusic();
+    }, 1200);
   }
   // 音频一：封面点击后淡入，结束前与背景音乐交叉淡化接续
   const introVolume = (volume = musicVolume()) => Math.min(1, volume * 1.4);
@@ -1541,6 +1586,8 @@
         x: Number.isFinite(x) ? x : window.innerWidth / 2,
         y: Number.isFinite(y) ? y : window.innerHeight / 2
       });
+      // 新页面只保留水波，立即解除正文的“半白”过渡态，避免落地瞬间像白屏
+      document.documentElement.classList.remove("page-transitioning");
       window.setTimeout(ripple.finish, 240);
     }
   }
@@ -1565,7 +1612,12 @@
       sessionStorage.removeItem(finaleAudioTransferKey);
     }
     fadeSiteAudioBeforeExit();
-    window.setTimeout(() => location.assign(url.href), reducedMotion ? 340 : 520);
+    const delay = reducedMotion ? 340 : 520;
+    window.setTimeout(() => location.assign(url.href), delay);
+    // 兜底：万一下载/跳转被拖住或拦下，别让旧页一直停在正文被压白的过渡态
+    window.setTimeout(() => {
+      document.documentElement.classList.remove("page-transitioning");
+    }, delay + 1500);
   };
   document.addEventListener("click", (event) => {
     const link = event.target.closest("a[href]");

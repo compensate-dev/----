@@ -1704,8 +1704,8 @@ body.home-page:not(.book-opened) .shop-tab{display:none}
 }
 .wenwu-page .wenwu-hero::before{
   content:"";position:absolute;inset:0;z-index:0;
-  /* contain：整张图完整呈现，不裁切；留白用页面纸色补齐 */
-  background:url("../assets/image/wenwu-hero.jpg") center center/contain no-repeat;
+  /* cover：整屏铺满，不再在左右两侧留出纸色空隙 */
+  background:url("../assets/image/wenwu-hero.jpg") center center/cover no-repeat;
   background-color:#f4ecdc;
 }
 /* 雾气层：显式清除 .subhero:after 的 clip-path 山形裁剪，只留雾气渐变 */
@@ -1772,7 +1772,7 @@ body.home-page:not(.book-opened) .shop-tab{display:none}
 
 @media (max-width:800px){
   .wenwu-page .wenwu-hero{min-height:min(88svh,700px)}
-  /* 窄屏也整图呈现：贴着导航放，下方留白正好承托文案 */
+  /* 窄屏同样整屏铺满：贴顶对齐，保证器物主体不被裁掉 */
   .wenwu-page .wenwu-hero::before{background-position:center top}
   .wenwu-page .wenwu-hero::after{
     background:radial-gradient(90% 18% at 50% 100%, rgba(255,250,240,.3), transparent 72%);
