@@ -1,12 +1,17 @@
-# 一江春水 · 李煜词境
+# 一梦江愁 · 李煜词境
 
-> 一个以李煜（937—978）为叙事主体的中文沉浸式站点。
-> 它不做「词人百科」，而是让读者以第一人称的「梦客」视角，从一首词走进一个人、一段国史与一张行迹地图；站内的 AI 侍读同样以李煜口吻作答，答必给出处，无据则说「史料未载」。
+> 名字化自《虞美人》的「问君能有几多愁？恰似一江春水向东流」——取「一江」之水、写尽一场「梦」里的愁。
+>
+> 这是一个以李煜（937—978）四十一年人生为主线的中文沉浸式文史站点。它不做「词人百科」：读者以第一人称「梦客」的身份翻开一本水墨书，从首页的五幕换景出发，沿 937—978 的时间轴走完八个页面——读词、看生平、逛意象、听吟诵、走行迹、到终幕、留一句笺语。
+>
+> 站内内容各有出处：24 首词的原文与背景、470 卷四库史书切成的 5059 个语料块、七站水墨行迹地图、17 位人物档案。任何一处都能叫出 AI 侍读「梦客」追问，他以李煜本人的口吻作答，答必给出处——点明哪本书、哪一卷，可点开原典核对；查不到就直说「史料未载」，诸书说法不一时把分歧摆出来，不替读者下结论。
+>
+> 一句话：用一条可走的时间线承载可信的史料，用一个有人格、有边界的 AI，把史料翻译成第一人称的叙述。
 
 - 在线演示：<https://web-production-e6033138.up.railway.app>（免登录，评审期保持可用）
 - 代码仓库：<https://github.com/compensate-dev/---->
-- 技术文档：[docs/技术文档.pdf](docs/技术文档.pdf)
-- 赛事：传智杯大赛 · 主选方向「RAG 知识问答系统」，兼具「AI Agent 智能助手」
+- 技术文档：[docs/技术文档.pdf](docs/技术文档.pdf)（28 页，含完整评分对照与接口契约）
+- 赛事：传智杯 · AI WEB 网页开发挑战赛，主选方向「RAG 知识问答系统」，兼具「AI Agent 智能助手」
 
 ---
 
@@ -56,7 +61,7 @@
 | --- | --- |
 | AI 技术深度 35% | 可切换 LLM + 精巧提示词（8%）；7 工具 Function Calling、4 轮 Agent 规划（8%）；四库分级 RAG + 双通道召回（6%）；文本/语音/图像/视频/3D 五模态（5%）；双层闸门与六级降级（4%）；工具集成五类数据源（4%） |
 | 创新性 25% | 选题：可信的第一人称文史对话（10%）；方案：分级 RAG、点名式引文、运行时 RAG（8%）；交互：动作卡、思考可视化、争议三层（7%） |
-| 前端工程质量 10% | TypeScript 业务核心 + 136 项断言；三层脚本解耦；懒加载、Range 流式、零 CDN |
+| 前端工程质量 10% | TypeScript 业务核心 + 136 项测试；三层脚本解耦；懒加载、Range 流式、零 CDN |
 | 实用性 10% | 三类真实用户、四个具体场景；对比百科与通用大模型的可核对优势 |
 | 用户体验 10% | 统一水墨设计系统、响应式、思考状态可视化、优雅降级 |
 | 社会价值与商业潜力 10% | 古籍活化与普惠教育；文博授权、校本课程、文创延展三条路径 |
@@ -97,17 +102,52 @@ Node 服务（server/index.mjs，单进程、零第三方依赖）
 
 | 文件 | 规模 | 说明 |
 | --- | --- | --- |
-| `data/liyu-data.json` | 30 KB | 词作库 |
+| `data/liyu-data.json` | 30 KB | 词作库，24 首 |
 | `data/facts.json` | 20 KB | 史实事实库 |
+| `data/vectors.json` | 词库向量 | 24 首词的语义向量，支撑词作检索 |
 | `data/history/chunks.json` | 16.4 MB | 四库切块，5059 块 |
 | `data/history/sources.json` | 15.1 MB | 470 卷全文与来源 |
 | `data/history/vectors.json` | 97 MB | 3949 条 × 2048 维向量（D 库按设计不向量化） |
 
 ---
 
-## 三、环境配置
+## 三、AI 侍读能力速览
 
-### 3.1 环境变量
+### 3.1 对用户开放的七个动作
+
+前端经 `POST /api/guide` 调用，`action` 字段区分意图；七个动作共用同一套闸门与人格设定。
+
+| action | 触发场景 | 典型返回 |
+| --- | --- | --- |
+| `ask` | 自由提问（人、事、词、史） | `answer` + 引文 + 四库对照 + 人物卡 + 思考步骤 |
+| `search` | 按词牌、意象、词句找词 | `sources` 命中词作列表 |
+| `interpret` | 细讲某一首词 | 逐句译意与背景，附原词 |
+| `compose` | 以李煜口吻应和一句 | 只许化用站内词句，不新造 |
+| `reply` | 笺语墙「请梦客回一句」 | 只回被点的那条，带词句出处 |
+| `share` | 生成分享文案 | 只用站内已有词句 |
+| `speak` | 朗读 | 三通道降级：GLM-TTS → 本机语音 → 浏览器语音 |
+
+### 3.2 Agent 手里的七件工具
+
+模型通过 OpenAI 兼容的 Function Calling 自行决定调哪件、调几次，默认最多 4 轮；每轮调用都记入 `steps`，前端渲染为「梦客查过」。
+
+| 工具 | 干什么 | 主要参数 |
+| --- | --- | --- |
+| `search_poems` | 词库关键词检索 | `keyword` |
+| `get_poem_detail` | 取一首词的完整资料 | `slug` |
+| `get_timeline_event` | 查生平时间轴的一段（937—978b） | `key`（年份/段落键） |
+| `get_location` | 查行迹地图七站之一的人事 | `slug`（如 `bianjing`） |
+| `navigate_to` | 发「前往」动作卡，带读者跳页 | `page`、`label`、`anchor`/`spot` |
+| `search_history` | 本地四库语料分级检索 | `query`、可选 `book` |
+| `fetch_history_online` | 维基文库白名单抓卷，切块入索引后再答 | `query`、可选 `book`、`juan` |
+
+完整请求/响应字段见技术文档附录 A，工具的中文描述原文见 `supabase/functions/guide/index.ts` 的工具定义段。
+
+---
+
+## 四、环境配置
+
+### 4.1 环境变量
 
 模板见 [`.env.example`](.env.example)，复制为 `.env.local` 后填写。`.env.local` 已在 `.gitignore` 中忽略。
 
@@ -122,7 +162,7 @@ Node 服务（server/index.mjs，单进程、零第三方依赖）
 | `TTS_PROVIDER` | 否 | 设为 `glm` 时优先 GLM-TTS |
 | `PORT` | 否 | 监听端口，缺省 53422；云平台由平台注入 |
 
-### 3.2 依赖清单
+### 4.2 依赖清单
 
 | 类别 | 依赖 | 说明 |
 | --- | --- | --- |
@@ -133,7 +173,7 @@ Node 服务（server/index.mjs，单进程、零第三方依赖）
 
 > 注：`scripts/` 下的语料同步与向量化脚本只用于离线重建数据，不参与线上运行。
 
-### 3.3 本地运行
+### 4.3 本地运行
 
 ```powershell
 # 1) 准备密钥
@@ -151,10 +191,10 @@ npm start
 
 ---
 
-## 四、测试
+## 五、测试
 
 ```powershell
-# 单元测试：AI 后端纯逻辑（人格、闸门、检索、引文、争议判定等 136 项断言）
+# 单元测试：AI 后端纯逻辑（人格、闸门、检索、引文、争议判定等 136 个用例）
 node --test tests/ai-guide.test.ts
 
 # 冒烟测试：起服务后跑首页与 /api/guide
@@ -173,7 +213,7 @@ node tests/smoke.mjs
 
 ---
 
-## 五、部署（Railway）
+## 六、部署（Railway）
 
 ```powershell
 # 1) 登录并建项目（首次）
@@ -201,7 +241,64 @@ railway domain update <domain-id> --port 53422
 
 ---
 
-## 六、团队信息
+## 七、语料管线与数据重建
+
+线上运行不依赖这套脚本，只有改动语料时才需要在本机重跑。全部脚本读 `.env.local` 里的密钥，产物写回 `data/`。
+
+```
+维基文库 MediaWiki API                维基百科 / 搜狗百科
+        │ sync-history.mjs                    │ sync-facts.mjs / sync-sogou.mjs
+        ▼                                    ▼
+sources.json（470 卷全文）──切块──► chunks.json（5059 块）      facts.json
+        │ build-history-embeddings.mjs            │ build-embeddings.mjs
+        ▼                                         ▼
+history/vectors.json（3949×2048 维）        vectors.json（词库向量）
+```
+
+| 脚本 | 作用 | 什么时候跑 |
+| --- | --- | --- |
+| `scripts/sync-history.mjs` | 抓维基文库史书全文并切块，支持 `--force` 重抓 | 增补书目的卷次时 |
+| `scripts/sync-facts.mjs` | 抓维基百科条目并入事实库 | 事实库要加条目时 |
+| `scripts/sync-sogou.mjs` | 搜狗百科条目补充抓取（按条目名传参） | 维基来源缺失时兜底 |
+| `scripts/build-history-embeddings.mjs` | 史料切块向量化，断点续跑，`--force` 重建 | `chunks.json` 变动后 |
+| `scripts/build-embeddings.mjs` | 词库向量化，已生成的只更新不重算 | 词作增改后 |
+
+两个注意点：`history/vectors.json` 约 97 MB，超过 GitHub 单文件 100 MB 的限制边缘，仓库通过 `.gitignore` 排除它，部署时由 `.railwayignore` 的否定规则带上；向量化按 8 条一批调用，上游不收数组时脚本自动退回逐条。
+
+---
+
+## 八、常见问题
+
+**Q：启动报 `ERR_UNKNOWN_FILE_EXTENSION` 或 TypeScript 相关错误？**
+Node 版本低于 22.18，不能原生加载 `.ts`。升级到 22.18+ 或 24+ 即可，`node -v` 先确认版本。
+
+**Q：提示 `node 不是内部或外部命令`？**
+Node 没加入 PATH。Windows 下用 node.exe 的全路径调用，或把 Node 目录加到环境变量 PATH。
+
+**Q：端口 53422 被占用？**
+在 `.env.local` 里改 `PORT=其他端口`，云端不用改，平台会自己注入。
+
+**Q：不填 `EMBED_API_KEY` 能用吗？**
+能。语义检索退化为关键词匹配，问答与浏览不受影响，只是召回不再理解同义表达。
+
+**Q：不填 `GUIDE_API_KEY` 呢？**
+站点正常浏览，AI 侍读不可用；若配了 `LIYU_REMOTE_GUIDE_URL`，请求会转发到该远端服务。
+
+**Q：第一次启动或第一次提问感觉慢？**
+97 MB 的向量索引在首次检索时加载并常驻内存，之后即走内存余弦比对；线上单实例常驻后无此问题。
+
+**Q：线上 AI 返回 500？**
+先查 Railway 服务变量是否配全（`GUIDE_API_KEY`、`GUIDE_API_BASE`），再看平台日志里的业务审计行；本地可先用 `node tests/smoke.mjs` 复现。
+
+**Q：朗读没声音？**
+朗读按 GLM-TTS → 本机语音 → 浏览器语音三通道降级。服务器通常没有本机语音，会落到浏览器语音；本地 Windows 若也无声，检查系统 TTS 语音包。
+
+**Q：哪些东西绝不能提交？**
+`.env.local`（密钥）、`logs/`、`data/history/`（大文件，已忽略）、压缩包与安装包。提交前先 `git status` 看一眼，按文件添加，不要 `git add -A`。
+
+---
+
+## 九、团队信息
 
 | 项目 | 内容 |
 | --- | --- |
@@ -217,33 +314,40 @@ railway domain update <domain-id> --port 53422
 
 ---
 
-## 七、目录结构
+## 十、目录结构
 
 ```
 一江春水/
 ├── index.html                 首页
 ├── pages/                     8 个子页面
-├── css/style.css              全局样式与响应式
+├── css/style.css              全局样式与响应式（3100+ 行）
 ├── js/
 │   ├── script.js              首页场景、印章、抽屉、朗读降级
 │   ├── ai-guide.js            AI 侍读交互（ask/search/compose/interpret/reply/share/speak）
 │   ├── map-textures.js        地图纹理数据
-│   └── three.min.js           Three.js 运行时
-├── assets/                    字体、图像、音频、视频（130.8 MB）
+│   └── three.min.js           Three.js 运行时（本地化，零 CDN）
+├── assets/                    字体、图像、音频、视频（约 130 MB）
 ├── data/                      词库、事实库、四库语料与向量
-├── server/index.mjs           静态托管 + /api/guide
-├── supabase/functions/guide/  AI 业务主体
-├── scripts/                   语料同步与向量化（离线）
-├── tests/                     单元测试与冒烟
-├── .env.example               环境变量模板
+├── server/index.mjs           静态托管 + /api/guide + Deno 兼容壳
+├── supabase/
+│   ├── functions/guide/index.ts   AI 业务主体（3300+ 行 TypeScript）
+│   ├── schema.sql             早期表结构留档
+│   └── config.toml            平台配置留档
+├── scripts/                   语料同步与向量化（离线，不参与线上运行）
+├── tests/                     136 个单元用例 + 冒烟脚本
+├── docs/                      技术文档 PDF 与 HTML 源文件
+├── .env.example               环境变量模板（无真值，可提交）
 ├── .railwayignore             云端上传忽略规则
-└── railway.json               Railway 构建与启动配置
+├── railway.json               Railway 构建与启动配置
+└── package.json               仅 start 脚本，零依赖
 ```
 
 ---
 
-## 八、声明
+## 十一、声明
 
 - 站内所有词作、史实引用均来自公开古籍语料，仅用于研究与展示。
 - 文创页为概念设计，不构成任何商品或服务要约。
 - AI 生成内容仅供阅读辅助，涉及史实处请以原典为准。
+- 开发过程使用 AI 编程助手辅助生成样板代码与文档初稿；系统架构、提示词与人格设定、四库分级规则、全部业务代码的审查修正、测试与部署均由作者人工完成，AI 生成的内容逐条经人工核对，史实一律以原典校验。
+- 浏览器兼容：支持 Chrome / Edge / Firefox / Safari 的近两年版本，行迹地图依赖 WebGL；移动端做了响应式适配，不支持 IE。

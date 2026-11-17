@@ -55,7 +55,7 @@ export const WHITELIST_TOPICS = [
   "词", "虞美人", "相见欢", "浪淘沙", "破阵子", "乌夜啼", "望江南", "清平乐",
   "春水", "西楼", "故国", "离愁", "囚居", "亡国", "辞庙",
   "牵机", "霓裳", "熙陵",
-  "春水留痕", "词境", "本站", "网站",
+  "一梦江愁", "词境", "本站", "网站",
   "琴", "乐坊", "教坊", "琵琶", "乐",
 ];
 
@@ -211,7 +211,7 @@ export const mergeHybridResults = (
 export const stripEmbedding = (rows: any[]): any[] =>
   rows.map(({ embedding: _embedding, ...rest }: any) => rest);
 
-// 一江春水 · AI 侍读服务（Node 运行时）
+// 一梦江愁 · AI 侍读服务（Node 运行时）
 // 作用：站内所有 AI 能力统一从这里进入，前端不直接持有任何密钥。
 // 路由：POST /api/guide（本地 Node 服务转发到这里）
 // 请求：{ action: 'ask' | 'search' | 'compose' | 'interpret' | 'reply' | 'share' | 'speak', message, poemSlug?, page?, sessionId?, history?, model? }
@@ -264,7 +264,7 @@ const TTS_DIR = join(DATA_DIR, "tts");
 const LOG_DIR = join(ROOT_DIR, "logs");
 
 // 站点的叙事底盘：让模型知道“这是哪儿、在讲什么”，回答才贴合页面
-const SITE_CONTEXT = `网站名「春水留痕 · 李煜词境」，是一座关于南唐后主李煜的静态叙事站，用“一场梦”串起他的生平与词。
+const SITE_CONTEXT = `网站名「一梦江愁 · 李煜词境」，是一座关于南唐后主李煜的静态叙事站，用“一场梦”串起他的生平与词。
 页面依次为：
 1. 首页：书封开场，五幕换景，把读者带进词境；
 2. 月色故人（pages/life.html）：937—978 年的时间轴，写他从皇子、国主到囚徒的一生；

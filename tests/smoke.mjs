@@ -1,4 +1,4 @@
-// 一江春水 · AI 侍读集成冒烟测试
+// 一梦江愁 · AI 侍读集成冒烟测试
 // 打本地 Node 服务（先运行 node server/index.mjs），覆盖纯逻辑测不到的部分：
 // action 路由、混合检索、内容安全两道闸、问答缓存
 // 运行：node tests/smoke.mjs

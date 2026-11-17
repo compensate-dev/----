@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// 一江春水 · 搜狗百科条目抓取（绕过 GFW 可通的链路）
+// 一梦江愁 · 搜狗百科条目抓取（绕过 GFW 可通的链路）
 // 用法：node scripts/sync-sogou.mjs 李煜 李从善 樊若水
 
 const args = process.argv.slice(2);

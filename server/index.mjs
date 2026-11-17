@@ -1,4 +1,4 @@
-// 一江春水 · 本地 Node 服务
+// 一梦江愁 · 本地 Node 服务
 // 职责：① 托管静态站 ② 把 /api/guide 转给复用同一份业务代码（supabase/functions/guide/index.ts）
 // 之所以复用那份 TS：设定、工具定义、Agent 循环都在里面，重写一遍只会漂移；这里只补一个 Deno 兼容壳。
 // 运行：node server/index.mjs        （需先在 .env.local 里放 ZHIPU_API_KEY）
@@ -81,7 +81,7 @@ globalThis.Deno = {
       }
     });
     server.listen(PORT, () => {
-      console.log(`一江春水已启动： http://localhost:${PORT}`);
+      console.log(`一梦江愁已启动： http://localhost:${PORT}`);
     });
   },
 };

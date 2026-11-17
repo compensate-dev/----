@@ -3281,7 +3281,7 @@
     const nextStep = !isHome ? document.querySelector(".next-step") : null;
     if (!rows.length && !homeFooter && !nextStep) return;
     const pageUrl = location.href.split("#")[0];
-    const pageTitle = document.title || "春水留痕·李煜词境";
+    const pageTitle = document.title || "一梦江愁·李煜词境";
     const pageDesc = document.querySelector('meta[name="description"]')?.content || pageTitle;
     const shareText = `${pageTitle}｜${pageDesc}`;
 

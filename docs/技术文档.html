@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
-<title>一江春水 · 李煜词境 — 技术文档</title>
+<title>一梦江愁 · 李煜词境 — 技术文档</title>
 <style>
   @page { size: A4; margin: 17mm 16mm 16mm 16mm; }
   * { box-sizing: border-box; }
@@ -98,7 +98,7 @@
   <div class="top">技术文档 · TECHNICAL DOCUMENT</div>
   <div class="mid">
     <div class="seal">煜</div>
-    <h1>一江春水</h1>
+    <h1>一梦江愁</h1>
     <p class="sub">李煜词境 · 沉浸式中文站点与 AI 侍读</p>
     <div class="rule"></div>
     <div class="kind">参赛技术文档</div>
@@ -106,12 +106,12 @@
   <div class="meta">
     <div><span>赛事名称</span>传智杯 · AI WEB 网页开发挑战赛（B 组）</div>
     <div><span>参赛方向</span>RAG 知识问答系统（主）／AI Agent 智能助手（兼具）</div>
-    <div><span>项目名称</span>一江春水 · 李煜词境</div>
+    <div><span>项目名称</span>一梦江愁 · 李煜词境</div>
     <div><span>团队名称</span>前端要秃头（编号 44071，3 人）</div>
     <div><span>所属院校</span>四川工商学院（眉山校区）　指导老师：邱敏</div>
     <div><span>队长</span>胡建铭（编号 2084908，计算机科学与技术，本科）</div>
     <div><span>在线演示</span>web-production-e6033138.up.railway.app（免登录）</div>
-    <div><span>文档版本</span>v1.2（2026-11-17）</div>
+    <div><span>文档版本</span>v1.4（2026-11-17）</div>
   </div>
 </section>
 
@@ -144,7 +144,7 @@
       <div class="l2"><span>8.1 总结</span><span>8.2 不足</span><span>8.3 社会价值与商业潜力</span><span>8.4 展望</span></div>
     </li>
     <li><span class="l1">附录</span>
-      <div class="l2"><span>A 接口契约</span><span>B 目录职责</span><span>C 数据字典</span></div>
+      <div class="l2"><span>A 接口契约</span><span>B 目录职责</span><span>C 数据字典</span><span>D 七工具速查</span></div>
     </li>
   </ol>
   <div class="note" style="margin-top:16pt">
@@ -158,7 +158,7 @@
   <p class="ch-lead">一个把词、史、地、人放回同一条时间线上的中文站点，以及一个「答必给出处」的 AI 侍读。</p>
 
   <h3>1.1 项目定位</h3>
-  <p>「一江春水」不是词人百科，也不是古典文学问答机器人。它做的是<b>沉浸式阅读</b>：读者从一个水墨首页进入，沿着李煜的四十一年走完八个页面——读词、看生平、逛意象、听吟诵、走行迹、到终幕、留一句话。站内任何一处，都可以叫出「梦客」（李煜的第一人称化身）问一句；他答完，会告诉你这句话出自哪一本、哪一卷，能点开原文。</p>
+  <p>「一梦江愁」不是词人百科，也不是古典文学问答机器人。它做的是<b>沉浸式阅读</b>：读者从一个水墨首页进入，沿着李煜的四十一年走完八个页面——读词、看生平、逛意象、听吟诵、走行迹、到终幕、留一句话。站内任何一处，都可以叫出「梦客」（李煜的第一人称化身）问一句；他答完，会告诉你这句话出自哪一本、哪一卷，能点开原文。</p>
   <p>一句话概括：<b>用一条可走的时间线承载可信的史料，用一个有人格、有边界的 AI 把史料翻译成第一人称的叙述。</b></p>
 
   <h3>1.2 创作理念</h3>
@@ -172,7 +172,7 @@
   <p>大模型最擅长流畅，也最擅长流畅地编造。在历史题材里，一次无据的回答对读者的伤害，胜过十次沉默。因此项目从第一天起就确立原则：<b>可信度本身就是体验的一部分</b>。AI 侍读说的每一条史实，都必须能落到某一本书、某一卷；落不到，就说「史料未载」；遇到各书记载不一，就把分歧摆出来而不是替读者裁决。技术上对应的，是四库分级检索、点名式引文核对、争议三层辨析与过程透明——用工程约束守住文学表达的边界，让模型在「不许编」的前提下学会「说得好」。</p>
 
   <h4>1.2.4 文化立场：数字化要重建阅读关系，而不是搬运古籍</h4>
-  <p>把古籍扫描上传不等于数字化。真正稀缺的是三种新的阅读关系：<b>可问</b>——任何一处都能向当事人追问；<b>可走</b>——一句词可以跳到那一年的地图与人事；<b>可核对</b>——每一条答案都能点开原典自行判断。一江春水尝试证明：传统文化的数字化不必在「严肃但难读」与「好玩但失真」之间二选一，<b>可信与可亲可以同时成立</b>。这也是项目对「责任 AI」的具体回答——技术越有表达力，越要把判断权交还给读者。</p>
+  <p>把古籍扫描上传不等于数字化。真正稀缺的是三种新的阅读关系：<b>可问</b>——任何一处都能向当事人追问；<b>可走</b>——一句词可以跳到那一年的地图与人事；<b>可核对</b>——每一条答案都能点开原典自行判断。一梦江愁尝试证明：传统文化的数字化不必在「严肃但难读」与「好玩但失真」之间二选一，<b>可信与可亲可以同时成立</b>。这也是项目对「责任 AI」的具体回答——技术越有表达力，越要把判断权交还给读者。</p>
 
   <h3>1.3 项目基本信息</h3>
   <table class="kv">
@@ -846,8 +846,21 @@ Content-Type: application/json
     <tr><td>PersonCard</td><td><code>name, title, archive, anchor, asks[]</code></td><td>17 位人物，最多同时出 2 张</td></tr>
   </table>
 
+  <h3>D 七工具速查</h3>
+  <p>Agent 经 Function Calling 自主选工具，默认最多 4 轮；每次调用落一条 <code>AgentStep</code>，前端以「梦客查过」呈现。工具中文描述原文位于 <code>supabase/functions/guide/index.ts</code> 工具定义段。</p>
+  <table>
+    <tr><th style="width:19%">工具</th><th style="width:35%">职责</th><th style="width:20%">关键参数</th><th>数据去向</th></tr>
+    <tr><td><code>search_poems</code></td><td>按词牌、意象、词句片段检索词库</td><td><code>keyword</code></td><td>词作库 <code>liyu-data.json</code></td></tr>
+    <tr><td><code>get_poem_detail</code></td><td>取一首词的原文、译意、写作背景</td><td><code>slug</code></td><td>词作库</td></tr>
+    <tr><td><code>get_timeline_event</code></td><td>查 937—978b 生平时间轴的一段</td><td><code>key</code>（年份/段落键）</td><td>事实库 <code>facts.json</code></td></tr>
+    <tr><td><code>get_location</code></td><td>查行迹地图七站之一的人事</td><td><code>slug</code>（如 <code>bianjing</code>）</td><td>事实库</td></tr>
+    <tr><td><code>navigate_to</code></td><td>发「前往」动作卡，带读者跳页并定位锚点/站点</td><td><code>page, label, anchor, spot</code></td><td>前端路由</td></tr>
+    <tr><td><code>search_history</code></td><td>本地四库语料分级检索，回答须写明出处</td><td><code>query</code>，可选 <code>book</code></td><td>5059 块 + 3949 条向量</td></tr>
+    <tr><td><code>fetch_history_online</code></td><td>维基文库白名单抓卷，切块入索引后再转述；命中缓存秒回，失败退回本地检索</td><td><code>query</code>，可选 <code>book, juan</code></td><td>在线抓取 → 落盘并入索引</td></tr>
+  </table>
+
   <div class="note" style="margin-top:14pt">
-    <b>文档说明：</b>本文档所述参数与行为均以当前代码为准；团队信息（团队名称、赛道、成员）请在封面与 README 中补齐后随文档一并提交。
+    <b>文档说明：</b>本文档所述参数与行为均以当前代码为准，团队名称、成员与分工已与报名信息核对一致；文档与 <code>README.md</code>、<code>.env.example</code> 随仓库一并提交，密钥仅存于服务端环境变量，不在仓库中出现。
   </div>
 </section>
 

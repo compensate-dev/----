@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// 一江春水 · 史书语料向量化（智谱 embedding-3）
+// 一梦江愁 · 史书语料向量化（智谱 embedding-3）
 //
 // 读 data/history/chunks.json，把每个分块变成向量，写入 data/history/vectors.json。
 // 之后 search_history 的语义检索在本地做余弦比对，不再每次请求都调嵌入接口。

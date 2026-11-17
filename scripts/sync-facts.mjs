@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// 一江春水 · 维基百科条目抓取 & 合并进 facts.json
+// 一梦江愁 · 维基百科条目抓取 & 合并进 facts.json
 // 用法：node scripts/sync-facts.mjs [条目1 条目2 ...]
 // 例：node scripts/sync-facts.mjs 李从善 李煜 樊若水 南唐 (不传参数时用默认书单)
 
