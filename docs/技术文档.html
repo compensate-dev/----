@@ -57,8 +57,6 @@
   }
   .arch .layer .t { font-family: "Microsoft YaHei", sans-serif; font-weight: 600; color: #14303f; font-size: 9.2pt; }
   .arch .arrow { text-align: center; color: #8c3b34; font-size: 8.4pt; line-height: 1; margin: 1pt 0 2pt; }
-  .arch .row { display: flex; gap: 4pt; }
-  .arch .row > .layer { flex: 1; margin-bottom: 0; }
   /* 封面 */
   .cover { height: 262mm; display: flex; flex-direction: column; justify-content: space-between; break-after: page; }
   .cover .top { font-size: 9pt; letter-spacing: 2pt; color: #6b818c; }
@@ -78,7 +76,7 @@
   .toc { break-after: page; }
   .toc h2 { font-size: 17pt; border-bottom: 1.4pt solid #14303f; padding-bottom: 5pt; margin: 0 0 12pt; }
   .toc ol { list-style: none; padding: 0; margin: 0; font-size: 10pt; }
-  .toc > ol > li { margin: 0 0 5pt; }
+  .toc > ol > li { margin: 0 0 6pt; }
   .toc .l1 { font-family: "Microsoft YaHei", sans-serif; font-weight: 600; color: #14303f; }
   .toc .l2 { font-size: 9.2pt; color: #4d626d; padding-left: 16pt; margin-top: 2pt; }
   .toc .l2 span { display: inline-block; margin-right: 12pt; }
@@ -89,6 +87,17 @@
     display: inline-block; font-size: 8.2pt; padding: 0 4pt; border: 0.6pt solid #9fb3bd;
     color: #3f5560; border-radius: 2pt; margin-right: 4pt;
   }
+  /* 项目实景截图 */
+  figure.shot { margin: 0 auto 9pt; break-inside: avoid; text-align: center; }
+  figure.shot.wide { width: 100%; }
+  figure.shot.mid { width: 166mm; }
+  figure.shot.half { width: 84mm; }
+  figure.shot img { display: block; width: 100%; border: 0.6pt solid #b9c8cf; }
+  figure.shot figcaption {
+    font-size: 8.6pt; color: #526874; margin-top: 3pt; line-height: 1.5; text-align: left;
+  }
+  figure.shot figcaption b { color: #8c3b34; font-family: "Microsoft YaHei", sans-serif; margin-right: 4pt; }
+  .shot-pair { break-inside: avoid; }
 </style>
 </head>
 <body>
@@ -111,7 +120,7 @@
     <div><span>所属院校</span>四川工商学院（眉山校区）　指导老师：邱敏</div>
     <div><span>队长</span>胡建铭（编号 2084908，计算机科学与技术，本科）</div>
     <div><span>在线演示</span>web-production-e6033138.up.railway.app（免登录）</div>
-    <div><span>文档版本</span>v1.5（2026-11-17）</div>
+    <div><span>文档版本</span>v2.0（2026-11-18，按提交系统七项要求重构）</div>
   </div>
 </section>
 
@@ -119,63 +128,54 @@
 <section class="toc">
   <h2>目 录</h2>
   <ol>
-    <li><span class="l1">一、项目概述</span>
-      <div class="l2"><span>1.1 项目定位</span><span>1.2 创作理念</span><span>1.3 基本信息</span><span>1.4 交付物对照</span><span>1.5 参赛方向与评分对照</span></div>
+    <li><span class="l1">一、项目基本介绍</span>
+      <div class="l2"><span>1.1 项目定位</span><span>1.2 创作理念</span><span>1.3 基本信息</span><span>1.4 目标用户与场景</span><span>1.5 参赛方向与评分对照</span></div>
     </li>
-    <li><span class="l1">二、需求分析</span>
-      <div class="l2"><span>2.1 目标用户</span><span>2.2 使用场景</span><span>2.3 功能需求</span><span>2.4 非功能需求</span><span>2.5 真实性约束</span><span>2.6 边界</span></div>
+    <li><span class="l1">二、使用方式</span>
+      <div class="l2"><span>2.1 在线体验</span><span>2.2 本地运行</span><span>2.3 环境变量</span><span>2.4 核心操作指引</span><span>2.5 浏览动线建议</span></div>
     </li>
-    <li><span class="l1">三、系统架构设计</span>
-      <div class="l2"><span>3.1 总体分层</span><span>3.2 前端</span><span>3.3 服务端</span><span>3.4 AI 服务层</span><span>3.5 数据层</span><span>3.6 请求时序</span><span>3.7 部署拓扑</span></div>
+    <li><span class="l1">三、项目亮点</span>
+      <div class="l2"><span>3.1 内容与叙事亮点</span><span>3.2 AI 技术亮点</span><span>3.3 工程与体验亮点</span><span>3.4 多模态融合</span></div>
     </li>
-    <li><span class="l1">四、AI 技术方案</span>
-      <div class="l2"><span>4.1 选型理由</span><span>4.2 提示词工程</span><span>4.3 索引构建</span><span>4.4 检索策略</span><span>4.5 Agent 循环</span><span>4.6 可信度呈现</span><span>4.7 安全合规</span><span>4.8 容错降级</span><span>4.9 成本性能</span></div>
+    <li><span class="l1">四、AI 技术落地情况</span>
+      <div class="l2"><span>4.1 落地方案与模型选型</span><span>4.2 提示词工程</span><span>4.3 知识库与 RAG 检索</span><span>4.4 Agent 工具循环</span><span>4.5 可信度设计</span><span>4.6 安全合规与容错</span><span>4.7 落地成效与成本</span></div>
     </li>
-    <li><span class="l1">五、核心功能实现</span>
-      <div class="l2"><span>5.1—5.8 八个页面</span><span>5.9 AI 侍读</span><span>5.10 移动端与无障碍</span><span>5.11 多模态融合</span></div>
+    <li><span class="l1">五、关键技术与项目实景</span>
+      <div class="l2"><span>5.1 总体架构</span><span>5.2 前端关键技术</span><span>5.3 服务端关键技术</span><span>5.4 数据层与离线管线</span><span>5.5 项目实景图（9 幅）</span><span>5.6 测试与部署</span></div>
     </li>
-    <li><span class="l1">六、测试与部署</span>
-      <div class="l2"><span>6.1 测试策略</span><span>6.2 关键用例</span><span>6.3 线上验收</span><span>6.4 部署流程</span><span>6.5 踩坑记录</span><span>6.6 运维</span><span>6.7 环境清单</span><span>6.8 前端工程质量</span></div>
+    <li><span class="l1">六、项目获奖与公开发表情况</span>
+      <div class="l2"><span>6.1 获奖情况</span><span>6.2 公开发表情况</span><span>6.3 可核验的过程性材料</span></div>
     </li>
-    <li><span class="l1">七、创新点说明</span>
-      <div class="l2"><span>7.1 技术方案创新</span><span>7.2 选题与交互创新</span></div>
+    <li><span class="l1">七、项目优化说明</span>
+      <div class="l2"><span>7.1 原创性说明</span><span>7.2 开发过程中的关键优化</span><span>7.3 现存不足</span><span>7.4 后续优化计划</span></div>
     </li>
-    <li><span class="l1">八、总结与展望</span>
-      <div class="l2"><span>8.1 总结</span><span>8.2 不足</span><span>8.3 社会价值与商业潜力</span><span>8.4 展望</span></div>
-    </li>
-    <li><span class="l1">九、素材来源与合规声明</span>
-      <div class="l2"><span>9.1 素材来源一览</span><span>9.2 AI 生成内容标识</span><span>9.3 使用性质与侵权处理</span><span>9.4 AI 辅助开发声明</span></div>
-    </li>
-    <li><span class="l1">附录</span>
-      <div class="l2"><span>A 接口契约</span><span>B 目录职责</span><span>C 数据字典</span><span>D 七工具速查</span></div>
+    <li><span class="l1">附：素材来源与合规声明</span>
+      <div class="l2"><span>素材来源一览</span><span>AIGC 标识</span><span>使用性质</span><span>AI 辅助开发声明</span></div>
     </li>
   </ol>
   <div class="note" style="margin-top:16pt">
-    <b>阅读提示：</b>本文档共九章，第四章「AI 技术方案」为评审重点，按「选型理由 → 集成方式 → 优化策略」组织；第七章集中列出技术创新点与应用创新点；第九章为素材来源与合规声明。文中所有技术参数均可在代码中对应到具体文件与函数。
+    <b>阅读提示：</b>本文档严格按提交系统七项要求组织：第一至三章回答「是什么、怎么用、好在哪」；第四章为 AI 技术落地详述（对应评分权重 35%）；第五章讲关键技术并附 <b>9 幅项目实景截图</b>；第六、七章按实际情况如实填写。文中技术参数均可在代码仓库中对应到具体文件与函数。
   </div>
 </section>
 
-<!-- ============ 一、项目概述 ============ -->
+<!-- ============ 一、项目基本介绍 ============ -->
 <section class="chapter">
-  <h2 class="ch"><span class="no">一</span>项目概述</h2>
+  <h2 class="ch"><span class="no">一</span>项目基本介绍</h2>
   <p class="ch-lead">一个把词、史、地、人放回同一条时间线上的中文站点，以及一个「答必给出处」的 AI 侍读。</p>
 
   <h3>1.1 项目定位</h3>
-  <p>「一梦江愁」不是词人百科，也不是古典文学问答机器人。它做的是<b>沉浸式阅读</b>：读者从一个水墨首页进入，沿着李煜的四十一年走完八个页面——读词、看生平、逛意象、听吟诵、走行迹、到终幕、留一句话。站内任何一处，都可以叫出「梦客」（李煜的第一人称化身）问一句；他答完，会告诉你这句话出自哪一本、哪一卷，能点开原文。</p>
+  <p>「一梦江愁」不是词人百科，也不是古典文学问答机器人，而是一次<b>沉浸式阅读</b>：读者从水墨首页进入，沿李煜四十一年的人生走完八个页面——读词、看生平、逛意象、听吟诵、走行迹、到终幕、留一句话。站内任何一处都可叫出「梦客」（李煜的第一人称化身）提问；他答完会注明出自哪本书、哪一卷，并可点开原文核对。</p>
   <p>一句话概括：<b>用一条可走的时间线承载可信的史料，用一个有人格、有边界的 AI 把史料翻译成第一人称的叙述。</b></p>
 
   <h3>1.2 创作理念</h3>
-  <h4>1.2.1 问题意识：名句流传，人被压扁</h4>
-  <p>「问君能有几多愁，恰似一江春水向东流」几乎人人会背，但多数人对李煜的全部印象，只剩「亡国之君」四个字。四十一年的人生被压缩成一个标签，词里的情绪被抽干成考点；而网络上关于他的叙述又大量互相转抄——「牵机药」究竟是正史定论还是宋人笔记，很少有人分辨。<b>读者与一个真实的人之间，隔着一层名句的薄纱和一堆真假混杂的转述。</b></p>
-
-  <h4>1.2.2 设计哲学：让词回到它的处境</h4>
-  <p>我们不做「词人百科」，而做一次<b>处境的还原</b>：把词、史、地、人放回同一条 937—978 的时间线上，让读者不是「知道」李煜，而是「走过」他的四十一年。为此引入「梦客」这一叙事装置——一个从 978 年之后回望的第一人称叙述者。他可以有情绪、有温度，但视角被严格限定在史料可证的范围内。沉浸感来自第一人称，可信度来自第一人称的自我克制。</p>
-
-  <h4>1.2.3 技术信念：AI 应是「带出处的向导」，不是答案机器</h4>
-  <p>大模型最擅长流畅，也最擅长流畅地编造。在历史题材里，一次无据的回答对读者的伤害，胜过十次沉默。因此项目从第一天起就确立原则：<b>可信度本身就是体验的一部分</b>。AI 侍读说的每一条史实，都必须能落到某一本书、某一卷；落不到，就说「史料未载」；遇到各书记载不一，就把分歧摆出来而不是替读者裁决。技术上对应的，是四库分级检索、点名式引文核对、争议三层辨析与过程透明——用工程约束守住文学表达的边界，让模型在「不许编」的前提下学会「说得好」。</p>
-
-  <h4>1.2.4 文化立场：数字化要重建阅读关系，而不是搬运古籍</h4>
-  <p>把古籍扫描上传不等于数字化。真正稀缺的是三种新的阅读关系：<b>可问</b>——任何一处都能向当事人追问；<b>可走</b>——一句词可以跳到那一年的地图与人事；<b>可核对</b>——每一条答案都能点开原典自行判断。一梦江愁尝试证明：传统文化的数字化不必在「严肃但难读」与「好玩但失真」之间二选一，<b>可信与可亲可以同时成立</b>。这也是项目对「责任 AI」的具体回答——技术越有表达力，越要把判断权交还给读者。</p>
+  <h4>（1）问题意识：名句流传，人被压扁</h4>
+  <p>「问君能有几多愁，恰似一江春水向东流」几乎人人会背，但多数人对李煜的全部印象只剩「亡国之君」四个字；网络叙述又大量互相转抄，「牵机药」究竟是正史定论还是宋人笔记，很少有人分辨。读者与一个真实的人之间，隔着一层名句的薄纱和一堆真假混杂的转述。</p>
+  <h4>（2）设计哲学：让词回到它的处境</h4>
+  <p>项目不做「词人百科」，而做<b>处境的还原</b>：把词、史、地、人放回 937—978 的同一条时间线，让读者不是「知道」李煜，而是「走过」他的四十一年。「梦客」这一叙事装置可以有情绪、有温度，但视角被严格限定在史料可证的范围内——沉浸感来自第一人称，可信度来自第一人称的自我克制。</p>
+  <h4>（3）技术信念：AI 应是「带出处的向导」，不是答案机器</h4>
+  <p>大模型最擅长流畅，也最擅长流畅地编造。历史题材里一次无据回答的伤害胜过十次沉默，因此项目从第一天就确立原则：<b>可信度本身就是体验的一部分</b>。史实必须落到某本书、某一卷；落不到就说「史料未载」；各书记载不一，就把分歧摆出来而不是替读者裁决。</p>
+  <h4>（4）文化立场：数字化要重建阅读关系</h4>
+  <p>把古籍扫描上传不等于数字化。真正稀缺的是三种新阅读关系：<b>可问</b>（任何一处都能向当事人追问）、<b>可走</b>（一句词跳到那一年的地图与人事）、<b>可核对</b>（每条答案都能点开原典自行判断）。项目尝试证明：传统文化数字化不必在「严肃但难读」与「好玩但失真」之间二选一，可信与可亲可以同时成立。</p>
 
   <h3>1.3 项目基本信息</h3>
   <table class="kv">
@@ -183,719 +183,474 @@
     <tr><td>技术栈</td><td>HTML / CSS / 原生 JavaScript / Three.js；Node.js ≥ 22.18（原生 TypeScript 类型擦除）；OpenAI 兼容大模型接口</td></tr>
     <tr><td>数据规模</td><td>词作库 24 首；史实事实库；四库语料 470 卷 / 5059 块 / 3949 条 2048 维向量</td></tr>
     <tr><td>运行依赖</td><td>服务端零第三方包；前端零构建、零 CDN</td></tr>
-    <tr><td>在线演示</td><td>Railway 托管，Node 22.23.4，公网 HTTPS 访问</td></tr>
-    <tr><td>仓库</td><td>GitHub，保留完整提交历史（含资料重建过程）</td></tr>
+    <tr><td>在线演示</td><td>Railway 托管，Node 22.23.4，公网 HTTPS，免登录访问</td></tr>
+    <tr><td>代码仓库</td><td>GitHub，保留完整中文提交历史，含语料重建全过程</td></tr>
   </table>
 
-  <h3>1.4 参赛交付物对照</h3>
+  <h3>1.4 目标用户与典型场景</h3>
   <table>
-    <tr><th style="width:18%">比赛要求</th><th style="width:34%">具体要求</th><th>本项目落实</th></tr>
-    <tr><td>README 文件</td><td>项目介绍、技术架构、安装运行指南、团队信息</td><td>仓库根目录 <code>README.md</code>，含八节；团队信息与分工已填齐</td></tr>
-    <tr><td>Git 记录</td><td>保留完整提交历史，体现真实开发过程</td><td><code>main</code> 分支保留全量历史，提交信息为中文，按功能分批提交</td></tr>
-    <tr><td>环境配置</td><td>环境变量模板、依赖清单</td><td><code>.env.example</code>（6 个必需 + 4 个可选变量）+ README 第三节「环境配置」</td></tr>
-    <tr><td>演示视频</td><td>5—8 分钟，1080p，普通话讲解</td><td>由团队按本文档第五、七章脚本录制（不在本文档范围）</td></tr>
-    <tr><td>技术文档</td><td>PDF，≤30 页，七大章节 + AI 技术说明 + 创新点</td><td>即本文档，共八章与三个附录</td></tr>
-    <tr><td>在线演示</td><td>公网可访问，评审期间保持可用</td><td>Railway 服务，已实测首页、静态资源、检索与问答全部连通；<b>免登录</b>，无需评审测试账号</td></tr>
-    <tr><td>在线演示（加分项）</td><td>可公网访问的地址；评审期可用；如需登录须给测试账号</td><td>HTTPS 公网地址，健康检查 + 失败自动重启；无登录体系，天然满足</td></tr>
-    <tr><td>敏感信息</td><td>API 密钥不得出现在公开仓库，须用环境变量配置</td><td>密钥仅存于 <code>.env.local</code>（已 gitignore）与平台变量；仓库只提供 <code>.env.example</code> 模板；静态资源与前端不含任何 Key</td></tr>
+    <tr><th style="width:18%">用户类型</th><th style="width:36%">特征与诉求</th><th>典型场景</th></tr>
+    <tr><td>文学爱好者</td><td>熟名句而不熟南唐史，想知道「词在什么处境下写成」</td><td>读《虞美人》时追问「这句好在哪里」，得到第一人称叙述 + 正史记载</td></tr>
+    <tr><td>学生与自学者</td><td>为课程、论文查资料，对出处敏感</td><td>问「牵机药是史实还是传说」，得到正史／笔记／一般看法三层辨析</td></tr>
+    <tr><td>普通浏览者</td><td>被视觉吸引，停留短，不愿注册安装</td><td>免登录进入，沿地图飞七站，三十秒内被水墨场景抓住</td></tr>
   </table>
 
-  <h3>1.5 参赛方向定位与评分对照</h3>
-  <h4>1.5.1 选题方向定位</h4>
-  <p>对照大赛推荐的十个方向，本项目以两个方向为主体、三个方向为延展：</p>
+  <h3>1.5 参赛方向与评分对照</h3>
+  <p>对照大赛推荐方向，本项目以两个方向为主体、三个方向为延展：</p>
   <table>
-    <tr><th style="width:8%">定位</th><th style="width:26%">大赛方向</th><th>本项目对应</th></tr>
-    <tr><td><b>主选</b></td><td>② RAG 知识问答系统</td><td>面向古典文学特定领域，470 卷四库语料 + 向量检索增强生成，回答附可核对出处</td></tr>
-    <tr><td><b>主选</b></td><td>① AI Agent 智能助手</td><td>「梦客」具备自主规划、Function Calling 工具调用（7 个工具）、多轮对话（默认 4 轮）能力</td></tr>
-    <tr><td>延展</td><td>③ 多模态 AI 创意平台</td><td>整合文本、语音（TTS/语音识别）、图像（水墨词画）、视频、3D 交互地图</td></tr>
-    <tr><td>延展</td><td>⑨ AI 安全与内容治理</td><td>输入/输出双层闸门、提示注入拦截、内容过滤与兜底，体现责任 AI 设计理念</td></tr>
-    <tr><td>延展</td><td>⑩ AI 社交与社区应用</td><td>笺语墙：AI 回笺、兴趣图谱式意象互联、克制的社区互动</td></tr>
+    <tr><th style="width:10%">定位</th><th style="width:30%">大赛方向</th><th>本项目对应</th></tr>
+    <tr><td><b>主选</b></td><td>RAG 知识问答系统</td><td>古典文学垂直领域，470 卷四库语料 + 向量检索增强生成，回答附可核对出处</td></tr>
+    <tr><td><b>主选</b></td><td>AI Agent 智能助手</td><td>「梦客」具备自主规划、Function Calling 工具调用（7 个工具）、多轮对话（默认 4 轮）能力</td></tr>
+    <tr><td>延展</td><td>多模态 AI 创意平台</td><td>文本、语音、图像、视频、3D 交互地图五模态融合</td></tr>
+    <tr><td>延展</td><td>AI 安全与内容治理</td><td>输入/输出双层闸门、提示注入拦截、内容过滤与六级降级兜底</td></tr>
+    <tr><td>延展</td><td>AI 社交与社区应用</td><td>笺语墙：AI 回笺、意象互联、克制的社区互动</td></tr>
   </table>
-
-  <h4>1.5.2 评分维度逐项对照</h4>
-  <p>下表按大赛评分细则的六个维度、全部考察点逐项给出本项目的实现证据与文档位置，便于评审定位。</p>
   <table>
-    <tr><th style="width:16%">维度（权重）</th><th style="width:20%">考察点（分值）</th><th>本项目证据</th></tr>
-    <tr><td rowspan="6"><b>AI 技术深度</b><br>35%</td><td>大模型集成质量 8%</td><td>OpenAI 兼容协议、可切换模型；三段式提示词 + 硬约束清单；420 tokens、温度 0.75、超时重试保证输出可控（§4.1、§4.2）</td></tr>
-    <tr><td>Agent/工作流设计 8%</td><td>7 个 Function Calling 工具、4 轮规划循环、末轮强制收敛、多跳问题拆解（§4.5）</td></tr>
-    <tr><td>RAG 技术应用 6%</td><td>四库分级语料、双通道召回（向量余弦 + 关键词）、分级加权、阈值 0.2、运行时增量 RAG（§4.3、§4.4）</td></tr>
-    <tr><td>多模态能力 5%</td><td>文本问答 + 语音合成/识别 + 词画图像 + 背景视频 + Three.js 3D 地图，五模态融合（§5.5、§5.6）</td></tr>
-    <tr><td>AI 安全与可控性 4%</td><td>白/黑名单、注入检测、输出打码、审计日志、六级降级兜底、引文可解释（§4.7、§4.8）</td></tr>
-    <tr><td>MCP/工具集成 4%</td><td>通过 Function Calling 实现 AI 与词库、时间轴、地图、四库语料、在线语料五类数据源的集成（§4.5.1）</td></tr>
-    <tr><td rowspan="3"><b>创新性</b><br>25%</td><td>选题创新 10%</td><td>以第一人称「梦客」做正史级古典文学问答，把沉浸叙事与可核对史料结合，市面未见同类（§7.2）</td></tr>
-    <tr><td>技术方案创新 8%</td><td>四库分级 RAG、点名式引文核对、可信度三件套、运行时 RAG（§7.1）</td></tr>
-    <tr><td>交互模式创新 7%</td><td>问→答→抵达的地图动作卡、「梦客查过」思考可视化、争议三层呈现（§5.9、§7.2）</td></tr>
-    <tr><td rowspan="3"><b>前端工程质量</b><br>10%</td><td>前端代码质量 4%</td><td>AI 业务层 TypeScript 编写、模块边界清晰、136 项单元断言守护、无明显 Bug（§6.1）</td></tr>
-    <tr><td>组件化与架构 3%</td><td>脚本按基础库/页面/AI 三层解耦；AI 面板数据源可配置；前后端同构复用一份业务代码（§3.2、§3.4）</td></tr>
-    <tr><td>性能优化 3%</td><td>零构建零 CDN、语料懒加载常驻、音频 Range 流式、大纹理本地化、内存索引零磁盘 IO（§3.5、§6.6）</td></tr>
-    <tr><td rowspan="2"><b>实用性</b><br>10%</td><td>场景真实性 5%</td><td>面向文学爱好者、学生、普通浏览者的真实阅读需求，四类具体场景（§2.1、§2.2）</td></tr>
-    <tr><td>方案有效性 5%</td><td>对比传统百科：可追问、可核对、可分层辨伪；对比通用大模型：无据不答、出处可点（§4.6、§8.1）</td></tr>
-    <tr><td rowspan="3"><b>用户体验</b><br>10%</td><td>UI 设计与视觉 4%</td><td>统一水墨设计系统、响应式适配、移动端案头抽屉（§5.1、§5.10）</td></tr>
-    <tr><td>前端交互体验 3%</td><td>页面切换与地图飞行动画、操作即时反馈、加载与空状态优雅处理</td></tr>
-    <tr><td>AI 交互体验 3%</td><td>「梦客查过」思考状态可视化、错误边界与降级提示、朗读三通道兜底（§4.5.4、§4.8、§5.5）</td></tr>
-    <tr><td rowspan="2"><b>社会价值与商业潜力</b><br>10%</td><td>社会价值 5%</td><td>古籍活化、传统文化普惠教育、为责任 AI 在人文领域提供范式（§8.3）</td></tr>
-    <tr><td>商业潜力 5%</td><td>文博/教育机构授权、校本课程、文创概念延展三条可持续路径（§8.3）</td></tr>
+    <tr><th style="width:22%">评分维度（权重）</th><th>本项目核心证据（详见后文）</th></tr>
+    <tr><td>AI 技术深度 35%</td><td>OpenAI 兼容可换模型、7 工具 Agent 循环、四库分级 RAG、五模态、双层闸门（第四章）</td></tr>
+    <tr><td>创新性 25%</td><td>第一人称正史级问答、四库分级与点名式引文、问→答→抵达交互（第三章）</td></tr>
+    <tr><td>前端工程质量 10%</td><td>三层脚本解耦、136 项单元断言、零构建零 CDN、语料惰性常驻（第五章）</td></tr>
+    <tr><td>实用性 10%</td><td>三类真实用户、四个具体场景；免登录公网可用（本章、第二章）</td></tr>
+    <tr><td>用户体验 10%</td><td>统一水墨设计系统、响应式抽屉、思考过程可视化、朗读三通道兜底（第三、五章）</td></tr>
+    <tr><td>社会价值与商业 10%</td><td>古籍活化、普惠教育、责任 AI 范式；文博授权／校本课程／文创延展三路径（第七章）</td></tr>
   </table>
-  <div class="note"><b>说明：</b>本项目当前回答为一次性返回，未做流式输出（见 §8.2 不足）；AI 交互的流畅性主要通过思考过程可视化与优雅的等待/降级状态保障，特此如实说明。</div>
+  <div class="note"><b>如实说明：</b>本项目当前回答为一次性返回，未做流式输出（见 §7.3）；AI 交互流畅性主要通过思考过程可视化与优雅的等待／降级状态保障。</div>
 </section>
 
-<!-- ============ 二、需求分析 ============ -->
+<!-- ============ 二、使用方式 ============ -->
 <section class="chapter">
-  <h2 class="ch"><span class="no">二</span>需求分析</h2>
-  <p class="ch-lead">先明确「给谁、在什么状态下、要完成什么」，再决定做什么、以及坚决不做什么。</p>
+  <h2 class="ch"><span class="no">二</span>使用方式</h2>
+  <p class="ch-lead">评审既可直接打开公网地址零配置体验，也可按本章步骤在本地完整运行。</p>
 
-  <h3>2.1 目标用户</h3>
+  <h3>2.1 在线体验（推荐评审方式）</h3>
+  <table class="kv">
+    <tr><td>访问地址</td><td><code>https://web-production-e6033138.up.railway.app</code></td></tr>
+    <tr><td>账号要求</td><td><b>免登录、免注册、免安装</b>，无测试账号环节</td></tr>
+    <tr><td>浏览器</td><td>Edge / Chrome / Safari 近年版本；桌面端与手机端均已适配</td></tr>
+    <tr><td>可用性保障</td><td>平台健康检查 + 失败自动重启；评审期单实例常驻</td></tr>
+  </table>
+  <p>打开地址即进入水墨首页，点击「翻开词境」印章按钮入场。站内所有页面与 AI 问答均走同源接口，无需任何额外配置。</p>
+
+  <h3>2.2 本地运行</h3>
+  <p><b>环境要求：</b>Node.js ≥ 22.18（用到原生 TypeScript 类型擦除，低版本启动时会明确报错退出）；可访问 OpenAI 兼容的对话与向量接口。</p>
+  <pre># 1. 获取代码并进入目录
+git clone &lt;仓库地址&gt; liyu && cd liyu
+
+# 2. 准备环境变量（仓库提供模板，内含逐项中文注释）
+copy .env.example .env.local
+#   编辑 .env.local，填入 GUIDE_API_KEY 与 GUIDE_API_BASE
+
+# 3. 启动（服务端零第三方依赖，无需 npm install 业务包）
+npm start
+
+# 4. 浏览器访问
+#   http://localhost:53422</pre>
+  <p>语料与向量文件随仓库提供，首次检索时解析一次后常驻内存；若缺失向量文件，系统自动降级为关键词检索，站点仍可完整浏览。</p>
+
+  <h3>2.3 环境变量配置</h3>
   <table>
-    <tr><th style="width:20%">用户类型</th><th style="width:34%">特征</th><th>核心诉求</th></tr>
-    <tr><td>文学爱好者</td><td>背过李煜的词，熟悉名句，但不熟悉南唐史</td><td>想知道「这首词是在什么处境下写的」，希望看到画面与情绪，而不是年表</td></tr>
-    <tr><td>学生与自学者</td><td>为课程、论文或兴趣查资料，对出处敏感</td><td>需要能核对的原文与卷次；需要区分正史、别史、笔记</td></tr>
-    <tr><td>普通浏览者</td><td>被视觉吸引进来，停留时间短</td><td>三十秒内能被抓住；不需要注册、不需要安装</td></tr>
+    <tr><th style="width:26%">变量</th><th style="width:10%">必填</th><th>说明</th></tr>
+    <tr><td><code>GUIDE_API_KEY</code></td><td>是</td><td>对话模型密钥，仅服务端使用，前端与静态资源中不含任何 Key</td></tr>
+    <tr><td><code>GUIDE_API_BASE</code></td><td>是</td><td>OpenAI 兼容接口地址</td></tr>
+    <tr><td><code>GUIDE_MODEL</code></td><td>否</td><td>缺省 <code>glm-4-flash</code>，线上为 <code>deepseek-chat</code>，改变量即换模型</td></tr>
+    <tr><td><code>EMBED_API_KEY / EMBED_API_BASE</code></td><td>否</td><td>向量接口（模型固定 embedding-3，2048 维）；缺省时退化为关键词检索</td></tr>
+    <tr><td><code>AGENT_ROUNDS</code></td><td>否</td><td>Agent 循环轮数 2—5，缺省 4</td></tr>
+    <tr><td><code>TTS_PROVIDER</code></td><td>否</td><td>设为 <code>glm</code> 时优先 GLM-TTS 朗读</td></tr>
+    <tr><td><code>PORT</code></td><td>否</td><td>缺省 53422，云平台由平台注入</td></tr>
   </table>
 
-  <h3>2.2 使用场景</h3>
-  <div class="grid2">
-    <div class="card"><h5>场景一 · 读词时追问</h5><p>读者在《虞美人》页读到「一江春水向东流」，点开梦客问「这句好在哪里」。他得到的不是修辞分析，而是李煜以第一人称讲汴京小楼里的自问自答，并附上正史里关于囚居的记载。</p></div>
-    <div class="card"><h5>场景二 · 查一个争议</h5><p>读者问「牵机药是史实还是传说」。梦客分三层回答：正史只记卒年、不载死因；宋人笔记有「牵机药」之说；一般看法多采笔记。三层各自标明性质。</p></div>
-  </div>
-  <div class="grid2">
-    <div class="card"><h5>场景三 · 沿地图走一遍</h5><p>读者在行迹页问「975 年他在哪」。梦客给出「前往」动作卡，地图飞到金陵；卡片下方同时列出该年人事与相关词作。</p></div>
-    <div class="card"><h5>场景四 · 留一句话</h5><p>读者在笺语墙提笔写下感受，可以请梦客回一句；回复只针对被点的那一条，且必须引用站内已有词句，不新造。</p></div>
-  </div>
-
-  <h3>2.3 功能需求</h3>
+  <h3>2.4 核心操作指引</h3>
   <table>
-    <tr><th style="width:11%">编号</th><th style="width:22%">功能</th><th>说明</th></tr>
-    <tr><td>FR-01</td><td>沉浸式首页</td><td>水墨场景、印章入口、引导语，移动端提供「案头」抽屉入口</td></tr>
-    <tr><td>FR-02</td><td>词作阅读</td><td>原文、译意、写作背景；支持收藏与词牌跳转</td></tr>
-    <tr><td>FR-03</td><td>生平时间轴</td><td>937—978 关键节点，支持年份锚点定位与跨页跳转</td></tr>
-    <tr><td>FR-04</td><td>意象图谱</td><td>以意象串联词作，页末通向「从词到物」</td></tr>
-    <tr><td>FR-05</td><td>听词</td><td>背景音乐跨页续播；朗读支持服务端合成与浏览器语音降级</td></tr>
-    <tr><td>FR-06</td><td>行迹地图</td><td>Three.js 水墨地图，七站可飞达，可被 AI 的 <code>navigate_to</code> 定位</td></tr>
-    <tr><td>FR-07</td><td>终幕与笺语墙</td><td>滚动叙事；留言、回笺、分享，分享文案只用站内已有词句</td></tr>
-    <tr><td>FR-08</td><td>文创概念页</td><td>六张概念卡，仅概念陈列：不标价、不导购、无购买入口</td></tr>
-    <tr><td>FR-09</td><td>AI 问答</td><td>七种动作：<code>ask / search / compose / interpret / reply / share / speak</code></td></tr>
-    <tr><td>FR-10</td><td>史料检索</td><td>四库分级检索，返回可点开的原文与卷次</td></tr>
-    <tr><td>FR-11</td><td>四库对照与争议辨析</td><td>同一事在多库有出入时提示冲突；争议性问题分三层作答</td></tr>
-    <tr><td>FR-12</td><td>过程透明</td><td>展示 AI 调用了哪些工具、查到了几条，前端呈现「梦客查过」步骤</td></tr>
+    <tr><th style="width:22%">操作</th><th>方式与反馈</th></tr>
+    <tr><td>唤起 AI 侍读</td><td>点击每页右下「梦客」印章打开对话面板；输入上限 800 字，支持麦克风语音输入</td></tr>
+    <tr><td>查看回答出处</td><td>回答下方来源卡可点开原典原文与卷次；「梦客查过」步骤卡展示调用了哪些工具、命中几条、耗时多少</td></tr>
+    <tr><td>语言驱动地图</td><td>问「975 年他在哪」一类问题，梦客返回「前往」动作卡，点击后 3D 地图自动飞抵对应站点</td></tr>
+    <tr><td>听词与朗读</td><td>听词页背景音乐跨页续播；朗读走 GLM-TTS → 本机语音 → 浏览器语音三通道自动降级，按钮必有反馈</td></tr>
+    <tr><td>收藏与词牌</td><td>词作可收藏（本地存储，兼容旧版数据迁移），按词牌聚合跳转</td></tr>
+    <tr><td>笺语墙互动</td><td>提笔留言；可请梦客回笺（只回被点的那条，且必须引用站内已有词句）；分享文案同样只取站内成句</td></tr>
   </table>
 
-  <h3>2.4 非功能需求</h3>
-  <table>
-    <tr><th style="width:16%">维度</th><th style="width:30%">指标</th><th>实现要点</th></tr>
-    <tr><td>可用性</td><td>公网可访问，评审期不中断</td><td>单进程常驻、健康检查路径 <code>/</code>、失败自动重启</td></tr>
-    <tr><td>响应性能</td><td>首页秒开；检索 &lt; 3 s；问答首字 &lt; 15 s</td><td>静态资源本地托管、语料懒加载一次常驻、模型单次上限 420 tokens</td></tr>
-    <tr><td>可信性</td><td>回答中的出处必须可核对</td><td>只对回答里点名的卷做引文核对，最多 3 条</td></tr>
-    <tr><td>安全性</td><td>密钥不泄漏、输入输出受控</td><td>密钥仅存服务端变量；输入白/黑名单 + 注入检测；输出打码</td></tr>
-    <tr><td>兼容性</td><td>桌面与移动端主流浏览器</td><td>原生 JS、无构建产物；移动端底部抽屉替代侧栏</td></tr>
-    <tr><td>成本</td><td>免费额度内可长期演示</td><td>单次问答一次对话调用、检索优先用预计算向量，不额外计费</td></tr>
-  </table>
-
-  <h3>2.5 内容真实性约束</h3>
+  <h3>2.5 评审浏览动线建议（约 7 分钟）</h3>
   <ol>
-    <li><b>时间边界</b>：叙事与检索截止 978 年，检索时会排除 978 年之后的语料块，避免后世纪事混入。</li>
-    <li><b>不得编造</b>：提示词明确禁止虚构词句与史实；无据时必须回答「史料未载」。</li>
-    <li><b>引用可核对</b>：回答里点了卷，才去语料中取该卷原文；没点名就不给引文，宁缺不凑。</li>
-    <li><b>争议分层</b>：正史 / 笔记 / 一般看法三层必须分开陈述，不得混为一谈。</li>
-    <li><b>文创克制</b>：只做概念展示，不出现价格、购买、库存、支付等要素。</li>
+    <li><b>首页</b>（30 秒）：感受水墨书封与印章入场；</li>
+    <li><b>词作页</b>（1 分钟）：读《虞美人》原文／译意，向梦客追问一句，查看出处卡；</li>
+    <li><b>生平时间轴</b>（1 分钟）：沿 937—978 节点定位金陵城破；</li>
+    <li><b>万象 → 听词</b>（1 分钟）：看意象互联，体验跨页续播与朗读；</li>
+    <li><b>行迹地图</b>（1.5 分钟）：问「带我去汴京」，验证问→答→抵达闭环；</li>
+    <li><b>终幕 → 笺语墙</b>（1 分钟）：滚动叙事 + 体验 AI 回笺；</li>
+    <li><b>文创概念页</b>（30 秒）：确认概念陈列无价格、无购买入口的克制设计。</li>
   </ol>
-
-  <h3>2.6 明确不做的事</h3>
-  <p>不做注册登录与用户画像；不做整板留言上传；不做商品交易闭环；不接入向量数据库与重型编排框架；不把模型输出直接当作史料。这几条「不做」直接决定了第三章的架构与第四章的成本模型。</p>
 </section>
 
-<!-- ============ 三、系统架构 ============ -->
+<!-- ============ 三、项目亮点 ============ -->
 <section class="chapter">
-  <h2 class="ch"><span class="no">三</span>系统架构设计</h2>
-  <p class="ch-lead">四层结构：静态前端、单进程服务端、可复用的 AI 业务层、离线构建的数据层。</p>
+  <h2 class="ch"><span class="no">三</span>项目亮点</h2>
+  <p class="ch-lead">内容亮点解决「愿不愿意读」，技术亮点解决「能不能信」，工程亮点解决「跑不跑得稳」。</p>
 
-  <h3>3.1 总体分层</h3>
-  <div class="arch">
-    <div class="layer"><span class="t">表现层</span> ｜ index.html + pages/ 八个页面 + css/style.css + js/script.js、js/ai-guide.js、Three.js（本地内置）</div>
-    <div class="arrow">▼ 同源 fetch，只走 /api/guide</div>
-    <div class="layer"><span class="t">接入层</span> ｜ server/index.mjs：静态文件托管（MIME、Range、私有路径拦截）+ 请求体转发 + Deno 兼容壳</div>
-    <div class="arrow">▼ 标准 Request / Response</div>
-    <div class="layer"><span class="t">业务层</span> ｜ supabase/functions/guide/index.ts：闸门 → Agent 循环 → 四库 RAG → 引文核对 / 对照 / 争议 → 输出闸门</div>
-    <div class="arrow">▼ HTTPS（OpenAI 兼容）</div>
-    <div class="layer"><span class="t">模型层</span> ｜ 对话模型（deepseek-chat / glm-4-flash）+ 向量模型 embedding-3</div>
-    <div class="arrow">▲ 启动时惰性加载</div>
-    <div class="layer"><span class="t">数据层</span> ｜ data/liyu-data.json、facts.json、history/{chunks,sources,vectors}.json；离线脚本负责同步与向量化</div>
-  </div>
-
-  <h4>分层原则</h4>
-  <ul>
-    <li><b>业务只有一份</b>：AI 逻辑不写在 Node 适配层里，而是写在 <code>supabase/functions/guide/index.ts</code>，Node 只提供 <code>Deno.env.get</code> 与 <code>Deno.serve</code> 两个最小实现。这样本地、云端、以及任何支持标准 Request/Response 的运行时，跑的都是同一份代码。</li>
-    <li><b>前端零构建</b>：没有打包器、没有 CDN 依赖，所有脚本都是可直接阅读的源码。好处是部署简单、评审可读；代价是需要自行管理脚本加载顺序，因此脚本按「基础库 → 页面脚本 → AI 交互」分层加载。</li>
-    <li><b>数据与代码分离</b>：语料与向量由 <code>scripts/</code> 离线生成，服务端只读。语料重建不影响业务代码。</li>
-  </ul>
-
-  <h3>3.2 前端架构</h3>
-  <table>
-    <tr><th style="width:24%">文件</th><th style="width:14%">体积</th><th>职责</th></tr>
-    <tr><td><code>index.html</code></td><td>38.5 KB</td><td>首页场景、印章入口、入场引导</td></tr>
-    <tr><td><code>pages/*.html</code></td><td>4—72 KB</td><td>八个子页面，页面间通过统一的页脚与行内分享按钮连接</td></tr>
-    <tr><td><code>css/style.css</code></td><td>0.3 MB</td><td>全局排版、水墨视觉、响应式断点</td></tr>
-    <tr><td><code>js/script.js</code></td><td>213 KB</td><td>首页交互、印章、抽屉、收藏、朗读与语音降级</td></tr>
-    <tr><td><code>js/ai-guide.js</code></td><td>62 KB</td><td>AI 侍读面板、输入（≤800 字）、语音输入、来源卡、步骤卡、动作卡</td></tr>
-    <tr><td><code>js/map-textures.js</code></td><td>7.6 MB</td><td>地图纹理数据，避免运行时请求外部图片</td></tr>
-    <tr><td><code>js/three.min.js</code></td><td>589 KB</td><td>Three.js 运行时，本地托管不依赖 CDN</td></tr>
-  </table>
-  <p class="small">设计要点：AI 面板通过 <code>window.LIYU_AI_ENDPOINT</code> 可覆盖接口地址，缺省为同源 <code>/api/guide</code>；离线包或私有部署时可指向其他后端，不改代码。</p>
-
-  <h3>3.3 服务端</h3>
-  <p><code>server/index.mjs</code> 约 200 行，承担三件事：</p>
-  <ol>
-    <li><b>静态托管</b>：按扩展名映射 MIME；对音频、视频实现 <code>Range</code> 片段响应（206 + <code>Content-Range</code>），保证 <code>&lt;audio&gt;</code> 可拖动进度；用流式读取避免大文件整段进内存。</li>
-    <li><b>私有路径拦截</b>：正则拦截 <code>/.</code> 开头的隐藏文件、<code>/server/</code>、<code>/scripts/</code>、<code>/supabase/</code>、<code>/tests/</code>、<code>/logs/</code>，以及 <code>data/history/</code>、<code>data/tts/</code>、<code>data/vectors.json</code> 等不应公开的数据。密钥与语料不通过 HTTP 暴露。</li>
-    <li><b>接口转发</b>：读取请求体，构造标准 <code>Request</code> 交给业务函数，再把 <code>Response</code> 写回；异常统一返回 JSON 错误，避免进程崩溃。</li>
-  </ol>
-  <div class="note"><b>防目录穿越：</b>拼接后的绝对路径必须仍以站点根目录开头，否则返回 403。这一条与私有路径拦截构成两道防线。</div>
-
-  <h3>3.4 AI 服务层</h3>
-  <p>业务文件顶部只依赖两个 Deno 全局对象。适配层用十余行补齐：</p>
-  <pre>globalThis.Deno = {
-  env: { get: (key) =&gt; process.env[key] },
-  serve: (handler) =&gt; { /* 构造 Request → 交给 handler → 回写 Response */ },
-};</pre>
-  <p>依赖 Node ≥ 22.18 的原生 TypeScript 类型擦除能力，直接 <code>import("../supabase/functions/guide/index.ts")</code>，无需 <code>tsc</code>、无需打包。若运行时版本不足，启动阶段会给出明确提示并退出，而不是在首个请求时神秘失败。</p>
-
-  <h3>3.5 数据层</h3>
-  <table>
-    <tr><th style="width:30%">数据</th><th style="width:14%">体积</th><th>加载策略</th></tr>
-    <tr><td><code>data/liyu-data.json</code></td><td>30 KB</td><td>按需读取，供词作页与工具 <code>search_poems</code> 使用</td></tr>
-    <tr><td><code>data/facts.json</code></td><td>20 KB</td><td>按需读取，供事实核对</td></tr>
-    <tr><td><code>history/chunks.json</code></td><td>16.4 MB</td><td>首次检索时解析一次，之后常驻内存</td></tr>
-    <tr><td><code>history/vectors.json</code></td><td>97 MB</td><td>与 chunks 同步加载；缺失时自动降级为关键词检索</td></tr>
-    <tr><td><code>history/sources.json</code></td><td>15.1 MB</td><td>取原文与卷次时按需使用</td></tr>
-  </table>
-  <p>加载函数使用「未加载 / 加载中 / 失败」三态缓存：失败一次后不反复重试，避免每个请求都卡在解析上；解析异常只记日志不抛出，站点其余功能不受影响。</p>
-
-  <h3>3.6 一次问答的完整时序</h3>
-  <ol>
-    <li>前端组装 <code>{ action, message, page, sessionId, history }</code>，POST 同源 <code>/api/guide</code>。</li>
-    <li>服务端透传为标准 <code>Request</code>；业务层先执行长度规范化（<code>normalize</code>）。</li>
-    <li>输入闸门 <code>guardText</code>：黑名单、白名单、注入特征检测；命中即返回拦截话术。</li>
-    <li>页面情境词与用户问题拼接，做查询理解（古今词扩展、异体字补齐、关键词抽取）。</li>
-    <li>进入 Agent 循环：模型决定是否调用工具；每轮最多若干工具，结果回填为工具消息。</li>
-    <li>工具 <code>search_history</code> 触发四库检索：向量余弦 ≥ 0.2 召回，叠加分级权重，合并关键词通道结果后重排。</li>
-    <li>模型产出最终回答；随后做引文核对（<code>extractCitationRefs</code> → <code>findCitationText</code>）。</li>
-    <li>根据问题类型补充四库对照（<code>compare</code> / <code>compareConflict</code>）、争议标记（<code>dispute</code>）与人物卡。</li>
-    <li>输出闸门 <code>maskOutput</code> 打码越界词并写审计日志；返回 JSON（答案、来源、卡片、步骤、模型名）。</li>
-  </ol>
-
-  <h3>3.7 部署拓扑</h3>
+  <h3>3.1 内容与叙事亮点</h3>
   <div class="grid2">
-    <div class="card"><h5>本地</h5><p>Node 单进程监听 53422，直接读写本机 <code>.env.local</code> 与 <code>data/</code>；朗读优先使用 Windows 本机语音合成。</p></div>
-    <div class="card"><h5>云端</h5><p>Railway 单实例：构建阶段仅安装 Node 22（无业务依赖），运行阶段注入 <code>PORT</code> 与模型密钥；公网域名由平台签发 HTTPS，反代到容器端口 53422。</p></div>
+    <div class="card"><h5>第一人称「梦客」人格</h5><p>不是问答百科，而是当事人讲述。人格设定叙事边界（截止 978 年），文学性与史实约束同时成立，市面未见同类形态。</p></div>
+    <div class="card"><h5>词—史—地三线互链</h5><p>回答里的年份可跳时间轴、地名可飞地图、词句可回词作页，把「读到」变成「走到」，八个页面构成一条完整叙事动线。</p></div>
   </div>
+  <div class="grid2">
+    <div class="card"><h5>争议问题三层回答</h5><p>面对「牵机药」这类问题不站队、不含糊，把正史、宋人笔记、一般看法分层摆出并标注性质，判断权交还读者。</p></div>
+    <div class="card"><h5>克制的文创表达</h5><p>六张概念卡只做陈列，不标价、不导购、无支付，把「文化转译」与「商品交易」明确切开，同时规避版权与交易合规风险。</p></div>
+  </div>
+
+  <h3>3.2 AI 技术亮点</h3>
+  <table>
+    <tr><th style="width:24%">亮点</th><th style="width:40%">做法</th><th>新在哪 / 如何验证</th></tr>
+    <tr><td>四库分级 RAG</td><td>语料按信源分 A/B/C/D 并赋权 1.0 / 0.92 / 0.55 / 0.4；D 库不向量化，只做关键词与交叉核对</td><td>常见 RAG 只按相似度排序、不辨史料等级；本项目让信源等级进入排序公式，检索结果可直接观察</td></tr>
+    <tr><td>点名式引文核对</td><td>只对回答中明确点名的卷定位原文，最多 3 条；未点名则不给引文</td><td>解决「有引用但引错」的通病；每条引文点开即与答案对上</td></tr>
+    <tr><td>可信度三件套</td><td>citations（原文）、compare/compareConflict（跨库出入）、dispute（三层辨析）结构化字段</td><td>把「可信」拆成可渲染的数据，而不是一句「据史料记载」</td></tr>
+    <tr><td>运行时 RAG</td><td>本地无载时在线抓整卷 → 切块 → 向量化 → 落盘 → 并入索引</td><td>语料可增量生长，新块与既有块走同一套检索，非临时拼接原文</td></tr>
+    <tr><td>双层安全闸门</td><td>输入侧白/黑名单 + 注入检测；输出侧越界词打码 + 审计日志</td><td>把「允许的文学性」与「不允许的越界」分开处理</td></tr>
+    <tr><td>过程透明</td><td>每次工具调用记录轮次、参数、命中数、耗时，前端呈现「梦客查过」</td><td>推理路径可见，降低「一本正经胡说」的不可见风险</td></tr>
+  </table>
+
+  <h3>3.3 工程与体验亮点</h3>
+  <table>
+    <tr><th style="width:26%">亮点</th><th>说明</th></tr>
+    <tr><td>零构建、零 CDN、零运行时依赖</td><td>前端全部为可直接阅读的源码，Three.js 本地内置；服务端约 200 行、无第三方包，部署只需 Node 22</td></tr>
+    <tr><td>一份业务代码多运行时</td><td>AI 逻辑写在标准 Request/Response 的 TypeScript 中，十余行 Deno 兼容壳使其同跑于本地 Node 与云端，杜绝环境不一致</td></tr>
+    <tr><td>朗读三通道降级</td><td>GLM-TTS → 本机语音 → 浏览器 speechSynthesis，任何网络与设备条件下按钮都有反馈</td></tr>
+    <tr><td>响应式与无障碍</td><td>移动端底部「案头」抽屉替代侧栏；关键按钮含 aria-label；动画可关闭、不锁滚动</td></tr>
+    <tr><td>成本可控</td><td>单次问答一次对话调用、检索用预计算向量；语料内存常驻约 150—200 MB，单实例足以承载评审期流量</td></tr>
+  </table>
+
+  <h3>3.4 多模态融合</h3>
+  <p>五种模态共享同一份数据与人格设定，围绕文本证据组织，而非简单堆砌：</p>
+  <table>
+    <tr><th style="width:14%">模态</th><th style="width:34%">载体</th><th>融合方式</th></tr>
+    <tr><td>文本</td><td>词作、史实、AI 问答</td><td>叙事主干，其他模态围绕文本证据展开</td></tr>
+    <tr><td>语音</td><td>TTS 三通道 + 语音识别输入</td><td>朗读内容与 AI 回答同源同人格，失败自动降级</td></tr>
+    <tr><td>图像</td><td>水墨场景、词画、印章视觉</td><td>词画由词意生成并缓存，统一 AIGC 标识，与词作互引</td></tr>
+    <tr><td>视频</td><td>氛围背景视频</td><td>本地托管、按页加载、支持 Range 拖动，不拖慢首屏</td></tr>
+    <tr><td>3D 交互</td><td>Three.js 水墨行迹地图</td><td>接受 AI 工具 navigate_to 指令飞达站点，语言驱动空间跳转</td></tr>
+  </table>
 </section>
 
-<!-- ============ 四、AI 技术方案 ============ -->
+<!-- ============ 四、AI 技术落地情况 ============ -->
 <section class="chapter">
-  <h2 class="ch"><span class="no">四</span>AI 技术方案</h2>
+  <h2 class="ch"><span class="no">四</span>AI 技术落地情况</h2>
   <p class="ch-lead">选型求「可换」、集成求「一份代码」、优化求「少花钱、不瞎编、能核对」。</p>
 
-  <h3>4.1 选型理由</h3>
-  <h4>4.1.1 对话模型：OpenAI 兼容协议 + 可切换模型</h4>
-  <p>项目不绑定单一厂商，所有调用都走 OpenAI 兼容的 <code>/chat/completions</code> 与 <code>function calling</code>。当前线上使用 <code>deepseek-chat</code>，缺省回退 <code>glm-4-flash</code>，两者只需改一个环境变量即可切换。理由如下：</p>
-  <table>
-    <tr><th style="width:18%">维度</th><th style="width:27%">deepseek-chat</th><th style="width:27%">glm-4-flash</th><th>对本项目的意义</th></tr>
-    <tr><td>中文文学表达</td><td>强，长句与第一人称叙述自然</td><td>良好，偏简洁</td><td>人格化叙述优先选前者</td></tr>
-    <tr><td>工具调用</td><td>支持且稳定</td><td>支持</td><td>Agent 循环依赖稳定的参数 JSON</td></tr>
-    <tr><td>成本</td><td>按量计费，单价低</td><td>有免费额度</td><td>评审期可先用免费额度，再切付费</td></tr>
-    <tr><td>可替换性</td><td colspan="2">均为 OpenAI 兼容协议</td><td>改 <code>GUIDE_MODEL</code> 即切换，业务代码零改动</td></tr>
-  </table>
-
-  <h4>4.1.2 向量模型：embedding-3（2048 维）</h4>
-  <p>选择理由有三：一是与对话模型同源，只需一套计费与鉴权；二是 2048 维对「文言短句 → 现代问句」的跨语体匹配明显优于通用小模型；三是可分批调用、便于断点续跑。失败时 <code>embedText</code> 返回 <code>null</code>，检索自动退回关键词通道，不会让整个接口挂掉。</p>
-
-  <h4>4.1.3 不引入向量数据库与编排框架</h4>
-  <p>规模论证：5059 块 × 2048 维 float32 约 32 MB；单次查询只需一次线性余弦计算（约 1000 万次乘加），在 Node 中为毫秒级。引入 Milvus / pgvector 会带来额外的部署、内存与运维成本，收益为零。同理，Agent 循环只有「调模型 → 执行工具 → 再调模型」三个动作，用不到 LangChain 之类的编排层；手写 40 行循环反而更可控（超时、重试、轮数上限都显式可见）。</p>
-
-  <h4>4.1.4 集成方式</h4>
+  <h3>4.1 落地方案与模型选型</h3>
+  <p>项目不绑定单一厂商，所有调用走 OpenAI 兼容的 <code>/chat/completions</code> 与 Function Calling 协议。线上使用 <code>deepseek-chat</code>（中文文学表达强、工具调用稳定），缺省回退 <code>glm-4-flash</code>（有免费额度），改一个环境变量即切换，业务代码零改动。向量模型为同源 <code>embedding-3</code>（2048 维），文言短句到现代问句的跨语体匹配明显优于通用小模型。</p>
   <pre>POST /api/guide  { action, message, page, sessionId, history }
-   → guardText → Agent(rounds≤4) → tools → RAG → 模型
-   ← { answer, sources, cards, citations, dispute, compare, compareConflict, steps, history, model }</pre>
-  <p>密钥只存在于服务端环境变量，前端永远只请求同源路径。这样既避免密钥泄漏，也避免跨域与浏览器直连模型带来的限流问题。</p>
+  → guardText 输入闸门 → Agent(轮数≤4) → 7 个工具 → 四库 RAG → 模型
+  ← { answer, sources, cards, citations, dispute, compare, steps, model }</pre>
+  <p>密钥只存服务端环境变量，前端永远只请求同源 <code>/api/guide</code>，既防泄漏也避免浏览器直连模型的跨域与限流。规模论证上，5059 块 × 2048 维 float32 仅约 32 MB，一次线性余弦计算在 Node 中为毫秒级，因此<b>不引入向量数据库与编排框架</b>——手写 40 行 Agent 循环让超时、重试、轮数上限全部显式可见。</p>
 
   <h3>4.2 提示词工程</h3>
-  <h4>4.2.1 三段式结构</h4>
-  <p>系统提示词分为三层，依次收紧：<b>角色层</b>（我是谁：978 年之后的梦客，第一人称，克制、不喧哗）、<b>事实层</b>（我能说什么：只说本站词作与四库可查之事，不编造，无据说「史料未载」）、<b>形态层</b>（我怎么说：禁止教科书腔与条目式说教，控制篇幅，引用要落到卷）。</p>
-  <p>之所以把「事实层」独立成段而不是散落在角色描述里，是为了让约束更容易被模型遵守：角色可以写得文学化，事实约束必须写得像规则。</p>
-
-  <h4>4.2.2 硬约束清单</h4>
+  <p>系统提示词分三层依次收紧：<b>角色层</b>（978 年之后回望的梦客，第一人称、克制不喧哗）、<b>事实层</b>（只说本站词作与四库可查之事，不编造，无据说「史料未载」）、<b>形态层</b>（禁止教科书腔与条目式说教，引用要落到卷，单次回答 ≤ 420 tokens）。事实约束独立成段、写成规则，比散落在文学化角色描述里更易被模型遵守。</p>
   <table>
-    <tr><th style="width:26%">约束</th><th>具体表述（示意）</th></tr>
-    <tr><td>第一人称</td><td>以「我」自称，叙述视角限定在 978 年之前；不使用「李煜认为」这类第三人称转述</td></tr>
-    <tr><td>禁止编造</td><td>不得虚构词句、年号、官职、事件；不确定就说「史料未载」，不得用推测填充</td></tr>
-    <tr><td>语体</td><td>不用「首先 / 其次 / 综上」，不列要点式说教；以叙述替代讲解</td></tr>
-    <tr><td>篇幅</td><td>单次回答不超过约 420 tokens；宁可短而实</td></tr>
-    <tr><td>引用</td><td>提及史实时给出书名与卷次，格式统一，便于后续核对</td></tr>
-    <tr><td>边界</td><td>与词、南唐、本站无关的问题不展开；引导回站内</td></tr>
+    <tr><th style="width:22%">硬约束</th><th>具体要求</th></tr>
+    <tr><td>第一人称</td><td>以「我」自称，视角限定 978 年之前，不使用「李煜认为」式第三人称转述</td></tr>
+    <tr><td>禁止编造</td><td>不得虚构词句、年号、官职、事件；不确定就说「史料未载」</td></tr>
+    <tr><td>引用落卷</td><td>提及史实给出书名与卷次，格式统一，便于后续核对</td></tr>
+    <tr><td>语体与篇幅</td><td>不用「首先/其次/综上」；以叙述代讲解；宁可短而实</td></tr>
+    <tr><td>场景差异</td><td>七个动作共享基底提示词：compose 追加格律约束、reply 限定只回被点留言且须引站内词句、share 限定只取成句</td></tr>
   </table>
 
-  <h4>4.2.3 场景化提示</h4>
-  <p>七个动作共享同一基底提示词，各自追加少量差异：<code>ask</code> 追加史料采信优先级与工具使用守则；<code>compose</code> 追加词牌与格律约束（续成完整小词而非一句）；<code>interpret</code> 追加逐句释义的粒度要求；<code>reply</code> 限定只回被点的那一条且必须引用站内词句；<code>share</code> 限定文案只能取自站内已有词句；<code>speak</code> 只做文本规范化，不走模型。</p>
-
-  <h4>4.2.4 工具使用守则</h4>
-  <p>提示词中明确工具调用时机与采信顺序：谈某首词先 <code>search_poems</code>；要讲全文用 <code>get_poem_detail</code>；问某年用 <code>get_timeline_event</code>；问某地用 <code>get_location</code>；讲史事用 <code>search_history</code>；本地语料不足才用 <code>fetch_history_online</code>；读者说「带我去」用 <code>navigate_to</code>。史料采信优先级为 A（正史）&gt; B（别史杂史）&gt; C（野史）。</p>
-
-  <h3>4.3 知识库与索引构建</h3>
-  <h4>4.3.1 语料分级</h4>
+  <h3>4.3 知识库与 RAG 检索</h3>
+  <h4>（1）四库分级语料</h4>
   <table>
-    <tr><th style="width:8%">库</th><th style="width:26%">来源</th><th style="width:12%">块数</th><th style="width:14%">是否向量化</th><th>用途</th></tr>
+    <tr><th style="width:8%">库</th><th style="width:34%">来源</th><th style="width:12%">块数</th><th style="width:16%">是否向量化</th><th>权重与用途</th></tr>
     <tr><td>A</td><td>旧五代史、新五代史、资治通鉴、宋史、五代会要等</td><td>3371</td><td>是</td><td>事实主干，权重 1.0</td></tr>
-    <tr><td>B</td><td>陆游南唐书、马令南唐书、吴越备史、江表志、江南别录等</td><td>437</td><td>是</td><td>细节补充，权重 0.92</td></tr>
+    <tr><td>B</td><td>陆游/马令南唐书、吴越备史、江表志等</td><td>437</td><td>是</td><td>细节补充，权重 0.92</td></tr>
     <tr><td>C</td><td>南唐近事、江南野史、钓矶立谈等</td><td>141</td><td>是</td><td>异闻参考，权重 0.55</td></tr>
     <tr><td>D</td><td>十国春秋</td><td>1110</td><td><b>否</b></td><td>仅关键词与交叉核对，权重 0.4</td></tr>
   </table>
-  <p>D 库不向量化的原因不是工程量，而是<b>信源定性</b>：十国春秋成书较晚、编纂成分重，若参与语义召回，容易在「最像」的排序里压过正史原卷。把它限制在关键词命中与交叉核对，既保留其检索价值，又不让它主导叙述。</p>
-
-  <h4>4.3.2 切块策略</h4>
-  <p>按段落优先、句末兜底的两级切分：单块上限 620 字，超过则按句号、问号、叹号、分号切句后再拼接；不足 40 字的碎片丢弃。这样既保证语义完整（不把一句话劈成两半），又控制单块长度，使 2048 维向量能覆盖一个完整论述。</p>
-
-  <h4>4.3.3 向量化管线</h4>
-  <p>离线脚本先抓取全文写入 <code>sources.json</code>，再切块写入 <code>chunks.json</code>，最后批量请求 embedding 写入 <code>vectors.json</code>。三个特性保障可恢复性：<b>分批</b>（单批 64 块）、<b>断点续跑</b>（已有 ID 跳过）、<b>原子写</b>（先写临时文件再 rename，防止中断留下半个 JSON）。向量 ID 与块 ID 一一对应，便于引文回查。</p>
-
-  <h4>4.3.4 索引结构与加载</h4>
-  <pre>chunks.json  → [{ id, book, juan, tier, text, ... }]
-vectors.json → { vectors: { [id]: number[2048] } }</pre>
-  <p>首次检索时一次性解析并常驻内存；之后所有请求共享。以约 130 MB 的 JSON 解析换取每次请求零磁盘 IO，是单实例小流量场景下更划算的取舍。</p>
-
-  <h3>4.4 检索策略</h3>
-  <h4>4.4.1 查询理解</h4>
+  <p>D 库不向量化是<b>信源定性</b>而非工程量取舍：其成书晚、编纂成分重，参与语义召回容易在「最像」排序里压过正史原卷；限制为关键词命中，既保留检索价值又不让它主导叙述。</p>
+  <h4>（2）切块与向量化管线</h4>
+  <p>按段落优先、句末兜底两级切分，单块上限 620 字、碎片下限 40 字，保证语义完整。离线管线「抓全文 → 切块 → 批量 embedding」具备分批（64 块/批）、断点续跑、原子写（临时文件再 rename）三个特性，中断不产生半个 JSON。</p>
+  <h4>（3）双通道召回与加权</h4>
   <ul>
-    <li><b>古今词扩展</b>：把「皇上 / 国主 / 后主」「去世 / 卒 / 崩」等口语与现代说法映射到语料实际用词。</li>
-    <li><b>异体字补齐</b>：古籍中的异体、通假写法与常用字双向匹配，避免「一个字之差检索不到」。</li>
-    <li><b>关键词抽取</b>：去掉虚词与疑问结构，抽出人物、年份、地名、事由作为关键词通道的输入。</li>
+    <li><b>查询理解</b>：古今词扩展（「国主/后主」→ 语料用词）、异体字双向补齐、人物年份地名关键词抽取；</li>
+    <li><b>向量通道</b>：查询 embedding 与 3949 条块向量算余弦，保留 ≥ 0.2 候选——阈值经实测，再高会漏掉「口语问、文言答」的正史块；</li>
+    <li><b>关键词通道</b>：词项计分兜底，生僻专名（如「樊若水」）靠精确命中捞回；</li>
+    <li><b>融合排序</b>：最终得分 = 相似度 × 库权重，并在检索阶段直接排除 978 年后语料块，从数据源头保证叙事不越界；</li>
+    <li><b>静默降级</b>：向量缺失或 embedding 故障时自动转纯关键词模式，引文仍可返回，接口不报错。</li>
   </ul>
 
-  <h4>4.4.2 双通道召回</h4>
-  <p><b>向量通道</b>：对查询计算 embedding，与 3949 条块向量做余弦相似度，保留 ≥ 0.2 的候选。<b>关键词通道</b>：对 chunk 文本做词项计分，得分 &gt; 0 即入选。两路结果按「相似度 × 库权重」融合排序。</p>
-  <p>阈值 0.2 是实测取舍：再高会漏掉「问得口语、原文文言」的正史块，再低则会把不相干的卷带进上下文。关键词通道的作用是兜底——当用户问的是生僻专名（如「樊若水」）而向量不够相似时，精确词项仍能把它捞回来。</p>
-
-  <h4>4.4.3 分级加权与时间截断</h4>
-  <p>最终得分 = 相似度 × 库权重（A 1.0 / B 0.92 / C 0.55 / D 0.4）。此外检索阶段直接排除 978 年之后的语料块，从数据源头保证「叙事不越界」，而不是靠提示词事后约束。</p>
-
-  <h4>4.4.4 重排与合并</h4>
-  <p>候选池去重（同一卷同一块只留一次）、按得分降序、截断到上下文预算内。工具返回给模型的条目只保留书名、卷次、分块文本与链接，避免把整卷灌进上下文。</p>
-
-  <h4>4.4.5 降级路径</h4>
-  <p>向量文件缺失或 embedding 接口失败时，检索自动降为纯关键词模式；此时仍能返回引文，只是语义泛化能力下降。降级是静默的，日志中会记一条告警，接口不报错。</p>
-
-  <h3>4.5 Agent 工具循环</h3>
-  <h4>4.5.1 七个工具（Function Calling 工具集成）</h4>
-  <p>对应大赛「MCP/工具集成」考察点：项目通过 OpenAI 兼容的 Function Calling 协议，把五类数据源（词作库、时间轴、地图站点、四库语料、在线语料）封装为 7 个结构化工具，模型按 JSON Schema 自主决策调用，AI 与外部数据的集成全部走显式工具通道而非提示词拼接。</p>
+  <h3>4.4 Agent 工具循环</h3>
+  <p>通过 Function Calling 把五类数据源封装为 7 个结构化工具，模型按 JSON Schema 自主决策，AI 与外部数据的集成全部走显式工具通道：</p>
   <table>
-    <tr><th style="width:24%">工具</th><th style="width:34%">作用</th><th>关键参数</th></tr>
-    <tr><td><code>search_poems</code></td><td>按关键词检索词作</td><td>keyword（词牌、词句、意象）</td></tr>
-    <tr><td><code>get_poem_detail</code></td><td>取一首词的完整资料</td><td>slug 或词名</td></tr>
-    <tr><td><code>get_timeline_event</code></td><td>取生平时间轴的某一段</td><td>year / key（937…978b）</td></tr>
-    <tr><td><code>get_location</code></td><td>取地图某站的人事</td><td>slug（jinling…beimang）</td></tr>
-    <tr><td><code>navigate_to</code></td><td>生成「前往」动作卡</td><td>page、label、anchor / spot</td></tr>
-    <tr><td><code>search_history</code></td><td>四库分级检索</td><td>query、juan（可选）</td></tr>
-    <tr><td><code>fetch_history_online</code></td><td>本地无载时在线补抓整卷，切块向量化后并入索引</td><td>book、juan</td></tr>
+    <tr><th style="width:26%">工具</th><th style="width:38%">作用</th><th>关键参数 / 数据源</th></tr>
+    <tr><td><code>search_poems</code></td><td>按词牌、意象、词句检索词作</td><td>keyword ／ 词作库</td></tr>
+    <tr><td><code>get_poem_detail</code></td><td>取一首词的完整资料</td><td>slug ／ 词作库</td></tr>
+    <tr><td><code>get_timeline_event</code></td><td>取生平时间轴某段</td><td>year/key ／ 事实库</td></tr>
+    <tr><td><code>get_location</code></td><td>取地图某站人事</td><td>slug ／ 事实库</td></tr>
+    <tr><td><code>navigate_to</code></td><td>生成「前往」动作卡驱动前端跳转/地图飞行</td><td>page、anchor、spot</td></tr>
+    <tr><td><code>search_history</code></td><td>四库分级检索</td><td>query、juan ／ 5059 块本地语料</td></tr>
+    <tr><td><code>fetch_history_online</code></td><td>在线补抓整卷，切块向量化后落盘并入索引（运行时 RAG）</td><td>book、juan ／ 白名单在线语料</td></tr>
   </table>
-  <p><code>fetch_history_online</code> 是「运行时 RAG」：抓到的整卷即时切块、调用 embedding、落盘为 <code>pages/&lt;书名&gt;-&lt;卷&gt;.rag.json</code>，下次启动自动并回索引。模型看到的是检索结果，而不是随手截取的一段原文。</p>
-
-  <h4>4.5.2 循环控制</h4>
   <ul>
-    <li><b>轮数</b>：缺省 4 轮，可用 <code>AGENT_ROUNDS</code> 在 2—5 间调整。</li>
-    <li><b>末轮只许说话</b>：<code>round &lt; AGENT_ROUNDS</code> 才开放工具，最后一轮强制收敛为自然语言回答，防止无限调用。</li>
-    <li><b>超时</b>：单次模型调用 30 s，超时重试 1 次；仍失败则走兜底话术。</li>
-    <li><b>预算</b>：单次回答 <code>max_tokens=420</code>、<code>temperature=0.75</code>；温度偏高是为了让第一人称叙述不僵硬，但事实约束由提示词硬性压制。</li>
+    <li><b>循环控制</b>：缺省 4 轮（2—5 可调）；末轮关闭工具、强制收敛为自然语言，防止无限调用；单轮超时 30 s、重试 1 次。</li>
+    <li><b>多轮的必要性</b>：「他写这首词时在哪、那年发生了什么」是多跳问题，模型可先查人物、再查年份、最后查地点合成叙述；每次调用落一条 step 供前端展示。</li>
   </ul>
 
-  <h4>4.5.3 为什么需要多轮</h4>
-  <p>单次 RAG 能回答「这句词好在哪里」，但回答不了「他写这首词时在哪、那年发生了什么、之前之后分别怎样」这类多跳问题。Agent 循环允许模型先查人物、再查年份、最后查地点，把三跳结果合成一段有前后文的叙述；同时每次调用都被记录为一步，供前端展示。</p>
-
-  <h4>4.5.4 过程透明</h4>
-  <pre>steps[] = { round, tool, args(精简), hits, ok, ms }</pre>
-  <p>前端把 steps 渲染成「梦客查过」：查了什么、命中几条、耗时多少。这既是可信度设计，也是评审可验证性设计——评审能直接看到 AI 没有凭空说话。</p>
-
-  <h3>4.6 可信度呈现</h3>
-  <p>AI 回答的可信度不能只靠提示词「请勿编造」，必须有可验证的产物。项目提供四种：</p>
-
-  <h4>4.6.1 引文核对（citations）</h4>
-  <p>回答定稿后，先从中抽取书名与卷次（<code>extractCitationRefs</code>），再到语料池中定位该卷原文（<code>findCitationText</code>），最多返回 3 条。关键设计：<b>只认回答里点名的卷</b>。若回答没有点名，就返回空数组，而不是拿召回的块凑数。这样「有引文」这件事本身就有意义——它证明模型确实按卷说话。</p>
-
-  <h4>4.6.2 四库对照（compare / compareConflict）</h4>
-  <p>检索结束后，把候选池前 8 条交给 <code>detectTierConflict</code>：若不同库对同一事有实质出入（如死因、年份、称谓），置 <code>compareConflict = true</code>，前端提示「各库记法有出入」。这比让模型自己说「有争议」更可靠，因为判据在代码里，不由模型自由裁量。</p>
-
-  <h4>4.6.3 争议辨析（dispute）</h4>
-  <p>当问题命中争议特征（<code>isDisputeAsk</code>：死因、真假、是否、传说等）时，回答按「正史 / 笔记 / 一般看法」三层组织，并显式标注哪一层是正史、哪一层是后人笔记。以「牵机药」为例：正史只记 978 年卒、不载死因；宋人笔记有牵机药之说；一般叙述多采笔记。</p>
-
-  <h4>4.6.4 人物卡</h4>
-  <p>站内维护 17 位人物档案（帝王、后妃、臣僚、敌将）。回答中被提及的人物自动浮成档案卡，最多 2 张，每张附 2 条可点追问。卡片既提供背景，也把「继续问」的路径交回用户。</p>
-
-  <h4>4.6.5 反例说明</h4>
-  <p>早期实现曾把「召回的块」直接当作引用返回，结果是答案说 A 事、引文却是 B 卷，看起来有出处，实际经不起点开核对。改为「点名才核对」后，引文数量下降，但每一条都能对上。这是本项目在可信度上最重要的一次返工。</p>
-
-  <h3>4.7 安全与合规</h3>
+  <h3>4.5 可信度设计</h3>
   <table>
-    <tr><th style="width:18%">闸门</th><th style="width:30%">机制</th><th>命中行为</th></tr>
-    <tr><td>长度</td><td><code>normalize</code> 截断，前端输入上限 800 字</td><td>超长部分丢弃，不报错</td></tr>
-    <tr><td>主题白名单</td><td>人物、词牌、地名、史事、站点关键词</td><td>命中则放行并附加情境词</td></tr>
-    <tr><td>主题黑名单</td><td>违法、敏感、与李煜/南唐/词/本站无关</td><td>直接返回拦截话术，不进模型</td></tr>
-    <tr><td>提示注入</td><td><code>guardText</code> 检测越权指令特征</td><td>返回 <code>blocked + reason</code></td></tr>
-    <tr><td>输出越界</td><td><code>maskOutput</code> 打码</td><td>替换越界词并写 <code>blocked: output</code> 审计日志</td></tr>
-    <tr><td>隐私</td><td>留言只上传被点的那一条</td><td>无整板数据外发</td></tr>
-    <tr><td>密钥</td><td>仅服务端环境变量</td><td>前端与静态资源中不出现任何 Key</td></tr>
+    <tr><th style="width:24%">机制</th><th>做法与价值</th></tr>
+    <tr><td>引文核对 citations</td><td>回答定稿后抽取其中点名的书名卷次，反查语料定位原文，最多 3 条；<b>只认点名的卷</b>，未点名返回空数组而非拿召回块凑数</td></tr>
+    <tr><td>四库对照 compare</td><td>候选池前 8 条交 detectTierConflict，跨库记载有实质出入即置 compareConflict，判据在代码里而非模型自由裁量</td></tr>
+    <tr><td>争议辨析 dispute</td><td>命中死因、真假、传说等争议特征时，按正史／笔记／一般看法三层组织并显式标注性质</td></tr>
+    <tr><td>人物卡</td><td>17 位人物档案在被提及时自动浮出，最多 2 张，每张附 2 条可点追问，降低古文人名门槛</td></tr>
+    <tr><td>过程透明 steps</td><td>「梦客查过」展示查了什么、命中几条、耗时多少，可信度可被评审直接验证</td></tr>
   </table>
-  <p>审计日志记录会话、动作、提问前 200 字、回答（拦截时记为占位符）、模型名与工具调用，供问题复盘。日志只落本机/服务端，不对外提供查询接口。</p>
+  <div class="note"><b>最重要的一次返工：</b>早期曾把召回块直接当引用返回，答案说 A 事、引文却是 B 卷，看似有出处实则经不起核对。改为「点名才核对」后引文数量下降，但每条都能对上——这是本项目可信度设计的核心转折。</div>
 
-  <h3>4.8 容错与降级</h3>
-  <table>
-    <tr><th style="width:30%">故障</th><th style="width:30%">表现</th><th>处理</th></tr>
-    <tr><td>未配置模型 Key</td><td>对话不可用</td><td>检索与站点浏览仍可用；接口返回明确提示，不白屏</td></tr>
-    <tr><td>模型超时 / 限流</td><td>单轮失败</td><td>重试 1 次；仍失败则返回兜底话术</td></tr>
-    <tr><td>embedding 不可用</td><td>语义检索失效</td><td>静默降为关键词检索，引文仍可返回</td></tr>
-    <tr><td>语料缺失</td><td>无正史引文</td><td>按「史料未载」处理，不编造</td></tr>
-    <tr><td>向量文件损坏</td><td>同上</td><td>异常捕获后按关键词模式运行，不影响启动</td></tr>
-    <tr><td>TTS 不可用</td><td>朗读无声</td><td>三通道降级：GLM-TTS → 本机语音 → 浏览器 <code>speechSynthesis</code></td></tr>
-  </table>
+  <h3>4.6 安全合规与容错降级</h3>
+  <div class="grid2">
+    <div>
+      <h4>双层闸门</h4>
+      <ul>
+        <li>输入：长度截断（≤800 字）、主题白/黑名单、提示注入特征检测，命中即返回拦截话术、不进模型；</li>
+        <li>输出：越界词打码并写 blocked 审计日志；</li>
+        <li>隐私：留言只上传被点的一条，无整板数据外发；</li>
+        <li>审计：会话、动作、提问摘要、模型名、工具调用全记录，仅落服务端、不提供查询接口。</li>
+      </ul>
+    </div>
+    <div>
+      <h4>六级容错降级</h4>
+      <ul>
+        <li>未配 Key：浏览与检索可用，接口明确提示不白屏；</li>
+        <li>超时/限流：重试 1 次后兜底话术；</li>
+        <li>embedding 故障：静默转关键词检索；</li>
+        <li>语料缺失：按「史料未载」处理，不编造；</li>
+        <li>向量文件损坏：异常捕获后关键词模式运行；</li>
+        <li>TTS 不可用：三通道朗读降级保证发声。</li>
+      </ul>
+    </div>
+  </div>
 
-  <h3>4.9 成本与性能</h3>
+  <h3>4.7 落地成效与成本</h3>
   <ul>
-    <li><b>单次问答成本</b>：1 次对话调用（可能含 2—3 轮工具回填）；检索使用预计算向量，不产生 embedding 费用。仅在线补抓整卷时才调用 embedding。</li>
-    <li><b>上下文控制</b>：工具返回限量、回答 420 tokens 上限、历史对话只带必要轮次，避免上下文膨胀。</li>
-    <li><b>内存</b>：语料与向量常驻约 150—200 MB，单实例足以承载评审期访问。</li>
-    <li><b>首包延迟</b>：静态页无需等待接口；检索接口通常 1—3 s；问答受模型首 token 影响，实测 3—15 s。</li>
-    <li><b>可观测</b>：每次工具调用记录耗时与命中数，异常写日志，便于定位「哪一步变慢」。</li>
+    <li><b>质量守护</b>：纯逻辑（闸门、检索打分、引文抽取、争议判定、脱敏）与网络调用分离，<code>node --test</code> 覆盖 136 项断言；线上公网实测问答、引文、四库对照全部连通（详见 §5.6）。</li>
+    <li><b>单次成本</b>：1 次对话调用（含 2—3 轮工具回填），检索用预计算向量不产生 embedding 费用，仅在线补抓整卷时计费；回答 420 tokens 上限 + 限量工具返回控制上下文膨胀。</li>
+    <li><b>响应实测</b>：静态页秒开；检索接口通常 1—3 s；问答受模型首 token 影响实测 3—15 s。</li>
   </ul>
 </section>
 
-<!-- ============ 五、核心功能实现 ============ -->
+<!-- ============ 五、关键技术与项目实景 ============ -->
 <section class="chapter">
-  <h2 class="ch"><span class="no">五</span>核心功能实现</h2>
-  <p class="ch-lead">八个页面构成一条叙事动线，AI 侍读作为横向能力贯穿全站。</p>
+  <h2 class="ch"><span class="no">五</span>关键技术与项目实景</h2>
+  <p class="ch-lead">四层架构：静态前端、单进程服务端、可复用的 AI 业务层、离线构建的数据层；本章末附 9 幅项目实景截图。</p>
 
-  <h3>5.1 首页</h3>
-  <p>首页只承担两件事：建立氛围、给出入口。水墨场景与印章「梦」是唯一显眼的交互点；入场提示以李煜口吻写成，不写「点击开始」。移动端把分散入口收进底部「案头」抽屉，三选一，避免小屏拥挤。</p>
+  <h3>5.1 总体架构</h3>
+  <div class="arch">
+    <div class="layer"><span class="t">表现层</span> ｜ index.html + pages/ 八个页面 + css/style.css + js/ 脚本 + Three.js（本地内置）</div>
+    <div class="arrow">▼ 同源 fetch，只走 /api/guide</div>
+    <div class="layer"><span class="t">接入层</span> ｜ server/index.mjs：静态托管（MIME、Range、私有路径拦截）+ 请求转发 + Deno 兼容壳</div>
+    <div class="arrow">▼ 标准 Request / Response</div>
+    <div class="layer"><span class="t">业务层</span> ｜ supabase/functions/guide/index.ts：闸门 → Agent 循环 → 四库 RAG → 引文/对照/争议 → 输出闸门</div>
+    <div class="arrow">▼ HTTPS（OpenAI 兼容）</div>
+    <div class="layer"><span class="t">模型层</span> ｜ deepseek-chat / glm-4-flash 对话模型 + embedding-3 向量模型</div>
+    <div class="arrow">▲ 启动时惰性加载</div>
+    <div class="layer"><span class="t">数据层</span> ｜ liyu-data.json、facts.json、history/{chunks,sources,vectors}.json；离线脚本负责同步与向量化</div>
+  </div>
+  <p>三条分层原则：<b>业务只有一份</b>（Node 仅补齐 Deno.env.get 与 Deno.serve 两个最小实现，本地云端跑同一份代码）；<b>前端零构建</b>（脚本按基础库 → 页面脚本 → AI 交互分层加载）；<b>数据与代码分离</b>（语料重建不影响业务代码）。</p>
 
-  <h3>5.2 词作页</h3>
-  <p>数据驱动：从 <code>liyu-data.json</code> 渲染词作列表、原文、译意与背景。收藏使用本地存储，支持跳回词作与移除，并兼容旧版本收藏数据的迁移。词牌跳转按词牌聚合，避免同名混淆。</p>
-
-  <h3>5.3 生平时间轴</h3>
-  <p>937 出生、954 迎娶娥皇、961 即位、964 大周后逝、971 去唐号、974 采石浮桥、975 金陵城破、976 囚居汴京、978 七夕绝唱、978b 北邙归葬。每个节点有固定锚点，可被 AI 的 <code>navigate_to</code> 直接定位，实现「说到哪年，就带你到哪年」。</p>
-
-  <h3>5.4 万象</h3>
-  <p>以意象为索引组织词作：春水、梧桐、西楼、帘外雨等。页末只保留「从词到物」一个出口，不堆叠其他入口，保证动线单一。</p>
-
-  <h3>5.5 听词</h3>
-  <p>背景音乐统一为单个音频文件，支持跨页续播与进度定位。朗读实现三条通道：优先 GLM-TTS（音色自然，需资源包）；其次本机 Windows 语音合成（返回 wav）；两者都失败时，前端自动降级为浏览器 <code>speechSynthesis</code>，保证「按钮永远能发声」。</p>
-
-  <h3>5.6 行迹地图</h3>
-  <p>Three.js 构建水墨地形，七站为冷热点：金陵、钟山、洪州、采石矶、江舟、汴京、北邙山。地图纹理内置为数据文件，不请求外部图床。AI 的 <code>navigate_to</code> 携带 <code>spot</code> 时，前端调用飞行动画定位到该站，形成「问 → 答 → 抵达」的闭环。</p>
-
-  <h3>5.7 终幕与笺语墙</h3>
-  <p>终幕以 978 年七夕为叙事落点，滚动到底不出现留言板，只给一个「去笺语墙」按钮——两个功能拆开，避免叙事被打断。笺语墙独立成页，支持提笔、回笺、分享与返回终幕。回笺只针对被点的那条留言，且必须带站内已有词句出处。</p>
-
-  <h3>5.8 文创概念页</h3>
-  <p>六张概念卡，每张可「问梦客」。整页不出现价格、购买按钮、库存与支付，属于概念陈列而非电商。这一克制既是内容立场，也规避了版权与交易合规风险。</p>
-
-  <h3>5.9 AI 侍读</h3>
+  <h3>5.2 前端关键技术</h3>
   <table>
-    <tr><th style="width:20%">动作</th><th style="width:30%">用途</th><th>返回要点</th></tr>
-    <tr><td><code>ask</code></td><td>自由提问，走 Agent 循环</td><td>answer + sources + citations + steps + cards + compare/dispute</td></tr>
-    <tr><td><code>search</code></td><td>快速检索词作与史料</td><td>命中列表，不调用对话模型</td></tr>
-    <tr><td><code>compose</code></td><td>续成一首完整小词</td><td>词牌结构完整，遵守格律约束</td></tr>
-    <tr><td><code>interpret</code></td><td>逐句释义</td><td>分句对应，不遗漏</td></tr>
-    <tr><td><code>reply</code></td><td>回一条留言</td><td>只回被点那条，附站内词句出处</td></tr>
-    <tr><td><code>share</code></td><td>生成分享文案</td><td>只取站内已有词句，不新造</td></tr>
-    <tr><td><code>speak</code></td><td>朗读文本</td><td>音频或降级提示</td></tr>
-  </table>
-  <p>前端交互：输入上限 800 字；支持语音输入（浏览器语音识别，识别失败不阻断文字输入）；回答下方按类型渲染来源卡、人物卡、动作卡与步骤卡；<code>navigate</code> 动作卡支持同页锚点、跨页跳转与地图定位。</p>
-
-  <h3>5.10 移动端与无障碍</h3>
-  <ul>
-    <li>小屏隐藏常驻侧栏，改为底部抽屉，减少遮挡。</li>
-    <li>关键按钮提供 <code>aria-label</code>；输入框有明确占位文案。</li>
-    <li>朗读与语音输入在不可用时给出说明而非静默失败（需浏览器、联网、麦克风与安全上下文）。</li>
-    <li>动画遵循「可关闭 / 不阻塞阅读」原则，长页面使用系统滚动而非锁定。</li>
-  </ul>
-
-  <h3>5.11 多模态融合总览</h3>
-  <p>对应大赛「多模态能力」考察点，项目在同一叙事体系内融合五种模态，且各模态共享同一份数据与人格设定，而非简单堆砌：</p>
-  <table>
-    <tr><th style="width:14%">模态</th><th style="width:30%">载体</th><th>融合方式</th></tr>
-    <tr><td>文本</td><td>词作、史实、AI 问答</td><td>叙事主干，所有其他模态围绕文本证据展开</td></tr>
-    <tr><td>语音</td><td>GLM-TTS / 本机语音 / 浏览器语音三通道；语音识别输入</td><td>朗读内容与 AI 回答同源同人格；失败自动降级</td></tr>
-    <tr><td>图像</td><td>水墨场景、词画、印章视觉</td><td>词画由词意生成并缓存，与对应词作互相引用</td></tr>
-    <tr><td>视频</td><td>氛围背景视频</td><td>本地托管、按页加载，不拖慢首屏</td></tr>
-    <tr><td>3D 交互</td><td>Three.js 水墨行迹地图</td><td>接受 AI 工具 <code>navigate_to</code> 指令飞达站点，实现语言驱动空间跳转</td></tr>
-  </table>
-</section>
-
-<!-- ============ 六、测试与部署 ============ -->
-<section class="chapter">
-  <h2 class="ch"><span class="no">六</span>测试与部署</h2>
-  <p class="ch-lead">测试覆盖纯逻辑，验收覆盖真实网络；部署以「零依赖、可复现」为准。</p>
-
-  <h3>6.1 测试策略</h3>
-  <p>AI 后端把纯逻辑（闸门、检索打分、引文抽取、争议判定、人物识别、脱敏）与网络调用分离，前者可直接用 <code>node --test</code> 覆盖，共 136 项断言。后者通过冒烟脚本与线上实测验收。</p>
-  <table>
-    <tr><th style="width:26%">测试层</th><th style="width:30%">方式</th><th>覆盖内容</th></tr>
-    <tr><td>单元测试</td><td><code>node --test tests/ai-guide.test.ts</code></td><td>输入规范化、白/黑名单、注入拦截、检索权重、阈值、引文抽取、争议判定、人物卡、输出打码</td></tr>
-    <tr><td>冒烟测试</td><td><code>node tests/smoke.mjs</code></td><td>起服务后请求首页与 <code>/api/guide</code>，验证端到端连通</td></tr>
-    <tr><td>线上验收</td><td>公网 HTTPS 实测</td><td>首页、静态资源、检索、问答、引文与四库对照</td></tr>
-    <tr><td>人工体验</td><td>桌面 + 移动端浏览器</td><td>动线、朗读、收藏、地图、留言</td></tr>
+    <tr><th style="width:26%">技术点</th><th>实现</th></tr>
+    <tr><td>原生 JavaScript 三层解耦</td><td>script.js（页面交互/收藏/朗读，213 KB）、ai-guide.js（AI 面板与结果渲染，62 KB）、map-textures.js（地图纹理数据，7.6 MB，本地化免外链）</td></tr>
+    <tr><td>Three.js 水墨 3D 地图</td><td>程序化水墨地形 + 七站冷热点；接收 navigate_to 的 spot 参数执行飞行动画，形成「问→答→抵达」闭环</td></tr>
+    <tr><td>数据驱动渲染</td><td>词作、时间轴、人物卡全部由 JSON 渲染；收藏走本地存储并兼容旧版数据迁移</td></tr>
+    <tr><td>面板数据源可配置</td><td>AI 面板经 window.LIYU_AI_ENDPOINT 解耦后端地址，缺省同源 /api/guide，私有部署不改代码</td></tr>
+    <tr><td>响应式与性能</td><td>移动端案头抽屉；零 CDN 无外部阻塞；音视频 Range 分段流式；静态资源按扩展名缓存</td></tr>
   </table>
 
-  <h3>6.2 关键用例</h3>
-  <table>
-    <tr><th style="width:34%">用例</th><th style="width:30%">预期</th><th>结果</th></tr>
-    <tr><td>问「春花秋月何时了」</td><td>命中相关词作，返回原文与背景</td><td>通过</td></tr>
-    <tr><td>问「牵机药是史实还是传说」</td><td>分三层作答，标注正史未载死因</td><td>通过，返回 citations 1 条、compare 2 条</td></tr>
-    <tr><td>问与南唐无关的话题</td><td>不进模型，返回引导话术</td><td>通过</td></tr>
-    <tr><td>输入含越权指令</td><td>被 <code>guardText</code> 拦截并记录原因</td><td>通过</td></tr>
-    <tr><td>模型返回越界词</td><td><code>maskOutput</code> 打码并记 <code>blocked: output</code></td><td>通过</td></tr>
-    <tr><td>删除向量文件后检索</td><td>降级为关键词检索，不抛错</td><td>通过</td></tr>
-    <tr><td>音频拖动进度</td><td>返回 206 与正确 <code>Content-Range</code></td><td>通过</td></tr>
-    <tr><td>请求 <code>/data/history/chunks.json</code></td><td>私有路径拦截，返回 404</td><td>通过</td></tr>
-  </table>
-
-  <h3>6.3 线上验收记录</h3>
-  <p class="small">验收时间 2026-11-17，环境：Railway 单实例，Node 22.23.4，公网 HTTPS。</p>
-  <table>
-    <tr><th style="width:42%">检查项</th><th>结果</th></tr>
-    <tr><td><code>GET /</code></td><td>200，38,533 字节</td></tr>
-    <tr><td><code>GET /js/ai-guide.js</code></td><td>200，63,952 字节</td></tr>
-    <tr><td><code>GET /data/liyu-data.json</code></td><td>200，30,408 字节</td></tr>
-    <tr><td><code>POST /api/guide</code>（search）</td><td>命中 6 首词，未调用对话模型</td></tr>
-    <tr><td><code>POST /api/guide</code>（ask，问《虞美人》）</td><td>模型 <code>deepseek-chat</code>，第一人称作答</td></tr>
-    <tr><td><code>POST /api/guide</code>（ask，问牵机药）</td><td>citations 1、compare 2，争议分层生效</td></tr>
-    <tr><td>容器日志</td><td>启动无异常，无「语料加载失败」</td></tr>
-  </table>
-
-  <h3>6.4 部署流程</h3>
-  <pre>railway login                     # 设备码授权
-railway init --name yijiang-chunshui
-railway add --service web
-railway variables --set "GUIDE_API_KEY=..."
-railway variables --set "PORT=53422"
-railway up --service web          # 上传快照并构建
-railway domain --service web
-railway domain update &lt;id&gt; --port 53422</pre>
-  <p>构建阶段由平台识别 <code>package.json</code> 的 <code>engines.node</code>，安装 Node 22；由于没有运行时依赖，<code>npm install</code> 实际不下载业务包。启动命令为 <code>npm start</code>，健康检查路径为 <code>/</code>，失败策略为自动重启。</p>
-
-  <h3>6.5 踩坑记录</h3>
-  <table>
-    <tr><th style="width:30%">问题</th><th style="width:30%">原因</th><th>解决</th></tr>
-    <tr><td>部署后服务启动即退出</td><td><code>.railwayignore</code> 中 <code>functions/</code> 同时匹配了 <code>supabase/functions/</code></td><td>改为 <code>/functions/</code> 锚定根目录</td></tr>
-    <tr><td>域名 502</td><td>域名未绑定目标端口</td><td>设置 <code>PORT=53422</code> 并 <code>domain update --port 53422</code></td></tr>
-    <tr><td>CLI 安装卡在下载</td><td>GitHub 直连证书与限速</td><td>改用镜像下载二进制并解压到 CLI 目录</td></tr>
-    <tr><td>上传体积大</td><td>语料 128 MB 必须随包</td><td>压缩后快照约 175 MB，一次上传完成</td></tr>
-    <tr><td>本地 npm 安装残留</td><td>无关的开发依赖被误装</td><td>移除 devDependencies，服务端保持零依赖</td></tr>
-  </table>
-
-  <h3>6.6 运维</h3>
-  <ul>
-    <li>日志：平台日志 + 业务审计日志（问答、拦截、工具步骤）。</li>
-    <li>额度：关注平台试用额度与模型用量；问答受 420 tokens 上限约束，成本可控。</li>
-    <li>可用性：评审期保持单实例常驻；如需扩容，语料可挂只读卷，服务本身无状态。</li>
-    <li>更新：改完代码执行 <code>railway up --service web</code> 即滚动发布，不改配置。</li>
-  </ul>
-
-  <h3>6.7 环境配置清单</h3>
-  <table>
-    <tr><th style="width:26%">变量</th><th style="width:10%">必填</th><th>说明</th></tr>
-    <tr><td><code>GUIDE_API_KEY</code></td><td>是</td><td>对话模型密钥，仅服务端使用</td></tr>
-    <tr><td><code>GUIDE_API_BASE</code></td><td>是</td><td>OpenAI 兼容地址</td></tr>
-    <tr><td><code>GUIDE_MODEL</code></td><td>否</td><td>缺省 <code>glm-4-flash</code>，线上为 <code>deepseek-chat</code></td></tr>
-    <tr><td><code>EMBED_API_KEY</code></td><td>否</td><td>缺省时退化为关键词检索</td></tr>
-    <tr><td><code>EMBED_API_BASE</code></td><td>否</td><td>向量接口地址，模型固定 <code>embedding-3</code></td></tr>
-    <tr><td><code>AGENT_ROUNDS</code></td><td>否</td><td>2—5，缺省 4</td></tr>
-    <tr><td><code>TTS_PROVIDER</code></td><td>否</td><td>设为 <code>glm</code> 优先 GLM-TTS</td></tr>
-    <tr><td><code>PORT</code></td><td>否</td><td>缺省 53422，云平台注入</td></tr>
-  </table>
-  <p class="small">依赖清单：运行时仅 Node.js ≥ 22.18；服务端零第三方包；前端 Three.js 已内置；外部依赖为两个 OpenAI 兼容接口。语料重建脚本仅离线使用，不参与线上运行。</p>
-
-  <h3>6.8 前端工程质量对照</h3>
-  <p>对应大赛「前端工程质量」10% 的三个考察点：</p>
-  <table>
-    <tr><th style="width:22%">考察点</th><th>落实情况</th></tr>
-    <tr><td>前端代码质量 4%</td><td>AI 业务核心以 TypeScript 编写并由 136 项单元断言守护；前端原生 JS 按职责拆分为 <code>script.js</code>（页面交互）、<code>ai-guide.js</code>（AI 面板）、<code>map-textures.js</code>（地图数据），命名与边界清晰；线上验收无阻断性 Bug</td></tr>
-    <tr><td>组件化与架构 3%</td><td>无重型框架前提下做逻辑分层：基础库 → 页面脚本 → AI 交互；AI 面板经 <code>window.LIYU_AI_ENDPOINT</code> 解耦数据源，可整面板复用于其他后端；服务端以适配壳复用同一份业务代码，模块解耦、可复用</td></tr>
-    <tr><td>前端性能优化 3%</td><td>零构建零 CDN 减少外部阻塞；语料与向量惰性加载一次常驻；音频/视频支持 Range 分段与流式读取；7.6 MB 地图纹理本地化避免运行时外链；静态资源按扩展名正确缓存</td></tr>
-  </table>
-</section>
-
-<!-- ============ 七、创新点 ============ -->
-<section class="chapter">
-  <h2 class="ch"><span class="no">七</span>创新点说明</h2>
-  <p class="ch-lead">技术创新解决「可信」与「可控」，应用创新解决「愿不愿意读下去」。</p>
-
-  <h3>7.1 技术创新（对应「技术方案创新」8%）</h3>
-  <p>本维度对应大赛创新性评分中的「技术方案创新：AI 技术的组合应用是否有新意、是否有独特的技术方案」。</p>
-  <table>
-    <tr><th style="width:6%">序</th><th style="width:24%">创新点</th><th style="width:40%">做法</th><th>为什么新 / 可验证</th></tr>
-    <tr><td>1</td><td>四库分级 RAG</td><td>按信源性质分 A/B/C/D 并赋权 1.0 / 0.92 / 0.55 / 0.4；D 库不向量化，只做关键词与交叉核对</td><td>常见的 RAG 只按相似度排序，不区分史料等级；本项目让「信源等级」进入排序公式，可在检索结果中直接观察</td></tr>
-    <tr><td>2</td><td>点名式引文核对</td><td>只对回答中明确点名的卷做原文定位，最多 3 条；未点名则不给引文</td><td>解决「有引用但引错」的行业通病；引文与答案强绑定，点开即可核对</td></tr>
-    <tr><td>3</td><td>可信度三件套</td><td><code>citations</code>（原文）、<code>compare/compareConflict</code>（跨库出入）、<code>dispute</code>（正史/笔记/一般看法分层）</td><td>把「可信」拆成可渲染的结构化字段，而不是一句「据史料记载」</td></tr>
-    <tr><td>4</td><td>过程透明</td><td>每次工具调用记录轮次、参数、命中数、耗时，前端呈现「梦客查过」</td><td>让评审与用户都能看到推理路径，降低「一本正经胡说」的不可见风险</td></tr>
-    <tr><td>5</td><td>双层闸门</td><td>输入侧白/黑名单 + 注入检测；输出侧越界词打码 + 审计日志</td><td>文学人格容易越界，双层闸门把「允许的文学性」与「不允许的越界」分开处理</td></tr>
-    <tr><td>6</td><td>运行时 RAG</td><td>本地无载时在线抓整卷 → 切块 → 向量化 → 落盘 → 并入索引</td><td>语料可增量生长，且新块与既有块走同一套检索，不是临时塞一段原文</td></tr>
-    <tr><td>7</td><td>一份业务代码多运行时</td><td>用十余行 Deno 兼容壳，让同一 <code>index.ts</code> 在本地 Node 与云端运行</td><td>消除「本地与线上行为不一致」这类最难排查的问题</td></tr>
-  </table>
-
-  <h3>7.2 选题与交互创新（对应「选题创新」10% + 「交互模式创新」7%）</h3>
-  <p><b>选题创新</b>对应「是否发现独特的应用场景或未被满足的需求」：通用大模型谈古诗词常无据乱说，百科产品又只有第三人称条目，「可信的第一人称历史对话」是未被满足的空白。<b>交互模式创新</b>对应「人机交互方式是否有创新、是否超越传统模式」：下表前两条属选题层，后四条属交互层。</p>
-  <table>
-    <tr><th style="width:6%">序</th><th style="width:24%">创新点</th><th>说明</th></tr>
-    <tr><td>1</td><td>第一人称「梦客」人格</td><td>不是问答百科，而是「当事人讲述」。人格设定了叙事边界（截止 978 年），使文学性与史实约束同时成立</td></tr>
-    <tr><td>2</td><td>争议问题的三层回答</td><td>面对「牵机药」这类问题，不站队、不含糊，而是把正史、笔记、一般看法分开摆在读者面前</td></tr>
-    <tr><td>3</td><td>词—史—地三线互链</td><td>回答里的年份可跳时间轴、地名可飞地图、词句可回词作，把「读到」变成「走到」</td></tr>
-    <tr><td>4</td><td>人物档案卡</td><td>17 位人物在被提及时自动浮出，附可点追问，降低古文阅读的人名门槛</td></tr>
-    <tr><td>5</td><td>克制的文创表达</td><td>只做概念陈列、不导购，把「文化转译」与「商品交易」明确切开</td></tr>
-    <tr><td>6</td><td>朗读三通道降级</td><td>GLM-TTS → 本机语音 → 浏览器语音，保证任何网络与设备条件下按钮都有反馈</td></tr>
-  </table>
-</section>
-
-<!-- ============ 八、总结与展望 ============ -->
-<section class="chapter">
-  <h2 class="ch"><span class="no">八</span>总结与展望</h2>
-
-  <h3>8.1 总结</h3>
-  <p>项目完成了一个以李煜为叙事主体的中文沉浸式站点：八个页面构成可走的动线，470 卷四库语料构成可查的底座，AI 侍读构成可问的入口。技术上，用「四库分级 + 点名式引文 + 三层争议 + 过程透明」把大模型的文学表达约束在可核对的范围内；工程上，用「零依赖服务端 + 一份业务代码 + 原子写数据管线」把部署与维护成本压到最低。</p>
-  <p>对评审而言，最值得看的是三处：检索结果的库权重如何影响排序、引文为什么能点开即对上、争议问题如何分层而不含糊。</p>
-
-  <h3>8.2 不足</h3>
-  <ul>
-    <li>D 库（十国春秋 1110 块）按设计未向量化，语义召回覆盖不全，目前靠关键词与交叉核对补足。</li>
-    <li>云端朗读依赖浏览器语音兜底，音色与本机 Windows 语音不一致；GLM-TTS 需单独开通资源包。</li>
-    <li>人工评测样本有限，尚未建立标注集与自动评测指标（引用准确率、争议识别率、越界率）。</li>
-    <li>回答为一次性返回，尚未实现流式输出，长回答的等待感仍可优化。</li>
-  </ul>
-
-  <h3>8.3 社会价值与商业潜力</h3>
-  <h4>8.3.1 社会价值</h4>
-  <ul>
-    <li><b>古籍活化</b>：470 卷四库语料从无人问津的扫描文本，变成可问、可查、可核对的活知识，为文史领域的 RAG 应用提供可复用的分级与辨伪范式。</li>
-    <li><b>普惠教育</b>：免登录、免安装、公网可达，学生与自学者零门槛获得带出处的文史问答，缩小优质人文教育资源的获取差距。</li>
-    <li><b>责任 AI 样本</b>：在「大模型幻觉」广受担忧的背景下，项目用双层闸门、点名式引文与争议分层，示范了人文场景中「可解释、可核对、可兜底」的负责任落地方式。</li>
-  </ul>
-  <h4>8.3.2 商业潜力</h4>
-  <table>
-    <tr><th style="width:22%">路径</th><th style="width:34%">模式</th><th>可持续性说明</th></tr>
-    <tr><td>文博与文旅机构授权</td><td>站点引擎与问答能力按机构定制授权</td><td>博物馆、纪念馆、历史文化景区有数字展陈预算；水墨视觉与行迹地图可直接复用</td></tr>
-    <tr><td>校本课程与教育合作</td><td>面向中学/高校语文、历史课程的教学版</td><td>出处可核对契合教学规范；教师后台与标注集评测（§8.4）可作为增值点</td></tr>
-    <tr><td>文创概念延展</td><td>现有六张概念卡对接正版文创供应链</td><td>当前刻意不做交易；验证受众后再以分成或联名方式开放，合规风险低</td></tr>
-  </table>
-  <p class="small">成本侧同样可持续：服务端零依赖、单实例常驻、单次问答一次模型调用，规模化后主要成本为模型 token 费，可随用量线性控制。</p>
-
-  <h3>8.4 展望</h3>
+  <h3>5.3 服务端关键技术</h3>
+  <p><code>server/index.mjs</code> 约 200 行承担三件事：</p>
   <ol>
-    <li><b>评测体系</b>：建立 100—200 条问题的标注集，量化引文准确率、四库对照召回率与越界率，作为每次改动的回归基线。</li>
-    <li><b>检索增强</b>：为 D 库补向量但保持低权重；引入 BM25 与向量融合的混合排序，减少对单一阈值的依赖。</li>
-    <li><b>交互体验</b>：流式输出与逐句引文高亮；把「梦客查过」做成可展开的检索轨迹。</li>
-    <li><b>多模态</b>：为词作配可交互的水墨插画，让「从词到物」的转译更完整。</li>
-    <li><b>工程治理</b>：问答配额与限流、缓存命中统计、按会话的审计看板。</li>
+    <li><b>静态托管</b>：扩展名映射 MIME；音视频返回 206 + Content-Range 支持进度拖动；流式读取避免大文件整段进内存；</li>
+    <li><b>两道路径防线</b>：正则拦截 <code>/.</code> 隐藏文件与 server/scripts/supabase/tests 等私有目录，且拼接后的绝对路径必须仍位于站点根内（防目录穿越），密钥与语料不经 HTTP 暴露；</li>
+    <li><b>接口转发</b>：把请求体构造为标准 Request 交给业务函数，异常统一回 JSON 错误，进程不崩溃。</li>
   </ol>
+  <p>依托 Node ≥ 22.18 原生 TypeScript 类型擦除直接 import 业务层 <code>.ts</code> 文件，无需 tsc、无需打包；版本不足时启动阶段即明确提示退出。</p>
+
+  <h3>5.4 数据层与离线管线</h3>
+  <table>
+    <tr><th style="width:32%">数据</th><th style="width:16%">体积</th><th>加载策略</th></tr>
+    <tr><td>liyu-data.json（词作库）</td><td>30 KB</td><td>按需读取</td></tr>
+    <tr><td>facts.json（事实库）</td><td>20 KB</td><td>按需读取</td></tr>
+    <tr><td>history/chunks.json</td><td>16.4 MB</td><td>首次检索解析一次后常驻内存</td></tr>
+    <tr><td>history/vectors.json</td><td>97 MB</td><td>同步加载；缺失自动降级关键词检索</td></tr>
+    <tr><td>history/sources.json</td><td>15.1 MB</td><td>取原文卷次时按需使用</td></tr>
+  </table>
+  <p>加载函数采用「未加载 / 加载中 / 失败」三态缓存：失败一次不反复重试，解析异常只记日志不抛出，站点其余功能不受影响。以约 130 MB 的一次解析换取每次请求零磁盘 IO，是单实例小流量场景下更划算的取舍。</p>
+
+  <h3>5.5 项目实景</h3>
+  <p class="small">以下 9 幅截图均取自线上同版本站点的真实运行画面（1440×900），未作后期合成；截图时仅临时关闭教学弹窗与 AI 招呼气泡，页面本体与线上一致。</p>
+
+  <figure class="shot wide">
+    <img src="screenshots/01-home.png" alt="首页水墨书封">
+    <figcaption><b>图 5-1</b>首页：梅花水墨书封、书法题字「一梦江愁」与「翻开词境」印章入口，副标题「李煜词境 · 南唐旧梦」。</figcaption>
+  </figure>
+
+  <div class="shot-pair">
+    <figure class="shot mid">
+      <img src="screenshots/02-ci.png" alt="词作阅读页">
+      <figcaption><b>图 5-2</b>词作页：24 首词作数据驱动渲染，含原文、译意与写作背景，支持收藏与词牌聚合跳转。</figcaption>
+    </figure>
+    <figure class="shot mid">
+      <img src="screenshots/03-life.png" alt="生平时间轴页">
+      <figcaption><b>图 5-3</b>生平时间轴：937—978 关键节点（即位、城破、囚居、绝唱、归葬），锚点可被 AI 动作卡直接定位。</figcaption>
+    </figure>
+  </div>
+
+  <div class="shot-pair">
+    <figure class="shot mid">
+      <img src="screenshots/04-wanxiang.png" alt="万象意象图谱页">
+      <figcaption><b>图 5-4</b>万象页：以春水、梧桐、西楼等意象串联词作的意象图谱，页末单一出口通向「从词到物」。</figcaption>
+    </figure>
+    <figure class="shot mid">
+      <img src="screenshots/05-listen.png" alt="听词页">
+      <figcaption><b>图 5-5</b>听词页：背景音乐跨页续播，朗读支持 GLM-TTS、本机语音、浏览器语音三通道自动降级。</figcaption>
+    </figure>
+  </div>
+
+  <figure class="shot wide">
+    <img src="screenshots/06-map.png" alt="Three.js 水墨行迹地图">
+    <figcaption><b>图 5-6</b>行迹地图：Three.js 构建的程序化水墨 3D 地形，金陵、钟山、洪州、采石、江舟、汴京、北邙七站可飞达；底部时间指引与右侧站点导航常驻，纹理全部本地化、不请求外部图床。</figcaption>
+  </figure>
+
+  <div class="shot-pair">
+    <figure class="shot mid">
+      <img src="screenshots/07-finale.png" alt="终幕页">
+      <figcaption><b>图 5-7</b>终幕页：以 978 年七夕为落点的滚动叙事，叙事到底才给出「去笺语墙」按钮，两个功能拆开互不打断。</figcaption>
+    </figure>
+    <figure class="shot mid">
+      <img src="screenshots/08-jianyu.png" alt="笺语墙页">
+      <figcaption><b>图 5-8</b>笺语墙：读者提笔留言，可请梦客回笺——回复只针对被点的一条，且必须引用站内已有词句并注明出处。</figcaption>
+    </figure>
+  </div>
+
+  <figure class="shot half">
+    <img src="screenshots/09-wenwu.png" alt="文创概念页">
+    <figcaption><b>图 5-9</b>文创概念页「一梦南唐」：六张概念卡仅作概念陈列，全页无价格、无库存、无支付入口；AI 生成配图统一标注「AI 生成」。</figcaption>
+  </figure>
+
+  <h3>5.6 测试与部署</h3>
+  <table>
+    <tr><th style="width:24%">测试层</th><th style="width:34%">方式</th><th>覆盖与结果</th></tr>
+    <tr><td>单元测试</td><td><code>node --test</code>，136 项断言</td><td>规范化、白/黑名单、注入拦截、检索权重、引文抽取、争议判定、脱敏全通过</td></tr>
+    <tr><td>冒烟测试</td><td>tests/smoke.mjs 起服务实测</td><td>首页与 /api/guide 端到端连通</td></tr>
+    <tr><td>线上验收</td><td>Railway 公网 HTTPS 实测</td><td>静态资源 200；search 命中 6 首词；问牵机药返回 citations 1、compare 2，分层生效；音频拖动返回 206；私有路径拦截返回 404</td></tr>
+  </table>
+  <pre>npm start                         # 本地：Node 单进程监听 53422
+railway up --service web          # 云端：快照上传，平台装 Node 22（无业务依赖）
+railway domain update &lt;id&gt; --port 53422   # 域名绑定容器端口，平台签发 HTTPS</pre>
+  <p class="small">部署踩坑已固化为配置：.railwayignore 规则锚定根目录避免误排除 supabase/functions；显式 PORT 绑定消除 502；健康检查路径 / + 失败自动重启保障评审期可用。</p>
 </section>
 
-<!-- ============ 九、素材来源与合规声明 ============ -->
-<section class="chapter" id="ch9">
-  <h2 class="ch"><span class="no">九</span>素材来源与合规声明</h2>
+<!-- ============ 六、获奖与公开发表情况 ============ -->
+<section class="chapter">
+  <h2 class="ch"><span class="no">六</span>项目获奖与公开发表情况</h2>
+  <p class="ch-lead">按提交系统要求如实填写，不虚报、不套用与本项目无关的荣誉。</p>
+
+  <h3>6.1 获奖情况</h3>
+  <div class="note">
+    <b>如实声明：</b>本项目系为本届「传智杯 · AI WEB 网页开发挑战赛」全新创作的参赛作品，<b>截至本文档完成日，尚未在其他任何赛事中获奖，亦无与本项目直接相关的获奖证书</b>。本次比赛为该作品首次参加的正式竞赛。
+  </div>
+
+  <h3>6.2 公开发表情况</h3>
+  <div class="note">
+    <b>如实声明：</b>本项目的技术方案与系统实现<b>尚未在学术期刊、学术会议、论文集或其他正式出版物上公开发表</b>，暂无论文、专利、软件著作权登记等成果。作品当前仅以竞赛演示与代码仓库形式存在。
+  </div>
+
+  <h3>6.3 可核验的过程性材料</h3>
+  <p>虽无获奖与发表记录，以下材料可证明项目的真实性、原创性与公开可访问性，供评审核验：</p>
+  <table>
+    <tr><th style="width:28%">材料</th><th>核验方式与说明</th></tr>
+    <tr><td>Git 完整提交历史</td><td>GitHub 仓库 main 分支保留全量中文提交记录，按功能分批提交，涵盖语料重建、AI 业务、页面开发、部署调试全过程，可还原真实开发节奏</td></tr>
+    <tr><td>公网在线演示</td><td>Railway 地址长期可访问（免登录），评审可随时复核本文档描述的每项功能与数据</td></tr>
+    <tr><td>本文档实景截图</td><td>§5.5 九幅截图取自同版本线上站点，可与在线演示逐一对照</td></tr>
+    <tr><td>单元测试与验收记录</td><td>136 项断言测试代码随仓库提交；线上验收数据见 §5.6，可现场复跑</td></tr>
+  </table>
+  <p class="small">说明：公网可访问的演示站点属于作品部署，不等同于学术意义上的「公开发表」，本文档严格区分二者表述。</p>
+</section>
+
+<!-- ============ 七、项目优化说明 ============ -->
+<section class="chapter">
+  <h2 class="ch"><span class="no">七</span>项目优化说明</h2>
+  <p class="ch-lead">先说明项目缘起与原创性，再汇报开发过程中的自我迭代、现存不足与后续计划。</p>
+
+  <h3>7.1 原创性说明</h3>
+  <div class="note">
+    <b>如实声明：</b>本项目<b>从零原创开发，并非基于任何既有项目、开源系统或课程模板的二次改造</b>，因此不存在「相对于被优化项目」的优化项。选题立意、「梦客」人格设定、四库分级规则、系统架构、提示词体系、全部业务代码与页面设计均由团队独立完成；仅使用公开古籍语料、合规授权素材与通用大模型接口作为生产资料（来源见文末附注）。
+  </div>
+  <p>团队分工如实说明：队长胡建铭独立完成全部架构设计与编码实现、语料处理、测试部署及文档撰写；雷吴玲提供前端修改建议并提供 DeepSeek API 资源；文骏豪参与资料整理与事务性支持。开发过程使用 AI 编程助手辅助生成样板代码与文档初稿，所有 AI 生成内容均经人工逐条核对，史实一律以原典校验。</p>
+
+  <h3>7.2 开发过程中的关键优化（自我迭代记录）</h3>
+  <p>以下为本项目在从零开发过程中，经实测验证后做出的重要优化决策：</p>
+  <table>
+    <tr><th style="width:22%">优化项</th><th style="width:38%">优化前的问题</th><th>优化后</th></tr>
+    <tr><td>引文核对机制</td><td>早期把检索召回块直接当引用，答案与引文经常对不上</td><td>改为「点名式核对」：只反查回答中点名的卷，未点名不给引文；引文数量下降但条条可核对</td></tr>
+    <tr><td>D 库信源定性</td><td>十国春秋若参与语义召回，常以「最像」压过正史原卷</td><td>D 库不向量化、权重降至 0.4，仅参与关键词命中与交叉核对</td></tr>
+    <tr><td>朗读可用性</td><td>单一 TTS 通道在网络受限或未开通资源包时静默失败</td><td>建 GLM-TTS → 本机语音 → 浏览器语音三通道自动降级，按钮必有反馈</td></tr>
+    <tr><td>运行时架构</td><td>本地 Node 与云端 Deno 两套业务代码行为难对齐</td><td>业务代码只写一份（标准 Request/Response），十余行兼容壳抹平运行时差异</td></tr>
+    <tr><td>数据管线可靠性</td><td>向量化耗时数小时，中断后需全部重跑</td><td>分批 + 断点续跑 + 原子写，中断恢复只跑未完成块</td></tr>
+    <tr><td>依赖与部署体积</td><td>误装无关开发依赖，部署链路变重</td><td>移除 devDependencies，服务端保持零第三方包，快照一次上传即可运行</td></tr>
+    <tr><td>检索健壮性</td><td>向量文件缺失或 embedding 故障时整个问答不可用</td><td>静默降级关键词通道，引文仍可返回，接口不报错</td></tr>
+  </table>
+
+  <h3>7.3 现存不足</h3>
+  <ol>
+    <li>D 库（1110 块）按设计未向量化，语义召回覆盖不全，目前靠关键词与交叉核对补足；</li>
+    <li>云端朗读依赖浏览器语音兜底，音色与本机语音不一致，GLM-TTS 需单独开通资源包；</li>
+    <li>人工评测样本有限，尚未建立标注集与引用准确率、争议识别率、越界率等自动评测指标；</li>
+    <li>回答为一次性返回，尚未实现流式输出，长回答的等待感仍可优化；</li>
+    <li>暂未实现问答配额、限流与按会话的审计看板等规模化治理能力。</li>
+  </ol>
+
+  <h3>7.4 后续优化计划</h3>
+  <table>
+    <tr><th style="width:22%">方向</th><th>具体计划</th></tr>
+    <tr><td>评测体系</td><td>建设 100—200 条问题标注集，量化引文准确率、四库对照召回率与越界率，作为每次改动的回归基线</td></tr>
+    <tr><td>检索增强</td><td>为 D 库补向量但保持低权重；引入 BM25 与向量融合的混合排序，减少对单一阈值 0.2 的依赖</td></tr>
+    <tr><td>交互体验</td><td>上线流式输出与逐句引文高亮；把「梦客查过」升级为可展开的完整检索轨迹</td></tr>
+    <tr><td>多模态</td><td>为词作配可交互水墨插画，完善「从词到物」的转译链路</td></tr>
+    <tr><td>工程治理</td><td>问答配额与限流、缓存命中统计、审计看板；语料挂只读卷支持水平扩容</td></tr>
+    <tr><td>社会价值落地</td><td>面向文博/文旅机构的定制授权、面向中学高校的校本课程版、文创概念对接正版供应链三条路径</td></tr>
+  </table>
+</section>
+
+<!-- ============ 附：素材来源与合规声明 ============ -->
+<section class="chapter">
+  <h2 class="ch"><span class="no">附</span>素材来源与合规声明</h2>
   <p class="ch-lead">如实标注每一类素材的来源与处理方式，是作品可被评审、可被复用的前提。</p>
 
-  <h3>9.1 素材来源一览</h3>
+  <h3>一、素材来源一览</h3>
   <table>
     <tr><th style="width:12%">类型</th><th style="width:38%">来源</th><th style="width:32%">本站处理方式</th><th style="width:18%">权利归属</th></tr>
-    <tr><td>图片</td><td>游戏《燕云十六声》《忘川风华录》、电视剧《庆余年》、戏曲《天上人间李后主》的相关公开画面</td><td>按页面叙事选取、裁剪与排版，不独立传播、不提供原图下载</td><td>原权利人</td></tr>
+    <tr><td>图片</td><td>游戏《燕云十六声》《忘川风华录》、电视剧《庆余年》、戏曲《天上人间李后主》的公开画面</td><td>按页面叙事选取、裁剪、排版，不独立传播、不提供原图下载</td><td>原权利人</td></tr>
     <tr><td>图片</td><td>Unsplash、Pexels、Pixabay 等免费图库</td><td>按各平台原始授权协议使用</td><td>原作者／平台协议</td></tr>
     <tr><td>图片</td><td>AI 图像生成工具创作</td><td>统一作 AIGC 标识，仅用于意境烘托，不作史实证据</td><td>项目组</td></tr>
     <tr><td>视频</td><td>全部取自游戏《燕云十六声》实机运行画面</td><td>自行剪辑、调色并配合页面叙事重新编排，不含游戏完整流程</td><td>原权利人</td></tr>
     <tr><td>文本</td><td>词作与史实引自公开古籍语料（四库系列等，详见 §4.3）</td><td>切块、分级、向量化后用于检索与引文核对</td><td>公有领域</td></tr>
   </table>
 
-  <h3>9.2 AI 生成内容标识</h3>
+  <h3>二、AI 生成内容标识</h3>
   <ul>
-    <li>AI 侍读的全部文本回答由大模型生成，经输入／输出双层闸门（§4.7）约束；史实处以点名式引文回链原典，无据时回答「史料未载」。</li>
-    <li>AI 生成配图与古籍引文在页面上分区呈现，前者只承担氛围表达，不承担史实举证。</li>
+    <li>AI 侍读的全部文本回答由大模型生成，经输入／输出双层闸门（§4.6）约束；史实处以点名式引文回链原典，无据时回答「史料未载」。</li>
+    <li>AI 生成配图与古籍引文在页面上分区呈现，配图统一标注「AI 生成」，只承担氛围表达，不承担史实举证。</li>
   </ul>
 
-  <h3>9.3 使用性质与侵权处理</h3>
+  <h3>三、使用性质与侵权处理</h3>
   <ul>
     <li>第三方素材仅用于本作品的非商业竞赛展示、教学与评审交流，不单独售卖，不嵌入任何付费产品或服务。</li>
     <li>如相关权利人认为本站内容存在侵权，可通过代码仓库 README 公示的联系邮箱反馈，核实后 48 小时内删除或替换对应素材。</li>
   </ul>
 
-  <h3>9.4 AI 辅助开发声明</h3>
-  <p>开发过程使用 AI 编程助手辅助生成样板代码与文档初稿；系统架构、提示词与人格设定、四库分级规则、全部业务代码的审查修正、测试与部署均由作者人工完成，AI 生成内容逐条经人工核对，史实一律以原典校验。</p>
-  <p class="small">完整声明文本见代码仓库 README 第十一节。</p>
-</section>
-
-<!-- ============ 附录 ============ -->
-<section class="chapter">
-  <h2 class="ch"><span class="no">附录</span>附录</h2>
-
-  <h3>A 接口契约</h3>
-  <pre>POST /api/guide
-Content-Type: application/json
-
-请求：
-{
-  "action":   "ask | search | compose | interpret | reply | share | speak",
-  "message":  "用户输入（≤800 字）",
-  "page":     "当前页面标识",
-  "sessionId":"会话标识",
-  "history":  [ { "role": "user|assistant", "content": "..." } ]
-}
-
-响应：
-{
-  "answer":          "回答正文",
-  "sources":         [ { slug, title, tune, year, content } ],
-  "cards":           [ { type:"person", name, title, archive, anchor, asks[] } ],
-  "citations":       [ { book, juan, text, url, tier, tierLabel } ],
-  "dispute":         true | false,
-  "compare":         [ ... ],
-  "compareConflict": true | false,
-  "steps":           [ { round, tool, args, hits, ok, ms } ],
-  "history":         [ ... ],
-  "model":           "deepseek-chat | glm-4-flash | ..."
-}</pre>
-
-  <h3>B 目录与职责</h3>
-  <table>
-    <tr><th style="width:30%">路径</th><th>职责</th></tr>
-    <tr><td><code>index.html / pages/</code></td><td>九个页面（首页 + 八个子页）</td></tr>
-    <tr><td><code>css/style.css</code></td><td>全局样式与响应式</td></tr>
-    <tr><td><code>js/script.js</code></td><td>首页与通用交互、朗读降级</td></tr>
-    <tr><td><code>js/ai-guide.js</code></td><td>AI 侍读面板与结果渲染</td></tr>
-    <tr><td><code>server/index.mjs</code></td><td>静态托管 + 接口转发 + Deno 兼容壳</td></tr>
-    <tr><td><code>supabase/functions/guide/index.ts</code></td><td>AI 业务主体</td></tr>
-    <tr><td><code>data/</code></td><td>词库、事实库、四库语料与向量</td></tr>
-    <tr><td><code>scripts/</code></td><td>语料同步、切块、向量化（离线）</td></tr>
-    <tr><td><code>tests/</code></td><td>单元测试与冒烟脚本</td></tr>
-    <tr><td><code>.env.example / .railwayignore / railway.json</code></td><td>环境模板、上传忽略规则、平台配置</td></tr>
-  </table>
-
-  <h3>C 数据字典</h3>
-  <table>
-    <tr><th style="width:22%">对象</th><th style="width:34%">字段</th><th>说明</th></tr>
-    <tr><td>HistoryChunk</td><td><code>id, book, juan, tier, text</code></td><td><code>tier</code> 取 A/B/C/D，决定权重与是否向量化</td></tr>
-    <tr><td>Vector</td><td><code>[id]: number[2048]</code></td><td>与 chunk 的 <code>id</code> 一一对应</td></tr>
-    <tr><td>AgentStep</td><td><code>round, tool, args, hits, ok, ms</code></td><td>一次工具调用记一步</td></tr>
-    <tr><td>Citation</td><td><code>book, juan, text, url, tier, tierLabel</code></td><td>由回答点名的卷反查得到</td></tr>
-    <tr><td>PersonCard</td><td><code>name, title, archive, anchor, asks[]</code></td><td>17 位人物，最多同时出 2 张</td></tr>
-  </table>
-
-  <h3>D 七工具速查</h3>
-  <p>Agent 经 Function Calling 自主选工具，默认最多 4 轮；每次调用落一条 <code>AgentStep</code>，前端以「梦客查过」呈现。工具中文描述原文位于 <code>supabase/functions/guide/index.ts</code> 工具定义段。</p>
-  <table>
-    <tr><th style="width:19%">工具</th><th style="width:35%">职责</th><th style="width:20%">关键参数</th><th>数据去向</th></tr>
-    <tr><td><code>search_poems</code></td><td>按词牌、意象、词句片段检索词库</td><td><code>keyword</code></td><td>词作库 <code>liyu-data.json</code></td></tr>
-    <tr><td><code>get_poem_detail</code></td><td>取一首词的原文、译意、写作背景</td><td><code>slug</code></td><td>词作库</td></tr>
-    <tr><td><code>get_timeline_event</code></td><td>查 937—978b 生平时间轴的一段</td><td><code>key</code>（年份/段落键）</td><td>事实库 <code>facts.json</code></td></tr>
-    <tr><td><code>get_location</code></td><td>查行迹地图七站之一的人事</td><td><code>slug</code>（如 <code>bianjing</code>）</td><td>事实库</td></tr>
-    <tr><td><code>navigate_to</code></td><td>发「前往」动作卡，带读者跳页并定位锚点/站点</td><td><code>page, label, anchor, spot</code></td><td>前端路由</td></tr>
-    <tr><td><code>search_history</code></td><td>本地四库语料分级检索，回答须写明出处</td><td><code>query</code>，可选 <code>book</code></td><td>5059 块 + 3949 条向量</td></tr>
-    <tr><td><code>fetch_history_online</code></td><td>维基文库白名单抓卷，切块入索引后再转述；命中缓存秒回，失败退回本地检索</td><td><code>query</code>，可选 <code>book, juan</code></td><td>在线抓取 → 落盘并入索引</td></tr>
-  </table>
+  <h3>四、AI 辅助开发声明</h3>
+  <p>开发过程使用 AI 编程助手辅助生成样板代码与文档初稿；系统架构、提示词与人格设定、四库分级规则、全部业务代码的审查修正、测试与部署均由作者人工完成，AI 生成内容逐条经人工核对，史实一律以原典校验。完整声明文本见代码仓库 README 对应章节。</p>
 
   <div class="note" style="margin-top:14pt">
-    <b>文档说明：</b>本文档所述参数与行为均以当前代码为准，团队名称、成员与分工已与报名信息核对一致；文档与 <code>README.md</code>、<code>.env.example</code> 随仓库一并提交，密钥仅存于服务端环境变量，不在仓库中出现。
+    <b>文档说明：</b>本文档按提交系统七项要求组织（v2.0），所述参数与行为均以当前代码为准；团队名称、成员与分工已与报名信息核对一致。文档与 README.md、.env.example 随仓库一并提交，密钥仅存于服务端环境变量，不在仓库中出现。
   </div>
 </section>
 
