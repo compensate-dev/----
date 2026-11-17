@@ -5,6 +5,9 @@
 .env.local
 .dev.vars
 
+# 内部交接备忘，不对外
+/交接说明.md
+
 # 依赖、版本库、工具缓存
 /node_modules/
 /.git/
