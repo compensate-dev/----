@@ -120,6 +120,7 @@
     <div><span>所属院校</span>四川工商学院（眉山校区）　指导老师：邱敏</div>
     <div><span>队长</span>胡建铭（编号 2084908，计算机科学与技术，本科）</div>
     <div><span>在线演示</span>web-production-e6033138.up.railway.app（免登录）</div>
+    <div><span>代码仓库</span>https://github.com/compensate-dev/----（GitHub 公开仓库）</div>
     <div><span>文档版本</span>v2.0（2026-11-18，按提交系统七项要求重构）</div>
   </div>
 </section>
@@ -184,7 +185,7 @@
     <tr><td>数据规模</td><td>词作库 24 首；史实事实库；四库语料 470 卷 / 5059 块 / 3949 条 2048 维向量</td></tr>
     <tr><td>运行依赖</td><td>服务端零第三方包；前端零构建、零 CDN</td></tr>
     <tr><td>在线演示</td><td>Railway 托管，Node 22.23.4，公网 HTTPS，免登录访问</td></tr>
-    <tr><td>代码仓库</td><td>GitHub，保留完整中文提交历史，含语料重建全过程</td></tr>
+    <tr><td>代码仓库</td><td><code>https://github.com/compensate-dev/----</code>（GitHub 公开仓库），保留完整中文提交历史，含语料重建全过程</td></tr>
   </table>
 
   <h3>1.4 目标用户与典型场景</h3>
@@ -233,8 +234,9 @@
 
   <h3>2.2 本地运行</h3>
   <p><b>环境要求：</b>Node.js ≥ 22.18（用到原生 TypeScript 类型擦除，低版本启动时会明确报错退出）；可访问 OpenAI 兼容的对话与向量接口。</p>
-  <pre># 1. 获取代码并进入目录
-git clone &lt;仓库地址&gt; liyu && cd liyu
+  <pre># 1. 获取代码并进入目录（公开仓库，无需权限）
+git clone https://github.com/compensate-dev/----.git liyu
+cd liyu
 
 # 2. 准备环境变量（仓库提供模板，内含逐项中文注释）
 copy .env.example .env.local
@@ -566,7 +568,7 @@ railway domain update &lt;id&gt; --port 53422   # 域名绑定容器端口，平
   <p>虽无获奖与发表记录，以下材料可证明项目的真实性、原创性与公开可访问性，供评审核验：</p>
   <table>
     <tr><th style="width:28%">材料</th><th>核验方式与说明</th></tr>
-    <tr><td>Git 完整提交历史</td><td>GitHub 仓库 main 分支保留全量中文提交记录，按功能分批提交，涵盖语料重建、AI 业务、页面开发、部署调试全过程，可还原真实开发节奏</td></tr>
+    <tr><td>Git 完整提交历史</td><td>公开仓库 <code>https://github.com/compensate-dev/----</code> 的 main 分支保留全量中文提交记录，按功能分批提交，涵盖语料重建、AI 业务、页面开发、部署调试全过程，可还原真实开发节奏</td></tr>
     <tr><td>公网在线演示</td><td>Railway 地址长期可访问（免登录），评审可随时复核本文档描述的每项功能与数据</td></tr>
     <tr><td>本文档实景截图</td><td>§5.5 九幅截图取自同版本线上站点，可与在线演示逐一对照</td></tr>
     <tr><td>单元测试与验收记录</td><td>136 项断言测试代码随仓库提交；线上验收数据见 §5.6，可现场复跑</td></tr>
