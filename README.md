@@ -9,8 +9,9 @@
 > 一句话：用一条可走的时间线承载可信的史料，用一个有人格、有边界的 AI，把史料翻译成第一人称的叙述。
 
 - 在线演示：<https://web-production-e6033138.up.railway.app>（免登录，评审期保持可用）
+- 演示视频：<https://v.douyin.com/xYcEVjCfTfs/>（7 分半逐页讲解，1080p 重制版；早先提交的视频经平台转码后分辨率模糊，已作废，一律以此短链为准）
 - 代码仓库：<https://github.com/compensate-dev/---->
-- 技术文档：[docs/技术文档.pdf](docs/技术文档.pdf)（28 页，含完整评分对照与接口契约）
+- 技术文档：[docs/技术文档.pdf](docs/技术文档.pdf)（22 页，含完整评分对照与接口契约）
 - 赛事：传智杯 · AI WEB 网页开发挑战赛，主选方向「RAG 知识问答系统」，兼具「AI Agent 智能助手」
 
 ---
