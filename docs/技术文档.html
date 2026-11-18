@@ -20,6 +20,7 @@
   code {
     font-family: Consolas, "Courier New", monospace; font-size: 8.8pt;
     background: #f2f5f6; padding: 0 3px; border-radius: 2px; color: #24404f;
+    overflow-wrap: anywhere; word-break: break-all;
   }
   pre {
     font-family: Consolas, "Courier New", monospace; font-size: 8.4pt; line-height: 1.55;
@@ -70,7 +71,7 @@
   .cover .sub { font-size: 13pt; color: #405966; letter-spacing: 2pt; margin: 0 0 18pt; }
   .cover .rule { width: 62mm; height: 1pt; background: #8c3b34; margin: 0 0 12pt; }
   .cover .kind { font-size: 10.5pt; letter-spacing: 4pt; color: #8c3b34; font-family: "Microsoft YaHei", sans-serif; }
-  .cover .meta { font-size: 9.2pt; color: #566c78; line-height: 1.9; }
+  .cover .meta { font-size: 9.2pt; color: #566c78; line-height: 1.9; overflow-wrap: anywhere; word-break: break-all; }
   .cover .meta span { display: inline-block; min-width: 62pt; color: #8a9aa3; }
   /* 目录 */
   .toc { break-after: page; }
@@ -121,7 +122,8 @@
     <div><span>队长</span>胡建铭（编号 2084908，计算机科学与技术，本科）</div>
     <div><span>在线演示</span>web-production-e6033138.up.railway.app（免登录）</div>
     <div><span>代码仓库</span>https://github.com/compensate-dev/----（GitHub 公开仓库）</div>
-    <div><span>文档版本</span>v2.0（2026-11-18，按提交系统七项要求重构）</div>
+    <div><span>演示视频</span>1080p 重制版（7 分半逐页讲解）：<br>https://v.douyin.com/xYcEVjCfTfs/<br><span style="font-weight:normal;color:#7a6a55;font-size:9pt">注：早期提交的视频经平台转码后画面模糊，已重录并以此链接替换，原链接作废</span></div>
+    <div><span>文档版本</span>v2.1（2026-11-18，按提交系统七项要求重构；补充演示视频重制版链接）</div>
   </div>
 </section>
 
@@ -229,6 +231,7 @@
     <tr><td>账号要求</td><td><b>免登录、免注册、免安装</b>，无测试账号环节</td></tr>
     <tr><td>浏览器</td><td>Edge / Chrome / Safari 近年版本；桌面端与手机端均已适配</td></tr>
     <tr><td>可用性保障</td><td>平台健康检查 + 失败自动重启；评审期单实例常驻</td></tr>
+    <tr><td>演示视频</td><td>1080p 重制版（约 7 分半，按页面顺序逐页讲解）：<code>https://v.douyin.com/xYcEVjCfTfs/</code><br>说明：早先提交的视频经平台转码后分辨率不足、画面模糊，已重录上传并以此链接为准，原视频链接作废</td></tr>
   </table>
   <p>打开地址即进入水墨首页，点击「翻开词境」印章按钮入场。站内所有页面与 AI 问答均走同源接口，无需任何额外配置。</p>
 
@@ -570,6 +573,7 @@ railway domain update &lt;id&gt; --port 53422   # 域名绑定容器端口，平
     <tr><th style="width:28%">材料</th><th>核验方式与说明</th></tr>
     <tr><td>Git 完整提交历史</td><td>公开仓库 <code>https://github.com/compensate-dev/----</code> 的 main 分支保留全量中文提交记录，按功能分批提交，涵盖语料重建、AI 业务、页面开发、部署调试全过程，可还原真实开发节奏</td></tr>
     <tr><td>公网在线演示</td><td>Railway 地址长期可访问（免登录），评审可随时复核本文档描述的每项功能与数据</td></tr>
+    <tr><td>演示讲解视频</td><td>抖音平台 1080p 重制版（约 7 分半，按封面→落字→导引→各页面的顺序逐页讲解）：<code>https://v.douyin.com/xYcEVjCfTfs/</code>；早期版本因平台转码分辨率不足已作废，以重制版为准</td></tr>
     <tr><td>本文档实景截图</td><td>§5.5 九幅截图取自同版本线上站点，可与在线演示逐一对照</td></tr>
     <tr><td>单元测试与验收记录</td><td>136 项断言测试代码随仓库提交；线上验收数据见 §5.6，可现场复跑</td></tr>
   </table>
